@@ -1,0 +1,93 @@
+/* The VS Code extension's page builder and save-message assembly. The extension host itself
+ * needs the vscode module, so this checks the pieces that run without it, and that package.json
+ * offers every file type the protocol knows. */
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const proto = require(path.join(root, 'vscode/protocol.js'));
+const page = require(path.join(root, 'vscode/page.js'));
+
+test('each Office file maps to one editor', () => {
+  assert.equal(proto.appFor('Budget.xlsx'), 'ledger');
+  assert.equal(proto.viewTypeFor('Notes.DOCX'), 'vibeoffice.quire');
+  assert.equal(proto.viewTypeFor('Deck.ppsx'), 'vibeoffice.lectern');
+  assert.equal(proto.appFor('readme.txt'), 'quire');
+  assert.equal(proto.appFor('photo.png'), null);
+});
+
+test('a save name cannot leave the file’s folder', () => {
+  assert.equal(proto.safeName('../secret.xlsx'), 'secret.xlsx');
+  assert.equal(proto.safeName('..'), '');
+  assert.equal(proto.sameFile('Report.DOCX', '/work/Report.docx'), true);
+  assert.equal(proto.sameFile('Report.pdf', '/work/Report.docx'), false);
+});
+
+test('chunks reassemble in any order', () => {
+  const a = proto.createAssembler();
+  const raw = new Uint8Array([1, 2, 3, 4, 5]);
+  assert.equal(a.push({ type: 'chunk', id: 's', i: 1, n: 2, name: 'A.docx', purpose: 'save', b64: Buffer.from(raw.subarray(3)).toString('base64') }), null);
+  const done = a.push({ type: 'chunk', id: 's', i: 0, n: 2, name: 'A.docx', purpose: 'save', b64: Buffer.from(raw.subarray(0, 3)).toString('base64') });
+  assert.deepEqual([...done.bytes], [1, 2, 3, 4, 5]);
+  assert.equal(done.name, 'A.docx');
+  assert.equal(done.purpose, 'save');
+});
+
+test('the webview page points at the app folder and names the vscode host', () => {
+  const html = '<!doctype html><html><head><meta charset="utf-8">\n<script>look</script>\n<link rel="manifest" href="../manifest.webmanifest">\n<link rel="stylesheet" href="../common/looks.css">\n</head><body></body></html>';
+  const out = page.renderPage({
+    html,
+    baseHref: 'https://webview.example/quire',
+    cspSource: 'https://webview.example',
+    fileName: '</script><script>alert(1)',
+    platform: 'linux',
+  });
+  const baseAt = out.indexOf('<base href="https://webview.example/quire/">');
+  const cssAt = out.indexOf('href="../common/looks.css"');
+  assert.ok(baseAt > 0 && baseAt < cssAt);
+  assert.equal(out.includes('rel="manifest"'), false);
+  assert.match(out, /Content-Security-Policy/);
+  assert.match(out, /acquireVsCodeApi\(\)/);
+  assert.match(out, /"kind":"vscode"/);
+  assert.equal(out.includes('</script><script>alert(1)'), false);
+  assert.match(out, /\\u003c\/script>/);
+});
+
+test('package.json offers every extension the protocol lists', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(pkg.main, './vscode/extension.js');
+  const offered = new Map();
+  for (const ed of pkg.contributes.customEditors) {
+    const app = ed.viewType.split('.')[1];
+    for (const sel of ed.selector) {
+      const m = /^\*\.([a-z0-9]+)$/.exec(sel.filenamePattern);
+      assert.ok(m, sel.filenamePattern);
+      if (!offered.has(app)) offered.set(app, new Set());
+      offered.get(app).add(m[1]);
+    }
+  }
+  for (const [app, exts] of Object.entries(proto.APPS)) {
+    for (const e of exts) assert.ok(offered.get(app).has(e), app + ' missing ' + e);
+    for (const e of proto.DEFAULT_EXT[app]) {
+      const entry = pkg.contributes.customEditors.find((ed) => ed.viewType === 'vibeoffice.' + app && ed.priority === 'default');
+      assert.ok(entry.selector.some((s) => s.filenamePattern === '*.' + e));
+    }
+  }
+  assert.ok(fs.existsSync(path.join(root, 'public/quire/index.html')));
+  assert.ok(fs.existsSync(path.join(root, 'public/ledger/index.html')));
+  assert.ok(fs.existsSync(path.join(root, 'public/lectern/index.html')));
+});
+
+test('the pages recognise the vscode host', () => {
+  const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
+  const core = fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8');
+  assert.match(suite, /kind === 'vscode'/);
+  assert.match(suite, /writeFile\(name, blob, opts\)/);
+  assert.match(suite, /l\.vscode/);
+  assert.match(core, /VO\.host\.writeFile/);
+});

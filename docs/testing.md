@@ -6,6 +6,10 @@
 
 Every response carries `Cache-Control: no-store`, so edited HTML and scripts are always re-fetched. Serve rather than open from disk: a `file://` page cannot fetch the proofing dictionaries, and password-protected files need WebCrypto, which wants https or localhost.
 
+## VS Code extension
+
+`node --test tests/vscode/extension.test.mjs` checks which app opens which file, that a save reassembles from messages, and that the webview page points its `<base>` at the app folder and announces the vscode host. Installing and opening a file in code-server is in docs/vscode.md. A change to the extension's file types updates `vscode/protocol.js` and the `customEditors` in `package.json` together.
+
 ## Screenshots and console errors: tools/shot.mjs
 
 Drives a page in the Chromium listening on CDP 127.0.0.1:9222 (start one with `chromium --remote-debugging-port=9222 --remote-allow-origins=*`, or `--headless=new` on a machine without a display). It starts `tools/serve.py` if nothing listens on :8760.

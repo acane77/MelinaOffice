@@ -29,7 +29,7 @@ No page draws a title bar of its own: the browser tab, or the system title bar o
 
 ## The host: `VO.host`
 
-What runs the pages, a browser or the desktop app (`desktop/`, Tauri): `VO.host.kind` (`web`, `desktop`), `platform`, `version`, `onFiles(fn)` for files the system asks us to open (the PWA's `launchQueue`, or the desktop app's command line; the Start Center hands them to their app), `openUrl(url)` (a new tab, or the default browser), `newWindow(url)` / `closeWindow()` (an app in a window of its own; File ▸ Exit closes it) and `uiScale()` / `setUiScale(n)` (the desktop app's zoom; `null` on the web). Pages use `VO.host` for anything the two differ in. The interface, its rules and what is planned are in docs/desktop.md (Host interface).
+What runs the pages: a browser, the desktop app (`desktop/`, Tauri), or a VS Code / code-server custom editor (`vscode/`). `VO.host.kind` is `web`, `desktop` or `vscode`. `platform`, `version`, `onFiles(fn)` (the PWA's `launchQueue`, or the desktop app's command line; the Start Center hands them to their app), `openUrl(url)`, `newWindow(url)` / `closeWindow()` and `uiScale()` / `setUiScale(n)` (`null` on the web and in VS Code, where the browser's own zoom does it). Pages use `VO.host` for anything the hosts differ in. The desktop side is in docs/desktop.md (Host interface). The editor side is in docs/vscode.md: it opens the workspace file the custom editor was given (`VO.launch` is `{ vscode: true }`, a blank document, then that file) and `L.saveFile` writes it back through `VO.host.writeFile`.
 
 ## App launch: `VO.launch` and `VO.attach`
 

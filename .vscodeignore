@@ -1,0 +1,14 @@
+.gitattributes
+.gitignore
+.git/**
+**/.git/**
+desktop/target/**
+desktop/gen/**
+node_modules/**
+tmp/**
+tests/**
+tools/**
+.github/**
+docs/images/**
+**/*.map
+*.vsix

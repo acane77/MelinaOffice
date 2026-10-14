@@ -1,0 +1,112 @@
+{
+  "name": "vibeoffice",
+  "displayName": "VibeOffice",
+  "description": "Open and edit Word, Excel and PowerPoint files inside VS Code and code-server.",
+  "version": "0.1.0",
+  "publisher": "vibeoffice",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": ["Other"],
+  "main": "./vscode/extension.js",
+  "extensionKind": ["workspace"],
+  "activationEvents": [
+    "onCustomEditor:vibeoffice.quire",
+    "onCustomEditor:vibeoffice.ledger",
+    "onCustomEditor:vibeoffice.lectern",
+    "onCommand:vibeoffice.open"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibeoffice.open",
+        "title": "Open in VibeOffice",
+        "category": "VibeOffice"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "vibeoffice.open",
+          "when": "resourceExtname =~ /\\.(docx|docm|dotx|dotm|xlsx|xlsm|xltx|xltm|pptx|pptm|ppsx|ppsm|potx|potm|rtf|csv|tsv|md|markdown)$/i",
+          "group": "navigation"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "vibeoffice.quire",
+        "displayName": "Quire",
+        "selector": [
+          { "filenamePattern": "*.docx" },
+          { "filenamePattern": "*.docm" },
+          { "filenamePattern": "*.dotx" },
+          { "filenamePattern": "*.dotm" }
+        ],
+        "priority": "default"
+      },
+      {
+        "viewType": "vibeoffice.quire",
+        "displayName": "Quire",
+        "selector": [
+          { "filenamePattern": "*.rtf" },
+          { "filenamePattern": "*.htm" },
+          { "filenamePattern": "*.html" },
+          { "filenamePattern": "*.txt" },
+          { "filenamePattern": "*.md" },
+          { "filenamePattern": "*.markdown" },
+          { "filenamePattern": "*.zip" },
+          { "filenamePattern": "*.doc" }
+        ],
+        "priority": "option"
+      },
+      {
+        "viewType": "vibeoffice.ledger",
+        "displayName": "Ledger",
+        "selector": [
+          { "filenamePattern": "*.xlsx" },
+          { "filenamePattern": "*.xlsm" },
+          { "filenamePattern": "*.xltx" },
+          { "filenamePattern": "*.xltm" }
+        ],
+        "priority": "default"
+      },
+      {
+        "viewType": "vibeoffice.ledger",
+        "displayName": "Ledger",
+        "selector": [
+          { "filenamePattern": "*.csv" },
+          { "filenamePattern": "*.tsv" },
+          { "filenamePattern": "*.prn" },
+          { "filenamePattern": "*.xml" },
+          { "filenamePattern": "*.xls" },
+          { "filenamePattern": "*.htm" },
+          { "filenamePattern": "*.html" }
+        ],
+        "priority": "option"
+      },
+      {
+        "viewType": "vibeoffice.lectern",
+        "displayName": "Lectern",
+        "selector": [
+          { "filenamePattern": "*.pptx" },
+          { "filenamePattern": "*.pptm" },
+          { "filenamePattern": "*.ppsx" },
+          { "filenamePattern": "*.ppsm" },
+          { "filenamePattern": "*.potx" },
+          { "filenamePattern": "*.potm" }
+        ],
+        "priority": "default"
+      },
+      {
+        "viewType": "vibeoffice.lectern",
+        "displayName": "Lectern",
+        "selector": [
+          { "filenamePattern": "*.ppt" }
+        ],
+        "priority": "option"
+      }
+    ]
+  }
+}

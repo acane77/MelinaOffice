@@ -35,6 +35,8 @@ One interface between the pages and what runs them, so a page never asks which: 
 | `closeWindow()` | `false` | `host_close_window`: closes an app window (true); the Start Center's (`main`) stays (false) |
 | `uiScale()`, `setUiScale(n)` | `null` (the browser's own zoom does it) | `host_ui_scale`, `host_set_ui_scale`: the web view's zoom, 0.5–4, every window, kept in `settings.json` |
 
+A third host, `kind: 'vscode'`, is the VS Code and code-server extension (`vscode/`, [docs/vscode.md](vscode.md)). The extension sets `window.__VO_HOST__ = { kind: 'vscode', platform, version }` and `window.__VO_VSCODE__` before the page scripts. `takeDocument()` is the workspace file the editor was opened on; `writeFile(name, blob)` writes Save back to that file (another name is written beside it). `openUrl` asks the editor to open http, https and mailto. `newWindow` is false, `closeWindow` is false, `uiScale` is null, and File ▸ Exit closes the editor tab. The service worker stays on the web.
+
 `VO.VERSION` is `appVersion` in the desktop app (the build's version, below).
 
 `fn(files)` gets `File` objects; the Start Center calls `onFiles` and opens the first file in its app (`VO.handoff`). The service worker is registered only on the web.

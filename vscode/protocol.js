@@ -1,0 +1,94 @@
+/* Shared by the VS Code extension and its tests: which app opens which file, and how a
+ * save is split into messages the webview can carry (code-server posts JSON, so bytes
+ * travel as base64). Keep the extension lists in step with VO.APPS in public/common/suite.js. */
+'use strict';
+
+const APPS = {
+  quire: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'],
+  ledger: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'],
+  lectern: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'],
+};
+
+/** Office Open XML opens in the editor on a double-click; the other types are Open With. */
+const DEFAULT_EXT = {
+  quire: ['docx', 'docm', 'dotx', 'dotm'],
+  ledger: ['xlsx', 'xlsm', 'xltx', 'xltm'],
+  lectern: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm'],
+};
+
+function extname(name) {
+  const m = /\.([^./\\]+)$/.exec(String(name || ''));
+  return m ? m[1].toLowerCase() : '';
+}
+
+function appFor(name) {
+  const e = extname(name);
+  return Object.keys(APPS).find((a) => APPS[a].includes(e)) || null;
+}
+
+function viewTypeFor(name) {
+  const app = appFor(name);
+  return app ? 'vibeoffice.' + app : null;
+}
+
+/** the last path segment, with any directory stripped */
+function baseName(name) {
+  const s = String(name || '').replace(/\\/g, '/');
+  const i = s.lastIndexOf('/');
+  return i >= 0 ? s.slice(i + 1) : s;
+}
+
+/** a save name the editor may write: no directory, so a page cannot aim outside the file's folder */
+function safeName(name) {
+  const base = baseName(name);
+  if (!base || base === '.' || base === '..') return '';
+  return base;
+}
+
+function sameFile(savedName, openName) {
+  const a = safeName(savedName), b = baseName(openName);
+  return !!a && a.toLowerCase() === b.toLowerCase();
+}
+
+function toBytes(b) {
+  if (b instanceof Uint8Array) return b;
+  if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(b)) return new Uint8Array(b);
+  if (typeof b === 'string') return new Uint8Array(Buffer.from(b, 'base64'));
+  if (Array.isArray(b)) return Uint8Array.from(b);
+  if (b && b.type === 'Buffer' && Array.isArray(b.data)) return Uint8Array.from(b.data);
+  return new Uint8Array();
+}
+
+/** reassemble chunk messages. push() returns { id, name, purpose, bytes } once every part has arrived. */
+function createAssembler() {
+  const pending = new Map();
+  return {
+    push(msg) {
+      if (!msg || msg.type !== 'chunk' || msg.id == null) return null;
+      let rec = pending.get(msg.id);
+      if (!rec) {
+        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', parts: [], got: 0 };
+        pending.set(msg.id, rec);
+      }
+      if (rec.parts[msg.i] == null) {
+        rec.parts[msg.i] = toBytes(msg.b64 != null ? msg.b64 : msg.bytes);
+        rec.got++;
+      }
+      if (rec.got < rec.n) return null;
+      pending.delete(msg.id);
+      let size = 0;
+      for (let i = 0; i < rec.n; i++) size += (rec.parts[i] ? rec.parts[i].length : 0);
+      const out = new Uint8Array(size);
+      let o = 0;
+      for (let i = 0; i < rec.n; i++) {
+        const p = rec.parts[i];
+        if (p) { out.set(p, o); o += p.length; }
+      }
+      return { id: msg.id, name: rec.name, purpose: rec.purpose, bytes: out };
+    },
+  };
+}
+
+module.exports = {
+  APPS, DEFAULT_EXT, extname, appFor, viewTypeFor, baseName, safeName, sameFile, toBytes, createAssembler,
+};

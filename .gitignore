@@ -3,6 +3,9 @@ node_modules
 *.zip
 .*
 !.gitignore
+!/.vscodeignore
+!/.vscode/
+!/.vscode/**
 /issues/*.png
 /issues/*/*.png
 /tmp

@@ -240,8 +240,15 @@
     return new Blob(chunks, { type: 'application/pdf' });
   };
   /** Offer a generated file to the user as a download. Returns 'saved', and tells vo-saved { name } on window once
-   *  the file is handed over (the assistant acts out Save and Save As then, common/scout/assistant.js). */
+   *  the file is handed over (the assistant acts out Save and Save As then, common/scout/assistant.js).
+   *  In the VS Code editor the bytes go to the workspace file instead (VO.host.writeFile): 'saved' when that
+   *  file was written, 'exported' when a different name was written beside it. */
   L.saveFile = async function (name, blob) {
+    if (window.VO && VO.host && VO.host.kind === 'vscode' && VO.host.writeFile) {
+      const r = await VO.host.writeFile(name, blob);
+      if (r === 'saved' || r === 'exported') window.dispatchEvent(new CustomEvent('vo-saved', { detail: { name } }));
+      return r;
+    }
     const url = URL.createObjectURL(blob);
     const a = L.h('a', { href: url, download: name, style: 'display:none' });
     document.body.appendChild(a);

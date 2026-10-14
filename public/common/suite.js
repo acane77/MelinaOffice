@@ -62,30 +62,49 @@
   };
 
   /* ------------------------------------------------------------ the host */
-  /** VO.host: the one interface between the pages and what runs them (docs/desktop.md, Host interface).
+  /** VO.host: the one interface between the pages and what runs them (docs/desktop.md, docs/vscode.md).
    *  kind 'web': a browser tab or the installed PWA; 'desktop': the native app (desktop/), which sets
-   *  window.__VO_HOST__ and answers the host_* commands (desktop/src/host.rs). Pages use VO.host, never
-   *  Tauri's or the system's file APIs directly. */
-  const native = window.__VO_HOST__ && window.__TAURI_INTERNALS__ ? window.__VO_HOST__ : null;
+   *  window.__VO_HOST__ and answers the host_* commands (desktop/src/host.rs); 'vscode': a VS Code or
+   *  code-server custom editor (vscode/extension.js), which sets window.__VO_HOST__ = { kind: 'vscode' }
+   *  and window.__VO_VSCODE__ from acquireVsCodeApi(). Pages use VO.host, never Tauri's, VS Code's or the
+   *  system's file APIs directly. */
+  const announced = window.__VO_HOST__ || null;
+  const native = announced && window.__TAURI_INTERNALS__ ? announced : null;
+  const inVs = !native && announced && announced.kind === 'vscode' ? announced : null;
   const call = (cmd, args) => window.__TAURI_INTERNALS__.invoke(cmd, args);
+  const vsPost = (msg) => { const api = window.__VO_VSCODE__; if (api) api.postMessage(msg); };
+  let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
+  const b64 = (bytes) => {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(bytes.length, i + 0x8000)));
+    return btoa(s);
+  };
+  const fromB64 = (s) => {
+    const bin = atob(s || '');
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  };
   VO.host = {
-    kind: native ? 'desktop' : 'web',
-    platform: native ? native.platform : 'web',
-    version: native ? native.version : 0,
+    kind: native ? 'desktop' : inVs ? 'vscode' : 'web',
+    platform: (native || inVs) ? (native || inVs).platform : 'web',
+    version: (native || inVs) ? ((native || inVs).version || 0) : 0,
     /** open a web or mail address in the system's browser: a new tab on the web, the default browser in the
-     *  desktop app (which also sends every link that leaves the app there) */
+     *  desktop app (which also sends every link that leaves the app there), the editor's browser in VS Code */
     async openUrl(url) {
       if (native) return call('host_open_url', { url: String(url) });
+      if (inVs) { vsPost({ type: 'open-url', url: String(url) }); return; }
       window.open(url, '_blank', 'noopener');
     },
-    /** the whole UI's scale (1 = 100 %), or null where the page cannot set it (the web: the browser's own
-     *  zoom, Ctrl + and Ctrl −, does it); the desktop app keeps it for the next start */
+    /** the whole UI's scale (1 = 100 %), or null where the page cannot set it (the web and VS Code: the
+     *  browser's own zoom, Ctrl + and Ctrl −, does it); the desktop app keeps it for the next start */
     async uiScale() { return native ? call('host_ui_scale') : null; },
     async setUiScale(scale) { if (native) return call('host_set_ui_scale', { scale: +scale }); },
     /** open one of the suite's pages in a window of its own: the desktop app makes a full window (host and
-     *  all); the web opens a window or tab, false if the browser blocked it */
+     *  all); the web opens a window or tab, false if the browser blocked it; VS Code keeps this editor */
     async newWindow(url) {
       if (native) { await call('host_new_window', { url: new URL(url, location.href).href }); return true; }
+      if (inVs) return false;
       return !!window.open(url, '_blank');
     },
     /** close this window if it is an app window the suite opened; false for the Start Center's (and on the web) */
@@ -103,11 +122,83 @@
         }).catch((e) => console.error('host:', e));
         take();
         window.addEventListener('vo-files', take);
-      } else if ('launchQueue' in window) {
+      } else if (!inVs && 'launchQueue' in window) {
         window.launchQueue.setConsumer(async (params) => {
           if (params.files && params.files.length) fn(await Promise.all(params.files.map((h) => h.getFile())));
         });
       }
+    },
+    /** the workspace file this editor was opened on (vscode). One File, once the extension has sent it. */
+    takeDocument() {
+      const api = window.__VO_VSCODE__;
+      if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
+      return new Promise((resolve, reject) => {
+        let done = false, got = 0, expect = 0;
+        const parts = [];
+        const timer = setTimeout(() => finish(new Error('The editor did not send the file.')), 180000);
+        function finish(err, file) {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          window.removeEventListener('message', on);
+          if (err) reject(err); else resolve(file);
+        }
+        async function on(ev) {
+          const m = ev.data;
+          if (!m || done) return;
+          if (m.type === 'open') {
+            try {
+              const res = await fetch(m.url);
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              finish(null, new File([await res.blob()], m.name));
+            } catch (e) {
+              console.warn('open:', e);
+              api.postMessage({ type: 'read-fallback' });
+            }
+          } else if (m.type === 'open-chunk') {
+            if (parts[m.i] == null) { parts[m.i] = fromB64(m.b64); got++; }
+            expect = m.n || 1;
+            if (got >= expect) {
+              let size = 0;
+              for (let i = 0; i < expect; i++) size += parts[i] ? parts[i].length : 0;
+              const out = new Uint8Array(size);
+              let o = 0;
+              for (let i = 0; i < expect; i++) if (parts[i]) { out.set(parts[i], o); o += parts[i].length; }
+              finish(null, new File([out], m.name));
+            }
+          } else if (m.type === 'open-error') finish(new Error(m.error || 'The file could not be read.'));
+        }
+        window.addEventListener('message', on);
+        api.postMessage({ type: 'ready' });
+      });
+    },
+    /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file
+     *  written beside it. purpose 'backup' answers a hot-exit request and does not touch the open file. */
+    writeFile(name, blob, opts) {
+      const purpose = (opts && opts.purpose) || 'save';
+      if (purpose === 'save' && !hostLive) return Promise.reject(new Error('The file is not open in the editor yet.'));
+      const api = window.__VO_VSCODE__;
+      if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
+      const id = (opts && opts.id) || Math.random().toString(36).slice(2);
+      return blob.arrayBuffer().then((buf) => new Promise((resolve, reject) => {
+        const bytes = new Uint8Array(buf);
+        const CHUNK = 256 * 1024;
+        const n = Math.max(1, Math.ceil(bytes.length / CHUNK));
+        const timer = setTimeout(() => { window.removeEventListener('message', on); reject(new Error('Saving timed out.')); }, 300000);
+        function on(ev) {
+          const m = ev.data;
+          if (!m || m.type !== 'wrote' || m.id !== id) return;
+          clearTimeout(timer);
+          window.removeEventListener('message', on);
+          if (!m.ok) { reject(new Error(m.error || 'The file could not be saved.')); return; }
+          if (purpose !== 'backup' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast('Saved ' + (m.name || name), 6000);
+          resolve(purpose === 'backup' ? m : (m.inplace ? 'saved' : 'exported'));
+        }
+        window.addEventListener('message', on);
+        for (let i = 0; i < n; i++) {
+          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
+        }
+      }));
     },
   };
 
@@ -338,13 +429,16 @@
   /** where an app page opens: a new window in the desktop app or when installed (the start page stays, as in
    *  LibreOffice), else this tab */
   VO.go = async (url) => {
+    if (VO.host.kind === 'vscode') return;   // this editor stays on the workspace file it was opened with
     const standalone = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches;
     try { if ((VO.host.kind === 'desktop' || standalone) && await VO.host.newWindow(url)) return; } catch (e) { console.error('new window:', e); }
     location.href = url;
   };
   /** File ▸ Exit, after the app has closed its documents: an app window the Start Center opened
-   * (installed) closes and shows the Start Center behind it; a tab goes to the Start Center */
+   * (installed) closes and shows the Start Center behind it; a tab goes to the Start Center.
+   * In VS Code the editor tab closes. */
   VO.exit = async () => {
+    if (VO.host.kind === 'vscode') { vsPost({ type: 'close' }); return; }
     if (await VO.host.closeWindow().catch(() => false)) return;   // the desktop app's app windows
     if (window.opener && !window.opener.closed) { window.close(); if (window.closed) return; }
     location.href = BASE;
@@ -353,6 +447,13 @@
   VO.handoff = async (file) => {
     const app = VO.appFor(file.name);
     if (!app) return false;
+    if (VO.host.kind === 'vscode') {
+      const ui = window.L && window.L.ui;
+      const text = 'Open “' + file.name + '” from the Explorer.';
+      if (ui && ui.msg) ui.msg(text, { icon: 'info' });
+      else alert(text);
+      return true;
+    }
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     const day = Date.now() - 86400000;
     await tx('handoff', 'readwrite', (s) => {
@@ -365,11 +466,39 @@
 
   /* ------------------------------------------------------------ the app side */
   const q = new URLSearchParams(location.search);
-  /** how this app page was opened: null (plain: show the sample), { new }, { template: id }, { open: id } or { recent: key } */
-  VO.launch = q.has('open') ? { open: q.get('open') } : q.has('recent') ? { recent: q.get('recent'), draft: q.has('draft') }
+  /** how this app page was opened: null (plain: show the sample), { new }, { template: id }, { open: id }, { recent: key }
+   *  or { vscode } (the custom editor: a blank document, then the workspace file) */
+  VO.launch = inVs ? { vscode: true }
+    : q.has('open') ? { open: q.get('open') } : q.has('recent') ? { recent: q.get('recent'), draft: q.has('draft') }
     : q.has('template') ? { template: q.get('template') } : q.has('new') ? { new: true } : null;
 
   let current = null;   // { app, hooks }
+  if (inVs) window.addEventListener('message', async (ev) => {
+    const m = ev.data;
+    if (!m || typeof m !== 'object') return;
+    if (m.type === 'do-save') {
+      if (!hostLive || !window.L || !L.ui) {
+        vsPost({ type: 'save-result', id: m.id, ok: false, error: 'The file is not open in the editor yet.' });
+        return;
+      }
+      try {
+        const r = await L.ui.exec('save');
+        const ok = r === 'saved' || r === true;
+        vsPost({ type: 'save-result', id: m.id, ok, error: ok ? '' : (r === 'exported' ? 'Saved a copy next to this file. This file still has unsaved changes.' : 'Save was cancelled.') });
+      } catch (e) {
+        vsPost({ type: 'save-result', id: m.id, ok: false, error: String(e && e.message || e) });
+      }
+    } else if (m.type === 'backup') {
+      try {
+        const H = current && current.hooks;
+        const doc = H && H.current && H.current();
+        if (!H || !H.snapshot || !doc) throw new Error('not ready');
+        await VO.host.writeFile('backup', await H.snapshot(doc), { purpose: 'backup', id: m.id });
+      } catch (e) {
+        vsPost({ type: 'wrote', id: m.id, ok: false, error: String(e && e.message || e) });
+      }
+    }
+  });
   /** an app is ready: open the file it was launched with, if any, then show the Document Recovery pane when
    *  other documents of this app have unsaved changes.
    *  hooks: open(file, { draft, name, saved }), thumb() -> a canvas (or image) of the first page, message(text),
@@ -381,8 +510,18 @@
     VO.recent.refresh();
     const l = VO.launch;
     if (l && !l.new) {
-      if (history.replaceState) history.replaceState(null, '', location.pathname);   // a reload starts clean
-      if (l.open) {
+      if (!inVs && history.replaceState) history.replaceState(null, '', location.pathname);   // a reload starts clean
+      if (l.vscode) {
+        try {
+          const file = await VO.host.takeDocument();
+          if (file && current.hooks.open) await current.hooks.open(file, {});
+          else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
+          if (file) hostLive = true;
+        } catch (e) {
+          console.error(e);
+          (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));
+        }
+      } else if (l.open) {
         let rec = null;
         try {
           rec = await tx('handoff', 'readonly', (s) => s.get(l.open));
@@ -487,6 +626,7 @@
   };
   /** the app saved doc in its own format as name: that is its entry now, without unsaved changes */
   VO.saved = (name, blob, doc) => {
+    if (inVs && hostLive) vsPost({ type: 'dirty', dirty: false });
     if (!current) return;
     const old = doc && docKeys.get(doc);
     if (doc) clearTimeout(timers.get(doc));
@@ -499,6 +639,7 @@
   };
   /** doc has new unsaved changes: its unsaved version is written a little later */
   VO.changed = (doc) => {
+    if (inVs && hostLive && current && current.hooks.isDirty && current.hooks.isDirty(doc)) vsPost({ type: 'dirty', dirty: true });
     if (!current || !doc || !current.hooks.snapshot) return;
     clearTimeout(timers.get(doc));
     timers.set(doc, setTimeout(() => saveDraft(doc), Math.max(DRAFT_DELAY, slow.get(doc) || 0)));
