@@ -3,8 +3,8 @@
    keeps his own colours in every look. Above the document and task pane, under menus and dialogs. */
 .scout-agent { position: fixed; left: 0; top: 0; z-index: 900; width: var(--scout-w, 154px); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .scout-agent.is-inline { position: relative; left: auto; top: auto; z-index: auto; margin: 0 auto; }
-.scout-agent svg { display: block; width: 100%; height: auto; overflow: visible; }
-.scout-agent.is-dragging svg { cursor: move; }
+.scout-agent svg, .scout-agent canvas { display: block; width: 100%; height: auto; overflow: visible; }
+.scout-agent.is-dragging svg, .scout-agent.is-dragging canvas { cursor: move; }
 .scout-agent.is-hidden { pointer-events: none; }
 .scout-agent:focus-visible { outline: 1px dotted var(--ink); outline-offset: 2px; }
 

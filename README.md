@@ -94,6 +94,6 @@ VibeOffice is plain HTML and JavaScript with no build step. Read [AGENTS.md](AGE
 
 **Code from other projects.** VibeOffice uses, or translates into JavaScript, only code under licences compatible with its own; that code is credited, with its licence, at [vibeoffice.work/oss-licenses.html](https://vibeoffice.work/oss-licenses.html). If you believe something in VibeOffice comes from your work without credit, please [open an issue](https://github.com/tcchen2026/VibeOffice/issues): we take such reports seriously and review each one.
 
-**Artwork.** The icons, clip art, app icons, the assistant's drawing and the sample documents are original. The menus and toolbars follow the general style of a classic desktop office suite; no artwork was copied from one.
+**Artwork.** The icons, clip art, app icons, Scout's drawing and the sample documents are original. Nikki (暖暖), the other assistant, is a sprite from [codex-pets.net](https://codex-pets.net/#/pets/nikki-bloom-poetry); her name and likeness are the copyright of Papergames (叠纸), also known as Infold, and that sprite is not licensed for commercial use. The menus and toolbars follow the general style of a classic desktop office suite; no artwork was copied from one.
 
 **No warranty.** VibeOffice is provided as is, without warranty of any kind (see [LICENSE](LICENSE)). Keep a copy of any file that matters before you edit it here.

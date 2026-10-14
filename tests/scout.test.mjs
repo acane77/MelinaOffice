@@ -28,6 +28,7 @@ const ui = L.ui, out = {};
 const until = async (f, ms) => { const t0 = Date.now(); while (!f() && Date.now() - t0 < ms) await sleep(30); return f(); };
 try {
   for (const k of KEYS) localStorage.removeItem(k);
+  localStorage.setItem(KEY, JSON.stringify({ id: 'scout' })); // the suite defaults to Nikki; this check is his
   out.auto = L.assistant.shown();
   const help = L.app.menuBar.menus.find((m) => m.label === '&Help');
   out.inHelp = !!help && help.items.includes('showAssistant');

@@ -9,8 +9,9 @@
  * which they wake him. While the window is in the background he stands still and nothing is drawn, to save
  * energy; he carries on when it comes back.
  *
- *   L.assistant.show(asked) / hide() / shown() / scout()
+ *   L.assistant.show(asked) / hide() / shown() / scout() / choose(id)
  *   command showAssistant: Show the Assistant / Hide the Assistant (each app's Help menu)
+ *   Help ▸ Select Assistant, when spritepet.js is loaded: Scout, or Nikki. Nikki when none is stored.
  */
 (function (root) {
   'use strict';
@@ -28,6 +29,9 @@
   const put = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* not kept */ } };
   /** the local date, 2026-10-11; days are only ever compared for equality, so a clock set back breaks nothing */
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  /* Scout unless spritepet.js offers someone else (stored id). His line is the welcome the tests look for. */
+  const SCOUT = { id: 'scout', name: 'Scout', size: SIZE, h: H, label: 'Scout, the assistant. Click him for help; right-click for more.', line: "I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.", tip: 'Scout, the assistant' };
+  const metrics = () => (L.assistantPet && L.assistantPet.current()) || SCOUT;
 
   /* in when the app starts: not on a day the user hid him; otherwise once they have shown him, or by default
      (but not on a phone or tablet, nor in an automated browser: UI checks) */
@@ -57,12 +61,13 @@
   ];
 
   function place() {
-    const st = load();
-    scout.placeAt(innerWidth - SIZE - (st.r != null ? st.r : 24), innerHeight - H - (st.b != null ? st.b : 56));
+    const st = load(), m = metrics();
+    scout.placeAt(innerWidth - m.size - (st.r != null ? st.r : 24), innerHeight - m.h - (st.b != null ? st.b : 56));
   }
   function make() {
-    scout = new L.Scout({
-      size: SIZE, label: 'Scout, the assistant. Click him for help; right-click for more.',
+    const m = metrics();
+    scout = new (m.ctor || L.Scout)({
+      size: m.size, h: m.h, label: m.label,
       onclick: () => { if (scout.hidden) return; if (balloonOpen()) scout.stop(); else ask('What would you like to do?'); },
       onmenu: (x, y) => ui.openMenu([
         { label: '&Animate!', run: () => { scout.stop(); scout.animate(); } },
@@ -72,8 +77,9 @@
         '-',
         { label: '&Hide', run: () => hide() },
       ], { x, y }),
-      onmoved: (x, y) => save({ r: Math.round(innerWidth - SIZE - x), b: Math.round(innerHeight - H - y) }),
+      onmoved: (x, y) => { const b = metrics(); save({ r: Math.round(innerWidth - b.size - x), b: Math.round(innerHeight - b.h - y) }); },
     });
+    scout.petId = m.id;
     scout.freeze(away);
     place();
   }
@@ -95,13 +101,14 @@
     if (get(GREETED) === today()) return '';
     put(GREETED, today());
     const h = new Date().getHours();
-    return (h >= 5 && h < 12 ? 'Good morning!' : h >= 12 && h < 18 ? 'Good afternoon!' : 'Good evening!') + ' I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.';
+    return (h >= 5 && h < 12 ? 'Good morning!' : h >= 12 && h < 18 ? 'Good afternoon!' : 'Good evening!') + ' ' + metrics().line;
   }
 
   /** Bring him in. The first time today he waves (Greeting), introduces himself and asks what the user would like
    *  to do; after that, asked (the user showed him) he waves, nothing said, and in by himself he just pops in (Show). */
   function show(asked) {
     if (!on) { on = true; save({ on: true }); put(HIDDEN, null); }
+    if (scout && scout.petId !== metrics().id) { const old = scout; scout = null; old.stop(); if (old.destroy) old.destroy(); }
     if (!scout) make();
     scout.stop();
     const intro = hello();
@@ -120,7 +127,7 @@
 
   ui.cmd('showAssistant', {
     get label() { return on ? 'Hide the &Assistant' : 'Show the &Assistant'; },
-    tip: 'Scout, the assistant',
+    get tip() { return metrics().tip; },
     run: () => (on ? hide() : show(true)),
   });
 
@@ -192,13 +199,52 @@
     if (scout) scout.freeze(false).userActive();
   });
   addEventListener('resize', () => { if (scout) place(); });
-  /* shown or hidden in another window */
+  /** Who stands there. fromStorage: another window already wrote the id. A hidden one is dropped, so the next
+   *  show builds the new character; one on screen waves and says who they are. */
+  function choose(id, fromStorage) {
+    id = id === 'nikki' ? 'nikki' : 'scout';
+    const prev = scout ? scout.petId : (load().id || 'nikki');
+    if (!fromStorage) save({ id });
+    if (prev === id) return;
+    const was = !!(scout && !scout.hidden);
+    if (scout) { const old = scout; scout = null; old.stop(); if (old.destroy) old.destroy(); }
+    if (!was) return;
+    make();
+    scout.play('Greeting', { interrupt: true });
+    scout.delay(700);
+    ask("I'm " + metrics().name + ". What would you like to do?", true);
+  }
+  /* Help ▸ Select Assistant, beside Show the Assistant, without each app's menu listing it */
+  if (L.assistantPet && ui.menuBar) {
+    const SELECT = {
+      label: '&Select Assistant',
+      sub: [
+        { label: '&Scout', radio: true, checked: () => metrics().id === 'scout', run: () => choose('scout') },
+        { label: '&Nikki', radio: true, checked: () => metrics().id === 'nikki', run: () => choose('nikki') },
+      ],
+    };
+    const menuBar = ui.menuBar;
+    ui.menuBar = function (row, menus) {
+      for (const m of menus) {
+        if (!m || m.label !== '&Help' || !Array.isArray(m.items)) continue;
+        if (m.items.some((x) => x && x.label === '&Select Assistant')) continue;
+        const i = m.items.indexOf('showAssistant');
+        if (i >= 0) m.items.splice(i + 1, 0, SELECT);
+      }
+      return menuBar.call(this, row, menus);
+    };
+  }
+  /* shown or hidden in another window; a different assistant too */
   addEventListener('storage', (e) => {
+    if (e.key === KEY) {
+      const id = load().id || 'nikki';
+      if (scout && scout.petId !== id) choose(id, true);
+    }
     if ((e.key !== KEY && e.key !== HIDDEN) || wanted() === on) return;
     if (on) hide(true); else show(false);
   });
   /* in when the app has started */
   if (on) addEventListener('load', () => setTimeout(() => { if (on && !scout) show(false); }, 400));
 
-  L.assistant = { show, hide, shown: () => on, scout: () => scout };
+  L.assistant = { show, hide, shown: () => on, scout: () => scout, choose };
 })(typeof window !== 'undefined' ? window : globalThis);

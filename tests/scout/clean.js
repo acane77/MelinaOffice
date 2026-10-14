@@ -3,3 +3,4 @@
 const SCOUT_KEYS = ['vibeoffice.assistant', 'scout.lastGreetedDay', 'scout.lastHiddenDay'];
 if (sessionStorage.getItem('scout.test.kept') == null) sessionStorage.setItem('scout.test.kept', JSON.stringify(SCOUT_KEYS.map((k) => localStorage.getItem(k))));
 for (const k of SCOUT_KEYS) localStorage.removeItem(k);
+localStorage.setItem('vibeoffice.assistant', JSON.stringify({ id: 'scout' })); // the suite defaults to Nikki; these checks are his

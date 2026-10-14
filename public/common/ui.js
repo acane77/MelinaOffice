@@ -484,6 +484,7 @@
       h('p', null, 'Made possible by open source software: ', h('a', { href: root.VO ? root.VO.LICENSES : '../oss-licenses.html', target: '_blank', rel: 'noopener',
         class: 'about-oss', text: 'Open source licenses', onclick: (e) => { if (root.VO) { e.preventDefault(); root.VO.showLicenses(); } } }), '.'),
       h('p', { text: 'Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.' }),
+      h('p', null, 'Nikki (暖暖), an optional assistant, is shown from ', h('a', { href: 'https://codex-pets.net/#/pets/nikki-bloom-poetry', target: '_blank', rel: 'noopener', class: 'about-oss', text: 'a sprite published at codex-pets.net' }), '. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.'),
       h('p', { class: 'about-marks', text: `Microsoft, ${o.office} and Office are trademarks of Microsoft Corporation. ${o.name} is an independent work and is not affiliated with Microsoft.` }));
     return ui.dialog({ title: 'About ' + o.name, width: 420, body, buttons: [{ label: 'OK', primary: true }] });
   };
