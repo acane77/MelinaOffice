@@ -325,10 +325,11 @@
      toolbars (common/ribbon.js); one choice for the whole suite: <html data-look data-layout> is set before
      the first paint by each page's head script from localStorage 'vibeoffice.look'; changing it here
      repaints every open window of the suite. Canvas-drawn chrome (rulers, sheet headers) redraws on 'vo-look'. */
-  const LOOKS = [{ id: 'classic', name: 'Classic', note: 'The blue toolbars and menus of Office 2003.' },
+  const LOOKS = [{ id: 'win7', name: 'Windows 7', note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
+    { id: 'classic', name: 'Classic', note: 'The blue toolbars and menus of Office 2003.' },
     { id: 'paper', name: 'Paper', note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: 'Paper 2016', layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];
-  const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'classic'; } catch (e) { return 'classic'; } };
+  const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'win7'; } catch (e) { return 'win7'; } };
   const applyLook = (id) => {
     const root = document.documentElement;
     if (!LOOKS.some((l) => l.id === id)) return;
@@ -343,7 +344,7 @@
   VO.look = {
     /** [{ id, name, note, layout }] */
     list: () => LOOKS.map((l) => ({ ...l })),
-    get: () => document.documentElement.dataset.look || 'classic',
+    get: () => document.documentElement.dataset.look || 'win7',
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {

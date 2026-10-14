@@ -603,6 +603,13 @@
   ui.group = (title, ...kids) => h('fieldset', { class: 'grp' }, h('legend', { html: ampHTML(title) }), ...kids);
   /** Tools ▸ Options ▸ General ▸ Theme: the suite's look (common/looks.css). { el, apply() }; apply on OK
    *  changes every open window of the suite. null outside the suite (no common/suite.js). */
+  /** Help ▸ Theme: the same looks as the Start Center, the current one marked. Windows 7 stays the stored default. */
+  ui.themeMenu = () => ({
+    label: '&Theme',
+    sub: () => (!window.VO || !VO.look ? [] : VO.look.list().map((l) => ({
+      label: l.name, radio: true, checked: () => VO.look.get() === l.id, run: () => VO.look.set(l.id),
+    }))),
+  });
   ui.lookField = () => {
     if (!window.VO || !VO.look) return null;
     let pick = VO.look.get();

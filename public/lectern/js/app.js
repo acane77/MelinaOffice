@@ -83,7 +83,7 @@
           'animSchemes', 'customAnim', 'transitionPane', '-', 'hideSlide'],
       },
       { label: '&Window', items: () => [{ label: '&1 ' + A.fileName, checked: () => true, run: () => {} }] },
-      { label: '&Help', items: ['help', 'showAssistant', '-', 'gettingStarted', '-', 'about'] },
+      { label: '&Help', items: ['help', 'showAssistant', '-', 'gettingStarted', '-', ui.themeMenu(), 'about'] },
     ];
     void autoShapeSub;
     const row = L.$('#menurow');

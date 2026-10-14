@@ -62,6 +62,21 @@ test('the shared chrome has no colours of its own', () => {
   }
 });
 
+test('Windows 7 is the stored default, and its default button keeps the blue highlight', () => {
+  const suite = read('common/suite.js');
+  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'win7'/);
+  assert.match(suite, /id: 'win7', name: 'Windows 7'/);
+  for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
+    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'win7'/);
+  }
+  /* the reference defined the default-button colours and a pulse, then applied neither:
+     the keyframes rule was not valid, and nothing selected the default button */
+  assert.match(looks, /--w7-btn-default-line:\s*#5586a3/);
+  assert.match(looks, /--w7-btn-default:\s*linear-gradient\([^)]*#c3dcea/);
+  assert.match(looks, /\[data-look="win7"\] \.btn\.primary:not\(:disabled\)[\s\S]*?background:\s*var\(--w7-btn-default\)/);
+  assert.match(looks, /@keyframes win7-pulse[\s\S]*?rgba\(52, 222, 255/);
+});
+
 test('the pages pick the look before the first paint and load looks.css first', () => {
   for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
     const html = read(page);

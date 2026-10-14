@@ -86,7 +86,7 @@
           'headingRows', { label: 'Con&vert', sub: ['textToTable', 'tableToText'] }, 'sortDlg', 'formulaDlg', 'gridlines', '-', 'tableProps'],
       },
       { label: '&Window', items: () => ['newWindow', 'arrangeAll', 'splitWindow', '-', ...A.windowItems()] },
-      { label: '&Help', items: ['help', 'showAssistant', '-', 'gettingStarted', 'keyboardHelp', '-', 'about'] },
+      { label: '&Help', items: ['help', 'showAssistant', '-', 'gettingStarted', 'keyboardHelp', '-', ui.themeMenu(), 'about'] },
     ];
     const row = L.$('#menurow');
     A.menuBar = ui.menuBar(row, menus);

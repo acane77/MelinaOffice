@@ -132,11 +132,11 @@ impl Host {
 }
 
 /// The script that runs before each page's own: what the pages see as the host, and the desktop app's
-/// default look (Paper) until the user picks one (the pages' head scripts read it).
+/// default look (Windows 7) until the user picks one (the pages' head scripts read it).
 pub fn init_script() -> String {
     format!(
         "window.__VO_HOST__ = Object.freeze({{ platform: '{}', version: {VERSION}, appVersion: '{}' }});\n\
-         try {{ if (!localStorage.getItem('vibeoffice.look')) localStorage.setItem('vibeoffice.look', 'paper'); }} catch (e) {{}}",
+         try {{ if (!localStorage.getItem('vibeoffice.look')) localStorage.setItem('vibeoffice.look', 'win7'); }} catch (e) {{}}",
         std::env::consts::OS, // windows, linux, macos
         option_env!("VO_VERSION").unwrap_or("dev") // tools/current-tree-version.sh, from build.sh
     )
