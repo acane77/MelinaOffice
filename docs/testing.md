@@ -36,6 +36,10 @@ Check after a change to `suite.js` or to an app's start, open or save code: `<ap
 
 Templates: `node tools/templates.mjs` opens every template (`<app>/?template=<id>`) and fails on a script error or a missing preview; look at the new previews in the Create File view.
 
+Pattern fills: the preset bitmaps in `common/geometry.js` are PowerPoint's. `node tools/patterns/deck.mjs` writes `tmp/patterns/patterns.pptx` (each of the 54 presets in a labelled rectangle); save it as PDF from PowerPoint and `python3 tools/patterns/read-pdf.py patterns.pdf` prints the tiles, the form of `tests/patterns.powerpoint.json` (`node --test tests/patterns.test.mjs`). Ledger's cell patterns (`js/render.js`) likewise: `node tools/patterns/sheet.mjs` writes `tmp/patterns/cellpatterns.xlsx` (the 17 patterns), Excel saves it as PDF, and `read-pdf.py --cells` prints the tiles, `tests/patterns.excel-mac.json` (from Excel for Mac, which draws them at double size; the test applies the rule in `render.js` that brings them to single pixels).
+
+Line grids: Quire's line height on a document line grid (`R.gridLine` in `quire/js/render.js`) follows Word. `python3 tools/linegrid.py make` writes `tmp/linegrid/linegrid.docx`, one labelled paragraph per case (English and Chinese text at sizes either side of the pitch, several line spacings, 15.6pt and 18pt grids); save it as PDF from Word and `python3 tools/linegrid.py read linegrid.pdf` prints the distance between the lines of each case, in points, and the line each page starts with: `tests/from-issues/11/word.json`, from Word for Mac's PDF of `linegrid.docx` there. `grid-spacing.test.mjs` checks `R.gridLine` against it and `render.test.mjs` the document as Quire draws it, line spacing and page breaks (a second). LibreOffice draws these differently from Word (issue #11), so its PDF only checks the tool.
+
 ## Looks
 
 `node --test tests/looks.test.mjs` checks `public/common/looks.css`: every look sets every setting, every setting the chrome uses exists, `ui.css` has no colours of its own, and each page picks the look before its stylesheets load. A change to chrome CSS is also checked in every look: the browser profile keeps `localStorage`, so set the look in a step and set it back at the end (other runs would otherwise start in it):
@@ -51,6 +55,22 @@ Classic must not change when only the theme machinery changes: compare screensho
 `node --test tests/scout.test.mjs` checks the assistant in each app (docs/suite.md, The assistant): that he comes in by himself on a desktop (waving the first time each day, popping in after) and not on an iPhone or on a day the user hid him (scripts in `tests/scout/` run before the page's own), Help ▸ Show the Assistant (a wave; the introduction and choices the first time each day), a click on him, acting out Print, Find and saving (once the file is written; the test holds back the download), working along with a long wait, the welcome's choices, the right-click menu, no frames drawn while the window is in the background or once he is hidden. Showing or hiding him writes `localStorage['vibeoffice.assistant']`, which other open app pages follow, `scout.lastGreetedDay` and `scout.lastHiddenDay`; a UI check that shows him sets them back at the end, as the test does.
 
 ## Mouse, selection, drag and focus: tests/ui/
+
+Two sizes. After each change, `node tools/quick.mjs` (the uncommitted changes, or the last commit; `node tools/quick.mjs
+<rev>` for everything since a commit; `--dry` lists the plan): it maps the files changed to the tests that cover them
+and runs those, the Node tests first. The smoke test, `tests/ui/smoke.test.mjs` (about 20 s), runs whenever the apps
+changed: the Start Center and each app load with no errors and nothing from outside; in each app a click puts the
+keyboard in the document and typing lands there, the File menu and a dialog from its shortcut open and close with Esc
+and give the keyboard back, a drop-down inside a dialog opens above it (Ledger's Format Cells), and Undo takes the
+typing back. A touched app adds its Node tests and its own UI file (2–3 minutes), shared event, menu and dialog code
+(`common/ui.js`) the focus tests in the Classic look and the drag tests, and a changed test file runs itself; the rules
+are at the top of `tools/quick.mjs`. Run the change's own test on the code before it too (`tools/older.mjs`).
+
+The whole of `tests/ui/` (about 25 minutes) runs before a release: `node tools/ui-full.mjs` runs it and records the
+result in `.ui-full-tested.json` (ignored by Git) for a hash of `public/`'s content, committed or not.
+`tools/ui-tested.sh` compares the `public/` about to go out with that record; `tools/web-release.sh` and
+`../cf-vibeoffice/sync-cf-pages.sh` warn when the suite has not run on it, ran with failures, or `public/` has changed
+since. A partial run (extra arguments, e.g. `--test-name-pattern`) or one during which `public/` changed records nothing.
 
 `node --test --test-concurrency=1 tests/ui/*.test.mjs` drives each app in the local Chromium with real input: CDP Input events
 paced like a hand (`tests/lib/input.mjs`), because synthetic DOM events hide what an app does in the middle of a drag.
@@ -79,6 +99,13 @@ another tab and back. Two runs at once each need a Chromium of their own: `CDP=h
   modes (Classic): Quire with Track Changes, a header being edited, Outline view; Ledger with frozen panes, the second
   sheet, 150 %; Lectern with the speaker notes being edited, the Slides pane holding the keyboard, a slide with a
   transition.
+- `textmap.test.mjs`: every piece of editable text maps to the document, and a click on it puts the caret there.
+  Check 1 sweeps the page without input (`tests/lib/textmap.mjs`): in Quire every editable text node is in an
+  indexed paragraph and maps to a position and back with the model's text; in Lectern the text of every placeholder,
+  text box, shape, table cell and group or diagram node, each edited in turn, does the same. Check 2 clicks into text
+  of each kind with real input: the caret is at the clicked character, and a letter typed goes there. Generated
+  documents with every kind of text; `node tools/textmap-corpus.mjs quire|lectern DIR N OUT.json [--hf]` runs check 1
+  over corpus files (`--hf`: Quire's headers and footers, opened for editing).
 - `painter.test.mjs`: the Format Painter in each app (docs/suite.md, Brushes): it paints the dragged text, cells or
   object once the mouse is let go, a clicked word; a double-clicked painter stays on until Esc; links stay; in Lectern
   the text being edited stays edited, and text in another box can be painted.
@@ -96,14 +123,14 @@ today's tests against it (`BASE`); REV is `HEAD` while `public/` has uncommitted
 
 ## SmartArt
 
-`node --test tests/sw.test.mjs` checks the service worker (docs/suite.md, Service worker) in the Chromium at :9222, on copies of `public/` staged in `./tmp/sw-test` by `tools/web-release.sh` and served on 127.0.0.1 by a server of the test's own (it redirects `index.html` to its folder, like the published site): the first install and its progress (bytes too), the cached files' `Content-Type`, the Start Center's bar with its megabytes and its *Update done, reload* button (which reloads the open page in the new version), the Start Center and Quire offline, an update that fetches the new version's zip and nothing else while an open page keeps its version and a new page gets the new one, the old cache going once its page has closed, a damaged zip (one byte changed) failing the install, and no worker on any other origin (the same server as `localhost`). It clears the test origin's storage at the end. `SW_TEST_LOG=1` prints the tabs it opens and the pages it loads.
+`node --test tests/sw.test.mjs` checks the service worker (docs/suite.md, Service worker) in the Chromium at :9222, on copies of `public/` staged in `./tmp/sw-test` by `tools/web-release.sh` and served on 127.0.0.1 by a server of the test's own (it redirects `index.html` to its folder, like the published site): the first install and its progress (bytes too), the cached files' `Content-Type`, the Start Center's bar with its megabytes and its *Just updated successfully* notice (a button that reloads the open page in the new version), the Start Center and Quire offline, an update that fetches the new version's zip and nothing else while an open page keeps its version and a new page gets the new one, the old cache going once its page has closed, a damaged zip (one byte changed) failing the install, and no worker on any other origin (the same server as `localhost`). It clears the test origin's storage at the end. `SW_TEST_LOG=1` prints the tabs it opens and the pages it loads.
 
 To try the worker by hand, serve a published copy on another 127.0.0.1 port (the dev server's own files are unstamped, so the worker caches nothing on :8760):
 
     rm -rf tmp/site && cp -r public tmp/site && tools/web-release.sh tmp/site v2026.10.11-000001
     python3 tools/serve.py 8770 tmp/site
 
-and open http://127.0.0.1:8770/. For an update, stop the server, stage again with a later version (`…-000002`, after an edit to see it change) and serve that: the open Start Center shows *Updating cached resources* and then *Update done, reload*. With the server stopped the pages still open (offline). Afterwards clear the site's data (DevTools ▸ Application ▸ Storage ▸ Clear site data), or it goes on serving that copy.
+and open http://127.0.0.1:8770/. For an update, stop the server, stage again with a later version (`…-000002`, after an edit to see it change) and serve that: the open Start Center shows *Updating cached resources* and then *Just updated successfully, Click here to reload*. With the server stopped the pages still open (offline). Afterwards clear the site's data (DevTools ▸ Application ▸ Storage ▸ Clear site data), or it goes on serving that copy.
 
 `node --test tests/smartart.test.mjs` runs the layout engine (`public/common/smartart.js`) in Node: every layout, for 1 to 7 items, gives finite shapes inside the box, one shape per item it shows, and one text size within the limits. A change to the SmartArt writer (`public/lectern/js/smartart-io.js`, `diagramFrameXML` in `pptx-write.js`) is checked on a deck with one diagram per layout: save it from Lectern, run the Open XML SDK validator and `tools/ooxml/package.py check` on it, convert it with LibreOffice to PDF (does every diagram draw, with no word broken) and to PPTX, and reopen both copies in Lectern (every diagram editable again). Keep the decks and renders in `./tmp`.
 
