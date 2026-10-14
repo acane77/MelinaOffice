@@ -26,6 +26,25 @@
   </tr>
 </table>
 
+## VSCode and Code Server Plugin
+
+This fork implements a vscode/code-server plugin, it works in VSCode!
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="https://vibeoffice.work/quire/?template=flyer"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
+      <b><a href="https://vibeoffice.work/quire/">VS Code Plugin</a></b><br>
+    </td>
+    <td align="center" width="33%">
+      &nbsp;
+    </td>
+    <td align="center" width="33%">
+      &nbsp;
+    </td>
+  </tr>
+</table>
+
 ## Why VibeOffice
 
 - **Familiar.** Windows 7 menus and toolbars, on the glass chrome (the default look). Classic, Paper and Paper 2016 are under Themes.
