@@ -47,7 +47,7 @@
     const r = inp.getBoundingClientRect();
     scout.stop();
     scout.gestureAt(r.left + r.width / 2, r.top + r.height / 2);
-    scout.speak('Type what you want to do in Search commands, up there.');
+    scout.speak(L.t('Type what you want to do in Search commands, up there.'));
     inp.focus();
   }
   /* the welcome's choices; a command's only where the app has it */
@@ -67,7 +67,7 @@
   function make() {
     const m = metrics();
     scout = new (m.ctor || L.Scout)({
-      size: m.size, h: m.h, label: m.label,
+      size: m.size, h: m.h, label: L.t(m.label),
       onclick: () => { if (scout.hidden) return; if (balloonOpen()) scout.stop(); else ask('What would you like to do?'); },
       onmenu: (x, y) => ui.openMenu([
         { label: '&Animate!', run: () => { scout.stop(); scout.animate(); } },
@@ -89,7 +89,7 @@
   function ask(text, wait) {
     if (!wait) scout.stop();
     const list = CHOICES.filter((c) => (c.cmd ? can(c.cmd) : !c.when || c.when()));
-    scout.ask(text, list.map((c) => ({ label: c.label, value: c }))).then((c) => {
+    scout.ask(L.t(text), list.map((c) => ({ label: L.t(c.label), value: c }))).then((c) => {
       if (!c) return;
       if (c.cmd) ui.exec(c.cmd);
       else if (c.run) c.run();
@@ -100,8 +100,10 @@
   function hello() {
     if (get(GREETED) === today()) return '';
     put(GREETED, today());
-    const h = new Date().getHours();
-    return (h >= 5 && h < 12 ? 'Good morning!' : h >= 12 && h < 18 ? 'Good afternoon!' : 'Good evening!') + ' ' + metrics().line;
+    const h = new Date().getHours(), nikki = metrics().id === 'nikki';
+    if (h >= 5 && h < 12) return nikki ? L.t('Good morning! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good morning! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
+    if (h >= 12 && h < 18) return nikki ? L.t('Good afternoon! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good afternoon! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
+    return nikki ? L.t('Good evening! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good evening! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
   }
 
   /** Bring him in. The first time today he waves (Greeting), introduces himself and asks what the user would like
@@ -115,7 +117,7 @@
     scout.play(asked || intro ? 'Greeting' : 'Show', { interrupt: true });
     if (!intro) return;
     scout.delay(900);
-    ask(intro + ' What would you like to do?', true);
+    ask(L.t('{0} What would you like to do?', intro), true);
   }
   /** He waves goodbye and drops through his mat, and stays away today; quiet: gone at once (hidden in another window). */
   function hide(quiet) {
@@ -212,7 +214,7 @@
     make();
     scout.play('Greeting', { interrupt: true });
     scout.delay(700);
-    ask("I'm " + metrics().name + ". What would you like to do?", true);
+    ask(metrics().id === 'nikki' ? 'I\'m Nikki. What would you like to do?' : 'I\'m Scout. What would you like to do?', true);
   }
   /* Help ▸ Select Assistant, beside Show the Assistant, without each app's menu listing it */
   if (L.assistantPet && ui.menuBar) {
@@ -223,10 +225,11 @@
         { label: '&Nikki', radio: true, checked: () => metrics().id === 'nikki', run: () => choose('nikki') },
       ],
     };
+    const shown = (s) => (root.VO && root.VO.i18n ? root.VO.i18n.plain(String(s || '')) : String(s || ''));
     const menuBar = ui.menuBar;
     ui.menuBar = function (row, menus) {
       for (const m of menus) {
-        if (!m || m.label !== '&Help' || !Array.isArray(m.items)) continue;
+        if (!m || shown(m.label) !== '&Help' || !Array.isArray(m.items)) continue;
         if (m.items.some((x) => x && x.label === '&Select Assistant')) continue;
         const i = m.items.indexOf('showAssistant');
         if (i >= 0) m.items.splice(i + 1, 0, SELECT);

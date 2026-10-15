@@ -47,7 +47,8 @@ test('every setting the chrome uses is defined', () => {
   const defined = names(looks);
   for (const [file, css] of Object.entries(SHEETS)) {
     const used = new Set([...css.matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]));
-    const missing = [...used].filter((n) => !defined.has(n) && !DOCUMENT_VARS.has(n));
+    /* --t-…: text an app sets in the UI's language for its CSS to draw (common/i18n.js), not a look setting */
+    const missing = [...used].filter((n) => !defined.has(n) && !DOCUMENT_VARS.has(n) && !n.startsWith('--t-'));
     assert.deepEqual(missing, [], `${file} uses undefined settings`);
   }
 });
@@ -65,7 +66,7 @@ test('the shared chrome has no colours of its own', () => {
 test('Windows 7 is the stored default, and its default button keeps the blue highlight', () => {
   const suite = read('common/suite.js');
   assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'win7'/);
-  assert.match(suite, /id: 'win7', name: 'Windows 7'/);
+  assert.match(suite, /id: 'win7', name: N\('Windows 7'\)/);
   for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
     assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'win7'/);
   }

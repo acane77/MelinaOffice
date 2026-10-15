@@ -8,7 +8,7 @@
   color-scheme: light;
   --theme-color: #2a64c8;   /* the browser's own bar (meta theme-color) */
   --tray-radius: 3px; --ctl-radius: 2px;   /* toolbars and panels; buttons and fields */
-  --ui-font: Tahoma, "Segoe UI", Verdana, Geneva, "DejaVu Sans", sans-serif;
+  --ui-font: Tahoma, "Segoe UI", Verdana, Geneva, "DejaVu Sans", var(--ui-cjk, sans-serif);
   --ui-size: 11px;
   /* command bars and toolbars */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -81,7 +81,7 @@
 [data-look="paper"], [data-look="paper2016"] {
   --theme-color: #FAF8F4;
   --tray-radius: 10px; --ctl-radius: 6px;
-  --ui-font: system-ui, "Segoe UI", "Helvetica Neue", Ubuntu, Cantarell, "DejaVu Sans", sans-serif;
+  --ui-font: system-ui, "Segoe UI", "Helvetica Neue", Ubuntu, Cantarell, "DejaVu Sans", var(--ui-cjk, sans-serif);
   --ui-size: 12px;
   --p-paper: #FAF8F4; --p-paper-2: #F3F0EA; --p-line: #E2DDD4; --p-line-strong: #CFC8BC;
   --p-accent: #0F6F74; --p-accent-ink: #0A5357; --p-accent-soft: #E2EFEE; --p-accent-mid: #C9E2E0;
@@ -221,7 +221,7 @@
   color-scheme: light;
   --theme-color: #4580c4;
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui;
+  --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
   --ui-size: 11px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -269,6 +269,7 @@
   --cell-sel: rgba(51, 153, 255, 0.22); --cell-sel-border: #1a6ca1;
   --card-hot-border: #3c7fb1; --card-thumb-bg: #f3f3f3; --card-thumb-line: #c8c8c8; --start-on-b: #eaf6fd; --start-rule: #d0d0d0;
   --start-line: #d8d8d8; --error-ink: #a3300b; --badge-bg: #fde3c4; --badge-ink: #8a3b00; --rm-bg: rgba(255,255,255,.9);
+  --notice-bg: #eef8f1; --notice-hot: #dcf0e2; --notice-line: #9fcfae; --notice-mark: #1f8a4c; --notice-ink: #14572f;
   --drop-bg: rgba(234,246,253,.9);
   --rb-bg: #f0f0f0; --rb-panel: #f7f7f7; --rb-line: #d0d0d0; --rb-tab-ink: #1a1a1a; --rb-tab-on-ink: #0046d5; --rb-tab-hot: #eaf6fd;
   --rb-label-ink: #5a5a5a; --rb-ctx: #A0620A; --rb-ctx-bg: #FFF4D6; --rb-file-ink: #0046d5;
@@ -306,8 +307,8 @@
 [data-look="win7"] .menurow { height: 20px; min-height: 20px; background: linear-gradient(#fff 20%, #f1f4fa 25%, #f1f4fa 43%, #d4dbee 48%, #e6eaf6); border-bottom: 1px solid #d0d0d0; }
 [data-look="win7"] .mb-item { border-radius: 0; }
 [data-look="win7"] .mb-item:hover, [data-look="win7"] .mb-item.open { background: #3399ff; color: #fff; border-color: #3399ff; }
-[data-look="win7"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui; }
-[data-look="win7"] :is(.tooltip, .rf-tree, .rf-tree h5, .help-topic h4, .about .about-marks, .rb-label, .rb-ctx-name, .stab, .namebox input, .ftip, .acl, .af-panel, .lbox-i, .af-list, .pp-status, .pp-empty, .swatch-btn, .fr-table, .hl-kind, .afmt-item, .fc-preset, .revpane) { font-family: "Microsoft Yahei UI", "Segoe UI", system-ui; font-size: 11px; }
+[data-look="win7"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); }
+[data-look="win7"] :is(.tooltip, .rf-tree, .rf-tree h5, .help-topic h4, .about .about-marks, .rb-label, .rb-ctx-name, .stab, .namebox input, .ftip, .acl, .af-panel, .lbox-i, .af-list, .pp-status, .pp-empty, .swatch-btn, .fr-table, .hl-kind, .afmt-item, .fc-preset, .revpane) { font-family: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-size: 11px; }
 /* 7.css menus: gray face, gutter line, blue hover. Command menus and right-click menus; not the font list or the colour grid. */
 [data-look="win7"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) { background: #f0f0f0; color: #000; border: 1px solid #0006; box-shadow: 4px 4px 3px -2px #00000080; padding: 2px; }
 [data-look="win7"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: ""; pointer-events: none; position: absolute; left: 28px; top: 2px; width: 2px; height: calc(100% - 4px); box-shadow: inset 1px 0 #00000026, inset -1px 0 #fff; }
@@ -340,13 +341,13 @@
 [data-look="win7"] .floatbar { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 [data-look="win7"] .floatbar::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
 [data-look="win7"] .floatbar .fb-title, [data-look="win7"] .floatbar .fb-body { position: relative; z-index: 1; }
-[data-look="win7"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui; font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+[data-look="win7"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 
 /* dialogs: the reference window — transparent, blurred, glass tint on ::before, opaque client area */
 [data-look="win7"] .dlg-overlay:not(.modeless) { background: transparent; }
 [data-look="win7"] .dlg { border: 1px solid #000000b3; border-radius: 6px; padding: 0 0 3px; color: #000; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; -webkit-font-smoothing: antialiased; }
 [data-look="win7"] .dlg::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
-[data-look="win7"] .dlg-title { position: relative; z-index: 1; box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 10px; background: var(--w7-stripes); background-attachment: fixed; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+[data-look="win7"] .dlg-title { position: relative; z-index: 1; box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 10px; background: var(--w7-stripes); background-attachment: fixed; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 [data-look="win7"] .dlg-ttl { overflow: visible; text-shadow: 0 0 12px #fff, 0 0 5px #fff !important; }
 [data-look="win7"] .dlg-title > .dlg-x { margin-right: 2px; height: 21px; min-height: 19px; min-width: 29px; margin-top: -8px; padding: 0; position: relative; border: 1px solid #000000b3; border-radius: 0; box-shadow: inset 0 0 0 1px #fffa; background: none; }
 [data-look="win7"] .dlg-title > .dlg-x:first-of-type { border-bottom-left-radius: 4px; }
@@ -366,7 +367,7 @@
 [data-look="win7"] dialog { border: 1px solid #000000b3; border-radius: 6px; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; }
 [data-look="win7"] dialog::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; }
 [data-look="win7"] dialog .dt, [data-look="win7"] dialog .db { position: relative; z-index: 1; }
-[data-look="win7"] dialog .dt { box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 3px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui; text-shadow: 0 0 12px #fff, 0 0 5px #fff; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; background: var(--w7-stripes); background-attachment: fixed; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
+[data-look="win7"] dialog .dt { box-sizing: content-box; height: 21px; flex-shrink: 0; margin: 0; padding: 3px 5px 3px 3px; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); text-shadow: 0 0 12px #fff, 0 0 5px #fff; border: 0; border-top-left-radius: 8px; border-top-right-radius: 7px; background: var(--w7-stripes); background-attachment: fixed; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 [data-look="win7"] dialog .db { margin: 0 6px 4px; background: #f0f0f0; border: 1px solid #000000b3; box-shadow: 0 0 0 1px #fff9; }
 
 /* tabs: 7.css — square gradient tabs, the selected one white and joined to the page */
@@ -470,3 +471,10 @@
 [data-look="win7"] .lk-menu { background: #f0f0f0; }
 [data-look="win7"] .lk-tb { background: #f0f0f0; border-color: #c8c8c8; }
 [data-look="win7"] .lk-status { background: #f0f0f0; }
+
+/* the UI's language (<html lang>, common/lang.js): Japanese, Korean and Chinese text in the fonts made for those UIs, after each
+   look's own fonts, which have no such letters */
+:root:lang(ja) { --ui-cjk: "Meiryo UI", "Yu Gothic UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP", "Noto Sans JP", sans-serif; }
+:root:lang(ko) { --ui-cjk: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR", "Noto Sans KR", sans-serif; }
+:root:lang(zh-CN) { --ui-cjk: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Noto Sans SC", sans-serif; }
+:root:lang(zh-Hant) { --ui-cjk: "Microsoft JhengHei UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", "Noto Sans TC", sans-serif; }

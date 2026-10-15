@@ -54,6 +54,10 @@ Classic must not change when only the theme machinery changes: compare screensho
 
 `node --test tests/scout.test.mjs` checks the assistant in each app (docs/suite.md, The assistant): that he comes in by himself on a desktop (waving the first time each day, popping in after) and not on an iPhone or on a day the user hid him (scripts in `tests/scout/` run before the page's own), Help ▸ Show the Assistant (a wave; the introduction and choices the first time each day), a click on him, acting out Print, Find and saving (once the file is written; the test holds back the download), working along with a long wait, the welcome's choices, the right-click menu, no frames drawn while the window is in the background or once he is hidden. Showing or hiding him writes `localStorage['vibeoffice.assistant']`, which other open app pages follow, `scout.lastGreetedDay` and `scout.lastHiddenDay`; a UI check that shows him sets them back at the end, as the test does.
 
+## Languages
+
+Tests open the apps in English (`lang=en`), whatever the browser's language (docs/i18n.md). `node --test tests/i18n.test.mjs` checks that the English catalog is current (`node tools/i18n.mjs gather`) and that text which can't be translated only gets less; `node tools/i18n.mjs harvest` opens each app in the pseudo-locale and lists the English still on screen. `node --test tests/fonts.test.mjs` checks the East Asian font table, and `node --test tests/locales.test.mjs` (Chromium) saves a blank file of each app in each language and checks its defaults. Neither reads the translations.
+
 ## Mouse, selection, drag and focus: tests/ui/
 
 Two sizes. After each change, `node tools/quick.mjs` (the uncommitted changes, or the last commit; `node tools/quick.mjs
@@ -145,6 +149,25 @@ and open http://127.0.0.1:8770/. For an update, stop the server, stage again wit
 | `python3 tests/quire/loss-audit.py originals/ saved/ out.json` | What a save loses: each original `.docx` against Quire's saved copy, feature by feature and word by word (standard library only); results in docs/quire.md |
 
 Run both after a change to `markdown.js` or `mdio.js`; the numbers are in docs/quire.md.
+
+Line heights (`quire/js/portions.js`): `node --test tests/quire/lines.test.mjs` (a few seconds; `REPORT=1` prints what it
+measured) checks two documents in Quire against another application's PDF, read by `python3 tools/wordlines.py PDF DOCX
+OUT.json` into rows (the text at one height on a page, matched by a hash of its last characters, so a document whose
+text isn't ours is compared without storing it):
+
+- a Word-saved 19-page walkthrough against Word's PDF of it (`tests/quire/lines/walkthrough-word.json`): pages start
+  where Word's do, and two lines that follow each other in both are as far apart as in Word, within 0.75pt. The
+  document and the PDF stay out of git, in `~/corpora/word-ref/` (`fluent-walkthrough.docx`, `fluent-walkthrough.word.pdf`;
+  or the folder named in `QUIRE_WORD_REF`); without them that part is skipped;
+- `tests/quire/lines/linecases.docx` (`python3 tools/linecases.py make`), one case per paragraph between marker lines,
+  against LibreOffice's PDF of it (`soffice --headless --convert-to pdf`, then `python3 tools/linecases.py read PDF
+  tests/quire/lines/linecases-lo.json`): the cases LibreOffice draws as Word does are asserted, the others recorded.
+
+Page counts across the corpus: `node tools/quire-pages.mjs OUT.jsonl [--jobs 4]` opens every Word-saved `.docx` in
+`~/corpora/word` (Microsoft Office Word with `<Pages>` in docProps/app.xml) and records Quire's page count beside
+Word's; `--compare BEFORE.jsonl AFTER.jsonl` lists what a change moved, and every file it moved away from Word's count.
+For the "before", serve the last commit's site on a port of its own (`git archive HEAD public | tar -x -C
+tmp/pages-before`, `python3 tools/serve.py 8771 tmp/pages-before/public`) and run with `BASE=http://127.0.0.1:8771`.
 
 ## From issues: tests/from-issues/
 

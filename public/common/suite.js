@@ -18,7 +18,7 @@
  */
 (function () {
   'use strict';
-  const VO = (window.VO = {});
+  const VO = (window.VO = window.VO || {});   // keep the language choice made before the first paint
   VO.VERSION = 'dev';   // the published copy says v<yyyy>.<mm>.<dd>-<6 hex> (tools/current-tree-version.sh, stamped by the sync script)
   if (window.__VO_HOST__ && window.__VO_HOST__.appVersion) VO.VERSION = window.__VO_HOST__.appVersion;   // the desktop app's build
   /** a version's date as a number (20261011), or null for a version without one (dev); copies before
@@ -191,7 +191,7 @@
           clearTimeout(timer);
           window.removeEventListener('message', on);
           if (!m.ok) { reject(new Error(m.error || 'The file could not be saved.')); return; }
-          if (purpose !== 'backup' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast('Saved ' + (m.name || name), 6000);
+          if (purpose !== 'backup' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast(VO.t('Saved {0}', m.name || name), 6000);
           resolve(purpose === 'backup' ? m : (m.inplace ? 'saved' : 'exported'));
         }
         window.addEventListener('message', on);
@@ -264,7 +264,7 @@
   if (native) window.addEventListener('vo-download', (e) => {
     const ui = window.L && window.L.ui, d = e.detail || {};
     if (!ui) return;
-    if (d.ok) ui.toast(`Saved to Downloads folder: ${d.name}`, 8000, { label: 'Browse', run: () => VO.host.showDownloads().catch((err) => console.error('browse:', err)) });
+    if (d.ok) ui.toast(VO.t('Saved to Downloads folder: {0}', d.name), 8000, { label: 'Browse', run: () => VO.host.showDownloads().catch((err) => console.error('browse:', err)) });
     else ui.toast('The file could not be saved to the Downloads folder.', 8000);
   });
 
@@ -325,10 +325,12 @@
      toolbars (common/ribbon.js); one choice for the whole suite: <html data-look data-layout> is set before
      the first paint by each page's head script from localStorage 'vibeoffice.look'; changing it here
      repaints every open window of the suite. Canvas-drawn chrome (rulers, sheet headers) redraws on 'vo-look'. */
-  const LOOKS = [{ id: 'win7', name: 'Windows 7', note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
-    { id: 'classic', name: 'Classic', note: 'The blue toolbars and menus of Office 2003.' },
-    { id: 'paper', name: 'Paper', note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
-    { id: 'paper2016', name: 'Paper 2016', layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];
+  const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
+  N('Blank Document'); N('Blank Workbook'); N('Blank Presentation');   // templates.json's Blank entries (tools/templates.mjs)
+  const LOOKS = [{ id: 'win7', name: N('Windows 7'), note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
+    { id: 'classic', name: N('Classic'), note: 'The blue toolbars and menus of Office 2003.' },
+    { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
+    { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];
   const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'win7'; } catch (e) { return 'win7'; } };
   const applyLook = (id) => {
     const root = document.documentElement;
@@ -450,7 +452,7 @@
     if (!app) return false;
     if (VO.host.kind === 'vscode') {
       const ui = window.L && window.L.ui;
-      const text = 'Open “' + file.name + '” from the Explorer.';
+      const text = VO.t('Open “{0}” from the Explorer.', file.name);
       if (ui && ui.msg) ui.msg(text, { icon: 'info' });
       else alert(text);
       return true;
@@ -529,7 +531,7 @@
           if (rec) await tx('handoff', 'readwrite', (s) => s.delete(l.open));
         } catch (e) { console.error(e); }
         if (rec && rec.file) await current.hooks.open(asFile(rec.file, rec.name), {});
-        else (current.hooks.message || alert)('That file is no longer available here. Open it again from your computer.');
+        else (current.hooks.message || alert)(VO.t('That file is no longer available here. Open it again from your computer.'));
       } else if (l.recent) await VO.openRecent(l.recent, { draft: l.draft });
     }
     setTimeout(async () => {
@@ -544,7 +546,7 @@
     try { e = await VO.recent.get(key); } catch (err) { console.error(err); }
     const draft = !!(o && o.draft && e && e.draft);
     const blob = e && (draft ? e.draft.file : e.file);
-    if (!blob) { (current.hooks.message || alert)('That file is no longer available here. Open it again from your computer.'); return; }
+    if (!blob) { (current.hooks.message || alert)(VO.t('That file is no longer available here. Open it again from your computer.')); return; }
     const f = asFile(blob, draft ? e.draft.name : e.name);
     if (draft) f.voDraft = key;
     await current.hooks.open(f, { draft, name: e.name, saved: !!e.file, lossState: draft ? e.draft.lossState : undefined });
@@ -574,11 +576,11 @@
     let d = null;
     for (const t of list) {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'vo-tpl'; b.title = t.name;
+      b.type = 'button'; b.className = 'vo-tpl'; b.title = VO.t(t.name);
       const pic = document.createElement('span');
       if (t.img) { const img = document.createElement('img'); img.src = BASE + t.img; img.alt = ''; pic.append(img); }
       const name = document.createElement('b');
-      name.textContent = t.name;
+      name.textContent = VO.t(t.name);
       b.append(pic, name);
       b.addEventListener('click', () => { if (d) d.close(-1); create(t.id); });
       gal.append(b);
@@ -586,9 +588,9 @@
     const body = document.createElement('div');
     const note = document.createElement('p');
     note.className = 'vo-gal-note';
-    note.textContent = 'Choose Blank or a template:';
+    note.textContent = VO.t('Choose Blank or a template:');
     body.append(note, gal);
-    d = ui.dialog({ title: 'New ' + VO.APPS[app].kind, width: 700, body, buttons: [{ label: 'Cancel', cancel: true }], focus: gal.firstChild });
+    d = ui.dialog({ title: VO.t({ quire: 'New Document', ledger: 'New Spreadsheet', lectern: 'New Presentation' }[app]), width: 700, body, buttons: [{ label: 'Cancel', cancel: true }], focus: gal.firstChild });
   };
   /** the open app's templates: [{ id, name }] */
   VO.templates = () => (current && current.hooks.templates ? current.hooks.templates() : []);
@@ -673,13 +675,15 @@
   /* ------------------------------------------------------------ the list inside the apps */
   const when = (t) => {
     const d = new Date(t), today = new Date().toDateString() === d.toDateString();
-    return today ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const loc = VO.i18n ? VO.i18n.dates : [];
+    return today ? d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString(loc, { month: 'short', day: 'numeric' });
   };
-  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  /* its text in the UI's language (common/i18n.js) */
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = VO.t ? VO.t(text) : text; return e; };
   const icon = (name) => (window.L && L.icons ? L.icons.get(name) : '');
   /** File menu: the app's four most recent entries ({ label, run } items for L.ui menus) */
   VO.recentMenuItems = (max) => VO.recent.forApp().slice(0, max || 4).map((e, i) => ({
-    label: `&${i + 1} ${e.name.replace(/&/g, '&&')}${e.draft ? ' (unsaved changes)' : ''}`,
+    label: '&' + (i + 1) + ' ' + (e.draft ? VO.t('{0} (unsaved changes)', e.name) : e.name).replace(/&/g, '&&'), raw: true,
     run: () => VO.openRecent(e.key, { draft: !!e.draft }),
   }));
   /** task pane: the app's recent entries as links (Getting Started ▸ Open); keeps itself up to date */
@@ -691,9 +695,12 @@
       box.replaceChildren(...VO.recent.forApp().slice(0, max || 4).map((e) => {
         const b = el('button', 'tp-link');
         b.type = 'button';
-        b.title = e.draft ? `${e.name} — unsaved changes from ${new Date(e.draft.time).toLocaleString()}` : e.name;
+        b.title = e.draft ? VO.t('{0} — unsaved changes from {1}', e.name, new Date(e.draft.time).toLocaleString(VO.i18n ? VO.i18n.dates : [])) : e.name;
+        b.translate = false;
         const ic = el('span'); ic.innerHTML = icon(e.draft ? 'save' : 'open');
-        b.append(ic, el('span', null, e.name + (e.draft ? ' (unsaved)' : '')));
+        const name = el('span');
+        name.textContent = e.draft ? VO.t('{0} (unsaved)', e.name) : e.name;
+        b.append(ic, name);
         b.addEventListener('click', () => VO.openRecent(e.key, { draft: !!e.draft }));
         return b;
       }));
@@ -713,7 +720,8 @@
       list.replaceChildren(...(drafts.length ? drafts.map((e) => {
         const item = el('div', 'tp-sec');
         const head = el('div', 'tp-h', e.name);
-        const note = el('div', 'tp-note', `Unsaved changes from ${when(e.draft.time)}` + (e.file ? '' : ' (never saved)') + (openKeys.has(e.key) ? ' — open in this window' : ''));
+        const from = e.file ? VO.t('Unsaved changes from {0}', when(e.draft.time)) : VO.t('Unsaved changes from {0} (never saved)', when(e.draft.time));
+        const note = el('div', 'tp-note', openKeys.has(e.key) ? VO.t('{0} — open in this window', from) : from);
         const open = el('button', 'tp-link'); open.type = 'button';
         const oi = el('span'); oi.innerHTML = icon('open'); open.append(oi, el('span', null, 'Open the unsaved version'));
         open.addEventListener('click', () => VO.openRecent(e.key, { draft: true }));
@@ -726,7 +734,7 @@
     };
     draw.cacheOnly = true;
     const stop = VO.onRecentChange(draw);
-    b.append(el('div', 'tp-note', `${current ? VO.APPS[current.app].name : 'VibeOffice'} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.`), list);
+    b.append(el('div', 'tp-note', VO.t('{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.', current ? VO.APPS[current.app].name : 'VibeOffice')), list);
     VO.recent.list().then((l) => { VO.recent.cache = l; draw(); }, () => draw());
   };
 })();

@@ -30,7 +30,7 @@ try {
   for (const k of KEYS) localStorage.removeItem(k);
   localStorage.setItem(KEY, JSON.stringify({ id: 'scout' })); // the suite defaults to Nikki; this check is his
   out.auto = L.assistant.shown();
-  const help = L.app.menuBar.menus.find((m) => m.label === '&Help');
+  const help = L.app.menuBar.menus.find((m) => L.ui.plainAmp(m.label) === 'Help');
   out.inHelp = !!help && help.items.includes('showAssistant');
   out.labelOff = ui.cmds.showAssistant.label;
   ui.exec('showAssistant');

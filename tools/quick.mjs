@@ -28,12 +28,13 @@ changed = [...new Set(changed)];
 /* rules: changed path → test files. Seconds are measured run times (2026-10-14), for the estimate. */
 const SECONDS = { 'tests/ui/smoke.test.mjs': 20, 'tests/ui/quire.test.mjs': 175, 'tests/ui/ledger.test.mjs': 130, 'tests/ui/lectern.test.mjs': 130,
   'tests/ui/focus.test.mjs': 265, 'tests/ui/focus.test.mjs :: classic': 90, 'tests/ui/drag.test.mjs': 45, 'tests/ui/gestures.test.mjs': 480, 'tests/ui/painter.test.mjs': 40, 'tests/ui/textmap.test.mjs': 165,
-  'tests/ledger/*.test.js': 5, 'tests/quire/*.test.js': 1, 'tests/from-issues/*/*.test.mjs': 1, 'tests/scout.test.mjs': 190, 'tests/desktop/host.test.mjs': 32, 'tests/sw.test.mjs': 10,
-  'tests/ribbon.test.mjs': 5, 'tests/search.test.mjs': 4, 'tests/ooxml/check.test.mjs': 3 };
+  'tests/ledger/*.test.js': 5, 'tests/quire/*.test.js': 1, 'tests/quire/lines.test.mjs': 5, 'tests/from-issues/*/*.test.mjs': 1, 'tests/scout.test.mjs': 190, 'tests/desktop/host.test.mjs': 32, 'tests/sw.test.mjs': 10,
+  'tests/ribbon.test.mjs': 5, 'tests/search.test.mjs': 4, 'tests/ooxml/check.test.mjs': 3, 'tests/i18n.test.mjs': 1, 'tests/fonts.test.mjs': 1, 'tests/locales.test.mjs': 15 };
 const RULES = [
-  [/^public\/(quire|ledger|lectern|common)\/|^public\/[^/]+\.(html|js|css)$/, ['tests/ui/smoke.test.mjs', 'tests/licenses.test.mjs', 'tests/from-issues/*/*.test.mjs']],   // and the reported issues' tests
+  [/^public\/(quire|ledger|lectern|common)\/|^public\/[^/]+\.(html|js|css)$/, ['tests/ui/smoke.test.mjs', 'tests/licenses.test.mjs', 'tests/from-issues/*/*.test.mjs', 'tests/i18n.test.mjs']],   // and the reported issues' tests, the English catalog
   [/^public\/ledger\/|^tools\/ledger\//, ['tests/ledger/*.test.js', 'tests/ui/ledger.test.mjs']],
   [/^public\/quire\//, ['tests/quire/*.test.js', 'tests/ui/quire.test.mjs']],
+  [/^public\/quire\/js\/(render|portions|layout|drawing)\.js$|^tests\/lib\/lines\.mjs$/, ['tests/quire/lines.test.mjs']],   // line heights against Word and LibreOffice
   [/^public\/lectern\//, ['tests/ooxml/lectern-review.test.mjs', 'tests/ui/lectern.test.mjs']],
   [/^public\/common\/(core|dml|numfmt|xml|opc|opc-order|zip|sha|crypto|metafile|geometry|charts)\.js$/, ['tests/ledger/*.test.js', 'tests/quire/*.test.js']],
   [/^public\/common\/(ui|ribbon|search)\.js$/, ['tests/ui/focus.test.mjs :: classic', 'tests/ui/drag.test.mjs']],   // focus in the Classic look
@@ -49,6 +50,10 @@ const RULES = [
   [/^tools\/ooxml\/.*\.py$/, ['tests/ooxml/check.test.mjs', 'tests/ooxml/audit.test.mjs']],
   [/^public\/common\/scout\//, ['tests/scout.test.mjs']],
   [/^public\/[^/]+\/js\/painter\.js$/, ['tests/ui/painter.test.mjs']],
+  [/^public\/common\/(lang|i18n|suite)\.js$|^public\/(?:index|(?:quire|ledger|lectern)\/index)\.html$|^tools\/ledger\/build\/template\.html$/, ['tests/chinese-language.test.mjs']],
+  [/^tools\/i18n\.mjs$|^tools\/ledger\/build\/template\.html$/, ['tests/i18n.test.mjs']],
+  [/^public\/common\/core\.js$|^public\/ledger\/js\/model\.js$/, ['tests/fonts.test.mjs']],
+  [/^public\/common\/locales\.js$|^public\/quire\/js\/(app|dmodel|docx-write)\.js$|^public\/ledger\/js\/(app|xlsx-write)\.js$|^public\/lectern\/js\/(model|pptx-write)\.js$/, ['tests/locales.test.mjs']],
   [/^tests\/lib\/gestures\.mjs$/, ['tests/ui/gestures.test.mjs']],
   [/^tests\/lib\/input\.mjs$|^tools\/ooxml\/cdp\.mjs$/, ['tests/ui/smoke.test.mjs']],
   [/^public\/oss-licenses\.html$|^tools\/oss-licenses\.py$|^desktop\/(Cargo|patches|licenses)/, ['tests/licenses.test.mjs']],
