@@ -125,7 +125,7 @@
     opts = opts || {};
     const depth = opts.depth || 0;
     ui.closeMenus(depth);
-    const list = (typeof items === 'function' ? items() : items).map(resolveItem).filter((x) => x && !x.hidden);
+    const list = (typeof items === 'function' ? items() : items).map(resolveItem).filter((x) => x && !(typeof x.hidden === 'function' ? x.hidden() : x.hidden));
     /* a menu from inside a dialog (a drop-down button there) goes above the dialogs */
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (ui.dialogOpen() ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
     const rows = [];
@@ -633,6 +633,35 @@
       label: l.name, radio: true, checked: () => VO.look.get() === l.id, run: () => VO.look.set(l.id),
     }))),
   });
+  /** Remember a UI language. In VS Code the extension keeps it and reloads this editor when the file
+   *  has no unsaved changes. The language is part of the page HTML: assigning the same HTML does not
+   *  load the editor again. A choice already stored, while this page still shows another language, reloads too. */
+  ui.applyLanguage = (id) => {
+    if (!window.VO || !VO.lang) return;
+    const changed = VO.lang.get() !== id;
+    if (changed) VO.lang.set(id);
+    const inVs = VO.host && VO.host.kind === 'vscode' && VO.host.setLanguage;
+    if (!inVs) { if (changed) ui.toast('The new language is used in the windows you open from now on.'); return; }
+    const painted = document.documentElement.lang === 'qps-ploc' ? 'qps' : document.documentElement.lang;
+    const want = VO.lang.resolve(id, navigator.languages || [navigator.language]);
+    if (!changed && painted === want) return;
+    const dirty = !!(VO.unsaved && VO.unsaved());
+    VO.host.setLanguage(id, !dirty);
+    if (dirty) ui.toast('The new language is used in the windows you open from now on.');
+  };
+  /** Help ▸ Language, and the same list on the ribbon's File menu: the suite's UI language, only in the
+   *  VS Code editor (common/lang.js). Each language is named in itself. */
+  ui.languageMenu = () => ({
+    label: '&Language',
+    hidden: () => !window.VO || !VO.host || VO.host.kind !== 'vscode' || !VO.lang,
+    sub: () => (!window.VO || !VO.lang ? [] : VO.lang.list().map((l) => ({
+      label: l.id === 'auto' ? 'Auto (as the browser)' : l.name,
+      raw: l.id !== 'auto',
+      radio: true,
+      checked: () => VO.lang.get() === l.id,
+      run: () => ui.applyLanguage(l.id),
+    }))),
+  });
   /** the suite's own choices for Tools ▸ Options: the look (Theme) and the UI's language (common/i18n.js) */
   ui.lookField = () => {
     if (!window.VO || !VO.look) return null;
@@ -646,7 +675,7 @@
       el,
       apply: () => {
         if (pick !== VO.look.get()) VO.look.set(pick);
-        if (VO.lang && lang !== VO.lang.get()) { VO.lang.set(lang); ui.toast('The new language is used in the windows you open from now on.'); }
+        if (VO.lang && lang !== VO.lang.get()) ui.applyLanguage(lang);
       },
     };
   };

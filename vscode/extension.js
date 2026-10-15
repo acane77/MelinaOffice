@@ -143,6 +143,7 @@ class OfficeEditorProvider {
       cspSource: doc.panel.webview.cspSource,
       fileName: proto.baseName(doc.uri.path),
       platform: platform(),
+      lang: this._context.globalState.get('vibeoffice.lang') || '',
     });
   }
 
@@ -207,6 +208,13 @@ class OfficeEditorProvider {
     }
     if (msg.type === 'close') {
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+      return;
+    }
+    if (msg.type === 'lang') {
+      const id = String(msg.lang || '');
+      await this._context.globalState.update('vibeoffice.lang', id);
+      /* assigning the same HTML does nothing, so the new language has to be part of the page */
+      if (msg.reload && doc.panel) doc.panel.webview.html = this._html(doc);
       return;
     }
     if (msg.type === 'open-url') {

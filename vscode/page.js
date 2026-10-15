@@ -20,15 +20,21 @@ function renderPage(opts) {
     `script-src ${opts.cspSource} 'unsafe-inline' 'unsafe-eval'`,
     `connect-src ${opts.cspSource}`,
   ].join('; ');
+  const LANGS = ['auto', 'en', 'ja', 'ko', 'fr', 'de', 'zh-CN', 'zh-Hant'];
+  const lang = LANGS.indexOf(opts.lang) >= 0 ? opts.lang : '';
   const host = JSON.stringify({
     kind: 'vscode',
     platform: opts.platform || 'linux',
     version: 1,
     fileName: opts.fileName || '',
+    lang: lang,
   }).replace(/</g, '\\u003c');
+  /* lang.js reads localStorage before the first paint; prime it from the extension's copy.
+     The lang field also changes this HTML, which is what makes VS Code load the page again. */
+  const prime = lang ? `try{localStorage.setItem('vibeoffice.lang',${JSON.stringify(lang)})}catch(e){}` : '';
   const inject = `<meta http-equiv="Content-Security-Policy" content="${attr(csp)}">` +
     `<base href="${attr(base)}">` +
-    `<script>window.__VO_HOST__=${host};window.__VO_VSCODE__=acquireVsCodeApi();</script>`;
+    `<script>window.__VO_HOST__=${host};window.__VO_VSCODE__=acquireVsCodeApi();${prime}</script>`;
   let html = String(opts.html || '').replace(/<link\s+rel=["']manifest["'][^>]*>\s*/gi, '');
   if (/<meta\s+charset[^>]*>/i.test(html)) html = html.replace(/<meta\s+charset[^>]*>/i, (m) => m + inject);
   else html = html.replace(/<head[^>]*>/i, (m) => m + inject);

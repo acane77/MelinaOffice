@@ -20,7 +20,15 @@
   VO.lang = {
     normalize,
     list: () => LANGS.map(([id, name]) => ({ id, name })),
-    get: () => normalize(store()) || 'auto',
+    get() {
+      /* the VS Code editor names the choice in __VO_HOST__ (it reloads the page with it) */
+      const host = window.__VO_HOST__;
+      if (host && host.kind === 'vscode' && host.lang) {
+        const id = normalize(host.lang);
+        if (id && LANGS.some(([l]) => l === id)) return id;
+      }
+      return normalize(store()) || 'auto';
+    },
     set(id) {
       id = normalize(id);
       if (!LANGS.some(([l]) => l === id) || id === store()) return;

@@ -109,6 +109,9 @@
     },
     /** close this window if it is an app window the suite opened; false for the Start Center's (and on the web) */
     async closeWindow() { return native ? call('host_close_window') : false; },
+    /** VS Code: remember the UI language and, when reload is true, load this editor again so it shows.
+     *  With unsaved changes the page asks to remember only; the next editor uses it. */
+    setLanguage(id, reload) { if (inVs) vsPost({ type: 'lang', lang: String(id || ''), reload: !!reload }); },
     /** Browse after a save: the Downloads folder, with this window's last saved file selected (desktop) */
     async showDownloads() { if (native) return call('host_show_downloads'); },
     /** fn(files) for the files the system asks us to open (Open with, a double-click on an associated
@@ -627,8 +630,27 @@
     if (file.voDraft) { bind(doc, file.voDraft); return; }   // an unsaved version: keep its entry as it is
     VO.recent.put(current.app, file.name, file, true).then((key) => { if (key) bind(doc, key); thumbLater(key); }, (e) => console.warn('recent files:', e));
   };
+  const unsavedDocs = new Set();
+  /** true when an open document still has unsaved changes (Help ▸ Language will not reload over them) */
+  VO.unsaved = () => {
+    const H = current && current.hooks;
+    if (H && H.isDirty) {
+      if (H.current) {
+        let d = null;
+        try { d = H.current(); } catch (e) { return true; }
+        if (d) { if (H.isDirty(d)) unsavedDocs.add(d); else unsavedDocs.delete(d); }
+      }
+      for (const d of [...unsavedDocs]) {
+        let dirty = true;
+        try { dirty = !!H.isDirty(d); } catch (e) { dirty = true; }
+        if (!dirty) unsavedDocs.delete(d);
+      }
+    }
+    return unsavedDocs.size > 0;
+  };
   /** the app saved doc in its own format as name: that is its entry now, without unsaved changes */
   VO.saved = (name, blob, doc) => {
+    if (doc) unsavedDocs.delete(doc);
     if (inVs && hostLive) vsPost({ type: 'dirty', dirty: false });
     if (!current) return;
     const old = doc && docKeys.get(doc);
@@ -642,7 +664,9 @@
   };
   /** doc has new unsaved changes: its unsaved version is written a little later */
   VO.changed = (doc) => {
-    if (inVs && hostLive && current && current.hooks.isDirty && current.hooks.isDirty(doc)) vsPost({ type: 'dirty', dirty: true });
+    const H = current && current.hooks;
+    if (doc && H && H.isDirty && H.isDirty(doc)) unsavedDocs.add(doc);
+    if (inVs && hostLive && H && H.isDirty && H.isDirty(doc)) vsPost({ type: 'dirty', dirty: true });
     if (!current || !doc || !current.hooks.snapshot) return;
     clearTimeout(timers.get(doc));
     timers.set(doc, setTimeout(() => saveDraft(doc), Math.max(DRAFT_DELAY, slow.get(doc) || 0)));
@@ -664,6 +688,7 @@
   /** the user chose not to keep doc's changes (No in "Do you want to save the changes…?") */
   VO.discard = (doc) => {
     if (!doc) return;
+    unsavedDocs.delete(doc);
     clearTimeout(timers.get(doc));
     const key = docKeys.get(doc);
     if (!key) return;
