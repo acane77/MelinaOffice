@@ -240,19 +240,17 @@
     if (L.editor.active && !L.editor.commit()) return false;
     const w = b.wb;
     name = name || b.name.replace(/\.[^.]+$/, '') + '.' + ({ xmlss: 'xml', html: 'htm', txt: 'txt' }[type] || type);
-    ui.busy(true, 'Saving ' + name + '...');
     try {
       let blob;
       if (type === 'csv' || type === 'txt') {
         if (w.sheets.length > 1) {
-          const r = await (ui.busy(false), ui.msg(`The selected file type does not support workbooks that contain multiple sheets.\n\n• To save only the active sheet, click OK.\n• To save all sheets, save them individually using a different file name for each, or choose a file type that supports multiple sheets.`, { icon: 'warn', buttons: ['OK', 'Cancel'] }));
+          const r = await ui.msg(`The selected file type does not support workbooks that contain multiple sheets.\n\n• To save only the active sheet, click OK.\n• To save all sheets, save them individually using a different file name for each, or choose a file type that supports multiple sheets.`, { icon: 'warn', buttons: ['OK', 'Cancel'] });
           if (r !== 0) return false;
-          ui.busy(true, 'Saving...');
         }
         blob = L.csv.write(w, sh(), type === 'csv' ? ',' : '\t');
       } else if (type === 'html') blob = L.csv.writeHTML(w);
       else if (type === 'xmlss') blob = L.xmlss.write(w);
-      else if (type === 'pdf') { ui.busy(false); await L.print.exportPDF(); return true; }
+      else if (type === 'pdf') { await L.print.exportPDF(); return true; }
       else {
         blob = await L.xlsxWrite.write(w, { type, password: b.password });
       }

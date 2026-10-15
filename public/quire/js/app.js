@@ -814,7 +814,6 @@
   A.exportAs = async function (type, name) {
     name = name || A.fileName;
     const d = doc();
-    ui.busy(true, 'Saving...');
     try {
       if (L.fields && L.fields.beforeSave) L.fields.beforeSave();
       let blob, ext = type;
@@ -833,11 +832,9 @@
       else if (type === 'md') {
         /* pictures need the .zip form: a .md file only refers to them */
         if (L.mdio.newPictures(d)) {
-          ui.busy(false);
           const r = await ui.msg('This document has pictures that a .md file cannot hold. Save it as Markdown with pictures (.zip), which holds the .md file and its pictures?', { icon: 'warn', buttons: ['Save as .&zip', 'Save .md &without them', 'Cancel'] });
           if (r !== 0 && r !== 1) return;
           if (r === 0) { type = ext = 'mdzip'; if (A.fileType === 'md') A.fileType = 'mdzip'; }
-          ui.busy(true, 'Saving...');
         }
         if (type === 'md') blob = new Blob([L.mdio.write(d).text], { type: 'text/markdown;charset=utf-8' });
       }

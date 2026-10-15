@@ -442,7 +442,6 @@
     name = name || A.fileName;
     if (TE.active()) TE.sync();
     if (L.panes.left.tab === 'outline') L.panes.left.commitOutline();
-    ui.busy(true, 'Saving...');
     try {
       let blob, ext = type;
       if (/^(pptx|pptm|ppsx|ppsm|potx|potm)$/.test(type)) blob = await L.pptx.write(L.pres, { format: type });
