@@ -101,9 +101,13 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   This reproduces the line-break symptom in issue #1 with a synthetic fixture; the reporter's
   original document has not been available to confirm that it uses the same encoding.
 - Equations (Office Math, `m:oMath`) are rendered as MathML: fractions, scripts, radicals, delimiters,
-  n-ary operators, accents, matrices and equation arrays. They are kept unchanged when saving.
-  An equation is one character: a click selects the whole of it, and the caret moves to the
-  character before it or the character after it.   An equation sits in the line, as Word does, so a table cell does not gain a blank line above
+  n-ary operators, accents, matrices and equation arrays. An equation that is not edited is saved
+  unchanged. An equation is one character: a click selects the whole of it, and the caret moves to the
+  character before it or the character after it. Double-click, or Edit Equation on its menu,
+  opens a LaTeX editor with a live preview. The field is filled from the equation (linear LaTeX as
+  stored, otherwise LaTeX derived from the OMML). Update writes that LaTeX back as OMML and stays
+  disabled while the LaTeX has a syntax error.
+  An equation sits in the line, as Word does, so a table cell does not gain a blank line above
   and below it. A display equation is centered on that line when the paragraph is justified. An equation wider than its column or table cell
   breaks before a binary operator (+, =, and the like), as Word does. A line break beside an
   equation is saved as its own paragraph: Word would otherwise join the equations into one and drop the break.
@@ -438,7 +442,8 @@ compatibility results are archived with the run history rather than mixed into c
 | `js/tables.js` | Tables and Borders toolbar, table styles, draw/erase, merge/split, sort, formulas |
 | `js/drawing.js`, `js/drawtool.js`, `../common/geometry.js`, `../common/charts.js`, `../common/metafile.js`, `../common/clipart.js` | Pictures, AutoShapes, LettersArt (WordArt), diagrams, charts, WMF/EMF, clip art |
 | `js/autocorrect.js`, `../common/spell.js`, `js/spell.js` | AutoCorrect, AutoFormat as you type, AutoText; the shared spelling engine and Quire's Spelling and Grammar (offline) |
-| `js/omml.js` | Office Math (OMML) to MathML for equations |
+| `js/omml.js` | Office Math (OMML) to MathML, and OMML to LaTeX for the equation editor |
+| `js/latexprev.js` | LaTeX preview, and the OMML written when an equation is updated |
 | `../common/dict/` | Spelling word lists, thesaurus, licences (shared with Ledger) |
 | `js/outline.js`, `js/rulers.js`, `js/panes.js` | Outline view, rulers, task panes (Research/Thesaurus, Clip Art, Styles…; while open, Picture or Drawing Tools for a selected object, docs/suite.md), Document Map, thumbnails, Print Preview, Reading Layout |
 | `js/mailmerge.js`, `js/templates.js` | Mail Merge wizard and toolbar, document templates |

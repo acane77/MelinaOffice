@@ -1191,8 +1191,7 @@
   }
   function onDblClick(e) {
     const t = e.target;
-    /* the whole equation stays selected; the LaTeX dialog is a later step */
-    if (t.closest && t.closest('.math')) { e.preventDefault(); return; }
+    if (t.closest && t.closest('.math')) { e.preventDefault(); if (L.dlg && L.dlg.editEquation) L.dlg.editEquation(); return; }
     const hf = t.closest && t.closest('.pg-hdr, .pg-ftr');
     if (hf && !LY.hfEdit && L.app && L.app.editHeaderFooter) { e.preventDefault(); L.app.editHeaderFooter(hf.dataset.kind, +hf.closest('.pg').dataset.pg, e); return; }
     if (LY.hfEdit && t.closest && t.closest('.pg-body') && L.app && L.app.closeHeaderFooter) { e.preventDefault(); L.app.closeHeaderFooter(false, e); return; }

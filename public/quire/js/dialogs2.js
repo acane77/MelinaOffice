@@ -827,4 +827,94 @@
     const other = h('input', { type: 'text', maxlength: 1, value: '-', style: 'width:30px' });
     ui.dialog({ title: 'Convert Table to Text', width: 280, body: ui.group('Separate text with', r, other), buttons: [{ label: 'OK', primary: true, onClick: () => L.tables.tableToText(r.get() === 'other' ? other.value || '-' : r.get()) }, { label: 'Cancel' }] });
   };
+
+  /* a built-down zone whose text is already LaTeX, used when the OMML walk yields nothing */
+  function linearLatex(it) {
+    const xml = it.xml || '';
+    if (/<m:(sSup|sSub|sSubSup|sPre|f\b|d\b|nary|rad|func|acc|eqArr|groupChr|limLow|limUpp|m\b|box|borderBox|phant|bar)\b/.test(xml)) return '';
+    const text = (it.text || '').replace(/\u200b/g, '').trim();
+    if (!/\\[a-zA-Z]+|[\^_]/.test(text)) return '';
+    return text;
+  }
+  function equationLatex(it) {
+    try {
+      const s = L.omml && L.omml.toLatex ? L.omml.toLatex(it.xml) : '';
+      if (s && String(s).trim()) return String(s).trim();
+    } catch (e) { /* the linear text below is the fallback */ }
+    return linearLatex(it);
+  }
+  function paraPrOf(it) {
+    const m = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(it.xml || '');
+    return m ? m[0] : '';
+  }
+  function mathPlain(xml) {
+    const out = [];
+    const re = /<m:t\b([^>]*)>([^<]*)<\/m:t>/g;
+    let m;
+    while ((m = re.exec(xml))) out.push(m[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+    return out.join('');
+  }
+  function selectedEquation() {
+    if (!E.sel || !E.sel.f || E.sel.a.p !== E.sel.f.p) return null;
+    const it = D.itemBefore(E.sel.f.p, Math.min(E.sel.a.o, E.sel.f.o) + 1);
+    return it && it.t === 'raw' && it.math ? it : null;
+  }
+  /**
+   * Pages-style equation editor: LaTeX above, a live preview below.
+   * The field is filled from the equation. Update replaces its OMML when the text changed and parses.
+   * opts.button is Update when editing and Insert when inserting. Either stays disabled while the LaTeX does not parse.
+   * An empty field is not an error and does not replace the equation: the preview keeps what is already there.
+   */
+  G.editEquation = function (opts) {
+    opts = opts || {};
+    const it = opts.item || selectedEquation();
+    if (!it) return;
+    const filled = equationLatex(it);
+    const ta = h('textarea', { rows: 5, spellcheck: 'false' });
+    ta.value = filled;
+    const pv = h('div', { class: 'eq-preview' });
+    const note = h('div', { class: 'eq-note' });
+    let bad = false;
+    const showOriginal = () => {
+      const m = R.mathFor(it);
+      if (m && m.math) { const c = m.math.cloneNode(true); if (!c.getAttribute('displaystyle')) c.setAttribute('displaystyle', 'true'); pv.appendChild(c); }
+    };
+    const dlg = ui.dialog({
+      title: 'Edit Equation', width: 480, focus: ta,
+      body: h('div', { class: 'col eq-editor' }, h('label', { text: 'LaTeX' }), ta, h('label', { text: 'Preview' }), pv, note),
+      buttons: [{ label: opts.button || 'Update', primary: true, onClick: () => {
+        if (bad) return false;
+        const src = ta.value.trim();
+        if (!src || src === filled) return;
+        const xml = L.latex && L.latex.toOMML(src, { para: !!it.para, paraPr: paraPrOf(it) });
+        if (!xml) { bad = true; apply.disabled = true; note.textContent = L.t('This LaTeX has a syntax error.'); return false; }
+        const p = E.sel && E.sel.f && E.sel.f.p;
+        if (!p || !p.runs || p.runs.indexOf(it) < 0) return false;
+        const ok = E.edit(L.N('Update Equation'), () => {
+          D.touch(p);
+          it.xml = xml;
+          it.text = mathPlain(xml);
+        });
+        if (ok === false) return false;
+      } }, { label: 'Cancel', cancel: true }],
+    });
+    const apply = dlg.buttons[0];
+    const paint = () => {
+      const v = ta.value;
+      pv.replaceChildren();
+      if (!v.trim()) {
+        bad = false;
+        note.textContent = '';
+        showOriginal();
+      } else {
+        const math = L.latex && L.latex.toMathML(v);
+        if (math) { bad = false; pv.appendChild(math); note.textContent = ''; }
+        else if (v.trim() === filled) { bad = false; note.textContent = ''; showOriginal(); }
+        else { bad = true; note.textContent = L.t('This LaTeX has a syntax error.'); }
+      }
+      apply.disabled = bad;
+    };
+    ta.addEventListener('input', paint);
+    paint();
+  };
 })();

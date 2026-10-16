@@ -117,6 +117,10 @@
 .mstack { display: inline-block; max-width: 100%; vertical-align: middle; text-align: left; text-align-last: left; }
 .raw.mml.mpara .mstack { display: inline-block; }
 .mln { display: block; }
+.eq-editor textarea { width: 100%; box-sizing: border-box; min-height: 96px; font-family: Consolas, "Courier New", monospace; }
+.eq-preview { min-height: 84px; margin: 2px 0 4px; padding: 16px 8px; border: 1px solid var(--face-2-line); background: #fff; color: #000; text-align: center; overflow: auto; }
+.eq-preview math { margin: 0; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Sans Math", math; }
+.eq-note { min-height: 1.2em; color: var(--ink-5); }
 .raw.mml math { margin: 0; font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Noto Sans Math", math; font-style: normal; }
 .raw.mml mtable mtd { padding: 1px 4px; }
 .raw.empty::before { content: var(--t-object, "[object]"); color: #888; font: 10px Arial, Arimo, sans-serif; }
@@ -378,6 +382,7 @@ body.bluebg .pages .pc, body.bluebg .pages .pc span { color: #fff !important; }
 <script src="js/dmodel.js"></script>
 <script src="js/ops.js"></script>
 <script src="js/omml.js"></script>
+<script src="js/latexprev.js"></script>
 <script src="js/render.js"></script>
 <script src="js/portions.js"></script>
 <script src="js/layout.js"></script>
