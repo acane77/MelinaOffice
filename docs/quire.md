@@ -102,6 +102,11 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   original document has not been available to confirm that it uses the same encoding.
 - Equations (Office Math, `m:oMath`) are rendered as MathML: fractions, scripts, radicals, delimiters,
   n-ary operators, accents, matrices and equation arrays. They are kept unchanged when saving.
+  An equation is one character: a click selects the whole of it, and the caret moves to the
+  character before it or the character after it.   An equation sits in the line, as Word does, so a table cell does not gain a blank line above
+  and below it. A display equation is centered on that line when the paragraph is justified. An equation wider than its column or table cell
+  breaks before a binary operator (+, =, and the like), as Word does. A line break beside an
+  equation is saved as its own paragraph: Word would otherwise join the equations into one and drop the break.
 - Content controls bound to custom XML or to the document properties show the bound values, as Word
   does when it opens a file. Linked text boxes continue their story from one box to the next.
 - SmartArt is drawn from the picture Word stores with it; files saved without that picture (Word 2007
