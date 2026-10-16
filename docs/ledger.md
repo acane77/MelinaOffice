@@ -64,8 +64,10 @@ Function (Insert Function and Function Arguments with live results and help for 
 Name (Define, Paste, Create, Apply), Comment, Picture from file, AutoShapes, Text Box, Hyperlink.
 
 **Format.** Format Cells with all six tabs (Number with the full category list and custom formats,
-Alignment with indent, rotation, wrap, shrink and merge, Font, Border, Patterns, Protection), Row and
-Column height, width, AutoFit, Hide and Unhide, Sheet rename, hide, background and tab colour,
+Alignment with indent, rotation, wrap, shrink and merge, Font, Border, Patterns, Protection). The Font
+tab names one face, as Excel's does. The toolbar Font box does not: an East Asian family becomes the
+cell font, and a Latin family changes only the Latin characters, leaving the East Asian face as a second
+run in the cell. Rows and columns have height, width, AutoFit, Hide and Unhide; sheets have rename, hide, background and tab colour,
 AutoFormat (the sixteen Excel 2003 table formats), Conditional Formatting (three conditions, cell value
 or formula), Style (Normal, Comma, Currency, Percent and your own).
 

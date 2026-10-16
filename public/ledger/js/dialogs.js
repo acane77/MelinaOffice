@@ -333,6 +333,8 @@
               void stl;
               return d2;
             }, 'Format Cells');
+            /* naming one font in Format Cells applies it to the whole cell */
+            if (changed.font && (f.name || '') !== ((st.font && st.font.name) || '')) O.eachStored(s, G().ranges(), (cl, r, c) => { if (!cl || !cl.rt) return; const n = O.dup(cl); delete n.rt; O.put(s, r, c, n); });
             const spec = {};
             for (const k in touched) spec[k] = edges[k];
             if (Object.keys(spec).length) O.borders(s, G().ranges(), spec, 'Format Cells');

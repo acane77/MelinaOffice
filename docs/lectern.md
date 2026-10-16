@@ -49,7 +49,11 @@ Strict inputs save as standard Transitional OOXML (recorded, not shown). Same-fo
 saves retain the macro, template or slideshow variant and any opening password.
 
 East Asian text is drawn with the run's East Asian font (`a:ea`, or the theme's for the presentation's
-language), and a run's font change keeps its `a:ea`. A new presentation follows the UI's language: its
+language). Format ▸ Font sets the two faces, and "(Use Asian text font)" writes the East Asian family
+into the Latin slot as well. The toolbar Font box writes an East Asian family into both slots and a
+Latin family into the Latin slot only, keeping the East Asian face. When the two names differ, East
+Asian characters are drawn in their own face, so a Latin font that also has Chinese glyphs does not
+take the Chinese. A new presentation follows the UI's language: its
 text language and, in Japanese, Korean and Chinese, the theme's East Asian font ([i18n.md](i18n.md)).
 
 **Password-protected presentations** ask for the password, as PowerPoint does, and say so when it is wrong. Decryption happens in the browser (Agile encryption from Office 2010 on, Standard encryption from Office 2007). A presentation opened with a password is saved with the same password; Tools ▸ Options ▸ Security sets, changes or removes it (AES-256 with SHA-512, the scheme PowerPoint 2013 and later use).

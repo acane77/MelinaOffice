@@ -109,6 +109,24 @@ test('a Font box completes to the closest family, recently used first', () => {
   } finally { L.store.get = orig; }
 });
 
+test('a cell keeps an East Asian face when a Latin font is chosen', () => {
+  const song = { name: '宋体', sz: 11 };
+  assert.deepEqual(L.scriptSlots('宋体', null), { font: '宋体', fontEA: '宋体' });
+  assert.deepEqual(L.scriptSlots('Arial', null), { font: 'Arial', fontEA: '' });
+  const split = L.scriptFontRuns('测试 Test', null, song, L.fontPick('Times New Roman', { font: '宋体', fontEA: '宋体' }));
+  assert.equal(split.length, 2);
+  assert.equal(split[0].t, '测试');
+  assert.equal(split[0].font.name, '宋体');
+  assert.equal(split[1].font.name, 'Times New Roman');
+  assert.equal(L.scriptFontRuns('测试 Test', null, song, L.fontPick('黑体', { font: '宋体', fontEA: '宋体' })), null);
+  const only = L.scriptFontRuns('中文', null, song, { font: 'Arial', fontEA: '宋体' });
+  assert.equal(only.length, 1);
+  assert.equal(only[0].font.name, '宋体');
+  const again = L.scriptFontRuns('测试 Test', split, { name: 'Times New Roman', sz: 11 }, L.fontPick('Arial', L.scriptSlots('Times New Roman', split)));
+  assert.equal(again[0].font.name, '宋体');
+  assert.equal(again[1].font.name, 'Arial');
+});
+
 test('a run splits into East Asian characters and the rest', () => {
   assert.deepEqual(L.splitEA('测试 Test'), [{ ea: true, text: '测试' }, { ea: false, text: ' Test' }]);
   assert.deepEqual(L.splitEA('A中B'), [{ ea: false, text: 'A' }, { ea: true, text: '中' }, { ea: false, text: 'B' }]);
