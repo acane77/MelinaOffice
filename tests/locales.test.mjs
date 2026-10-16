@@ -34,7 +34,9 @@ for (const [lang, font, pitch, size, tab, charset, row, script] of [
   const q = await quire(lang), w = q['word/styles.xml'], set = q['word/settings.xml'];
   assert.match(q['word/document.xml'], /<w:pgSz w:w="11906" w:h="16838"/);
   assert.ok(q['word/document.xml'].includes('w:linePitch="' + pitch + '"'));
-  assert.ok(w.includes('w:eastAsia="' + font + '"'));
+  const face = lang === 'zh-CN' ? '等线' : font;
+  assert.ok(w.includes('w:eastAsia="' + face + '"'));
+  if (lang === 'zh-CN') assert.ok(w.includes('w:ascii="等线"') && w.includes('w:hAnsi="等线"'));
   assert.ok(w.includes('<w:sz w:val="' + size + '"/>'));
   assert.ok(set.includes('<w:defaultTabStop w:val="' + tab + '"/>'));
   assert.ok(set.includes('w:eastAsia="' + lang + '"'));

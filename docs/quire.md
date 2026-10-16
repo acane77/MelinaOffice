@@ -57,8 +57,9 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   Asian family goes to both slots (it draws Latin as well as Chinese), a Latin family goes to the Latin
   font only and leaves the East Asian face in place. When the two
   names differ, East Asian characters are drawn with the East Asian font and the other characters with
-  the Latin font. A new document follows the
-  UI's language: A4, Office's margins, and Japanese or Chinese line grids and fonts (i18n.md, Defaults).
+  the Latin font. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
+  document keeps that face at 10.5pt). The page follows the UI's language: A4, Office's margins, and
+  Japanese or Chinese line grids (i18n.md, Defaults).
 - Each line is as tall as what it holds, as Word sizes lines (`js/portions.js`, after Apache OpenOffice
   Writer's line portions): a line with text by its text, a picture alone in its line exactly the
   picture's height (Quire added the text's descent below it, 3 to 7pt), a large first word no longer

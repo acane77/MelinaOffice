@@ -307,7 +307,7 @@
       main: { kind: 'main', blocks: [] },
       sect: D.defaultSect(),
       styles: D.builtinStyles(),
-      defaults: { rPr: { font: 'Times New Roman', sz: 12, lang: 'en-US' }, pPr: {} },
+      defaults: { rPr: { font: '等线', fontEA: '等线', sz: 12, lang: 'en-US' }, pPr: {} },
       numbering: { abs: {}, nums: {} },
       hf: {}, fn: {}, en: {}, comments: {},
       settings: { defTab: 36, evenOdd: false, track: false, protect: null, fnPr: { fmt: 'decimal', pos: 'pageBottom', start: 1, restart: 'continuous' }, enPr: { fmt: 'lowerRoman', pos: 'docEnd', start: 1 }, mirror: false, fieldShade: 'selected', autoHyphen: false },

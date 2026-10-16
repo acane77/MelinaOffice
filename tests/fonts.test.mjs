@@ -35,7 +35,7 @@ test('Simplified Chinese open-source font references retain their families and E
     const c = { document: { documentElement: { getAttribute: () => lang } } }; c.window = c;
     vm.runInNewContext(source, c);
     for (const [name, family, generic] of refs) {
-      assert.equal(c.L.FONT_LIST.includes(name), lang === 'zh-CN', name + ': ' + lang);
+      assert.ok(c.L.FONT_LIST.includes(name), name + ': ' + lang);
       assert.equal(c.L.fontKey(name), family.toLowerCase());
       assert.ok(c.L.fontIsEA(name) && c.L.fontIsEA(family), name);
       const stack = c.L.fontStack('Times New Roman', name);
