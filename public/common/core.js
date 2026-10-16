@@ -477,11 +477,73 @@
   for (const [en, stack, ...names] of CJK) { CJK_BY.set(en.toLowerCase(), { en, stack }); for (const n of names) ALIAS.set(n.toLowerCase(), en.toLowerCase()); }
   /** the key every font table uses for a font: its English name, lower case (ＭＳ 明朝 → ms mincho) */
   L.fontKey = (name) => { const n = String(name || '').replace(/"/g, '').trim().toLowerCase(); return ALIAS.get(n) || n; };
-  /** whether a font is one of the East Asian fonts above */
-  L.fontIsEA = (name) => CJK_BY.has(L.fontKey(name));
+  /* a family named in Chinese, Japanese or Korean is an East Asian font even when it is not one of Office's.
+     Full-width Latin (Ａ) does not count. A listed local font with a Latin name is measured below. */
+  const EA_NAME = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff]/;
+  let probe = null;
+  const eaSeen = new Map();
+  function drawsHan(family) {
+    if (typeof document === 'undefined' || !document.createElement) return false;
+    try {
+      if (!probe) probe = document.createElement('canvas').getContext('2d');
+      if (!probe) return false;
+      const q = '"' + String(family).replace(/"/g, '') + '"';
+      const w = (font) => { probe.font = '72px ' + font; return probe.measureText('永').width; };
+      /* its own Han glyph differs from every generic fallback; a Latin font falls through and matches one */
+      return ['monospace', 'serif', 'sans-serif'].every((g) => w(q + ',' + g) !== w(g));
+    } catch (e) { return false; }
+  }
+  /** whether a font is an East Asian family: Office's list, a name written in those scripts, or a font
+      this computer listed that draws Han itself */
+  L.fontIsEA = (name) => {
+    const k = L.fontKey(name);
+    if (!k) return false;
+    if (CJK_BY.has(k)) return true;
+    if (EA_NAME.test(String(name || ''))) return true;
+    if (eaSeen.has(k)) return eaSeen.get(k);
+    const listed = L.localFonts && L.localFonts().some((f) => L.fontKey(f) === k);
+    if (!listed) return false;
+    const yes = drawsHan(name);
+    eaSeen.set(k, yes);
+    return yes;
+  };
+  const EA_RE = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/;
   /** whether text has East Asian characters (Han, kana, Hangul, full-width forms), which Word draws with a run's
       East Asian font */
-  L.hasEAText = (s) => /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/.test(s || '');
+  L.hasEAText = (s) => EA_RE.test(s || '');
+  /** the Latin slot names the same East Asian family as the East Asian slot: Word's Font box shows
+      "(Use Asian text font)" rather than that family again */
+  L.fontUsesEA = (font, ea) => !!(font && ea && L.fontIsEA(ea) && L.fontKey(font) === L.fontKey(ea));
+  /** props the toolbar Font box applies to one run (resolved fonts in, direct props out).
+      An East Asian family is written to both slots: it draws Chinese and, like 宋体, Latin too.
+      A Latin family is the Latin slot only, and the East Asian face stays when that face was
+      the Latin slot or the same family. */
+  L.fontPick = function (name, resolved) {
+    resolved = resolved || {};
+    if (!name) return {};
+    if (L.fontIsEA(name)) return { font: name, fontEA: name };
+    const out = { font: name };
+    const ea = resolved.fontEA, latin = resolved.font || '';
+    const separate = !!(ea && L.fontIsEA(ea) && L.fontKey(ea) !== L.fontKey(latin));
+    if (!separate) {
+      const face = ea && L.fontIsEA(ea) ? ea : (L.fontIsEA(latin) ? latin : '');
+      if (face && L.fontKey(face) !== L.fontKey(name)) out.fontEA = face;
+    }
+    return out;
+  };
+  /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font */
+  L.splitEA = function (s) {
+    const out = [];
+    let buf = '', ea = false, on = false;
+    for (const ch of String(s || '')) {
+      const e = EA_RE.test(ch);
+      if (!on) { on = true; ea = e; buf = ch; }
+      else if (e === ea) buf += ch;
+      else { out.push({ ea, text: buf }); ea = e; buf = ch; }
+    }
+    if (on) out.push({ ea, text: buf });
+    return out;
+  };
   /** a CSS font-family list for a font and what stands in for it; with ea, an East Asian font, its letters come
       from the first and its East Asian characters from the second (as Word draws a run with both fonts) */
   L.fontStack = function (name, ea) {
@@ -494,7 +556,6 @@
   /* Which family in a stack the browser will draw with: an installed font (detected by measuring
      text against the generic fallbacks), or one of the suite's own stand-ins in public/fonts/. */
   const installed = new Map();
-  let probe = null;
   L.fontInstalled = function (family) {
     if (installed.has(family)) return installed.get(family);
     if (!probe) probe = document.createElement('canvas').getContext('2d');

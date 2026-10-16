@@ -51,8 +51,14 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   right-aligned one the left margin.
 - East Asian text is drawn with the run's East Asian font (`w:eastAsia`, or the theme's for the
   document's East Asian language) and marked with its East Asian language, and takes that font's line
-  height where it is the taller ([i18n.md](i18n.md), Fonts). A new document follows the UI's language:
-  A4, Office's margins, and Japanese or Chinese line grids and fonts (i18n.md, Defaults).
+  height where it is the taller ([i18n.md](i18n.md), Fonts). Format ▸ Font sets the two separately:
+  Asian text font is `w:eastAsia`, Font is `w:ascii` and `w:hAnsi`. "(Use Asian text font)" writes the
+  Asian family into the Latin slot as well. The formatting toolbar's Font box writes by family: an East
+  Asian family goes to both slots (it draws Latin as well as Chinese), a Latin family goes to the Latin
+  font only and leaves the East Asian face in place. When the two
+  names differ, East Asian characters are drawn with the East Asian font and the other characters with
+  the Latin font. A new document follows the
+  UI's language: A4, Office's margins, and Japanese or Chinese line grids and fonts (i18n.md, Defaults).
 - Each line is as tall as what it holds, as Word sizes lines (`js/portions.js`, after Apache OpenOffice
   Writer's line portions): a line with text by its text, a picture alone in its line exactly the
   picture's height (Quire added the text's descent below it, 3 to 7pt), a large first word no longer

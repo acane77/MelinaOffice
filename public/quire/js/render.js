@@ -512,30 +512,37 @@
             r = Object.assign({}, r, { sz: maxTextSz });
           }
         }
-        /* East Asian characters: drawn with the run's East Asian font, in its East Asian language */
-        const ea = L.hasEAText(text);
-        if (ea && r.fontEA) r = Object.assign({}, r, { eaText: true });
-        const lang = ea && r.langEA ? r.langEA : r.lang && !/^en/i.test(r.lang) ? r.lang : '';
-        const css = R.runCSS(r, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + extra;
-        const clsS = cls.join(' ') + (lang ? '|' + lang : '');
-        /* merge with the previous span when formatting is identical */
-        if (lastSpan && lastCss === css + '|' + clsS && +lastSpan.dataset.o + +lastSpan.dataset.n === a) {
-          lastSpan.firstChild.appendData(text);
-          lastSpan.dataset.n = +lastSpan.dataset.n + text.length;
-          continue;
+        /* East Asian characters take the run's East Asian font, the rest its Latin font, each in its own
+           span so a Latin font that also has Chinese glyphs does not draw the Chinese. One span when the
+           run names a single font. Offsets stay one DOM character per model character. */
+        const distinct = r.fontEA && L.fontKey(r.fontEA) !== L.fontKey(r.font || '');
+        const pieces = distinct ? L.splitEA(text) : [{ ea: !!(r.fontEA && L.hasEAText(text)), text }];
+        let at = a;
+        for (const piece of pieces) {
+          const ea = piece.ea && !!r.fontEA;
+          const rr = ea ? Object.assign({}, r, { font: r.fontEA, eaText: true }) : (distinct ? Object.assign({}, r, { fontEA: undefined }) : r);
+          const lang = ea && r.langEA ? r.langEA : !ea && r.lang && !/^en/i.test(r.lang) ? r.lang : '';
+          const css = R.runCSS(rr, mult, ctx.dkPara ? { autoWhite: true, key: 'w' } : null) + extra;
+          const clsS = cls.join(' ') + (lang ? '|' + lang : '');
+          if (lastSpan && lastCss === css + '|' + clsS && +lastSpan.dataset.o + +lastSpan.dataset.n === at) {
+            lastSpan.firstChild.appendData(piece.text);
+            lastSpan.dataset.n = +lastSpan.dataset.n + piece.text.length;
+          } else {
+            el = document.createElement('span');
+            el.appendChild(document.createTextNode(piece.text));
+            el.style.cssText = css;
+            if (cls.length) el.className = cls.join(' ');
+            el.dataset.o = at;
+            el.dataset.n = piece.text.length;
+            if (r.link || rp.link) el.dataset.link = linkStr(r.link || rp.link);
+            if (r.noProof) el.spellcheck = false;
+            if (lang) el.lang = lang;
+            controlSpan(el);
+            pc.appendChild(el);
+            lastSpan = el; lastCss = css + '|' + clsS;
+          }
+          at += piece.text.length;
         }
-        el = document.createElement('span');
-        el.appendChild(document.createTextNode(text));
-        el.style.cssText = css;
-        if (cls.length) el.className = cls.join(' ');
-        el.dataset.o = a;
-        el.dataset.n = b - a;
-        if (r.link || rp.link) el.dataset.link = linkStr(r.link || rp.link);
-        if (r.noProof) el.spellcheck = false;
-        if (lang) el.lang = lang;
-        controlSpan(el);
-        pc.appendChild(el);
-        lastSpan = el; lastCss = css + '|' + clsS;
         continue;
       }
       lastSpan = null;

@@ -26,9 +26,9 @@
 // scan misses shows in English in the pseudo-locale (?lang=qps), which is how to find it.
 import fs from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUB = path.join(root, 'public');
 const LANGS = ['ja', 'ko', 'fr', 'de', 'zh-CN', 'zh-Hant'];
 const catalogFile = path.join(PUB, 'common/i18n/en.json');
@@ -226,7 +226,7 @@ function gather() {
   const fragment = (s, where) => frags.push(where + '\t' + JSON.stringify(s));
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
   for (const abs of walk(PUB).filter((f) => f.endsWith('.js')).sort()) {
-    const rel = path.relative(PUB, abs);
+    const rel = path.relative(PUB, abs).split(path.sep).join('/');
     if (rel.startsWith('common/dict/')) continue;
     const src = fs.readFileSync(abs, 'utf8');
     if (SKIP.has(rel)) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N

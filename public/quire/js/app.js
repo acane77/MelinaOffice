@@ -273,7 +273,7 @@
       preview: (v) => { const s = A.styleOptions().find((x) => x.label === v); return s ? s.css : ''; },
       value: () => (E.sel ? styleState() : ''), onChange: (v) => A.applyStyleByName(v),
     }, o)),
-    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => A.fontOptions(), preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => { const v = E.uniformRun('font'); return v || ''; }, onChange: (v) => A.setFont(v) }, o)),
+    font: (o) => ui.combo(Object.assign({ id: 'tb-font', width: 136, tip: 'Font', options: () => A.fontOptions(), preview: (v) => `font-family:${L.fontStack(v)};font-size:13px`, note: L.fontNote, listCls: 'fonts', value: () => A.fontBoxValue(), onChange: (v) => A.setFont(v) }, o)),
     size: (o) => ui.combo(Object.assign({ id: 'tb-size', width: 48, tip: 'Font Size', options: () => L.SIZE_LIST, value: () => { const v = E.uniformRun('sz'); return v ? String(L.round(v, 1)) : ''; }, onChange: (v) => A.setFontSize(parseFloat(v)) }, o)),
     zoom: (o) => ui.combo(Object.assign({ id: 'tb-zoom', width: 74, tip: 'Zoom', options: () => ['500%', '200%', '150%', '100%', '75%', '50%', '25%', '10%'].concat([L.N('Page Width'), L.N('Text Width'), L.N('Whole Page'), L.N('Two Pages')].map((v) => ({ value: v, label: L.t(v) }))), value: () => Math.round(LY.zoom * 100) + '%', onChange: (v) => A.zoomTo(v) }, o)),
   };
@@ -321,11 +321,47 @@
       h('span', { class: 'browse' }, ui.tbButton('browsePrev'), ui.tbDrop('', 'browseObj', (r) => A.browseMenu(r), 'Select Browse Object'), ui.tbButton('browseNext')));
   }
   A.fontOptions = () => {
-    const docFonts = [doc().defaults.rPr.font];
-    for (const k in doc().styles) { const r = doc().styles[k].rPr; if (r && r.font) docFonts.push(r.font); }
+    const docFonts = [doc().defaults.rPr.font, doc().defaults.rPr.fontEA];
+    for (const k in doc().styles) { const r = doc().styles[k].rPr; if (r) { if (r.font) docFonts.push(r.font); if (r.fontEA) docFonts.push(r.fontEA); } }
     return L.fontSections({ major: doc().theme?.major, minor: doc().theme?.minor, extra: docFonts });
   };
-  A.setFont = (v) => { if (!v) return; L.addRecentFont(v); E.formatRun({ font: v }, L.N('Font')); E.refocus(); };
+  /** the Font box shows the face of the character at the caret: East Asian font on an East Asian character */
+  A.fontBoxValue = function () {
+    if (!E.sel) return '';
+    const [a] = E.range();
+    const it = E.collapsed() ? D.itemBefore(a.p, a.o) : D.itemAfter(a.p, a.o);
+    let ea = false;
+    if (it && it.t === 'text' && it.text) {
+      const loc = D.locate(a.p, a.o, E.collapsed() ? 'before' : undefined);
+      const ch = E.collapsed() ? it.text[Math.max(0, loc.off - 1)] : it.text[loc.off];
+      ea = !!(ch && L.hasEAText(ch));
+    }
+    if (E.collapsed()) { const r = E.curRun(); return (ea ? (r.fontEA || r.font) : r.font) || ''; }
+    return E.uniformRun(ea ? 'fontEA' : 'font') || '';
+  };
+  A.setFont = (v) => {
+    if (!v || !E.sel) return;
+    L.addRecentFont(v);
+    const apply = (direct, it, p) => {
+      const resolved = D.rProps(doc(), p, it, LY.tblCtx(p));
+      const pick = L.fontPick(v, resolved);
+      if (pick.font) direct.font = pick.font;
+      if (pick.fontEA) direct.fontEA = pick.fontEA;
+      return direct;
+    };
+    if (E.collapsed()) {
+      const w = O.wordAt(E.sel.f);
+      if (w && w[0].o < E.sel.f.o && E.sel.f.o < w[1].o) {
+        const keep = E.sel;
+        E.edit(L.N('Font'), () => { O.formatRange(w[0], w[1], apply); return keep; });
+      } else E.formatRun(L.fontPick(v, E.curRun()), L.N('Font'));
+    } else {
+      const [a, b] = E.range();
+      const keep = E.sel;
+      E.edit(L.N('Font'), () => { O.formatRange(a, b, apply); return keep; });
+    }
+    E.refocus();
+  };
   A.setFontSize = (v) => { if (!(v > 0)) return; v = L.clamp(Math.round(v * 2) / 2, 1, 1638); E.formatRun({ sz: v }, 'Font Size'); E.refocus(); };
   function styleState() {
     const d = doc();
@@ -1172,8 +1208,8 @@
     return true;
   };
   document.addEventListener('keydown', (e) => {
-    if (ui.dialogOpen()) { ui.dialogKey(e); return; }
     if (ui.menuOpen()) { if (ui.menuKey(e)) { e.preventDefault(); e.stopPropagation(); } return; }
+    if (ui.dialogOpen()) { ui.dialogKey(e); return; }
     if (e.key === 'F10' && !e.shiftKey) { e.preventDefault(); A.menuBar.openIndex(0); return; }
     if (e.altKey && !e.ctrlKey && !e.shiftKey && e.key.length === 1 && /[a-z]/i.test(e.key)) { if (A.menuBar.openByKey(e.key)) { e.preventDefault(); return; } }
     const tgt = e.target;

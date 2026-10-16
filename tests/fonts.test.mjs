@@ -74,6 +74,35 @@ test('East Asian text is told from Latin text', () => {
   for (const s of ['English', 'Français', 'Größe', '', null]) assert.ok(!L.hasEAText(s), String(s));
 });
 
+test('(Use Asian text font) is one East Asian family in both slots', () => {
+  assert.equal(L.fontUsesEA('宋体', 'SimSun'), true);
+  assert.equal(L.fontUsesEA('SimHei', '黑体'), true);
+  assert.equal(L.fontUsesEA('Times New Roman', '宋体'), false);
+  assert.equal(L.fontUsesEA('Times New Roman', 'Times New Roman'), false);
+  assert.equal(L.fontUsesEA('宋体', ''), false);
+  assert.equal(L.fontUsesEA('', '宋体'), false);
+});
+
+test('the toolbar Font box writes the slot the family belongs to', () => {
+  assert.deepEqual(L.fontPick('Times New Roman', { font: '宋体' }), { font: 'Times New Roman', fontEA: '宋体' });
+  assert.deepEqual(L.fontPick('Times New Roman', { font: '宋体', fontEA: '宋体' }), { font: 'Times New Roman', fontEA: '宋体' });
+  assert.deepEqual(L.fontPick('Arial', { font: 'Times New Roman', fontEA: '宋体' }), { font: 'Arial' });
+  assert.deepEqual(L.fontPick('黑体', { font: 'Times New Roman', fontEA: '宋体' }), { font: '黑体', fontEA: '黑体' });
+  assert.deepEqual(L.fontPick('SimSun', { font: 'Arial', fontEA: '微软雅黑' }), { font: 'SimSun', fontEA: 'SimSun' });
+  assert.deepEqual(L.fontPick('Times New Roman', { font: '黑体', fontEA: '黑体' }), { font: 'Times New Roman', fontEA: '黑体' });
+  assert.equal(L.fontIsEA('华文中宋'), true);
+  assert.equal(L.fontIsEA('Calibri'), false);
+  assert.equal(L.fontIsEA('Century Gothic'), false);
+});
+
+test('a run splits into East Asian characters and the rest', () => {
+  assert.deepEqual(L.splitEA('测试 Test'), [{ ea: true, text: '测试' }, { ea: false, text: ' Test' }]);
+  assert.deepEqual(L.splitEA('A中B'), [{ ea: false, text: 'A' }, { ea: true, text: '中' }, { ea: false, text: 'B' }]);
+  assert.deepEqual(L.splitEA('Hello'), [{ ea: false, text: 'Hello' }]);
+  assert.deepEqual(L.splitEA('中文'), [{ ea: true, text: '中文' }]);
+  assert.deepEqual(L.splitEA(''), []);
+});
+
 test('Ledger: the rows of a Japanese or Korean Excel\'s default font', () => {
   assert.equal(L.model.fontRowPt({ name: 'ＭＳ Ｐゴシック', sz: 11 }), 13.5);
   assert.equal(L.model.fontRowPt({ name: '游ゴシック', sz: 11 }), 18.75);

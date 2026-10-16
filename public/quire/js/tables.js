@@ -634,7 +634,14 @@
   let measureCtx = null;
   function textWidth(text, r) {
     if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
-    measureCtx.font = `${r.i ? 'italic ' : ''}${r.b ? 'bold ' : ''}${(r.sz || 12)}px ${L.fontStack(r.font)}`;
+    const face = (name) => { measureCtx.font = `${r.i ? 'italic ' : ''}${r.b ? 'bold ' : ''}${(r.sz || 12)}px ${L.fontStack(name)}`; };
+    /* Latin and East Asian characters take their own font when the run names both */
+    if (r.fontEA && L.fontKey(r.fontEA) !== L.fontKey(r.font || '')) {
+      let w = 0;
+      for (const p of L.splitEA(text)) { face(p.ea ? r.fontEA : r.font); w += measureCtx.measureText(p.text).width; }
+      return w;
+    }
+    face(r.font);
     return measureCtx.measureText(text).width; /* in pt because font size is given in "px" = pt units */
   }
   function cellContentWidths(t, cell) {

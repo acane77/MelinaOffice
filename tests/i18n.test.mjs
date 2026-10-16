@@ -7,9 +7,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
 import { gather } from '../tools/i18n.mjs';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /* the pieces of English joined together or put in template literals with values, which can't be translated:
    only ever lower this as they are rewritten as one L.t('… {0} …', value) string */
 const UNTRANSLATABLE = 6;

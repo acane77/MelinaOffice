@@ -253,14 +253,14 @@
           const it = p.runs[i];
           if (D.isMarker(it)) continue;
           const old = it.rPr || {};
-          const nr = fn(Object.assign({}, old), it) || {};
+          const nr = fn(Object.assign({}, old), it, p) || {};
           if (O.tracking() && !old.chg && !old.ins && !D.sameRPr(old, nr)) nr.chg = Object.assign(O.revStamp(), { old: L.clone(old) });
           it.rPr = nr;
         }
         D.normalize(p);
       }
       /* when a whole paragraph is covered (or the selection crosses its mark), the paragraph mark gets the formatting too */
-      if ((p !== b.p) || (s === 0 && e === D.plen(p) && e > 0)) p.rPr = fn(Object.assign({}, p.rPr), null) || {};
+      if ((p !== b.p) || (s === 0 && e === D.plen(p) && e > 0)) p.rPr = fn(Object.assign({}, p.rPr), null, p) || {};
     }
   };
   /** set or clear run properties. props: {key: value|undefined} */
