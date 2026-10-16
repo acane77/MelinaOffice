@@ -45,6 +45,8 @@ This fork implements a vscode/code-server plugin, it works in VSCode!
   </tr>
 </table>
 
+Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor tab.
+
 ## Why VibeOffice
 
 - **Familiar.** Windows 7 menus and toolbars, on the glass chrome (the default look). Classic, Paper and Paper 2016 are under Themes.
@@ -65,6 +67,15 @@ The goal: edit a Word, Excel or PowerPoint file here, save it in the same format
 - **Nothing lost silently.** If a save would drop something you would miss, the Compatibility Checker will show a warning.
 
 4,697 real files from public test collections (LibreOffice, Apache POI, Open XML SDK) are opened, saved, edited, undone and recovered, and every save is compared with the original. Where the apps stand today, the known gaps and what comes next: [docs/LOSSLESS_SAVE.md](docs/LOSSLESS_SAVE.md).
+
+## Equations LaTeX
+
+I personally found Apple Pages' equation editor is easier to use than Word's during the experience when I was completing my Master degree's thsis, so this one is inspired by it: type the formula in LaTeX. Word opens the file and shows the same formula.
+
+<p align="center">
+  <img src="docs/images/formula-editing.png" width="720" alt="Quire's Edit Equation dialog">
+</p>
+
 
 ## The apps
 
