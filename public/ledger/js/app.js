@@ -25,7 +25,7 @@
   const DEFAULT_OPTS = {
     statusBar: true, formulaBar: true, taskOpen: true, paneFollows: true, moveAfterEnter: true, enterDir: 'down', autoComplete: true, dragDrop: true,
     toolbars: { standard: true, formatting: true, drawing: false, chart: 'auto', auditing: false, reviewing: false, picture: 'auto', borders: false, list: 'auto' },
-    userName: 'Ledger User', recent: [], defaultFont: LOCALE.font || 'Arial', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
+    userName: 'Ledger User', recent: [], defaultFont: LOCALE.font || '等线', defaultSize: LOCALE.sz || 10, sheetsInNew: 3, r1c1: false, calcMode: 'auto', iterate: false, iterateCount: 100, iterateDelta: 0.001, autoCalcFn: 'SUM',
   };
   const A = (L.app = Object.assign(L.app || {}, { opts: L.clone(DEFAULT_OPTS), books: [], cur: -1, lastFill: '#FFFF00', lastFontColor: '#FF0000', lastBorder: 'bottom' }));
   const book = () => A.books[A.cur];
@@ -34,7 +34,7 @@
 
   /* ------------------------------------------------------------ options */
   /* the options that follow the UI's language, with their English values (common/locales.js) */
-  const EN_OPTS = { defaultFont: 'Arial', defaultSize: 10 };
+  const EN_OPTS = { defaultFont: '等线', defaultSize: 10 };
   A.loadOpts = () => { A.opts = L.deepMerge(L.clone(DEFAULT_OPTS), L.locale.savedOpts(L.store.get('opts', {}), EN_OPTS)); };
   A.saveOpts = () => { L.store.set('opts', L.locale.optsToSave(A.opts, DEFAULT_OPTS, EN_OPTS)); };
   A.applyOpts = () => {
@@ -57,7 +57,7 @@
 
   /* ------------------------------------------------------------ workbooks */
   A.blankWorkbook = function () {
-    const font = { name: A.opts.defaultFont || 'Arial', sz: A.opts.defaultSize || 10 };
+    const font = { name: A.opts.defaultFont || '等线', sz: A.opts.defaultSize || 10 };
     if (LOCALE.charset && font.name === LOCALE.font) Object.assign(font, { family: LOCALE.family, charset: LOCALE.charset });
     const w = new M.Workbook({ font });
     if (LOCALE.paper) w.paper = LOCALE.paper;   // its sheets' paper (Sheet's print.paper)

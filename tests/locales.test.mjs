@@ -28,7 +28,7 @@ const ledger = (lang) => saved('ledger', lang, 'L.xlsxWrite.write(L.app.books[L.
 const lectern = (lang) => saved('lectern', lang, 'L.pptx.write(L.pres)', ['ppt/presentation.xml', 'ppt/theme/theme1.xml', 'ppt/slides/slide1.xml']);
 
 for (const [lang, font, pitch, size, tab, charset, row, script] of [
-  ['zh-CN', '宋体', 312, 21, 420, 134, 13.5, 'Hans'],
+  ['zh-CN', '等线', 312, 21, 420, 134, 14, 'Hans'],
   ['zh-Hant', '新細明體', 360, 24, 480, 136, 14.25, 'Hant'],
 ]) test('Chinese defaults survive saving in all three apps: ' + lang, async () => {
   const q = await quire(lang), w = q['word/styles.xml'], set = q['word/settings.xml'];
@@ -102,4 +102,7 @@ test('Lectern, Japanese: text in Japanese, the theme\'s Japanese font', async ()
   const en = await lectern('en');
   assert.match(en['ppt/presentation.xml'], /<a:defRPr lang="en-US"\/>/);
   assert.doesNotMatch(en['ppt/theme/theme1.xml'], /script="Jpan"/);
+  assert.match(en['ppt/theme/theme1.xml'], /<a:latin typeface="等线"\/>/);
+  const book = await ledger('en');
+  assert.match(book['xl/styles.xml'], /<name val="等线"\/>/);
 });

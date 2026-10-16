@@ -794,7 +794,7 @@
       ck('Enable Auto&Complete for cell values', () => o.autoComplete !== false, (x) => { o.autoComplete = x; }), ck('Extend data range &formats and formulas', () => o.extendFormats !== false, (x) => { o.extendFormats = x; }), ck('Enable automatic percent entry', () => o.autoPercent !== false, (x) => { o.autoPercent = x; }));
     const uname = h('input', { type: 'text', value: o.userName || '', style: 'width:200px' });
     const nSheets = ui.spin({ value: o.sheetsInNew || 3, min: 1, max: 255, step: 1, dec: 0 });
-    const dfont = ui.select(L.FONT_LIST, o.defaultFont || 'Arial', null, { translate: 'no' }), dsize = ui.select(L.SIZE_LIST, o.defaultSize || 10);
+    const dfont = ui.select(L.FONT_LIST, o.defaultFont || '等线', null, { translate: 'no' }), dsize = ui.select(L.SIZE_LIST, o.defaultSize || 10);
     const look = ui.lookField();
     const genTab = h('div', { class: 'col' }, look && look.el, ck('R1C1 reference st&yle', () => !!w.r1c1, (x) => { w.r1c1 = x; }), ck('&Recently used file list', () => true, () => {}),
       ui.field('Sheets in new work&book:', nSheets), h('div', { class: 'row', style: 'gap:8px' }, ui.field('Standard fon&t:', dfont), ui.field('Si&ze:', dsize)), ui.field('User &name:', uname));
