@@ -122,7 +122,7 @@
   };
   function updateTitle() {
     const b = book();
-    document.title = (b ? b.name + ' - ' : '') + 'Ledger 2003';
+    document.title = (b ? b.name + ' - ' : '') + 'Ledger';
   }
 
   /* ------------------------------------------------------------ open */

@@ -112,6 +112,8 @@
     kind: native ? 'desktop' : inVs ? 'vscode' : 'web',
     platform: (native || inVs) ? (native || inVs).platform : 'web',
     version: (native || inVs) ? ((native || inVs).version || 0) : 0,
+    /** whether this edition looks for its updates (updater/current.json): not the Mac App Store's, which the store updates */
+    updates: !native || native.edition !== 'appstore',
     /** open a web or mail address in the system's browser: a new tab on the web, the default browser in the
      *  desktop app (which also sends every link that leaves the app there), the editor's browser in VS Code */
     async openUrl(url) {
@@ -389,7 +391,7 @@
   const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
   N('Blank Document'); N('Blank Workbook'); N('Blank Presentation');   // templates.json's Blank entries (tools/templates.mjs)
   const LOOKS = [{ id: 'win7', name: N('Windows 7'), note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
-    { id: 'classic', name: N('Classic'), note: 'The blue toolbars and menus of Office 2003.' },
+    { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' },
     { id: 'paper', name: N('Paper'), note: 'Light and calm: warm paper tones, one teal accent, rounded shapes.' },
     { id: 'paper2016', name: N('Paper 2016'), layout: 'ribbon', note: 'Paper with tabs of commands, grouped by task, instead of menus and toolbars.' }];
   const storedLook = () => { try { return localStorage.getItem('vibeoffice.look') || 'win7'; } catch (e) { return 'win7'; } };
