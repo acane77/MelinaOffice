@@ -106,7 +106,10 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   character before it or the character after it. Double-click, or Edit Equation on its menu,
   opens a LaTeX editor with a live preview. The field is filled from the equation (linear LaTeX as
   stored, otherwise LaTeX derived from the OMML). Update writes that LaTeX back as OMML and stays
-  disabled while the LaTeX has a syntax error.
+  disabled while the LaTeX has a syntax error. Insert ▸ Equation (and Insert ▸ Object ▸ Equation,
+  and Equation in the ribbon's Symbols group) opens the same editor; Insert adds the equation at the
+  caret, as a display equation when the paragraph is empty and as an inline equation when it already
+  has text. Insert ▸ Object ▸ Equation (Legacy) still inserts Cambria Math italics.
   An equation sits in the line, as Word does, so a table cell does not gain a blank line above
   and below it. A display equation is centered on that line when the paragraph is justified. An equation wider than its column or table cell
   breaks before a binary operator (+, =, and the like), as Word does. A line break beside an

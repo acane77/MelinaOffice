@@ -495,12 +495,13 @@
 
   /* ================= Insert Object ================= */
   G.insertObject = function () {
-    const types = [['chart', L.N('Chart')], ['equation', L.N('Equation')], ['wordart', L.N('LettersArt')], ['excel', L.N('Spreadsheet (table)')], ['document', L.N('Document (inserted as text)')], ['picture', L.N('Bitmap Image')]];
+    const types = [['chart', L.N('Chart')], ['equation', L.N('Equation')], ['equationLegacy', L.N('Equation (Legacy)')], ['wordart', L.N('LettersArt')], ['excel', L.N('Spreadsheet (table)')], ['document', L.N('Document (inserted as text)')], ['picture', L.N('Bitmap Image')]];
     const lb = G.listBox(types.map(([v, l]) => ({ value: v, label: l })), 'chart', { height: 160, onDbl: () => ok.click() });
     const dlg = ui.dialog({ title: 'Object', width: 360, body: ui.tabs([{ label: '&Create New', body: h('div', { class: 'col' }, h('label', { text: 'Object type:' }), lb) }, { label: 'Create from &File', body: h('div', { class: 'col' }, h('div', { class: 'tp-note', text: 'Insert the contents of a .docx, .txt or .htm file, or a picture.' }), ui.button('&Browse...', () => { dlg.close(null); A().insertFileDialog(); })) }]), buttons: [{ label: 'OK', primary: true, onClick: () => {
       const v = lb.get();
       if (v === 'chart') A().insertChart();
       else if (v === 'equation') G.equation();
+      else if (v === 'equationLegacy') G.equationLegacy();
       else if (v === 'wordart') G.wordart();
       else if (v === 'excel') L.tables.insert(4, 5, { worksheet: true });
       else if (v === 'document') A().insertFileDialog();
@@ -508,12 +509,14 @@
     } }, { label: 'Cancel' }] });
     const ok = dlg.buttons[0];
   };
-  /** a simple equation editor: linear format with Unicode math symbols */
-  G.equation = function () {
+  /** Insert ▸ Equation, and Insert ▸ Object ▸ Equation: the LaTeX dialog, with Insert as the button. */
+  G.equation = function () { G.editEquation({ insert: true }); };
+  /** Insert ▸ Object ▸ Equation (Legacy): the earlier editor, Cambria Math italics, not OMML. */
+  G.equationLegacy = function () {
     const inp = h('textarea', { rows: 3, id: 'eq-in', style: 'width:100%;font:16px "Cambria Math",Caladea,serif' });
     const pal = h('div', { class: 'sym-recent', style: 'grid-template-columns:repeat(16,26px)' });
     for (const c of '±×÷≠≈≤≥∞√∛∑∏∫∂∆∇πθαβγδλμσφωΩ→⇒∈∉⊂⊃∪∩∀∃¬∧∨²³⁴ⁿ₀₁₂ᵢ½'.split('')) { const b = h('button', { type: 'button', text: c }); b.addEventListener('click', () => { const s = inp.selectionStart; inp.value = inp.value.slice(0, s) + c + inp.value.slice(inp.selectionEnd); inp.focus(); inp.setSelectionRange(s + 1, s + 1); }); pal.appendChild(b); }
-    ui.dialog({ title: 'Equation', width: 470, focus: inp, body: h('div', { class: 'col' }, pal, inp, h('div', { class: 'tp-note', text: 'Type the equation; it is inserted in Cambria Math italics.' })), buttons: [{ label: 'OK', primary: true, onClick: () => { if (!inp.value.trim()) return; E.edit('Insert Equation', () => { const pos = E.deleteSelection(); return O.insertText(pos, inp.value.trim(), Object.assign(O.inheritRPr(pos), { font: 'Cambria Math', i: true })); }); } }, { label: 'Cancel' }] });
+    ui.dialog({ title: 'Equation (Legacy)', width: 470, focus: inp, body: h('div', { class: 'col' }, pal, inp, h('div', { class: 'tp-note', text: 'Type the equation; it is inserted in Cambria Math italics.' })), buttons: [{ label: 'OK', primary: true, onClick: () => { if (!inp.value.trim()) return; E.edit(L.N('Insert Equation (Legacy)'), () => { const pos = E.deleteSelection(); return O.insertText(pos, inp.value.trim(), Object.assign(O.inheritRPr(pos), { font: 'Cambria Math', i: true })); }); } }, { label: 'Cancel' }] });
   };
 
   /* ================= Diagram Gallery ================= */
@@ -861,32 +864,49 @@
   }
   /**
    * Pages-style equation editor: LaTeX above, a live preview below.
-   * The field is filled from the equation. Update replaces its OMML when the text changed and parses.
-   * opts.button is Update when editing and Insert when inserting. Either stays disabled while the LaTeX does not parse.
-   * An empty field is not an error and does not replace the equation: the preview keeps what is already there.
+   * Editing fills the field from the equation; Update replaces its OMML when the text changed and parses.
+   * Insert (opts.insert) starts empty. An empty paragraph becomes a display equation; a paragraph that
+   * already has text gets an inline one. The primary button stays disabled while the LaTeX does not parse.
+   * An empty field is not an error: editing keeps the equation, and Insert does not add one.
    */
   G.editEquation = function (opts) {
     opts = opts || {};
-    const it = opts.item || selectedEquation();
-    if (!it) return;
-    const filled = equationLatex(it);
+    const inserting = !!opts.insert;
+    const it = inserting ? null : (opts.item || selectedEquation());
+    if (!inserting && !it) return;
+    const filled = inserting ? '' : equationLatex(it);
     const ta = h('textarea', { rows: 5, spellcheck: 'false' });
     ta.value = filled;
     const pv = h('div', { class: 'eq-preview' });
     const note = h('div', { class: 'eq-note' });
     let bad = false;
     const showOriginal = () => {
+      if (!it) return;
       const m = R.mathFor(it);
       if (m && m.math) { const c = m.math.cloneNode(true); if (!c.getAttribute('displaystyle')) c.setAttribute('displaystyle', 'true'); pv.appendChild(c); }
     };
     const dlg = ui.dialog({
-      title: 'Edit Equation', width: 480, focus: ta,
+      title: inserting ? 'Insert Equation' : 'Edit Equation', width: 480, focus: ta,
       body: h('div', { class: 'col eq-editor' }, h('label', { text: 'LaTeX' }), ta, h('label', { text: 'Preview' }), pv, note),
-      buttons: [{ label: opts.button || 'Update', primary: true, onClick: () => {
+      buttons: [{ label: opts.button || (inserting ? 'Insert' : 'Update'), primary: true, onClick: () => {
         if (bad) return false;
         const src = ta.value.trim();
-        if (!src || src === filled) return;
-        const xml = L.latex && L.latex.toOMML(src, { para: !!it.para, paraPr: paraPrOf(it) });
+        if (!src || (!inserting && src === filled)) return inserting ? false : undefined;
+        const probe = L.latex && L.latex.toOMML(src, { para: false });
+        if (!probe) { bad = true; apply.disabled = true; note.textContent = L.t('This LaTeX has a syntax error.'); return false; }
+        if (inserting) {
+          if (!E.sel) return false;
+          const ok = E.edit(L.N('Insert Equation'), () => {
+            const pos = E.deleteSelection();
+            const para = D.plen(pos.p) === 0;
+            const xml = L.latex.toOMML(src, { para });
+            if (!xml) return pos;
+            return O.insertItem(pos, D.item('raw', { math: true, text: mathPlain(xml), xml, para }));
+          });
+          if (ok === false) return false;
+          return;
+        }
+        const xml = L.latex.toOMML(src, { para: !!it.para, paraPr: paraPrOf(it) });
         if (!xml) { bad = true; apply.disabled = true; note.textContent = L.t('This LaTeX has a syntax error.'); return false; }
         const p = E.sel && E.sel.f && E.sel.f.p;
         if (!p || !p.runs || p.runs.indexOf(it) < 0) return false;
@@ -909,7 +929,7 @@
       } else {
         const math = L.latex && L.latex.toMathML(v);
         if (math) { bad = false; pv.appendChild(math); note.textContent = ''; }
-        else if (v.trim() === filled) { bad = false; note.textContent = ''; showOriginal(); }
+        else if (!inserting && v.trim() === filled) { bad = false; note.textContent = ''; showOriginal(); }
         else { bad = true; note.textContent = L.t('This LaTeX has a syntax error.'); }
       }
       apply.disabled = bad;

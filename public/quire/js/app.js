@@ -67,7 +67,7 @@
           'ruler', '-', 'docMap', 'thumbnails', '-', 'headerFooter', 'footnotes', 'markup', '-', 'fullScreen', 'zoomDlg'],
       },
       {
-        label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertComment', '-',
+        label: '&Insert', items: () => ['insertBreak', 'pageNumbers', 'dateTime', { label: '&AutoText', sub: () => L.autocorrect ? L.autocorrect.autoTextMenu() : [] }, 'insertField', 'insertSymbol', 'insertEquation', 'insertComment', '-',
           { label: 'Refere&nce', sub: ['insertFootnote', 'insertCaption', 'crossReference', 'indexTables'] }, '-',
           { label: '&Picture', icon: 'picture', sub: ['insertClipArt', 'insertPicture', '-', 'newDrawing', { label: '&AutoShapes', icon: 'autoshapes', run: () => A.openAutoShapes() }, 'insertWordArt', 'insertChart'] },
           'insertDiagram', 'textBox', 'insertFile', 'insertObject', 'bookmark', 'hyperlink'],
