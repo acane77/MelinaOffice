@@ -16,6 +16,10 @@ const DEFAULT_EXT = {
   lectern: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm'],
 };
 
+/** File ▸ New writes this type, whichever file the editor tab was opened on. */
+const SAVE_EXT = { quire: 'docx', ledger: 'xlsx', lectern: 'pptx' };
+const SAVE_STEM = { quire: 'Document', ledger: 'Book', lectern: 'Presentation' };
+
 function extname(name) {
   const m = /\.([^./\\]+)$/.exec(String(name || ''));
   return m ? m[1].toLowerCase() : '';
@@ -50,6 +54,16 @@ function sameFile(savedName, openName) {
   return !!a && a.toLowerCase() === b.toLowerCase();
 }
 
+/** the name File ▸ New will write. A suffix the user typed is kept, and the editor's own suffix is added after it:
+ *  新建文档.txt with docx becomes 新建文档.txt.docx. A name that already ends with that suffix is left as it is. */
+function ensureExt(name, ext, stem) {
+  const e = String(ext || '').replace(/^\./, '').toLowerCase();
+  let base = safeName(name);
+  if (!base) base = (stem || 'Document') + (e ? '.' + e : '');
+  if (!e || base.toLowerCase().endsWith('.' + e)) return base;
+  return base + '.' + e;
+}
+
 function toBytes(b) {
   if (b instanceof Uint8Array) return b;
   if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(b)) return new Uint8Array(b);
@@ -59,7 +73,7 @@ function toBytes(b) {
   return new Uint8Array();
 }
 
-/** reassemble chunk messages. push() returns { id, name, purpose, bytes } once every part has arrived. */
+/** reassemble chunk messages. push() returns { id, name, purpose, uri, draftKey, bytes } once every part has arrived. */
 function createAssembler() {
   const pending = new Map();
   return {
@@ -67,9 +81,11 @@ function createAssembler() {
       if (!msg || msg.type !== 'chunk' || msg.id == null) return null;
       let rec = pending.get(msg.id);
       if (!rec) {
-        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', parts: [], got: 0 };
+        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', uri: msg.uri || '', draftKey: msg.draftKey || '', parts: [], got: 0 };
         pending.set(msg.id, rec);
       }
+      if (msg.uri) rec.uri = msg.uri;
+      if (msg.draftKey) rec.draftKey = msg.draftKey;
       if (rec.parts[msg.i] == null) {
         rec.parts[msg.i] = toBytes(msg.b64 != null ? msg.b64 : msg.bytes);
         rec.got++;
@@ -84,11 +100,11 @@ function createAssembler() {
         const p = rec.parts[i];
         if (p) { out.set(p, o); o += p.length; }
       }
-      return { id: msg.id, name: rec.name, purpose: rec.purpose, bytes: out };
+      return { id: msg.id, name: rec.name, purpose: rec.purpose, uri: rec.uri || '', draftKey: rec.draftKey || '', bytes: out };
     },
   };
 }
 
 module.exports = {
-  APPS, DEFAULT_EXT, extname, appFor, viewTypeFor, baseName, safeName, sameFile, toBytes, createAssembler,
+  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, toBytes, createAssembler,
 };

@@ -67,7 +67,11 @@
     return w;
   };
   let untitled = 0;
-  A.newWorkbook = function () {
+  A.newWorkbook = async function () {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument) {
+      await VO.host.createDocument(async () => L.xlsxWrite.write(A.blankWorkbook(), { type: 'xlsx' }));
+      return;
+    }
     untitled++;
     A.addBook(A.blankWorkbook(), 'Book' + untitled, { type: 'xlsx', untitled: true });
   };
@@ -109,6 +113,7 @@
       if (r === 0) { const ok = await A.save(); if (!ok) return false; }
       if (r === 1 && window.VO) VO.discard(b);   // its unsaved version goes too
     }
+    if (A.books.length <= 1 && window.VO && VO.host.kind === 'vscode') return 'tab';
     A.books.splice(A.cur, 1);
     if (!A.books.length) { A.newWorkbook(); return true; }
     A.cur = Math.min(A.cur, A.books.length - 1);
@@ -122,6 +127,7 @@
 
   /* ------------------------------------------------------------ open */
   A.openDialog = async function (accept) {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.openWorkspace) { await VO.host.openWorkspace(accept || '.xlsx,.xlsm,.xltx,.xltm,.csv,.txt,.tsv,.prn,.xml'); return; }
     const files = await L.pickFiles(accept || '.xlsx,.xlsm,.xltx,.xltm,.csv,.txt,.tsv,.prn,.xml', true);
     if (files.length) A.openFiles(files);
   };

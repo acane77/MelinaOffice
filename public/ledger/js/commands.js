@@ -26,7 +26,7 @@
   cmd('newBook', { label: '&New...', menuLabel: '&New...', tip: 'New', icon: 'new', key: 'Ctrl+N', run: (arg, ev) => { if ((ev && ev.currentTarget && ev.currentTarget.closest && ev.currentTarget.closest('.toolbar')) || !window.VO) A().newWorkbook(); else VO.newDialog('ledger', (id) => (id ? L.panes.newFromTemplate(id) : A().newWorkbook())); } });
   cmd('newBlank', { label: 'New Blank Workbook', icon: 'new', run: () => A().newWorkbook() });
   cmd('open', { label: '&Open...', icon: 'open', key: 'Ctrl+O', run: () => A().openDialog() });
-  cmd('close', { label: '&Close', run: () => A().closeWorkbook() });
+  cmd('close', { label: '&Close', run: async () => { const r = await A().closeWorkbook(); if (r === 'tab' && window.VO) VO.exit(); } });
   cmd('save', { label: '&Save', icon: 'save', key: 'Ctrl+S', run: run(() => A().save()) });
   cmd('saveAs', { label: 'Save &As...', key: 'F12', run: run(() => D().saveAs()) });
   cmd('saveWeb', { label: 'Save as Web Pa&ge...', run: run(() => A().saveAs('html')) });

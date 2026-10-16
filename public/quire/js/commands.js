@@ -221,7 +221,7 @@
   C('new', { label: '&New...', menuLabel: '&New...', icon: 'new', key: 'Ctrl+N', tip: 'New Blank Document', run: (arg, ev) => { if (ev && ev.currentTarget && ev.currentTarget.closest && ev.currentTarget.closest('.toolbar')) A.newDocument(); else if (window.VO) VO.newDialog('quire', (id) => (id ? L.templates.create(id) : A.newDocument())); else pane('new')(); } });
   C('newBlank', { label: '&Blank document', icon: 'new', run: () => A.newDocument() });
   C('open', { label: '&Open...', icon: 'open', key: 'Ctrl+O', run: () => A.openDialog() });
-  C('close', { label: '&Close', icon: 'close', run: () => A.closeDocument() });
+  C('close', { label: '&Close', icon: 'close', run: async () => { const r = await A.closeDocument(); if (r === 'tab' && window.VO) VO.exit(); } });
   C('save', { label: '&Save', icon: 'save', key: 'Ctrl+S', enabled: () => !!D.doc, run: () => A.save() });
   C('saveAs', { label: 'Save &As...', key: 'F12', run: () => A.saveAs() });
   C('saveWeb', { label: 'Save as Web Pa&ge...', icon: 'webPage', run: () => A.exportAs('html') });

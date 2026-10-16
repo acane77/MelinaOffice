@@ -28,14 +28,27 @@ test('a save name cannot leave the file’s folder', () => {
   assert.equal(proto.sameFile('Report.pdf', '/work/Report.docx'), false);
 });
 
+test('a new file keeps a typed suffix and appends the editor default', () => {
+  assert.equal(proto.SAVE_EXT.quire, 'docx');
+  assert.equal(proto.SAVE_EXT.ledger, 'xlsx');
+  assert.equal(proto.SAVE_EXT.lectern, 'pptx');
+  assert.equal(proto.ensureExt('新建文档.docx', 'docx'), '新建文档.docx');
+  assert.equal(proto.ensureExt('新建文档.DOCX', 'docx'), '新建文档.DOCX');
+  assert.equal(proto.ensureExt('新建文档.txt', 'docx'), '新建文档.txt.docx');
+  assert.equal(proto.ensureExt('../x.txt', 'xlsx'), 'x.txt.xlsx');
+  assert.equal(proto.ensureExt('', 'pptx', 'Presentation'), 'Presentation.pptx');
+});
+
 test('chunks reassemble in any order', () => {
   const a = proto.createAssembler();
   const raw = new Uint8Array([1, 2, 3, 4, 5]);
   assert.equal(a.push({ type: 'chunk', id: 's', i: 1, n: 2, name: 'A.docx', purpose: 'save', b64: Buffer.from(raw.subarray(3)).toString('base64') }), null);
-  const done = a.push({ type: 'chunk', id: 's', i: 0, n: 2, name: 'A.docx', purpose: 'save', b64: Buffer.from(raw.subarray(0, 3)).toString('base64') });
+  const done = a.push({ type: 'chunk', id: 's', i: 0, n: 2, name: 'A.docx', purpose: 'save', uri: 'file:///work/A.docx', draftKey: 'quire:A.docx', b64: Buffer.from(raw.subarray(0, 3)).toString('base64') });
   assert.deepEqual([...done.bytes], [1, 2, 3, 4, 5]);
   assert.equal(done.name, 'A.docx');
   assert.equal(done.purpose, 'save');
+  assert.equal(done.uri, 'file:///work/A.docx');
+  assert.equal(done.draftKey, 'quire:A.docx');
 });
 
 test('the webview page points at the app folder and names the vscode host', () => {
@@ -89,5 +102,12 @@ test('the pages recognise the vscode host', () => {
   assert.match(suite, /kind === 'vscode'/);
   assert.match(suite, /writeFile\(name, blob, opts\)/);
   assert.match(suite, /l\.vscode/);
+  assert.match(suite, /createDocument/);
+  assert.match(suite, /pick-new/);
+  assert.match(suite, /pick-open/);
   assert.match(core, /VO\.host\.writeFile/);
+  const ext = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
+  assert.match(ext, /ensureExt/);
+  assert.match(ext, /showSaveDialog/);
+  assert.match(ext, /showOpenDialog/);
 });

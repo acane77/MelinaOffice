@@ -38,7 +38,15 @@ In desktop VS Code the same folder is an extension: Run and Debug, **VibeOffice 
 
 ## Opening and saving
 
-Click a `.docx`, `.xlsx` or `.pptx` in the Explorer. The editor tab is the app (Quire, Ledger or Lectern) with that file open, in place of the sample document. Edits mark the tab dirty. Ctrl+S asks the app to save and writes the result over the workspace file. Workspace files open from the Explorer. File ▸ Open inside the app is the page's file picker; in a webview that picker often cannot see the workspace, so use the Explorer for those files.
+Click a `.docx`, `.xlsx` or `.pptx` in the Explorer. The editor tab is the app (Quire, Ledger or Lectern) with that file open, in place of the sample document. Edits mark the tab dirty. Ctrl+S asks the app to save and writes the result over the workspace file.
+
+File ▸ New asks for a file with VS Code's save dialog, in the folder of the file this tab has open. Quire suggests `Document1.docx`, Ledger `Book1.xlsx` and Lectern `Presentation1.pptx`, using the next free number. The page then builds a new document of that type and the extension opens it in its own tab. The tab you started from stays on its file. The new file's extension is the app's (`docx`, `xlsx` or `pptx`). A name that ends with something else keeps that ending and gains the app's extension, so `新建文档.txt` is saved as `新建文档.txt.docx`. Choosing a file that is already open in VibeOffice switches to that tab and leaves it unchanged. A template chosen in the app is written the same way. A web page, an e-mail message, the welcome document and Lectern's design-template pane still open in the current tab.
+
+File ▸ Open uses VS Code's open dialog (on code-server, the files on that machine) and opens each chosen file in its own tab. Ledger can select more than one. The page's own file picker stays in use for a file dropped on the page, and in Quire for From existing document.
+
+Recent Files in Getting Started and the File menu remember the workspace path of a file this editor opened or saved. Choosing one opens that file in its own tab, and Save writes it back there. Unsaved changes kept for that entry are opened into the new tab, still bound to the same file. An entry with no path asks for a file name, as File ▸ New does, and writes the copy Recent Files kept. A file that is already open is shown instead of being replaced.
+
+File ▸ Close, when this tab has only that one document, closes the editor tab. With several documents open inside the one tab, it closes the current one.
 
 File ▸ Save As, PDF, PNG and CSV use the name the app chose. When that name is the open file, the open file is written. When it is another name, the new file is written beside it (with ` (1)` before the extension if the name is already there) and opened in its own tab. The tab you saved from still shows unsaved changes for the original file.
 

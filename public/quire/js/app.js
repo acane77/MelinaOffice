@@ -707,6 +707,15 @@
   /** a blank document as the Office of the UI's language makes it (common/locales.js) */
   const blank = () => D.applyLocale(D.newDoc(), L.locale && L.locale.get());
   A.newDocument = async function (opts) {
+    /* VS Code: ask for a file, then open that new document in its own tab. Web pages, e-mail and the welcome document stay in this tab. */
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument && !(opts && opts.inplace)) {
+      await VO.host.createDocument(async () => {
+        const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
+        if (opts && opts.build) opts.build(d);
+        return L.docx.write(d, { format: 'docx' });
+      });
+      return;
+    }
     A.untitled++;
     const d = opts && opts.modern ? D.newDoc({ modern: true }) : blank();
     if (opts && opts.build) opts.build(d);
@@ -716,7 +725,10 @@
   /** close the current document (asking to save); false when the user cancels */
   A.closeDocument = async function () {
     if (!(await confirmDiscard())) return false;
-    if (A.docs.length <= 1) { A.docs = []; A.cur = -1; A.untitled++; A.loadDoc(blank(), 'Document' + A.untitled); return true; }
+    if (A.docs.length <= 1) {
+      if (window.VO && VO.host.kind === 'vscode') return 'tab';
+      A.docs = []; A.cur = -1; A.untitled++; A.loadDoc(blank(), 'Document' + A.untitled); return true;
+    }
     const i = A.cur;
     A.docs.splice(i, 1);
     A.cur = -1; /* nothing to stash: the closed window is gone */
@@ -724,6 +736,7 @@
     return true;
   };
   A.openDialog = async function () {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.openWorkspace) { await VO.host.openWorkspace('.docx,.docm,.dotx,.dotm,.doc,.txt,.htm,.html,.rtf,.md,.markdown,.zip'); return; }
     const files = await L.pickFiles('.docx,.docm,.dotx,.dotm,.doc,.txt,.htm,.html,.rtf,.xml,.md,.markdown,.zip,application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     if (files[0]) A.openFile(files[0]);
   };

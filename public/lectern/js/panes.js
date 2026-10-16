@@ -544,7 +544,7 @@
     id: 'new', title: 'New Presentation',
     render(b) {
       b.append(
-        sec(L.N('New'), link('new', 'Blank presentation', () => L.app.newPresentation()), link('design', 'From design template', () => { L.app.newPresentation(); TP.show('design'); }), link('properties', 'From AutoContent wizard...', () => L.app.autoContent()), link('open', 'From existing presentation...', () => ui.exec('open')), link('photoAlbum', 'Photo album...', () => ui.exec('photoAlbum'))),
+        sec(L.N('New'), link('new', 'Blank presentation', () => L.app.newPresentation()), link('design', 'From design template', () => { L.app.newPresentation({ inplace: true }); TP.show('design'); }), link('properties', 'From AutoContent wizard...', () => L.app.autoContent()), link('open', 'From existing presentation...', () => ui.exec('open')), link('photoAlbum', 'Photo album...', () => ui.exec('photoAlbum'))),
         sec(L.N('Templates'), link('slideshow', 'Sample: café expansion plan', () => L.app.loadSample())));
     },
   });

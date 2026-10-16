@@ -380,7 +380,7 @@
       });
     } else {
       const text = pick.map((s) => s.text).join(' ');
-      A().newDocument({ build: (nd) => { nd.main.blocks = [D.para([D.text('Summary of ' + A().fileName, { b: true, sz: 14 })]), D.para([D.text(text)])]; } });
+      A().newDocument({ inplace: true, build: (nd) => { nd.main.blocks = [D.para([D.text('Summary of ' + A().fileName, { b: true, sz: 14 })]), D.para([D.text(text)])]; } });
     }
     if (updStats) { d.props.description = (pick.map((s) => s.text).join(' ')).slice(0, 255); }
   }
@@ -438,7 +438,7 @@
       const spec = LABELS.find((x) => x[0] === lprod.value);
       const [, , nc, nr, lw, lh, ml, mt, gap] = spec;
       const text = laddr.value;
-      A().newDocument({ build: (nd) => {
+      A().newDocument({ inplace: true, build: (nd) => {
         nd.sect.ml = ml; nd.sect.mr = 0; nd.sect.mt = mt; nd.sect.mb = 0; nd.sect.hdr = 0; nd.sect.ftr = 0;
         if (/A4/.test(spec[1])) { nd.sect.pgW = 595.3; nd.sect.pgH = 841.9; }
         const cols = [];
@@ -770,7 +770,7 @@
       return { label: c, body: grid };
     }));
     drawPv('blank');
-    const dlg = ui.dialog({ title: 'Templates', width: 520, body: G.row(h('div', { style: 'flex:1;min-width:240px' }, tabs), h('div', { class: 'col' }, h('div', { class: 'cd-cap', text: 'Preview' }), pv)), buttons: [{ label: 'OK', primary: true, onClick: () => { if (pick === 'blank') A().newDocument(); else if (pick === 'web') { A().newDocument().then(() => A().setView('web')); } else if (pick === 'mail') A().newDocument({ build: (d) => { d.main.blocks = [D.para([D.text('To: ')]), D.para([D.text('Subject: ')]), D.para()]; } }); else L.templates.create(pick); } }, { label: 'Cancel' }] });
+    const dlg = ui.dialog({ title: 'Templates', width: 520, body: G.row(h('div', { style: 'flex:1;min-width:240px' }, tabs), h('div', { class: 'col' }, h('div', { class: 'cd-cap', text: 'Preview' }), pv)), buttons: [{ label: 'OK', primary: true, onClick: () => { if (pick === 'blank') A().newDocument(); else if (pick === 'web') { A().newDocument({ inplace: true }).then(() => A().setView('web')); } else if (pick === 'mail') A().newDocument({ inplace: true, build: (d) => { d.main.blocks = [D.para([D.text('To: ')]), D.para([D.text('Subject: ')]), D.para()]; } }); else L.templates.create(pick); } }, { label: 'Cancel' }] });
     const ok = dlg.buttons[0];
   };
 })();

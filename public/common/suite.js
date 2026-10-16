@@ -73,7 +73,30 @@
   const inVs = !native && announced && announced.kind === 'vscode' ? announced : null;
   const call = (cmd, args) => window.__TAURI_INTERNALS__.invoke(cmd, args);
   const vsPost = (msg) => { const api = window.__VO_VSCODE__; if (api) api.postMessage(msg); };
+  /** one round trip to the extension. The reply arrives as { type: 'reply', id }. Dialogs stay open as long as the user needs. */
+  const vsRequest = (msg) => {
+    const api = window.__VO_VSCODE__;
+    if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
+    const id = Math.random().toString(36).slice(2);
+    return new Promise((resolve) => {
+      function on(ev) {
+        const m = ev.data;
+        if (!m || m.type !== 'reply' || m.id !== id) return;
+        window.removeEventListener('message', on);
+        resolve(m);
+      }
+      window.addEventListener('message', on);
+      api.postMessage(Object.assign({ id }, msg));
+    });
+  };
+  const stampFile = (file, m) => {
+    if (!file || !m) return file;
+    if (m.uri) { file.voUri = m.uri; documentUri = m.uri; }
+    if (m.draft && m.draftKey) file.voDraft = m.draftKey;
+    return file;
+  };
   let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
+  let documentUri = '';   // vscode: the workspace file this editor tab is bound to
   const b64 = (bytes) => {
     let s = '';
     for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(bytes.length, i + 0x8000)));
@@ -153,7 +176,7 @@
             try {
               const res = await fetch(m.url);
               if (!res.ok) throw new Error('HTTP ' + res.status);
-              finish(null, new File([await res.blob()], m.name));
+              finish(null, stampFile(new File([await res.blob()], m.name), m));
             } catch (e) {
               console.warn('open:', e);
               api.postMessage({ type: 'read-fallback' });
@@ -167,7 +190,7 @@
               const out = new Uint8Array(size);
               let o = 0;
               for (let i = 0; i < expect; i++) if (parts[i]) { out.set(parts[i], o); o += parts[i].length; }
-              finish(null, new File([out], m.name));
+              finish(null, stampFile(new File([out], m.name), m));
             }
           } else if (m.type === 'open-error') finish(new Error(m.error || 'The file could not be read.'));
         }
@@ -176,13 +199,17 @@
       });
     },
     /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file
-     *  written beside it. purpose 'backup' answers a hot-exit request and does not touch the open file. */
+     *  written beside it. purpose 'backup' answers a hot-exit request and does not touch the open file.
+     *  'create' writes a new file from File ▸ New (or a Recent Files copy with no path) and opens it.
+     *  'reopen' carries unsaved bytes into a new tab for a file this editor already knows. */
     writeFile(name, blob, opts) {
       const purpose = (opts && opts.purpose) || 'save';
       if (purpose === 'save' && !hostLive) return Promise.reject(new Error('The file is not open in the editor yet.'));
       const api = window.__VO_VSCODE__;
       if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
       const id = (opts && opts.id) || Math.random().toString(36).slice(2);
+      const uri = (opts && opts.uri) || '';
+      const draftKey = (opts && opts.draftKey) || '';
       return blob.arrayBuffer().then((buf) => new Promise((resolve, reject) => {
         const bytes = new Uint8Array(buf);
         const CHUNK = 256 * 1024;
@@ -194,14 +221,45 @@
           clearTimeout(timer);
           window.removeEventListener('message', on);
           if (!m.ok) { reject(new Error(m.error || 'The file could not be saved.')); return; }
-          if (purpose !== 'backup' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast(VO.t('Saved {0}', m.name || name), 6000);
+          if (purpose !== 'backup' && purpose !== 'create' && purpose !== 'reopen' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast(VO.t('Saved {0}', m.name || name), 6000);
           resolve(purpose === 'backup' ? m : (m.inplace ? 'saved' : 'exported'));
         }
         window.addEventListener('message', on);
         for (let i = 0; i < n; i++) {
-          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
+          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
         }
       }));
+    },
+    /** File ▸ Open in VS Code: the editor's own dialog, then a new tab for each file */
+    openWorkspace(accept) {
+      return vsRequest({ type: 'pick-open', accept: accept || '' });
+    },
+    /** open a workspace file this editor remembers, in its own tab */
+    openUri(uri) {
+      return vsRequest({ type: 'open-uri', uri: String(uri || '') });
+    },
+    /** File ▸ New in VS Code: ask for a path, then let makeBlob build the document, then open it in a new tab.
+     *  The document in this tab stays as it is. ext, when set, is the suffix the saved name must end with. */
+    async createDocument(makeBlob, name, ext) {
+      const picked = await vsRequest({ type: 'pick-new', name: name || '', ext: ext || '' });
+      if (!picked || !picked.ok || picked.alreadyOpen) return picked && picked.alreadyOpen ? 'open' : 'cancel';
+      const ui = window.L && L.ui;
+      if (ui && ui.busy) ui.busy(true);
+      try {
+        let blob;
+        try { blob = await makeBlob(); }
+        catch (e) {
+          console.error(e);
+          if (ui && ui.msg) ui.msg(String(e && e.message || e), { icon: 'error' });
+          return 'cancel';
+        }
+        if (!blob) return 'cancel';
+        try { await VO.host.writeFile(picked.name, blob, { purpose: 'create', uri: picked.uri }); }
+        catch (e) { console.error(e); return 'cancel'; }   // the extension already reported this
+        return 'created';
+      } finally {
+        if (ui && ui.busy) ui.busy(false);
+      }
     },
   };
 
@@ -392,12 +450,16 @@
     /** this app's entries, newest first, from the cache */
     forApp: (app) => VO.recent.cache.filter((e) => e.app === (app || (current && current.app))),
     /** add or refresh the entry for this file name (a newer copy replaces the older one, its thumbnail stays);
-     *  keepDraft: opening a file keeps unsaved changes made to it, saving it clears them */
-    async put(app, name, blob, keepDraft) {
+     *  keepDraft: opening a file keeps unsaved changes made to it, saving it clears them.
+     *  extra.uri, when passed, is the workspace file this editor tab is bound to (vscode); pass '' to clear it */
+    async put(app, name, blob, keepDraft, extra) {
       if (!app || !blob || blob.size > MAX_BYTES) return null;
       const key = app + ':' + name;
       const old = await VO.recent.get(key);
-      await tx('recent', 'readwrite', (s) => s.put({ key, app, name, size: blob.size, time: Date.now(), file: blob, thumb: old ? old.thumb : null, draft: keepDraft && old ? old.draft || null : null }));
+      const uri = extra && 'uri' in extra ? (extra.uri || '') : ((old && old.uri) || '');
+      const rec = { key, app, name, size: blob.size, time: Date.now(), file: blob, thumb: old ? old.thumb : null, draft: keepDraft && old ? old.draft || null : null };
+      if (uri) rec.uri = uri;
+      await tx('recent', 'readwrite', (s) => s.put(rec));
       await prune();
       changed();
       return key;
@@ -520,9 +582,17 @@
       if (l.vscode) {
         try {
           const file = await VO.host.takeDocument();
-          if (file && current.hooks.open) await current.hooks.open(file, {});
+          const draft = !!(file && file.voDraft);
+          let lossState;
+          if (draft) {
+            try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
+            catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
+          }
+          if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
           else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
           if (file) hostLive = true;
+          /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
+          if (draft) vsPost({ type: 'dirty', dirty: true });
         } catch (e) {
           console.error(e);
           (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));
@@ -543,13 +613,30 @@
     }, 700);
   };
   const asFile = (blob, name) => (blob instanceof File && blob.name === name ? blob : new File([blob], name, { type: blob.type }));
-  /** open a Recent Files entry in this app: its unsaved version when draft is true, else the saved file */
+  /** open a Recent Files entry in this app: its unsaved version when draft is true, else the saved file.
+   *  In VS Code the entry opens in its own tab. A remembered workspace path is that file; without one, the
+   *  copy kept here is written to a path the user chooses. */
   VO.openRecent = async (key, o) => {
     let e = null;
     try { e = await VO.recent.get(key); } catch (err) { console.error(err); }
     const draft = !!(o && o.draft && e && e.draft);
     const blob = e && (draft ? e.draft.file : e.file);
     if (!blob) { (current.hooks.message || alert)(VO.t('That file is no longer available here. Open it again from your computer.')); return; }
+    if (inVs && VO.host.createDocument) {
+      if (e.uri) {
+        try {
+          const res = draft
+            ? await VO.host.writeFile(e.draft.name || e.name, blob, { purpose: 'reopen', uri: e.uri, draftKey: key })
+            : await VO.host.openUri(e.uri);
+          if (!draft && res && res.ok !== false) return;
+          if (draft) return;
+        } catch (err) { console.warn('recent file:', err); }
+      }
+      const name = draft ? (e.draft.name || e.name) : e.name;
+      const ext = (String(name).match(/\.([^.]+)$/) || [])[1] || '';
+      await VO.host.createDocument(async () => blob, name, ext.toLowerCase());
+      return;
+    }
     const f = asFile(blob, draft ? e.draft.name : e.name);
     if (draft) f.voDraft = key;
     await current.hooks.open(f, { draft, name: e.name, saved: !!e.file, lossState: draft ? e.draft.lossState : undefined });
@@ -628,7 +715,8 @@
   VO.opened = (file, doc) => {
     if (!current) return;
     if (file.voDraft) { bind(doc, file.voDraft); return; }   // an unsaved version: keep its entry as it is
-    VO.recent.put(current.app, file.name, file, true).then((key) => { if (key) bind(doc, key); thumbLater(key); }, (e) => console.warn('recent files:', e));
+    const extra = inVs ? { uri: (file && file.voUri) || '' } : undefined;
+    VO.recent.put(current.app, file.name, file, true, extra).then((key) => { if (key) bind(doc, key); thumbLater(key); }, (e) => console.warn('recent files:', e));
   };
   const unsavedDocs = new Set();
   /** true when an open document still has unsaved changes (Help ▸ Language will not reload over them) */
@@ -655,7 +743,7 @@
     if (!current) return;
     const old = doc && docKeys.get(doc);
     if (doc) clearTimeout(timers.get(doc));
-    VO.recent.put(current.app, name, blob, false).then(async (key) => {
+    VO.recent.put(current.app, name, blob, false, inVs && documentUri ? { uri: documentUri } : undefined).then(async (key) => {
       if (!key) return;
       if (old && old !== key) { await VO.recent.discardDraft(old); openKeys.delete(old); }
       bind(doc, key);

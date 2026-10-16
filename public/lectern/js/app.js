@@ -365,7 +365,11 @@
     if (r === 1 && window.VO) VO.discard(L.pres);   // its unsaved version goes too
     return r === 1;
   }
-  A.newPresentation = async function () {
+  A.newPresentation = async function (opts) {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument && !(opts && opts.inplace)) {
+      await VO.host.createDocument(async () => L.pptx.write(M.newPresentation(Object.assign({ design: 'default' }, A.newSize())), { format: 'pptx' }));
+      return;
+    }
     if (!(await confirmDiscard())) return;
     A.untitled = (A.untitled || 1) + 1;
     A.loadPres(M.newPresentation(Object.assign({ design: 'default' }, A.newSize())), 'Presentation' + A.untitled);
@@ -373,6 +377,14 @@
   };
   /** a new presentation from one of the content templates (templates.js) */
   A.newFromTemplate = async function (id) {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument) {
+      await VO.host.createDocument(async () => {
+        const pres = L.templates && L.templates.build(id, A.newSize());
+        if (!pres) return null;
+        return L.pptx.write(pres, { format: 'pptx' });
+      });
+      return;
+    }
     const pres = L.templates && L.templates.build(id, A.newSize());
     if (!pres || !(await confirmDiscard())) return;
     A.untitled = (A.untitled || 1) + 1;
@@ -384,9 +396,11 @@
   A.exit = async function () { if (await confirmDiscard() && window.VO) VO.exit(); };
   A.closePresentation = async function () {
     if (!(await confirmDiscard())) return;
+    if (window.VO && VO.host.kind === 'vscode') { VO.exit(); return; }
     A.loadPres(M.newPresentation(Object.assign({ design: 'default' }, A.newSize())), 'Presentation1');
   };
   A.openDialog = async function () {
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.openWorkspace) { await VO.host.openWorkspace('.pptx,.ppsx,.potx,.pptm,.potm,.ppsm,.txt'); return; }
     const files = await L.pickFiles('.pptx,.ppsx,.potx,.pptm,.potm,.ppsm,.txt,application/vnd.openxmlformats-officedocument.presentationml.presentation');
     if (files[0]) A.openFile(files[0]);
   };

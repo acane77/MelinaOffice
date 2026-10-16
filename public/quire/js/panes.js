@@ -72,7 +72,7 @@
       b.append(
         h('div', { class: 'tp-row' }, h('span', { html: L.icons.app ? L.icons.app(32) : '' }), h('b', { text: 'Quire 2003 Web Edition', style: 'color:var(--pane-ink)' })),
         sec('Search for:', h('div', { class: 'tp-row' }, q, ui.button('Go', () => { P.helpQuery = q.value; TP.show('help'); }, { class: 'btn small' }))),
-        sec(L.N('Open'), window.VO ? VO.recentLinks(4) : null, link('open', 'More...', () => ui.exec('open')), link('new', 'Create a new document...', () => TP.show('new')), link('sample', 'Open the welcome document', () => A().newDocument({ build: (d) => Object.assign(d, A().buildSample()) }))),
+        sec(L.N('Open'), window.VO ? VO.recentLinks(4) : null, link('open', 'More...', () => ui.exec('open')), link('new', 'Create a new document...', () => TP.show('new')), link('sample', 'Open the welcome document', () => A().newDocument({ inplace: true, build: (d) => Object.assign(d, A().buildSample()) }))),
         sec(L.N('Learn'), link('help', 'Keyboard shortcuts and help', () => { P.helpTopic = 'keys'; TP.show('help'); }), link('stylesPane', 'Styles and Formatting', () => TP.show('styles')), link('mailMerge', 'Mail Merge wizard', () => TP.show('mailmerge'))));
     },
   });
@@ -82,7 +82,7 @@
     render(b) {
       const tpl = L.templates ? L.templates.list() : [];
       b.append(
-        sec(L.N('New'), link('new', 'Blank document', () => A().newDocument()), link('webPage', 'Web page', () => A().newDocument({ build: (d) => { d.webPage = true; } }).then(() => A().setView('web'))), link('mail', 'E-mail message', () => A().newDocument({ build: (d) => { d.main.blocks = [D.para([D.text('To: ')]), D.para([D.text('Subject: ')]), D.para()]; } })), link('open', 'From existing document...', () => A().newFromExisting())),
+        sec(L.N('New'), link('new', 'Blank document', () => A().newDocument()), link('webPage', 'Web page', () => A().newDocument({ inplace: true, build: (d) => { d.webPage = true; } }).then(() => A().setView('web'))), link('mail', 'E-mail message', () => A().newDocument({ inplace: true, build: (d) => { d.main.blocks = [D.para([D.text('To: ')]), D.para([D.text('Subject: ')]), D.para()]; } })), link('open', 'From existing document...', () => A().newFromExisting())),
         sec(L.N('Templates'), link('templates', 'On my computer...', () => L.dlg.newFromTemplate()), ...tpl.slice(0, 6).map((t) => link('new', t.name, () => L.templates.create(t.id)))));
     },
   });

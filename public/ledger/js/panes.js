@@ -365,6 +365,15 @@
   P.newFromTemplate = function (k) {
     const t = TPL[k];
     if (!t) return;
+    if (window.VO && VO.host.kind === 'vscode' && VO.host.createDocument) {
+      VO.host.createDocument(async () => {
+        const wb = build(t.spec());
+        if (L.cf && L.cf.reset) L.cf.reset();
+        A().prepare(wb);
+        return L.xlsxWrite.write(wb, { type: 'xlsx' });
+      });
+      return;
+    }
     const wb = build(t.spec());
     if (L.cf && L.cf.reset) L.cf.reset();
     A().prepare(wb);
