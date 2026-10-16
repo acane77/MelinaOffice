@@ -95,6 +95,20 @@ test('the toolbar Font box writes the slot the family belongs to', () => {
   assert.equal(L.fontIsEA('Century Gothic'), false);
 });
 
+test('a Font box completes to the closest family, recently used first', () => {
+  const names = ['Arial', 'Tahoma', 'Times New Roman', 'Trebuchet MS', '宋体'];
+  assert.equal(L.completeMatch(names, 'T'), 'Tahoma');
+  assert.equal(L.completeMatch(names, 'ti'), 'Times New Roman');
+  assert.equal(L.completeMatch(names, '宋'), '宋体');
+  assert.equal(L.completeMatch(names, 'Z'), '');
+  const orig = L.store.get;
+  L.store.get = (k, d) => (k === 'recentFonts' ? ['Times New Roman', '宋体'] : orig.call(L.store, k, d));
+  try {
+    assert.equal(L.completeMatch(names, 'T', L.fontComplete), 'Times New Roman');
+    assert.equal(L.completeMatch(names, 'A', L.fontComplete), 'Arial');
+  } finally { L.store.get = orig; }
+});
+
 test('a run splits into East Asian characters and the rest', () => {
   assert.deepEqual(L.splitEA('测试 Test'), [{ ea: true, text: '测试' }, { ea: false, text: ' Test' }]);
   assert.deepEqual(L.splitEA('A中B'), [{ ea: false, text: 'A' }, { ea: true, text: '中' }, { ea: false, text: 'B' }]);

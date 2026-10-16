@@ -176,10 +176,10 @@
       const labelOf = (v) => (v === USE_EA ? useLabel() : (v || ''));
       const applyVal = (v) => set(key, v);
       wrap.show = () => { if (document.activeElement !== inp) inp.value = labelOf(st[key]); };
-      inp.addEventListener('input', () => {
-        const raw = inp.value.trim();
-        if (!raw) return;
-        applyVal(allowUse && raw.toLowerCase() === useLabel().toLowerCase() ? USE_EA : raw);
+      ui.bindComplete(inp, {
+        values: () => (allowUse ? [useLabel()] : []).concat(fontNames()),
+        order: L.fontComplete,
+        onText: (text) => { if (!text) return; applyVal(allowUse && text.toLowerCase() === useLabel().toLowerCase() ? USE_EA : text); },
       });
       inp.addEventListener('focus', () => wrap.classList.add('focus'));
       inp.addEventListener('blur', () => wrap.classList.remove('focus'));

@@ -661,6 +661,21 @@
   L.addRecentFont = function (name) {
     if (name) L.store.set('recentFonts', [name].concat(L.store.get('recentFonts', []).filter((f) => f !== name)).slice(0, 10));
   };
+  /** the option a typed prefix completes to: the first name that starts with it, after `order` (if given) sorts the list */
+  L.completeMatch = function (names, prefix, order) {
+    const p = String(prefix || '');
+    if (!p) return '';
+    const list = typeof order === 'function' ? (order(names.slice(), p) || names) : names;
+    const low = p.toLowerCase();
+    for (const n of list) if (String(n).toLowerCase().startsWith(low)) return String(n);
+    return '';
+  };
+  /** Font-box completion order: a recently used family before the others, then alphabetical */
+  L.fontComplete = function (names) {
+    const recent = L.store.get('recentFonts', []);
+    const rank = (n) => { const k = L.fontKey(n); const i = recent.findIndex((f) => L.fontKey(f) === k); return i < 0 ? recent.length + 1 : i; };
+    return names.slice().sort((a, b) => rank(a) - rank(b) || String(a).localeCompare(String(b)));
+  };
   /* the Font Size box of Word and Excel; Lectern sets PowerPoint's list in its app.js */
   L.SIZE_LIST = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
 

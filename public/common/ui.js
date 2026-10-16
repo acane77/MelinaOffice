@@ -313,9 +313,64 @@
     b.addEventListener('click', () => { const r = b.getBoundingClientRect(); menuFn({ left: r.left, bottom: r.bottom }, b); });
     return b;
   };
+  /** type-ahead for an editable box: the typed prefix stays, the rest of the first matching option is selected.
+   * o.values(): option strings. o.order(names, prefix): sorts them, preferred first (L.fontComplete for fonts).
+   * o.onText(text): the name now shown (the match, or the prefix when nothing matches). */
+  ui.bindComplete = function (inp, o) {
+    let composing = false;
+    const values = () => {
+      const out = [], seen = new Set();
+      for (const v of (o.values() || [])) {
+        if (v == null || v === '') continue;
+        const s = String(v), k = s.toLowerCase();
+        if (seen.has(k)) continue;
+        seen.add(k);
+        out.push(s);
+      }
+      return out;
+    };
+    function fill() {
+      if (composing) return;
+      const caret = inp.selectionStart;
+      if (caret == null || (inp.selectionEnd !== inp.value.length && caret !== inp.selectionEnd)) return;
+      const prefix = inp.value.slice(0, caret);
+      if (!prefix) { if (o.onText) o.onText(''); return; }
+      const match = L.completeMatch(values(), prefix, o.order);
+      if (match && match !== prefix) {
+        const typed = match.toLowerCase() === prefix.toLowerCase();
+        inp.value = match;
+        inp.setSelectionRange(typed ? match.length : prefix.length, match.length);
+        if (o.onText) o.onText(match);
+      } else if (o.onText) o.onText(match || prefix);
+    }
+    inp.addEventListener('compositionstart', () => { composing = true; });
+    inp.addEventListener('compositionend', () => { composing = false; fill(); });
+    inp.addEventListener('input', fill);
+    inp.addEventListener('keydown', (e) => {
+      if (composing || inp.selectionEnd !== inp.value.length || inp.selectionStart === inp.selectionEnd) return;
+      if (e.key === 'Backspace' && inp.selectionStart > 0) {
+        e.preventDefault();
+        const prefix = inp.value.slice(0, inp.selectionStart - 1);
+        inp.value = prefix;
+        inp.setSelectionRange(prefix.length, prefix.length);
+        fill();
+      } else if (e.key === 'Delete') {
+        e.preventDefault();
+        const prefix = inp.value.slice(0, inp.selectionStart);
+        inp.value = prefix;
+        inp.setSelectionRange(prefix.length, prefix.length);
+        if (o.onText) o.onText(prefix);
+      } else if (e.key === 'ArrowRight' || e.key === 'End') {
+        e.preventDefault();
+        const n = inp.value.length;
+        inp.setSelectionRange(n, n);
+      }
+    });
+  };
   /** editable combo box (font name / size / zoom); o.options() may include { heading } rows, { sep }, { value, label }
    * and { label, run } actions (the list reopens after the action);
-   * o.note(v): grey text beside an option in the list, or { text, tip } with a tooltip for its row */
+   * o.note(v): grey text beside an option in the list, or { text, tip } with a tooltip for its row.
+   * o.complete: type-ahead. true keeps the option order; a function(names, prefix) sorts them first (preferred first). */
   ui.combo = function (o) {
     const wrap = h('div', { class: 'combo', style: `width:${o.width || 120}px`, 'data-tip': o.tip || '' });
     const inp = h('input', { type: 'text', class: 'combo-in', id: o.id, 'aria-label': o.tip || o.id, autocomplete: 'off', spellcheck: 'false' });
@@ -357,6 +412,17 @@
       const m = document.querySelector('.menu.combo-list .m-item.chk');
       if (m) m.scrollIntoView({ block: 'nearest' });
     });
+    if (o.complete) {
+      const names = () => {
+        const out = [];
+        for (const x of o.options()) {
+          if (!x || (typeof x === 'object' && (x.heading || x.sep || x.run))) continue;
+          out.push(x && typeof x === 'object' ? x.value : x);
+        }
+        return out;
+      };
+      ui.bindComplete(inp, { values: names, order: typeof o.complete === 'function' ? o.complete : null });
+    }
     wrap._refresh = () => { if (document.activeElement !== inp) inp.value = o.value(); const en = o.enabled ? o.enabled() : true; inp.disabled = !en; wrap.classList.toggle('dis', !en); };
     tbButtons.push(wrap);
     return wrap;

@@ -55,7 +55,8 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   Asian text font is `w:eastAsia`, Font is `w:ascii` and `w:hAnsi`. "(Use Asian text font)" writes the
   Asian family into the Latin slot as well. The formatting toolbar's Font box writes by family: an East
   Asian family goes to both slots (it draws Latin as well as Chinese), a Latin family goes to the Latin
-  font only and leaves the East Asian face in place. When the two
+  font only and leaves the East Asian face in place. Typing in a Font box, on the toolbar or in Format ▸ Font,
+  completes to a listed family, a recently used one before the others. When the two
   names differ, East Asian characters are drawn with the East Asian font and the other characters with
   the Latin font. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
   document keeps that face at 10.5pt). The page follows the UI's language: A4, Office's margins, and
