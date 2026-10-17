@@ -301,6 +301,13 @@
   --w7-close-face: radial-gradient(circle at -60% 50%, #0007 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #0007 5% 10%, #0000 50%), linear-gradient(#e0a197e5, #cf796a 25% 50%, #d54f36 50%);
   --w7-close-face-hot: radial-gradient(circle at 50% 170%, #f4e676 10% 20%, #0000 60%), radial-gradient(circle at -60% 50%, #000a 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #000a 5% 10%, #0000 50%), linear-gradient(#fb9d8b, #ee6d56 25% 50%, #d42809 50%);
   --w7-close-face-down: radial-gradient(circle at 50% 170%, #dcc03f 10% 20%, #0000 60%), radial-gradient(circle at -60% 50%, #000 5% 10%, #0000 50%), radial-gradient(circle at 160% 50%, #000 5% 10%, #0000 50%), linear-gradient(#d1a894, #b67562 25% 50%, #7d0d01 50%);
+  /* balloon (7.css): face, shadow and the two tails. The pale tail sits on the gray end of the gradient. */
+  --w7-bl-bd: #0006;
+  --w7-bl-bg: linear-gradient(to bottom, #fff, #ebebeb);
+  --w7-bl-sd: 5px 5px 3px -3px #0006;
+  --w7-blt: 18px;
+  --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -473,6 +480,17 @@
 [data-look="win7"] ::-webkit-scrollbar-button:vertical:end:active { border-color: #6d91ab; background: var(--w7-sb-down), linear-gradient(to right, #c4e5f6 45%, #98d1ef 45%); }
 [data-look="win7"] ::-webkit-scrollbar-button:horizontal:start:active { border-color: #6d91ab; background: var(--w7-sb-left), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
 [data-look="win7"] ::-webkit-scrollbar-button:horizontal:end:active { border-color: #6d91ab; background: var(--w7-sb-right), linear-gradient(to bottom, #c4e5f6 45%, #98d1ef 45%); }
+
+/* tooltips and the assistant's speech share the 7.css balloon face and shadow. Only the speech has the tail. */
+[data-look="win7"] :is(.tooltip, .scout-balloon) { background: var(--w7-bl-bg); color: #000; border: 1px solid var(--w7-bl-bd); border-radius: 3px; box-shadow: var(--w7-bl-sd); }
+[data-look="win7"] .tooltip { padding: 4px 8px 5px; }
+[data-look="win7"] .scout-balloon { padding: 8px 10px; }
+[data-look="win7"] .scout-balloon::before { content: ""; position: absolute; width: var(--w7-blt); height: var(--w7-blt); margin: 0; border: 0; padding: 0; pointer-events: none; background-repeat: no-repeat; background-position: center; background-size: 100% 100%; left: var(--scout-tip, 1em); right: auto; }
+[data-look="win7"] .scout-balloon.is-below::before { top: calc(var(--w7-blt) * -1); bottom: auto; transform: none; background-image: var(--w7-blt-up); }
+[data-look="win7"] .scout-balloon:not(.is-below)::before { top: auto; bottom: calc(var(--w7-blt) * -1); transform: scaleY(-1); background-image: var(--w7-blt-down); }
+[data-look="win7"] .scout-balloon.is-tip-right::before { left: auto; right: calc(100% - var(--scout-tip, 1em)); transform: scaleX(-1); }
+[data-look="win7"] .scout-balloon:not(.is-below).is-tip-right::before { transform: scale(-1); }
+[data-look="win7"] .scout-balloon::after { content: none; }
 
 /* the Themes card: menu strip and toolbar share the gray face */
 [data-look="win7"] .lk-menu { background: #f0f0f0; }

@@ -76,6 +76,12 @@ test('Windows 7 is the stored default, and its default button keeps the blue hig
   assert.match(looks, /--w7-btn-default:\s*linear-gradient\([^)]*#c3dcea/);
   assert.match(looks, /\[data-look="win7"\] \.btn\.primary:not\(:disabled\)[\s\S]*?background:\s*var\(--w7-btn-default\)/);
   assert.match(looks, /@keyframes win7-pulse[\s\S]*?rgba\(52, 222, 255/);
+  /* balloon face and shadow on tooltips and the assistant; the tail is his alone */
+  assert.match(looks, /\[data-look="win7"\] :is\(\.tooltip, \.scout-balloon\)[\s\S]*?background:\s*var\(--w7-bl-bg\)[\s\S]*?box-shadow:\s*var\(--w7-bl-sd\)/);
+  assert.match(looks, /--w7-bl-bg:\s*linear-gradient\(to bottom, #fff, #ebebeb\)/);
+  assert.match(looks, /--w7-bl-sd:\s*5px 5px 3px -3px #0006/);
+  assert.doesNotMatch(looks, /\[data-look="win7"\][^{]*\.tooltip[^{]*::before/);
+  assert.match(looks, /\[data-look="win7"\] \.scout-balloon::before[\s\S]*?background-image:\s*var\(--w7-blt-up\)/);
 });
 
 test('the pages pick the look before the first paint and load looks.css first', () => {
