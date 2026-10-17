@@ -59,7 +59,12 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   font only and leaves the East Asian face in place. Typing in a Font box, on the toolbar or in Format ▸ Font,
   completes to a listed family, a recently used one before the others. When the two
   names differ, East Asian characters are drawn with the East Asian font and the other characters with
-  the Latin font. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
+  the Latin font. Distributed alignment spreads the spare space between fullwidth characters. A
+  justified or distributed line that is only a little wider than the measure narrows fullwidth
+  punctuation (down to half an em, and only by as much as it overflows) so the line stays one line;
+  left alignment does not, and wraps. With "balance single-byte and double-byte characters",
+  a run of spaces is half a fullwidth em each, which is what makes an underlined blank on an East
+  Asian cover the length Word draws. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
   document keeps that face at 10.5pt). The page follows the UI's language: A4, Office's margins, and
   Japanese or Chinese line grids (i18n.md, Defaults).
 - Each line is as tall as what it holds, as Word sizes lines (`js/portions.js`, after Apache OpenOffice
