@@ -130,3 +130,15 @@ test('LaTeX that does not parse does not produce OMML', () => {
   assert.equal(L.latex.toMathML('x^'), null);
   assert.equal(L.latex.toOMML('x^2', { para: false }).includes('oMathPara'), false);
 });
+
+test('Change to Display wraps an inline equation and Change to Inline unwraps it', () => {
+  const inline = '<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>a/b</m:t></m:r></m:oMath>';
+  const display = L.omml.asDisplay(inline);
+  assert.match(display, /^<m:oMathPara xmlns:m="http:\/\/schemas.openxmlformats.org\/officeDocument\/2006\/math"><m:oMath>/);
+  assert.match(display, /<\/m:oMath><\/m:oMathPara>$/);
+  assert.equal(L.omml.asInline(display), inline);
+  assert.equal(L.omml.asDisplay(display), display);
+  const numbered = '<m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:oMathParaPr><m:jc m:val="centerGroup"/></m:oMathParaPr><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath></m:oMathPara>';
+  assert.equal(L.omml.asInline(numbered), '<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>x</m:t></m:r></m:oMath>');
+  assert.equal(L.omml.asInline(inline), inline);
+});

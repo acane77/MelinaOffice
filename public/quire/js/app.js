@@ -1121,7 +1121,7 @@
     items.push('fontDlg', 'paragraphDlg', 'bulletsDlg', '-', 'hyperlink', 'research');
     /* on a misspelled word or a grammar problem Word shows only the proofing menu */
     if (!mathEl && !E.objSel && L.spell && L.spell.suggestionsAt) { const s = L.spell.suggestionsAt(e); if (s && s.length) { ui.openMenu(s.concat(['-', 'cut', 'copy', 'paste']), { x: e.clientX, y: e.clientY }); return; } }
-    if (mathEl) items.unshift({ label: 'Edit &Equation...', run: () => L.dlg.editEquation() }, '-');
+    if (mathEl) items.unshift({ label: 'Edit &Equation...', run: () => L.dlg.editEquation() }, mathEl.classList.contains('mpara') ? { label: 'Change to In&line', run: () => L.dlg.setEquationDisplay(false) } : { label: 'Change to &Display', run: () => L.dlg.setEquationDisplay(true) }, '-');
     ui.openMenu(items, { x: e.clientX, y: e.clientY });
   };
   A.browseKind = 'page';

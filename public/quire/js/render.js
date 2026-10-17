@@ -24,6 +24,8 @@
   const runFactorFont = (r) => (r.eaText && r.fontEA && LH[L.fontKey(r.fontEA)] > R.lineFactor(r.font) ? r.fontEA : r.font);
   const SPACE_EM = { 'times new roman': 0.25, arial: 0.2778, calibri: 0.2261, 'calibri light': 0.2261, cambria: 0.2197, georgia: 0.2412, verdana: 0.3516, tahoma: 0.3125, 'courier new': 0.6, garamond: 0.25, 'book antiqua': 0.25, 'palatino linotype': 0.25, 'segoe ui': 0.2744, 'trebuchet ms': 0.3013, 'century gothic': 0.2773, helvetica: 0.2778, aptos: 0.2, 'arial narrow': 0.2278 };
   R.spaceEm = (font) => SPACE_EM[L.fontKey(font)] || 0.25;
+  /* a lone equation is a display zone, including one that has only its number.
+     Whitespace alone is not: that space is what keeps a converted inline equation inline. */
   R.mathSolo = (p) => {
     let maths = 0, other = '';
     for (const it of p.runs) {
@@ -32,7 +34,7 @@
       else if (it.t === 'tab' || it.t === 'ptab' || D.ilen(it) === 0 || it.t === 'fb' || it.t === 'fs' || it.t === 'fe') continue;
       else return false;
     }
-    return maths === 1 && other.replace(/[\s()[\]0-9.,:;\-–a-zA-Z]/g, '').length === 0 && other.trim().length <= 14;
+    return maths === 1 && other.replace(/[\s()[\]0-9.,:;\-–a-zA-Z]/g, '').length === 0 && other.trim().length <= 14 && !/^\s+$/.test(other);
   };
   /* a paragraph whose text is only an equation number: Word still centers the display equation on a justified line */
   R.mathLine = (p) => {
@@ -702,23 +704,41 @@
         const mres = it.math && it.xml ? R.mathFor(it) : null;
         if (mres) {
           /* Office Math rendered as MathML */
+          /* a display equation that shares the paragraph with real text is not a display math zone:
+             Word keeps it the size of an inline equation. With no size of its own it takes the text's. */
+          const withText = !!(mres.display && !R.mathLine(p));
+          if (withText && !(it.rPr && it.rPr.sz)) {
+            const host = p.runs.find((t2) => t2 !== it && t2.t === 'text' && /\S/.test(t2.text || ''));
+            const sz = host && D.rProps(d, p, host, tctx).sz;
+            if (sz) r = Object.assign({}, r, { sz });
+          }
           el.style.cssText = R.runCSS(r, mult) + ';font-style:normal;font-weight:normal;text-decoration:none';
           el.classList.add('mml');
           if (mres.display) {
             el.classList.add('mpara');
-            const align = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center';
+            const pjc = ALIGN[pPr.jc] || 'left';
+            let align = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center';
+            /* a display equation beside text takes the next line. Justified text stays at the left; the equation goes to the right. */
+            if (withText) {
+              if (pjc === 'justify' && align === 'center') align = 'right';
+              el.classList.add('mbreak');
+            }
             el.style.textAlign = align;
             el.style.textAlignLast = align;
             /* a justified or left line packs a short inline to the start; Word centers the display equation (centerGroup) */
-            const pjc = ALIGN[pPr.jc] || 'left';
-            if (align === 'center' && pjc !== 'center' && R.mathLine(p)) {
+            if (!withText && align === 'center' && pjc !== 'center') {
               pc.style.textAlign = 'center';
               pc.style.textAlignLast = 'center';
             }
           }
           const mm = mres.math.cloneNode(true);
-          /* an equation alone on its line (perhaps with a tab and a number) is laid out in display style, as Word does */
-          if (!mres.display && R.mathSolo(p)) mm.setAttribute('displaystyle', 'true');
+          if (withText) {
+            mm.removeAttribute('display');
+            mm.style.fontSize = R.px(r.sz || 12) + 'px';
+          } else if (!mres.display && R.mathSolo(p)) {
+            /* an equation alone on its line (perhaps with a tab and a number) is laid out in display style, as Word does */
+            mm.setAttribute('displaystyle', 'true');
+          }
           el.appendChild(mm);
         } else {
           el.style.cssText = R.runCSS(r, mult) + (it.math ? ';font-family:"Cambria Math",Caladea,serif;font-style:italic' : '');

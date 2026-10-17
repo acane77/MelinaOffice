@@ -107,12 +107,18 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   character before it or the character after it. Double-click, or Edit Equation on its menu,
   opens a LaTeX editor with a live preview. The field is filled from the equation (linear LaTeX as
   stored, otherwise LaTeX derived from the OMML). Update writes that LaTeX back as OMML and stays
-  disabled while the LaTeX has a syntax error. Insert ▸ Equation (and Insert ▸ Object ▸ Equation,
+  disabled while the LaTeX has a syntax error. The same menu has Change to Inline on a display
+  equation and Change to Display on an inline one: the OMML is wrapped or unwrapped, and what was
+  not edited is kept. Insert ▸ Equation (and Insert ▸ Object ▸ Equation,
   and Equation in the ribbon's Symbols group) opens the same editor; Insert adds the equation at the
   caret, as a display equation when the paragraph is empty and as an inline equation when it already
   has text. Insert ▸ Object ▸ Equation (Legacy) still inserts Cambria Math italics.
   An equation sits in the line, as Word does, so a table cell does not gain a blank line above
-  and below it. A display equation is centered on that line when the paragraph is justified. An equation wider than its column or table cell
+  and below it. A display equation alone on a justified line (or with only its number) is centered.
+  When the paragraph also has text, the equation breaks to the next line: under Justify the text stays
+  at the left and the equation sits at the right, at the same size as an inline equation. An inline
+  equation that is the only thing in its paragraph is saved with a space after it, so Word keeps it
+  inline. An equation wider than its column or table cell
   breaks before a binary operator (+, =, and the like), as Word does. A line break beside an
   equation is saved as its own paragraph: Word would otherwise join the equations into one and drop the break.
 - Content controls bound to custom XML or to the document properties show the bound values, as Word

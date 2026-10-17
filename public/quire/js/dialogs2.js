@@ -862,6 +862,39 @@
     const it = D.itemBefore(E.sel.f.p, Math.min(E.sel.a.o, E.sel.f.o) + 1);
     return it && it.t === 'raw' && it.math ? it : null;
   }
+  /* Word promotes an inline equation that is the only content of its paragraph back to display.
+     A space after it keeps the equation inline; converting back to display removes that space. */
+  function anchorInline(p) {
+    if (!L.docx || !L.docx.loneInlineMath(p)) return;
+    const i = p.runs.reduce((at, r, n) => (r.t === 'raw' && r.math && !r.para && !(r.rPr && r.rPr.del) ? n : at), -1);
+    if (i >= 0) p.runs.splice(i + 1, 0, D.text(' '));
+  }
+  function dropInlineAnchor(p, it) {
+    const i = p.runs.indexOf(it);
+    const n = i >= 0 ? p.runs[i + 1] : null;
+    if (!n || n.t !== 'text' || !/^\s+$/.test(n.text || '')) return;
+    let any = '';
+    for (const r of p.runs) if (r !== n && r.t === 'text' && !(r.rPr && r.rPr.del)) any += r.text || '';
+    if (!any.trim()) p.runs.splice(i + 1, 1);
+  }
+  /** Right-click: Change to Inline / Change to Display. The OMML is wrapped or unwrapped; it is not rebuilt. */
+  G.setEquationDisplay = function (display) {
+    const it = selectedEquation();
+    if (!it || !it.xml || !L.omml || !!it.para === !!display) return;
+    const xml = display ? L.omml.asDisplay(it.xml) : L.omml.asInline(it.xml);
+    if (!xml || xml === it.xml) return;
+    const p = E.sel.f.p;
+    const start = Math.min(E.sel.a.o, E.sel.f.o);
+    E.edit(display ? L.N('Change to Display') : L.N('Change to Inline'), () => {
+      D.touch(p);
+      it.para = !!display;
+      it.xml = xml;
+      it.text = mathPlain(xml);
+      if (display) dropInlineAnchor(p, it);
+      else anchorInline(p);
+      return { a: { p, o: start }, f: { p, o: start + 1 } };
+    });
+  };
   /**
    * Pages-style equation editor: LaTeX above, a live preview below.
    * Editing fills the field from the equation; Update replaces its OMML when the text changed and parses.

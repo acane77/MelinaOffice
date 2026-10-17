@@ -468,4 +468,34 @@
     }
     return oneLatex(node);
   };
+
+  /**
+   * Inline m:oMath wrapped as a display m:oMathPara. Namespaces move to the outer element.
+   * An equation that is already display is returned unchanged.
+   */
+  M.asDisplay = function (xml) {
+    const s = String(xml || '').trim();
+    if (/^<m:oMathPara[\s>]/.test(s)) return s;
+    const m = /^<m:oMath\b([^>]*)>/.exec(s);
+    if (!m) return '<m:oMathPara>' + s + '</m:oMathPara>';
+    return '<m:oMathPara' + m[1] + '><m:oMath>' + s.slice(m[0].length) + '</m:oMathPara>';
+  };
+
+  /**
+   * Display m:oMathPara unwrapped to its m:oMath. Drops m:oMathParaPr.
+   * Namespaces move onto the m:oMath. Several equations become one.
+   */
+  M.asInline = function (xml) {
+    const s = String(xml || '').trim();
+    const m = /^<m:oMathPara\b([^>]*)>([\s\S]*)<\/m:oMathPara>$/.exec(s);
+    if (!m) return s;
+    let inner = m[2].replace(/^\s*<m:oMathParaPr\b[\s\S]*?<\/m:oMathParaPr>\s*/, '');
+    const parts = [...inner.matchAll(/<m:oMath\b[^>]*>[\s\S]*?<\/m:oMath>/g)];
+    if (parts.length > 1) {
+      const bodies = parts.map((p) => p[0].replace(/^<m:oMath\b[^>]*>/, '').replace(/<\/m:oMath>$/, ''));
+      inner = '<m:oMath>' + bodies.join('') + '</m:oMath>';
+    }
+    if (m[1] && /xmlns/.test(m[1]) && /^<m:oMath\b(?![^>]*\bxmlns\b)/.test(inner)) inner = inner.replace(/^<m:oMath\b/, '<m:oMath' + m[1]);
+    return inner.trim();
+  };
 })();
