@@ -119,11 +119,13 @@
   const stampFile = (file, m) => {
     if (!file || !m) return file;
     if (m.uri) { file.voUri = m.uri; documentUri = m.uri; }
+    if (m.dir) openFolder = { uri: m.dir, label: m.dirLabel || '' };
     if (m.draft && m.draftKey) file.voDraft = m.draftKey;
     return file;
   };
   let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
   let documentUri = '';   // vscode: the workspace file this editor tab is bound to
+  let openFolder = null;  // vscode: { uri, label } of that file's folder, for Save As
   const b64 = (bytes) => {
     let s = '';
     for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(bytes.length, i + 0x8000)));
@@ -232,10 +234,11 @@
         api.postMessage({ type: 'ready' });
       });
     },
-    /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file
-     *  written beside it. purpose 'backup' answers a hot-exit request and does not touch the open file.
-     *  'create' writes a new file from File ▸ New (or a Recent Files copy with no path) and opens it.
-     *  'reopen' carries unsaved bytes into a new tab for a file this editor already knows. */
+    /** write bytes back through the editor (vscode). 'saved' is the open file; 'exported' is another file,
+     *  written in the folder Save As chose or beside the open file. purpose 'backup' answers a hot-exit
+     *  request and does not touch the open file. 'create' writes a new file from File ▸ New (or a Recent
+     *  Files copy with no path) and opens it. 'reopen' carries unsaved bytes into a new tab for a file
+     *  this editor already knows. opts.folder is a directory URI the extension already offered or the user picked. */
     writeFile(name, blob, opts) {
       const purpose = (opts && opts.purpose) || 'save';
       if (purpose === 'save' && !hostLive) return Promise.reject(new Error('The file is not open in the editor yet.'));
@@ -243,6 +246,7 @@
       if (!api) return Promise.reject(new Error('This page is not inside the editor.'));
       const id = (opts && opts.id) || Math.random().toString(36).slice(2);
       const uri = (opts && opts.uri) || '';
+      const folder = (opts && opts.folder) || '';
       const draftKey = (opts && opts.draftKey) || '';
       return blob.arrayBuffer().then((buf) => new Promise((resolve, reject) => {
         const bytes = new Uint8Array(buf);
@@ -260,7 +264,7 @@
         }
         window.addEventListener('message', on);
         for (let i = 0; i < n; i++) {
-          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
+          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, folder, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
         }
       }));
     },
@@ -271,6 +275,25 @@
     /** open a workspace file this editor remembers, in its own tab */
     openUri(uri) {
       return vsRequest({ type: 'open-uri', uri: String(uri || '') });
+    },
+    /** the folder of the file this editor tab has open: { uri, label }, or null before that file arrives */
+    documentFolder() {
+      return openFolder ? { uri: openFolder.uri, label: openFolder.label } : null;
+    },
+    /** ask the extension again for that folder. The label is the path the editor shows. */
+    async askFolder() {
+      if (!inVs) return null;
+      const r = await vsRequest({ type: 'document-folder' });
+      if (!r || !r.ok) return openFolder ? { uri: openFolder.uri, label: openFolder.label } : null;
+      openFolder = { uri: r.uri || '', label: r.label || '' };
+      return { uri: openFolder.uri, label: openFolder.label };
+    },
+    /** File ▸ Save As ▸ Browse: VS Code's folder dialog. { uri, label }, or null if the user cancels. */
+    async pickFolder(uri) {
+      if (!inVs) return null;
+      const r = await vsRequest({ type: 'pick-folder', uri: String(uri || '') });
+      if (!r || !r.ok || r.cancelled) return null;
+      return { uri: r.uri || '', label: r.label || '' };
     },
     /** File ▸ New in VS Code: ask for a path, then let makeBlob build the document, then open it in a new tab.
      *  The document in this tab stays as it is. ext, when set, is the suffix the saved name must end with. */

@@ -48,7 +48,19 @@ test('chunks reassemble in any order', () => {
   assert.equal(done.name, 'A.docx');
   assert.equal(done.purpose, 'save');
   assert.equal(done.uri, 'file:///work/A.docx');
+  assert.equal(done.folder, '');
   assert.equal(done.draftKey, 'quire:A.docx');
+});
+
+test('Save As may write only the open file’s folder or one the user picked', () => {
+  const home = 'file:///work';
+  assert.equal(proto.saveFolder(home, '', null), home);
+  assert.equal(proto.saveFolder(home, home, null), home);
+  assert.equal(proto.saveFolder(home, 'file:///other', null), '');
+  assert.equal(proto.saveFolder(home, 'file:///other', new Set(['file:///other'])), 'file:///other');
+  const a = proto.createAssembler();
+  const done = a.push({ type: 'chunk', id: 'f', i: 0, n: 1, name: 'B.docx', purpose: 'save', folder: 'file:///other', b64: Buffer.from('x').toString('base64') });
+  assert.equal(done.folder, 'file:///other');
 });
 
 test('the webview page points at the app folder and names the vscode host', () => {
@@ -136,9 +148,19 @@ test('the pages recognise the vscode host', () => {
   assert.match(suite, /createDocument/);
   assert.match(suite, /pick-new/);
   assert.match(suite, /pick-open/);
+  assert.match(suite, /pickFolder/);
+  assert.match(suite, /document-folder/);
   assert.match(core, /VO\.host\.writeFile/);
   const ext = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
+  const ui = fs.readFileSync(path.join(root, 'public/common/ui.js'), 'utf8');
   assert.match(ext, /ensureExt/);
   assert.match(ext, /showSaveDialog/);
   assert.match(ext, /showOpenDialog/);
+  assert.match(ext, /pick-folder/);
+  assert.match(ext, /canSelectFolders: true/);
+  assert.match(ui, /saveLocation/);
+  assert.match(ui, /kind !== 'vscode'/);
+  for (const file of ['public/quire/js/dialogs3.js', 'public/lectern/js/dialogs.js', 'public/ledger/js/dialogs.js']) {
+    assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /saveLocation/);
+  }
 });

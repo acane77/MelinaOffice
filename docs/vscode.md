@@ -56,7 +56,7 @@ Recent Files in Getting Started and the File menu remember the workspace path of
 
 File ▸ Close, when this tab has only that one document, closes the editor tab. With several documents open inside the one tab, it closes the current one.
 
-File ▸ Save As, PDF, PNG and CSV use the name the app chose. When that name is the open file, the open file is written. When it is another name, the new file is written beside it (with ` (1)` before the extension if the name is already there) and opened in its own tab. The tab you saved from still shows unsaved changes for the original file.
+File ▸ Save As asks for a file name, a folder and a type. Location starts as the folder of the file this tab has open. Browse opens VS Code's folder dialog (on code-server, the folders on that machine). When the name and the folder are the open file, that file is written. Otherwise the new file is written in the chosen folder (with ` (1)` before the extension if that name is already there) and opened in its own tab. The tab you saved from still shows unsaved changes for the original file. PDF, PNG and CSV from the other commands use the name the app chose and are written beside the open file.
 
 File ▸ Exit closes the editor tab. Links to a web page or a mail address open outside the editor. The service worker is not registered.
 

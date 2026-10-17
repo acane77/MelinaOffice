@@ -862,7 +862,7 @@
     if (!L.dlg?.saveAs) return A.exportAs('docx', A.fileName);
     return new Promise(resolve => {
       let writing = false;
-      const dialog = L.dlg.saveAs(async (name, type) => { writing = true; resolve(await A.exportAs(type, name)); });
+      const dialog = L.dlg.saveAs(async (name, type, folder) => { writing = true; resolve(await A.exportAs(type, name, folder)); });
       dialog.done.then(() => { if (!writing) resolve('declined'); });
     });
   };
@@ -871,7 +871,7 @@
     const st = D.stats(D.allParas(d));
     return { pages: LY.pages.length || 1, words: st.words, chars: st.chars, charsNoSp: st.charsNoSp, paras: st.paras, lines: Math.max(st.paras, Math.round(st.chars / 70)) };
   };
-  A.exportAs = async function (type, name) {
+  A.exportAs = async function (type, name, folder) {
     name = name || A.fileName;
     const d = doc();
     try {
@@ -907,7 +907,7 @@
       if (!blob) return;
       const losses = L.opc.formats[type] ? await ui.compatibility(d, blob.dropped) : [];
       if (losses === null) return 'declined';
-      const r = await L.saveFile(`${name}.${ext}`, blob);
+      const r = await L.saveFile(`${name}.${ext}`, blob, folder ? { folder } : undefined);
       if (r === 'saved') L.opc.acknowledge(d, losses);
       if (r === 'saved' && ['docx', 'docm', 'dotx', 'dotm', 'md', 'mdzip'].includes(type)) { A.fileName = name; A.fileType = type; A.saved = true; A.updateTitle(); d.dirty = false; A.status(L.t('Saved {0}', `${name}.${ext}`)); ui.refresh(); if (window.VO) VO.saved(`${name}.${ext}`, blob, d); }
       return r;

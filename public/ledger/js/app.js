@@ -248,7 +248,7 @@
     return A.saveAs(b.type, b.name);
   };
   /** type: xlsx | xlsm | xltx | csv | txt | html | xmlss | pdf */
-  A.saveAs = async function (type, name) {
+  A.saveAs = async function (type, name, folder) {
     const b = book();
     if (L.editor.active && !L.editor.commit()) return false;
     const w = b.wb;
@@ -270,7 +270,7 @@
       ui.busy(false);
       const losses = L.opc.formats[type] ? await ui.compatibility(w, blob.dropped) : [];
       if (losses === null) return false;
-      const res = await L.saveFile(name, blob);
+      const res = await L.saveFile(name, blob, folder ? { folder } : undefined);
       if (res === 'saved') {
         L.opc.acknowledge(w, losses);
         if (type !== 'csv' && type !== 'txt' && type !== 'html') { b.name = name; b.type = type; b.untitled = false; b.dirty = false; w.fileName = name; }

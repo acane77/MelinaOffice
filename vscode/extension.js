@@ -1,6 +1,7 @@
 /* VibeOffice as a VS Code extension. code-server runs this in its Node extension host and
  * draws the same app pages in a webview, so a file in the workspace opens in Quire, Ledger
- * or Lectern. Save writes that file; another name is written beside it and opened too.
+ * or Lectern. Save writes that file. Save As writes the chosen name into a folder the user
+ * picked (the open file's folder, unless they choose another) and opens a different file too.
  * File ▸ New and File ▸ Open use VS Code's own dialogs and open the result in a new tab.
  * New File… (file/newFile) creates a blank .docx, .xlsx or .pptx and opens it here.
  * Docs: docs/vscode.md. */
@@ -45,6 +46,12 @@ function b64(bytes) {
 
 function parentUri(uri) {
   return vscode.Uri.joinPath(uri, '..');
+}
+
+/** the folder of the file this editor tab has open, as a URI string and the path the editor shows */
+function folderInfo(doc) {
+  const dir = parentUri(doc.uri);
+  return { uri: dir.toString(), label: dir.fsPath };
 }
 
 function extsFromAccept(accept, fallback) {
@@ -258,6 +265,12 @@ class OfficeEditorProvider {
     }
     if (msg.type === 'pick-new') { await this._pickNew(doc, msg); return; }
     if (msg.type === 'pick-open') { await this._pickOpen(doc, msg); return; }
+    if (msg.type === 'pick-folder') { await this._pickFolder(doc, msg); return; }
+    if (msg.type === 'document-folder') {
+      const folder = folderInfo(doc);
+      this._reply(doc, msg.id, { ok: true, uri: folder.uri, label: folder.label });
+      return;
+    }
     if (msg.type === 'open-uri') { await this._openUri(doc, msg); return; }
     if (msg.type === 'lang') {
       const id = String(msg.lang || '');
@@ -294,8 +307,14 @@ class OfficeEditorProvider {
         return;
       }
       try {
-        const inplace = proto.sameFile(done.name, doc.uri.path);
-        const target = inplace ? doc.uri : await placeBeside(parentUri(doc.uri), done.name, doc.uri);
+        const home = parentUri(doc.uri);
+        const chosen = proto.saveFolder(home.toString(), done.folder, doc.allowedFolders);
+        if (!chosen) throw new Error('That folder was not chosen.');
+        const dir = chosen === home.toString() ? home : vscode.Uri.parse(chosen);
+        const st = await vscode.workspace.fs.stat(dir);
+        if (!(st.type & vscode.FileType.Directory)) throw new Error('That location is not a folder.');
+        const inplace = dir.toString() === home.toString() && proto.sameFile(done.name, doc.uri.path);
+        const target = inplace ? doc.uri : await placeBeside(dir, done.name, doc.uri);
         await vscode.workspace.fs.writeFile(target, done.bytes);
         pendingBlank.delete(target.toString());
         const wroteInPlace = target.toString() === doc.uri.toString();
@@ -372,6 +391,37 @@ class OfficeEditorProvider {
       const error = e && e.message ? e.message : String(e);
       this._reply(doc, msg.id, { ok: false, error });
       vscode.window.showErrorMessage('VibeOffice could not create the file. ' + error);
+    }
+  }
+
+  /** File ▸ Save As ▸ Browse: VS Code's folder dialog. Only a folder the user picks may be written to. */
+  async _pickFolder(doc, msg) {
+    try {
+      const home = parentUri(doc.uri);
+      const asked = proto.saveFolder(home.toString(), msg.uri, doc.allowedFolders);
+      const start = asked && asked !== home.toString() ? vscode.Uri.parse(asked) : home;
+      const picked = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: start,
+        openLabel: 'Select Folder',
+        title: 'Select Folder',
+      });
+      if (!picked || !picked.length) { this._reply(doc, msg.id, { ok: true, cancelled: true }); return; }
+      const uri = picked[0];
+      const st = await vscode.workspace.fs.stat(uri);
+      if (!(st.type & vscode.FileType.Directory)) {
+        this._reply(doc, msg.id, { ok: false, error: 'That location is not a folder.' });
+        return;
+      }
+      if (!doc.allowedFolders) doc.allowedFolders = new Set();
+      doc.allowedFolders.add(uri.toString());
+      this._reply(doc, msg.id, { ok: true, uri: uri.toString(), label: uri.fsPath });
+    } catch (e) {
+      const error = e && e.message ? e.message : String(e);
+      this._reply(doc, msg.id, { ok: false, error });
+      vscode.window.showErrorMessage('VibeOffice could not choose a folder. ' + error);
     }
   }
 
@@ -470,7 +520,10 @@ class OfficeEditorProvider {
     if (await this._freshBlank(doc)) {
       /* keep the mark until the page's write lands, so a reload before that still starts blank.
          A zero-byte file (New File… with a typed name) is the same case: there is nothing to open. */
-      if (doc.panel) doc.panel.webview.postMessage({ type: 'blank', name: proto.baseName(doc.uri.path), uri: doc.uri.toString() });
+      if (doc.panel) {
+        const folder = folderInfo(doc);
+        doc.panel.webview.postMessage({ type: 'blank', name: proto.baseName(doc.uri.path), uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label });
+      }
       return;
     }
     if (doc.backupId) {
@@ -482,7 +535,8 @@ class OfficeEditorProvider {
     }
     if (!doc.panel) return;
     const url = doc.panel.webview.asWebviewUri(doc.uri).toString();
-    doc.panel.webview.postMessage({ type: 'open', name: proto.baseName(doc.uri.path), url, uri: doc.uri.toString() });
+    const folder = folderInfo(doc);
+    doc.panel.webview.postMessage({ type: 'open', name: proto.baseName(doc.uri.path), url, uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label });
   }
 
   async _sendBytes(doc, bytes, name, extra) {
@@ -491,10 +545,12 @@ class OfficeEditorProvider {
     const CHUNK = 256 * 1024;
     const n = Math.max(1, Math.ceil(data.length / CHUNK));
     const uri = doc.uri.toString();
+    const folder = folderInfo(doc);
     for (let i = 0; i < n; i++) {
       const slice = data.subarray(i * CHUNK, Math.min(data.length, (i + 1) * CHUNK));
       doc.panel.webview.postMessage({
         type: 'open-chunk', i, n, name, b64: b64(slice), uri,
+        dir: folder.uri, dirLabel: folder.label,
         draft: !!extra.draft, draftKey: extra.draftKey || '',
       });
     }

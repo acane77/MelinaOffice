@@ -73,7 +73,18 @@ function toBytes(b) {
   return new Uint8Array();
 }
 
-/** reassemble chunk messages. push() returns { id, name, purpose, uri, draftKey, bytes } once every part has arrived. */
+/** a folder File ▸ Save As may write into. An empty ask is the open file's own folder.
+ *  Anything else must be that folder, or one the user picked in this editor (allowed is a Set of URI strings). */
+function saveFolder(openDir, asked, allowed) {
+  const home = String(openDir || '');
+  const want = String(asked || '');
+  if (!home) return '';
+  if (!want || want === home) return home;
+  if (allowed && allowed.has && allowed.has(want)) return want;
+  return '';
+}
+
+/** reassemble chunk messages. push() returns { id, name, purpose, uri, folder, draftKey, bytes } once every part has arrived. */
 function createAssembler() {
   const pending = new Map();
   return {
@@ -81,10 +92,11 @@ function createAssembler() {
       if (!msg || msg.type !== 'chunk' || msg.id == null) return null;
       let rec = pending.get(msg.id);
       if (!rec) {
-        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', uri: msg.uri || '', draftKey: msg.draftKey || '', parts: [], got: 0 };
+        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', uri: msg.uri || '', folder: msg.folder || '', draftKey: msg.draftKey || '', parts: [], got: 0 };
         pending.set(msg.id, rec);
       }
       if (msg.uri) rec.uri = msg.uri;
+      if (msg.folder) rec.folder = msg.folder;
       if (msg.draftKey) rec.draftKey = msg.draftKey;
       if (rec.parts[msg.i] == null) {
         rec.parts[msg.i] = toBytes(msg.b64 != null ? msg.b64 : msg.bytes);
@@ -100,11 +112,11 @@ function createAssembler() {
         const p = rec.parts[i];
         if (p) { out.set(p, o); o += p.length; }
       }
-      return { id: msg.id, name: rec.name, purpose: rec.purpose, uri: rec.uri || '', draftKey: rec.draftKey || '', bytes: out };
+      return { id: msg.id, name: rec.name, purpose: rec.purpose, uri: rec.uri || '', folder: rec.folder || '', draftKey: rec.draftKey || '', bytes: out };
     },
   };
 }
 
 module.exports = {
-  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, toBytes, createAssembler,
+  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, saveFolder, toBytes, createAssembler,
 };
