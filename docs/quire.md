@@ -36,6 +36,9 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   top of a page reached by overflow, by "page break before" or (Word 2013+ documents) by a section
   break, a line with "multiple" line spacing only needs its single-spaced height to fit at the bottom
   of a page, and Word 2013+ justified text may squeeze spaces by up to 20% to fit a word on a line.
+  Adjacent paragraphs with the same borders and the same left and right indents share one box: the
+  rule is drawn only under the last of them, so the blank lines in front of a horizontal line stay
+  blank lines.
 - More of Word's own habits: a right or centred tab stop placed beyond the right indent lets the page
   number of a table of contents run out to it; superscripts and footnote references do not push their
   line down; table rows are as tall as Word makes them even though the browser draws hairline borders a
