@@ -13,7 +13,7 @@ Setup, Sort, Chart Wizard, Insert Function, Text Import Wizard and some forty mo
 
 ## Using it
 
-Open https://vibeoffice.work/ledger/. The app is `public/ledger/`; paths below are relative to it unless
+Open https://vibeoffice.work/ledger/. It starts with a blank workbook (`Book1`). The app is `public/ledger/`; paths below are relative to it unless
 they start with `tools/`. To run it locally, see [testing.md](testing.md). Everything runs in the browser; there is no back end and no network
 service behind any feature. Two things are fetched at run time: the spelling word lists in
 `../common/dict/`, shared with Quire (which is why the site should be served rather than opened from disk — from a `file://` page

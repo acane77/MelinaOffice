@@ -2172,10 +2172,9 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     buildToolbars();
     L.ribbonUI.init();
     buildStatus();
-    /* opened from the Start Center: a template, or blank (a new presentation, or to open a file into); else the sample */
+    /* a template from the Start Center, otherwise a blank presentation */
     const launch = window.VO && VO.launch;
-    const blank = !!launch;
-    L.pres = (launch && launch.template && L.templates && L.templates.build(launch.template, A.newSize())) || (blank ? M.newPresentation(Object.assign({ design: 'default' }, A.newSize())) : buildSample());
+    L.pres = (launch && launch.template && L.templates && L.templates.build(launch.template, A.newSize())) || M.newPresentation(Object.assign({ design: 'default' }, A.newSize()));
     L.panes.left.mount(L.$('#leftpane'));
     L.panes.notes.mount(L.$('#notes'));
     L.panes.task.mount(L.$('#taskpane'));
@@ -2195,7 +2194,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     setupSplitters();
     setupDrop();
     wire();
-    A.loadPres(L.pres, blank ? 'Presentation1' : 'Harbor & Pine — 2027 Expansion (sample)');
+    A.loadPres(L.pres, 'Presentation1');
     const wantTask = A.opts.taskOpen;
     L.panes.task.show('getting-started');
     if (!wantTask) { L.$('#taskpane').hidden = true; A.opts.taskOpen = false; }

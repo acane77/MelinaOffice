@@ -38,7 +38,7 @@ In desktop VS Code the same folder is an extension: Run and Debug, **VibeOffice 
 
 ## Opening and saving
 
-Click a `.docx`, `.xlsx` or `.pptx` in the Explorer. The editor tab is the app (Quire, Ledger or Lectern) with that file open, in place of the sample document. Edits mark the tab dirty. Ctrl+S asks the app to save and writes the result over the workspace file.
+Click a `.docx`, `.xlsx` or `.pptx` in the Explorer. The editor tab is the app (Quire, Ledger or Lectern) with that file open, in place of a blank document. Edits mark the tab dirty. Ctrl+S asks the app to save and writes the result over the workspace file.
 
 File ▸ New asks for a file with VS Code's save dialog, in the folder of the file this tab has open. Quire suggests `Document1.docx`, Ledger `Book1.xlsx` and Lectern `Presentation1.pptx`, using the next free number. The page then builds a new document of that type and the extension opens it in its own tab. The tab you started from stays on its file. The new file's extension is the app's (`docx`, `xlsx` or `pptx`). A name that ends with something else keeps that ending and gains the app's extension, so `新建文档.txt` is saved as `新建文档.txt.docx`. Choosing a file that is already open in VibeOffice switches to that tab and leaves it unchanged. A template chosen in the app is written the same way. A web page, an e-mail message, the welcome document and Lectern's design-template pane still open in the current tab.
 

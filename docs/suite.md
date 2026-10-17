@@ -12,7 +12,7 @@
 
 ## Start Center
 
-Modeled on LibreOffice's Start Center, drawn in the suite's look (see Looks). No title bar of its own (installed, the window has the system's). Left: Open File…, Recent Files, Create File, *Apps*: Quire (word processor), Ledger (spreadsheet), Lectern (presentations), each opening with its demo file, Update VibeOffice (desktop app, when `updater/current.json` asks; docs/desktop.md, Versions and updates), Install (when the browser offers it), Feedback on our GitHub, the privacy note and the version, then a row of three links with icons: Settings, Themes (a dialog with a live preview of each look, see Looks) and About. In a narrow window (or a large UI size) the note goes but the links stay. Right, one of two views:
+Modeled on LibreOffice's Start Center, drawn in the suite's look (see Looks). No title bar of its own (installed, the window has the system's). Left: Open File…, Recent Files, Create File, *Apps*: Quire (word processor), Ledger (spreadsheet), Lectern (presentations), each opening with a blank document, Update VibeOffice (desktop app, when `updater/current.json` asks; docs/desktop.md, Versions and updates), Install (when the browser offers it), Feedback on our GitHub, the privacy note and the version, then a row of three links with icons: Settings, Themes (a dialog with a live preview of each look, see Looks) and About. In a narrow window (or a large UI size) the note goes but the links stay. Right, one of two views:
 
 - **Recent Files** (the default): cards (thumbnail, name, app, when), each with a remove button; *Clear Recent Documents*; when the list is empty, the welcome text and the drop hint.
 - **Create File** (`#create`, so Back returns to Recent Files): Documents, Spreadsheets and Presentations, each starting with Blank (`<app>/?new`) followed by the app's templates (`<app>/?template=<id>`), with a preview of each.
@@ -35,7 +35,7 @@ What runs the pages: a browser, the desktop app (`desktop/`, Tauri), or a VS Cod
 
 | URL | The app starts with |
 |---|---|
-| `<app>/` | its sample document, as before |
+| `<app>/` | a blank document (`Document1`, `Book1`, `Presentation1`) |
 | `<app>/?new` | a blank document (`Document1`, `Book1`, `Presentation1`) |
 | `<app>/?template=<id>` | a new document from that template (`Document1`, `TaskTracker1`, `Presentation1`) |
 | `<app>/?open=<id>` | a blank document, then the file the Start Center stored under `id` in the `handoff` store (read once, then deleted; entries older than a day are swept) |
@@ -45,7 +45,7 @@ The query is removed from the address once read, so a reload starts clean. Openi
 
 File ▸ Exit closes the app's documents (asking to save each; Cancel stays) and calls `VO.exit()`: an app window the Start Center opened (installed) closes, showing the Start Center behind it; a tab goes to the Start Center.
 
-Each app, in its `A.init`, picks template, blank or sample from `VO.launch` and finishes with
+Each app, in its `A.init`, picks a template or a blank document from `VO.launch` and finishes with
 
     VO.attach('<app>', { open(file, { draft, name, saved }), thumb(), message(text), templates(),
                          snapshot(doc), docInfo(doc), isDirty(doc), current(), autosave(), showRecovery() })

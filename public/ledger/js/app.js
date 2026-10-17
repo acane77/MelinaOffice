@@ -1432,10 +1432,10 @@
   A.init = function () {
     A.loadOpts();
     if (window.VO) VO.setIcon(L.icons.app(32));
-    /* opened from the Start Center: a template, or blank (a new workbook, or to open a file into); else the sample */
+    /* a template from the Start Center, otherwise a blank workbook */
     const launch = window.VO && VO.launch;
     const tpl = launch && launch.template && L.panes && L.panes.TEMPLATES[launch.template];
-    const w = tpl ? L.panes.buildTemplate(launch.template) : launch ? A.blankWorkbook() : A.sampleWorkbook();
+    const w = tpl ? L.panes.buildTemplate(launch.template) : A.blankWorkbook();
     untitled = 1;
     A.prepare(w);
     G().init(w);

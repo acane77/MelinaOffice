@@ -8,7 +8,7 @@ the tool tabs) takes the place of the menus and toolbars.
 
 ## Using it
 
-Open https://vibeoffice.work/quire/. The app is `public/quire/`; every path below is relative to it.
+Open https://vibeoffice.work/quire/. It starts with a blank document (`Document1`). The app is `public/quire/`; every path below is relative to it.
 Everything runs in the browser: there is no back end, no account and no network service behind any
 feature. The proofing dictionaries are fetched at run time from `../common/dict/` (shared with Ledger),
 so the site is served rather than opened from disk (a `file://` page cannot fetch them; editing still
