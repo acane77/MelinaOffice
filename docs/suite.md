@@ -68,7 +68,7 @@ Placeholder text says what goes where (Quire's are click-to-replace fields). The
 
     node tools/templates.mjs
 
-which opens every app and template in Chromium and writes `public/common/templates.json` and `public/<app>/templates/<id>.jpg` (`blank.jpg` for Blank).
+which opens every app and template in Chromium and writes `public/common/templates.json` and `public/<app>/templates/<id>.jpg` (`blank.jpg` for Blank). That Chromium is for the pages in a browser. A VS Code extension change does not start it; the user checks the extension in VS Code. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace (AGENTS.md).
 
 ## Shared code (public/common/)
 

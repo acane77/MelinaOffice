@@ -57,6 +57,8 @@ Keep them current: a change to an app's features, formats or source layout updat
 
 - `tools/serve.py`: no-cache server for `public/` on 127.0.0.1:8760.
 - Chromium with CDP at 127.0.0.1:9222. `tools/shot.mjs <page> [steps]` drives a page over CDP, takes screenshots and reports console errors and any request that leaves 127.0.0.1. **Never close the browser's other tabs** (Chromium quits with its last tab).
+- **VS Code extension work does not start Chromium.** A feature or a fix for the extension (`vscode/`, [docs/vscode.md](docs/vscode.md)) is not a browser change. Do not start Chromium, `tools/shot.mjs` or CDP to check it. The user debugs the extension in VS Code (Run and Debug, **VibeOffice extension**).
+- **WSL2:** do not run commands that look for Chromium on Windows or on the WSL2 host (no `command -v`, no search of `/usr/bin`, `/mnt/c`, a Windows path or a CDP port), and do not run commands outside the workspace.
 - `tools/quick.mjs [REV]`: the quick check after a change (the tests covering the files changed); `tools/ui-full.mjs`: the whole UI suite before a release, recorded for `tools/ui-tested.sh`, which `tools/web-release.sh` and `../cf-vibeoffice/sync-cf-pages.sh` run.
 - `tools/older.mjs [REV] -- <tests>`: runs today's tests against `public/` as it was at REV (default: before the uncommitted or last change), so a fix's regression test can be seen failing there.
 - `tools/oss-licenses.py`: regenerates `public/oss-licenses.html` (Open source licenses, linked from About) from the license files in `public/`, the desktop app's direct crates and its DLL; run it after changing a font, a word list or a desktop dependency.
@@ -69,11 +71,13 @@ Keep them current: a change to an app's features, formats or source layout updat
 
 Several agents work in this repository at once. Commit only your own files and hunks (stage hunks when a file also holds someone else's edits); never commit, revert or rewrite another session's uncommitted changes. Leave a finding for the owner in the relevant plan's To do (preservation: docs/LOSSLESS_SAVE.md) instead of fixing inside their in-progress files.
 
-Always work in the repository's own working directory: no git worktrees or subtrees, no copies of the repository to work in.
+Always work in the repository's own working directory: no git worktrees or subtrees, no copies of the repository to work in. On WSL2, do not run commands outside that directory, and do not search Windows or the WSL2 host for Chromium.
 
 Don't look up this project's GitHub issues (no `gh`, no fetching issue pages) unless the user pastes an issue URL; then read only that issue.
 
 ## Testing
+
+A VS Code extension change is not in this list: do not start Chromium for it (Tools, above). On WSL2, do not search the host for Chromium and do not run commands outside the workspace.
 
 1. Ledger engine changes: `node --test tests/ledger/*.test.js`.
 2. File-format changes: round-trip real files (`node tests/ledger/roundtrip.js file.xlsx`) and open the saved file in LibreOffice.

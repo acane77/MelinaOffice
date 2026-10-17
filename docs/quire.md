@@ -434,7 +434,7 @@ watermark elements byte for byte before editing. The relevant Office batch-2 sam
 
 The reproducible OOXML run uses the pinned LibreOffice, Apache POI and Open XML SDK inputs from
 `tools/corpora.sh`. Quire runs in Chromium through CDP; independent package checks, SDK diagnostics
-and LibreOffice compare the saved file with its original. Page counts, Word's saved page-break markers
+and LibreOffice compare the saved file with its original. That Chromium is for the pages in a browser. A VS Code extension change does not start it; the user checks the extension in VS Code. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace (AGENTS.md). Page counts, Word's saved page-break markers
 and reference PDFs help diagnose layout. Missing fonts, tight wrapping around irregular pictures,
 vertical text and complex data bindings remain known differences. RC4-encrypted legacy binary files
 are outside the supported OOXML encryption path.

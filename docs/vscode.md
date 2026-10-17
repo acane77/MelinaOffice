@@ -36,6 +36,10 @@ code-server --install-extension tmp/vibeoffice-1.0.1.vsix
 
 In desktop VS Code the same folder is an extension: Run and Debug, **VibeOffice extension** (`.vscode/launch.json`), which starts an Extension Development Host.
 
+## Checking a change
+
+A feature or a fix for the extension is checked by the user in VS Code (Run and Debug, **VibeOffice extension**), not by starting Chromium. The webview is not the browser: do not start Chromium, `tools/shot.mjs` or CDP for it. `node --test tests/vscode/extension.test.mjs` is the automated check; it does not open a browser. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace.
+
 ## Opening and saving
 
 Click a `.docx`, `.xlsx` or `.pptx` in the Explorer. The editor tab is the app (Quire, Ledger or Lectern) with that file open, in place of a blank document. Edits mark the tab dirty. Ctrl+S asks the app to save and writes the result over the workspace file.

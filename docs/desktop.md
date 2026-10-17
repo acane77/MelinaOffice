@@ -61,7 +61,7 @@ Windows: as when the PWA is installed, the Start Center stays in its window and 
 
 Planned: `open({ accept })` (the system's Open dialog), `save(handle, blob)` and `saveAs(name, blob)` (in place, as File ▸ Save does in Office) and one instance on Linux (today each start there is a process of its own).
 
-`node --test tests/desktop/host.test.mjs` checks the page side in Chromium: `tests/desktop/host-stub.js` plays the desktop host (run before each page with `tools/shot.mjs --pre`; `?nolaunch` and `?update=button|dialog` set the scene): a launch file opens in its app once, with no service worker and the build's version; `openUrl` refuses anything but web and mail addresses; Settings sets the UI size (the web points to the browser's zoom); the update policies; versions compare by date.
+`node --test tests/desktop/host.test.mjs` checks the page side in Chromium: `tests/desktop/host-stub.js` plays the desktop host (run before each page with `tools/shot.mjs --pre`; `?nolaunch` and `?update=button|dialog` set the scene): a launch file opens in its app once, with no service worker and the build's version; `openUrl` refuses anything but web and mail addresses; Settings sets the UI size (the web points to the browser's zoom); the update policies; versions compare by date. That Chromium is for the desktop host's pages. A VS Code extension change does not start it; the user checks the extension in VS Code. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace (AGENTS.md).
 
 ## Saving (for now)
 

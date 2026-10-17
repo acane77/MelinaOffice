@@ -10,9 +10,11 @@ Every response carries `Cache-Control: no-store`, so edited HTML and scripts are
 
 `node --test tests/vscode/extension.test.mjs` checks which app opens which file, that a save reassembles from messages, and that the webview page points its `<base>` at the app folder and announces the vscode host. Installing and opening a file in code-server is in docs/vscode.md. A change to the extension's file types updates `vscode/protocol.js` and the `customEditors` in `package.json` together.
 
+A feature or a fix for the extension is not checked in Chromium. Do not start Chromium, `tools/shot.mjs` or CDP for it: the webview is not the browser. The user debugs the extension in VS Code (Run and Debug, **VibeOffice extension**). On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace.
+
 ## Screenshots and console errors: tools/shot.mjs
 
-Drives a page in the Chromium listening on CDP 127.0.0.1:9222 (start one with `chromium --remote-debugging-port=9222 --remote-allow-origins=*`, or `--headless=new` on a machine without a display). It starts `tools/serve.py` if nothing listens on :8760.
+Drives a page in the Chromium listening on CDP 127.0.0.1:9222 (start one with `chromium --remote-debugging-port=9222 --remote-allow-origins=*`, or `--headless=new` on a machine without a display). It starts `tools/serve.py` if nothing listens on :8760. This is for the pages in a browser, not for the VS Code extension (VS Code extension, above). On WSL2, do not look for that Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace.
 
     node tools/shot.mjs ledger/ '[{"wait":1000,"shot":"ledger.png"}]'
     node tools/shot.mjs quire/ steps.json --w 1440 --h 900 --out /tmp/shots
