@@ -4,7 +4,7 @@
     python3 tools/vscode_vsix.py [out.vsix]
 
 The archive holds package.json, vscode/ and public/ (the pages the webview loads).
-Install:  code-server --install-extension vibeoffice-1.0.0.vsix
+Install:  code-server --install-extension vibeoffice-1.0.1.vsix
 """
 import json
 import sys
