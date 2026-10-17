@@ -15,7 +15,7 @@ so the site is served rather than opened from disk (a `file://` page cannot fetc
 works, but spelling and the thesaurus stay off). To run it locally, see [testing.md](testing.md).
 The metric-compatible fonts (see *Rendering notes*) are served with the site from `public/fonts/`.
 The status bar ends in a zoom slider (10–500%). The percent can be edited, and the slider moves the zoom as it is dragged. A pinch over the page zooms it; two-finger scrolling moves the page. A pinch on the toolbars or the status bar does not zoom the window.
-Selecting text with the mouse or the keyboard shows a small formatting bar just above and to the right of the pointer: font, size, grow and shrink, clear formatting, highlight, font colour, bold, italic, underline, bullets, numbering and the style list. It starts partly see-through, becomes solid while the pointer is on it or on a menu it opened, and fades out with the distance from where it opened, gone past 50 pixels. Once it has faded out it stays hidden until the next selection. A caret, typing, Escape or scrolling the page also puts it away.
+Selecting text with the mouse or the keyboard shows a small formatting bar just above and to the right of the pointer (in the Windows 7 look, a glass window with the controls drawn on the glass): font, size, grow and shrink, clear formatting, highlight, font colour, bold, italic, underline, bullets, numbering and the style list. It starts partly see-through, becomes solid while the pointer is on it or on a menu it opened, and fades out with the distance from where it opened, gone past 50 pixels. Once it has faded out it stays hidden until the next selection. A caret, typing, Escape or scrolling the page also puts it away.
 
 ## Proofing tools (offline)
 

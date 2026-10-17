@@ -331,7 +331,6 @@
 [data-look="win7"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-sub:not(:empty) { font-size: 0; width: 0; height: 0; border: 4px solid transparent; border-left-color: currentColor; margin-right: 4px; justify-self: end; }
 [data-look="win7"] .toolbars { background: #f0f0f0; padding: 1px 2px 2px; }
 [data-look="win7"] .toolbar { background: transparent; border: 0; border-radius: 0; height: 28px; }
-[data-look="win7"] .minibar { background: var(--dock-b); border-color: var(--chrome-line); }
 [data-look="win7"] .tb-sep { border-left-color: #b5b5b5; border-right-color: #fff; }
 [data-look="win7"] .tb-btn, [data-look="win7"] .tb-dd { border-radius: 3px; }
 [data-look="win7"] .tb-btn:not(.dis):hover, [data-look="win7"] .tb-dd:hover, [data-look="win7"] .tb-split:hover > .tb-btn:not(.dis), [data-look="win7"] .tb-split:hover > .tb-dd { background: var(--w7-glass); border-color: #888; }
@@ -347,8 +346,15 @@
 [data-look="win7"] .statusbar { height: 23px; background: #f0f0f0; border-top: 0; box-shadow: inset 0 1px 2px #808080; }
 [data-look="win7"] .sb-cell { border-right-color: rgba(208, 206, 191, .75); box-shadow: 1px 0 0 rgba(255, 255, 255, .75); }
 
-[data-look="win7"] .floatbar { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-[data-look="win7"] .floatbar::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 40%, transparent 41%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+[data-look="win7"] :is(.floatbar, .minibar) { background: transparent; border: 1px solid #000000b3; border-radius: 6px; box-shadow: 2px 2px 10px 1px #000000b3, inset 0 0 0 1px #fffa; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+[data-look="win7"] :is(.floatbar, .minibar)::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 7px; opacity: .6; background: linear-gradient(transparent 20%, #ffffffb3 48%, transparent 49%), linear-gradient(to right, #ffffff66, #0000001a, #ffffff33), #4580c450; box-shadow: inset 0 0 0 1px #fffd; }
+/* the formatting bar is the glass itself: boxes and buttons have no face of their own, and light up with the glass streak */
+[data-look="win7"] .minibar { padding: 4px 5px 3px; }
+[data-look="win7"] .minibar-row { position: relative; z-index: 1; }
+[data-look="win7"] .minibar .combo { background: transparent; border-color: transparent; box-shadow: none; }
+[data-look="win7"] .minibar .combo-in { background: transparent; color: #000; text-shadow: 0 0 4px #fff, 0 0 1px #fff !important; }
+[data-look="win7"] .minibar .combo-btn, [data-look="win7"] .minibar .combo-btn:hover { background: transparent; border-left-color: transparent; }
+[data-look="win7"] .minibar .combo:hover, [data-look="win7"] .minibar .combo.focus { background: var(--w7-glass); border-color: #888; }
 [data-look="win7"] .floatbar .fb-title, [data-look="win7"] .floatbar .fb-body { position: relative; z-index: 1; }
 [data-look="win7"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 
