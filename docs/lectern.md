@@ -2,7 +2,7 @@
 
 A presentation editor modeled on PowerPoint 2003, written in plain HTML and vanilla JavaScript with no frameworks and no build step. It opens and saves real `.pptx` files. In the suite's Paper 2016 look (Themes on the Start Center, or Tools ▸ Options ▸ General ▸ Theme) a ribbon with PowerPoint 2016's tabs (Home, Insert, Design, Transitions, Animations, Slide Show, Review, View and the tool tabs) takes the place of the menus and toolbars.
 
-Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testing.md)). The app is `public/lectern/`; every path below is relative to it, except `tools/`. It runs in any modern browser (Chrome, Edge, Firefox, Safari). Everything runs locally; nothing is uploaded, including the passwords of protected presentations.
+Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testing.md)). The app is `public/lectern/`; every path below is relative to it, except `tools/`. It runs in any modern browser (Chrome, Edge, Firefox, Safari). Everything runs locally; nothing is uploaded, including the passwords of protected presentations. The status bar's zoom slider runs from 10% to 400% (drag it, or type the percent). A pinch over the slide zooms it, and two-finger scrolling moves it; a pinch elsewhere does not zoom the window. In Fit, a vertical swipe still changes slides.
 
 ## What's in the box
 

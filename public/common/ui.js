@@ -1003,6 +1003,167 @@
     if (swallow.seen.has('mouseup') && swallow.seen.has(swallow.button === 2 ? 'contextmenu' : 'auxclick')) swallow = null;
   }, true);
 
+  /* ---------- zoom ---------- */
+  /* A notch of a mouse wheel (about 100px, or 3 lines) changes the zoom by roughly a tenth. A trackpad
+     pinch arrives as many small deltaY values and stays smooth. */
+  ui.wheelZoomFactor = function (deltaY, deltaMode) {
+    let dy = deltaY || 0;
+    if (deltaMode === 1) dy *= 32;
+    else if (deltaMode === 2) dy *= 800;
+    if (!dy) return 1;
+    return Math.exp(-dy * 0.0015);
+  };
+  /** two fingers: scale is the change in the span between them, dx/dy how their midpoint moved */
+  ui.pinchStep = function (a0, b0, a1, b1) {
+    const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+    const d0 = dist(a0, b0);
+    return {
+      scale: d0 > 0.5 ? dist(a1, b1) / d0 : 1,
+      dx: (a1.x + b1.x) / 2 - (a0.x + b0.x) / 2,
+      dy: (a1.y + b1.y) / 2 - (a0.y + b0.y) / 2,
+    };
+  };
+  /** scroll position that keeps the point under `from` under `to` after oldZ becomes newZ.
+      `from` and `to` are viewport coordinates; `scroll` is the element's scrollLeft/scrollTop. */
+  ui.zoomScroll = function (scroll, oldZ, newZ, from, to) {
+    const ratio = oldZ ? newZ / oldZ : 1;
+    return {
+      left: (from.x + scroll.left) * ratio - to.x,
+      top: (from.y + scroll.top) * ratio - to.y,
+    };
+  };
+  /** status-bar zoom: −, a slider, +, and a percent that can be typed. o.min/o.max are percents.
+      o.value() is the current percent; o.onChange(pct) runs as the slider moves and as a typed
+      number settles. Listens for 'zoom' (and 'layout-done') to catch up. */
+  ui.zoomBar = function (o) {
+    const min = o.min, max = o.max, step = o.step || 10;
+    const minus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom Out', text: '−' });
+    const range = h('input', { type: 'range', class: 'sb-zoom-range', min: String(min), max: String(max), step: '1', value: '100', 'aria-label': 'Zoom' });
+    const plus = h('button', { type: 'button', class: 'sb-zoom-btn', tabindex: '-1', 'aria-label': 'Zoom In', text: '+' });
+    const pct = h('input', { type: 'text', class: 'sb-zoom-pct', value: '100%', 'aria-label': 'Zoom', inputmode: 'numeric', spellcheck: 'false', autocomplete: 'off' });
+    const box = h('div', { class: 'sb-zoom' }, minus, range, plus, pct);
+    let typing = false, revert = false, typeGen = 0;
+    const read = () => {
+      const n = Math.round(Number(o.value()));
+      return n >= min && n <= max ? n : Math.round(L.clamp(Number(o.value()) || 100, min, max));
+    };
+    const show = (n) => {
+      if (String(range.value) !== String(n)) range.value = String(n);
+      if (document.activeElement !== pct) pct.value = n + '%';
+    };
+    const apply = (n) => { n = Math.round(L.clamp(n, min, max)); o.onChange(n); show(n); };
+    const sync = () => { if (!typing) show(read()); };
+    const stepTo = (dir) => {
+      const n = read();
+      apply(dir < 0 ? Math.floor((n - 1) / step) * step : Math.ceil((n + 1) / step) * step);
+    };
+    const liveType = L.debounce((gen) => {
+      if (gen !== typeGen || !typing) return;
+      const m = /^(\d{1,4})\s*%?$/.exec(pct.value.trim());
+      if (!m) return;
+      const n = Number(m[1]);
+      if (n >= min && n <= max) { o.onChange(n); if (String(range.value) !== String(n)) range.value = String(n); }
+    }, 250);
+    minus.addEventListener('click', () => stepTo(-1));
+    plus.addEventListener('click', () => stepTo(1));
+    range.addEventListener('input', () => apply(Number(range.value)));
+    range.addEventListener('pointerup', () => {
+      range.blur();
+      setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) ui.hooks.refocus(); }, 0);
+    });
+    range.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); range.blur(); ui.hooks.refocus(); }
+    });
+    pct.addEventListener('focus', () => { typing = true; pct.value = String(read()); pct.select(); });
+    pct.addEventListener('input', () => liveType(++typeGen));
+    pct.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); pct.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); revert = true; pct.blur(); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); stepTo(e.key === 'ArrowUp' ? 1 : -1); pct.value = String(read()); }
+    });
+    pct.addEventListener('blur', () => {
+      typing = false;
+      typeGen++;
+      if (!revert) {
+        const m = /(\d+)/.exec(pct.value);
+        apply(m ? Number(m[1]) : read());
+      }
+      revert = false;
+      show(read());
+      setTimeout(() => { if (!document.activeElement || document.activeElement === document.body) ui.hooks.refocus(); }, 0);
+    });
+    if (L.bus) { L.bus.on('zoom', sync); L.bus.on('layout-done', sync); }
+    sync();
+    return box;
+  };
+  /** Pinch and two-finger pan on an editing surface. o.zoom() is a fraction (1 = 100%), o.setZoom(z)
+      applies one, o.min/o.max bound it. o.about(oldZ, newZ, x0, y0, x1, y1) replaces the default,
+      which scrolls `el`. o.wheelScroll(e) handles a two-finger swipe that is not a pinch; without it
+      the browser scrolls `el`. o.ignore(e) leaves the event alone. o.metaZoom also treats ⌘+scroll
+      as a pinch. A pinch anywhere else is cancelled so the browser does not zoom the page. */
+  ui.watchDocGestures = function (el, o) {
+    if (!el) return;
+    el.setAttribute('data-doc-zoom', '');
+    let gesture = null;
+    const applyZoom = (oldZ, newZ, x0, y0, x1, y1) => {
+      newZ = L.clamp(newZ, o.min, o.max);
+      if (o.about) { o.about(oldZ, newZ, x0, y0, x1, y1); return; }
+      const rect = el.getBoundingClientRect();
+      const scroll = { left: el.scrollLeft, top: el.scrollTop };
+      if (Math.abs(newZ - oldZ) > 1e-4) o.setZoom(newZ);
+      const s = ui.zoomScroll(scroll, oldZ, newZ, { x: x0 - rect.left, y: y0 - rect.top }, { x: x1 - rect.left, y: y1 - rect.top });
+      el.scrollLeft = s.left;
+      el.scrollTop = s.top;
+    };
+    el.addEventListener('wheel', (e) => {
+      if (o.ignore && o.ignore(e)) return;
+      if (e.ctrlKey || (o.metaZoom && e.metaKey)) {
+        e.preventDefault();
+        if (gesture || pinch) return;
+        const oldZ = o.zoom();
+        applyZoom(oldZ, oldZ * ui.wheelZoomFactor(e.deltaY, e.deltaMode), e.clientX, e.clientY, e.clientX, e.clientY);
+        return;
+      }
+      if (o.wheelScroll) o.wheelScroll(e);
+    }, { passive: false, capture: true });
+    const fingers = (e) => [{ x: e.touches[0].clientX, y: e.touches[0].clientY }, { x: e.touches[1].clientX, y: e.touches[1].clientY }];
+    let pinch = null;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 2 || (o.ignore && o.ignore(e))) return;
+      const [a, b] = fingers(e);
+      pinch = { a, b, z: o.zoom() };
+    }, { passive: false });
+    el.addEventListener('touchmove', (e) => {
+      if (!pinch || e.touches.length !== 2) return;
+      e.preventDefault();
+      const [a, b] = fingers(e);
+      const step = ui.pinchStep(pinch.a, pinch.b, a, b);
+      const newZ = L.clamp(pinch.z * step.scale, o.min, o.max);
+      const mid0 = { x: (pinch.a.x + pinch.b.x) / 2, y: (pinch.a.y + pinch.b.y) / 2 };
+      const mid1 = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      applyZoom(pinch.z, newZ, mid0.x, mid0.y, mid1.x, mid1.y);
+      pinch.a = a; pinch.b = b; pinch.z = newZ;
+    }, { passive: false });
+    const endPinch = () => { pinch = null; };
+    el.addEventListener('touchend', endPinch);
+    el.addEventListener('touchcancel', endPinch);
+    el.addEventListener('gesturestart', (e) => { e.preventDefault(); gesture = { z: o.zoom(), x: e.clientX, y: e.clientY }; }, { passive: false });
+    el.addEventListener('gesturechange', (e) => {
+      e.preventDefault();
+      if (!gesture || pinch) return;
+      const newZ = L.clamp(gesture.z * (e.scale || 1), o.min, o.max);
+      applyZoom(o.zoom(), newZ, gesture.x, gesture.y, e.clientX, e.clientY);
+      gesture.x = e.clientX; gesture.y = e.clientY;
+    }, { passive: false });
+    el.addEventListener('gestureend', () => { gesture = null; });
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false, capture: true });
+    const stopGesture = (e) => e.preventDefault();
+    window.addEventListener('gesturestart', stopGesture, { passive: false, capture: true });
+    window.addEventListener('gesturechange', stopGesture, { passive: false, capture: true });
+  }
+
   /* ---------- status bar & misc ---------- */
   /** a short notice at the bottom; action: { label, run } adds a button to it (e.g. Browse) */
   ui.toast = (text, ms, action) => {

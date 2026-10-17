@@ -500,7 +500,8 @@
     L.bus.on('doc-loaded', spellIcon);
     spellIcon();
     A.sb.page.addEventListener('dblclick', () => ui.exec('goTo'));
-    sb.append(A.sb.page, A.sb.sec, A.sb.pages, A.sb.at, A.sb.ln, A.sb.col, A.sb.rec, A.sb.trk, A.sb.ext, A.sb.ovr, A.sb.lang, A.sb.spell, A.sb.msg);
+    sb.append(A.sb.page, A.sb.sec, A.sb.pages, A.sb.at, A.sb.ln, A.sb.col, A.sb.rec, A.sb.trk, A.sb.ext, A.sb.ovr, A.sb.lang, A.sb.spell, A.sb.msg,
+      ui.zoomBar({ min: 10, max: 500, value: () => Math.round((LY.zoom || 1) * 100), onChange: (n) => A.liveZoom(n / 100) }));
   }
   A.status = (msg, ms) => { if (!A.sb) return; A.sb.msg.textContent = L.t(msg); clearTimeout(statusTimer); statusTimer = setTimeout(() => { A.sb.msg.textContent = ''; }, ms || 4000); };
   A.updateStatus = L.debounce(function () {
@@ -605,6 +606,9 @@
     ui.refresh();
     L.bus.emit('view', v);
   };
+  const saveZoom = L.debounce(() => A.saveOpts(), 300);
+  /** document zoom from the status slider or a pinch; the choice is kept, a moment after the last change */
+  A.liveZoom = function (z) { LY.setZoom(L.clamp(z, 0.1, 5)); A.opts.zoom = LY.zoom; saveZoom(); };
   A.zoomTo = function (v) {
     let z;
     if (/page width/i.test(v)) z = LY.zoomFor('pageWidth');
@@ -1272,6 +1276,7 @@
     L.bus.on('layout-done', () => { A.updateStatus(); if (L.rulers) L.rulers.drawSoon(); if (L.drawing) L.drawing.placeHandles(); E.placeHandles(); });
     L.bus.on('zoom', () => { ui.refresh(); if (L.rulers) L.rulers.draw(); if (L.drawing) L.drawing.placeHandles(); E.placeHandles(); });
     LY.scroller.addEventListener('scroll', () => { if (L.rulers) L.rulers.drawSoon(); });
+    ui.watchDocGestures(LY.scroller, { zoom: () => LY.zoom, setZoom: (z) => A.liveZoom(z), min: 0.1, max: 5 });
     window.addEventListener('beforeunload', (e) => { const any = (doc() && doc().dirty) || A.docs.some((w, i) => i !== A.cur && w && w.doc && w.doc.dirty); if (any) { e.preventDefault(); e.returnValue = ''; } });
     window.addEventListener('resize', L.debounce(() => { if (A.view === 'web') LY.render(); else LY.fitSizer(); if (L.rulers) L.rulers.draw(); }, 200));
     document.addEventListener('keydown', (e) => { LY.root.classList.toggle('ctrl', e.ctrlKey || e.metaKey); });

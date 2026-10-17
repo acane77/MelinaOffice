@@ -14,6 +14,7 @@ feature. The proofing dictionaries are fetched at run time from `../common/dict/
 so the site is served rather than opened from disk (a `file://` page cannot fetch them; editing still
 works, but spelling and the thesaurus stay off). To run it locally, see [testing.md](testing.md).
 The metric-compatible fonts (see *Rendering notes*) are served with the site from `public/fonts/`.
+The status bar ends in a zoom slider (10–500%). The percent can be edited, and the slider moves the zoom as it is dragged. A pinch over the page zooms it; two-finger scrolling moves the page. A pinch on the toolbars or the status bar does not zoom the window.
 
 ## Proofing tools (offline)
 

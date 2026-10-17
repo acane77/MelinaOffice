@@ -279,11 +279,9 @@
     A.sbMsg = h('div', { class: 'sb-cell grow' });
     A.sbDesign = h('div', { class: 'sb-cell fit' });
     A.sbLang = h('div', { class: 'sb-cell fit', text: 'English (U.S.)' });
-    const zr = h('input', { type: 'range', min: 10, max: 400, value: 100, id: 'sb-zoom', 'aria-label': 'Zoom' });
-    zr.addEventListener('input', () => E.setZoom(zr.value / 100));
-    A.sbZoom = h('div', { class: 'sb-cell fit sb-zoom' }, h('span', { text: '100%' }), zr);
+    A.sbZoom = ui.zoomBar({ min: 10, max: 400, value: () => E.zoomPct(), onChange: (n) => E.setZoom(n / 100) });
     sb.append(A.sbSlide, A.sbDesign, A.sbMsg, A.sbLang, A.sbZoom);
-    L.bus.on('zoom', () => { A.sbZoom.firstChild.textContent = E.zoomPct() + '%'; zr.value = E.zoomPct(); ui.refresh(); });
+    L.bus.on('zoom', () => ui.refresh());
   }
   A.status = (msg) => { if (!A.sbMsg) return; A.sbMsg.textContent = L.t(msg); clearTimeout(statusTimer); statusTimer = setTimeout(() => { A.sbMsg.textContent = ''; }, 3000); };
   A.updateStatus = function () {
