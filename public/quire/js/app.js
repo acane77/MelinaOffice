@@ -1413,6 +1413,13 @@
     if (A.opts.docMap) A.toggleDocMap(true);
     ui.refresh();
     if (window.VO) VO.attach('quire', {
+      adoptBlank(name) {
+        A.fileName = String(name || 'Document.docx').replace(/\.docx$/i, '');
+        A.saved = true;
+        A.fileType = 'docx';
+        if (doc()) doc().dirty = false;
+        A.updateTitle();
+      },
       async open(f, o) {
         await A.openFile(f);
         if (o?.draft && doc()) L.opc.recoverLosses(doc(), o.lossState);

@@ -96,6 +96,35 @@ test('package.json offers every extension the protocol lists', () => {
   assert.ok(fs.existsSync(path.join(root, 'public/lectern/index.html')));
 });
 
+test('New File offers a blank document, workbook and presentation', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const cmds = new Map(pkg.contributes.commands.map((c) => [c.command, c]));
+  const menu = pkg.contributes.menus['file/newFile'];
+  for (const [id, title] of [
+    ['vibeoffice.newDocx', 'Word Document (.docx)'],
+    ['vibeoffice.newXlsx', 'Excel Workbook (.xlsx)'],
+    ['vibeoffice.newPptx', 'PowerPoint Presentation (.pptx)'],
+  ]) {
+    assert.equal(cmds.get(id).title, title);
+    assert.equal(cmds.get(id).category, 'VibeOffice');
+    assert.ok(pkg.activationEvents.includes('onCommand:' + id));
+    assert.ok(menu.some((item) => item.command === id && item.group === 'file'));
+  }
+  const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
+  assert.match(suite, /type === 'blank'/);
+  assert.match(suite, /voBlank/);
+  assert.match(suite, /adoptBlank/);
+  const ext = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
+  assert.match(ext, /pendingBlank/);
+  assert.match(ext, /_freshBlank/);
+  assert.match(ext, /st\.size === 0/);
+  assert.match(ext, /vibeoffice\.newDocx/);
+  assert.match(ext, /nextFree/);
+  for (const app of ['quire', 'ledger', 'lectern']) {
+    assert.match(fs.readFileSync(path.join(root, 'public', app, 'js/app.js'), 'utf8'), /adoptBlank\(name\)/);
+  }
+});
+
 test('the pages recognise the vscode host', () => {
   const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
   const core = fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8');

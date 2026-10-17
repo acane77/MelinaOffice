@@ -2,6 +2,7 @@
  * draws the same app pages in a webview, so a file in the workspace opens in Quire, Ledger
  * or Lectern. Save writes that file; another name is written beside it and opened too.
  * File ▸ New and File ▸ Open use VS Code's own dialogs and open the result in a new tab.
+ * New File… (file/newFile) creates a blank .docx, .xlsx or .pptx and opens it here.
  * Docs: docs/vscode.md. */
 'use strict';
 
@@ -21,6 +22,8 @@ const SAVE_LABEL = { quire: 'Document', ledger: 'Workbook', lectern: 'Presentati
 
 /** bytes for a Recent Files entry that should open in place of the file on disk, keyed by the file's URI */
 const pendingOpen = new Map();
+/** a file just created from New File…: the page builds a blank document and writes it here */
+const pendingBlank = new Set();
 
 function publicRoot(extensionPath) {
   const candidates = [path.join(extensionPath, 'public'), path.join(extensionPath, '..', 'public')];
@@ -294,6 +297,7 @@ class OfficeEditorProvider {
         const inplace = proto.sameFile(done.name, doc.uri.path);
         const target = inplace ? doc.uri : await placeBeside(parentUri(doc.uri), done.name, doc.uri);
         await vscode.workspace.fs.writeFile(target, done.bytes);
+        pendingBlank.delete(target.toString());
         const wroteInPlace = target.toString() === doc.uri.toString();
         if (!wroteInPlace) await vscode.commands.executeCommand('vscode.openWith', target, doc.viewType);
         if (doc.panel) doc.panel.webview.postMessage({
@@ -446,11 +450,27 @@ class OfficeEditorProvider {
     }
   }
 
+  /** a file this command just created, or a zero-byte .docx / .xlsx / .pptx: the page writes a blank document */
+  async _freshBlank(doc) {
+    if (pendingBlank.has(doc.uri.toString())) return true;
+    if (proto.extname(doc.uri.path) !== (proto.SAVE_EXT[this._app] || '')) return false;
+    try {
+      const st = await vscode.workspace.fs.stat(doc.uri);
+      return st.size === 0;
+    } catch (e) { return false; }
+  }
+
   async _sendOpen(doc) {
     const pending = pendingOpen.get(doc.uri.toString());
     if (pending) {
       pendingOpen.delete(doc.uri.toString());
       await this._sendBytes(doc, pending.bytes, proto.baseName(doc.uri.path), { draft: true, draftKey: pending.draftKey });
+      return;
+    }
+    if (await this._freshBlank(doc)) {
+      /* keep the mark until the page's write lands, so a reload before that still starts blank.
+         A zero-byte file (New File… with a typed name) is the same case: there is nothing to open. */
+      if (doc.panel) doc.panel.webview.postMessage({ type: 'blank', name: proto.baseName(doc.uri.path), uri: doc.uri.toString() });
       return;
     }
     if (doc.backupId) {
@@ -481,6 +501,60 @@ class OfficeEditorProvider {
   }
 }
 
+async function fileExists(uri) {
+  try { await vscode.workspace.fs.stat(uri); return true; }
+  catch { return false; }
+}
+
+/** the next free Document1.docx / Book1.xlsx / Presentation1.pptx in a folder */
+async function nextFree(dir, stem, ext) {
+  for (let n = 1; n < 100; n++) {
+    const uri = vscode.Uri.joinPath(dir, stem + n + '.' + ext);
+    if (!(await fileExists(uri))) return uri;
+  }
+  return vscode.Uri.joinPath(dir, stem + Date.now() + '.' + ext);
+}
+
+/** New File…: an empty file of this app's type, then the editor. The page fills it with a blank document. */
+async function createOfficeFile(context, app) {
+  const ext = proto.SAVE_EXT[app];
+  const stem = proto.SAVE_STEM[app];
+  const view = VIEW[app];
+  if (!ext || !view) return;
+  if (!publicRoot(context.extensionPath)) {
+    vscode.window.showErrorMessage('VibeOffice could not find its pages next to the extension.');
+    return;
+  }
+  let uri;
+  const folders = vscode.workspace.workspaceFolders;
+  if (folders && folders.length) {
+    uri = await nextFree(folders[0].uri, stem, ext);
+  } else {
+    const filters = {};
+    filters[SAVE_LABEL[app] || 'Document'] = [ext];
+    const base = process.env.HOME || process.env.USERPROFILE || process.cwd();
+    const picked = await vscode.window.showSaveDialog({
+      defaultUri: vscode.Uri.joinPath(vscode.Uri.file(base), stem + '1.' + ext),
+      filters,
+      saveLabel: 'Create',
+    });
+    if (!picked) return;
+    uri = vscode.Uri.joinPath(parentUri(picked), proto.ensureExt(proto.baseName(picked.path), ext, stem));
+  }
+  if (await reveal(uri, view)) return;
+  const existed = await fileExists(uri);
+  try {
+    await vscode.workspace.fs.writeFile(uri, new Uint8Array());
+    pendingBlank.add(uri.toString());
+    await vscode.commands.executeCommand('vscode.openWith', uri, view);
+  } catch (e) {
+    pendingBlank.delete(uri.toString());
+    if (!existed) { try { await vscode.workspace.fs.delete(uri); } catch (err) { /* the empty file stays if it cannot be removed */ } }
+    const error = e && e.message ? e.message : String(e);
+    vscode.window.showErrorMessage('VibeOffice could not create the file. ' + error);
+  }
+}
+
 function activate(context) {
   for (const app of Object.keys(VIEW)) {
     const provider = new OfficeEditorProvider(context, app);
@@ -506,6 +580,9 @@ function activate(context) {
     }
     await vscode.commands.executeCommand('vscode.openWith', uri, view);
   }));
+  for (const [command, app] of [['vibeoffice.newDocx', 'quire'], ['vibeoffice.newXlsx', 'ledger'], ['vibeoffice.newPptx', 'lectern']]) {
+    context.subscriptions.push(vscode.commands.registerCommand(command, () => createOfficeFile(context, app)));
+  }
 }
 
 function deactivate() {}

@@ -221,6 +221,11 @@
               for (let i = 0; i < expect; i++) if (parts[i]) { out.set(parts[i], o); o += parts[i].length; }
               finish(null, stampFile(new File([out], m.name), m));
             }
+          } else if (m.type === 'blank') {
+            /* New File…: keep the blank document this page already started, and write it into the new file */
+            const file = stampFile(new File([], m.name || ''), m);
+            if (file) file.voBlank = true;
+            finish(null, file);
           } else if (m.type === 'open-error') finish(new Error(m.error || 'The file could not be read.'));
         }
         window.addEventListener('message', on);
@@ -598,7 +603,8 @@
   });
   /** an app is ready: open the file it was launched with, if any, then show the Document Recovery pane when
    *  other documents of this app have unsaved changes.
-   *  hooks: open(file, { draft, name, saved }), thumb() -> a canvas (or image) of the first page, message(text),
+   *  hooks: open(file, { draft, name, saved }), adoptBlank(name) keeps the page's own blank document as that
+   *  new file (VS Code's New File…), thumb() -> a canvas (or image) of the first page, message(text),
    *  templates() -> [{ id, name }] (read by tools/templates.mjs); for autosave: snapshot(doc) -> Blob in the
    *  app's format, docInfo(doc) -> { name, draftName }, isDirty(doc), current() -> doc, autosave() -> false
    *  when turned off; showRecovery() opens the Document Recovery pane */
@@ -611,17 +617,31 @@
       if (l.vscode) {
         try {
           const file = await VO.host.takeDocument();
-          const draft = !!(file && file.voDraft);
-          let lossState;
-          if (draft) {
-            try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
-            catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
+          if (file && file.voBlank) {
+            /* the page already built a blank document; name it as this file and write that document in.
+               A failed write is reported by the extension; the document stays on screen so Save can try again. */
+            try {
+              if (current.hooks.adoptBlank) current.hooks.adoptBlank(file.name);
+              hostLive = true;
+              const doc = current.hooks.current && current.hooks.current();
+              const blob = doc && current.hooks.snapshot ? await current.hooks.snapshot(doc) : null;
+              if (!blob) throw new Error('The editor did not build a document.');
+              await VO.host.writeFile(file.name, blob);
+              VO.saved(file.name, blob, doc);
+            } catch (e) { console.error(e); }
+          } else {
+            const draft = !!(file && file.voDraft);
+            let lossState;
+            if (draft) {
+              try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
+              catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
+            }
+            if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
+            else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
+            if (file) hostLive = true;
+            /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
+            if (draft) vsPost({ type: 'dirty', dirty: true });
           }
-          if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
-          else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
-          if (file) hostLive = true;
-          /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
-          if (draft) vsPost({ type: 'dirty', dirty: true });
         } catch (e) {
           console.error(e);
           (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));

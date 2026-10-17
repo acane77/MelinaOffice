@@ -2250,6 +2250,13 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     void prompt;
     ui.refresh();
     if (window.VO) VO.attach('lectern', {
+      adoptBlank(name) {
+        A.fileName = String(name || 'Presentation.pptx').replace(/\.pptx$/i, '');
+        A.fileType = 'pptx';
+        A.saved = true;
+        L.hist.dirty = false;
+        A.updateTitle();
+      },
       async open(f, o) {
         await A.openFile(f);
         if (o?.draft) L.opc.recoverLosses(L.pres, o.lossState);

@@ -15,7 +15,10 @@
     "onCustomEditor:vibeoffice.quire",
     "onCustomEditor:vibeoffice.ledger",
     "onCustomEditor:vibeoffice.lectern",
-    "onCommand:vibeoffice.open"
+    "onCommand:vibeoffice.open",
+    "onCommand:vibeoffice.newDocx",
+    "onCommand:vibeoffice.newXlsx",
+    "onCommand:vibeoffice.newPptx"
   ],
   "contributes": {
     "commands": [
@@ -23,9 +26,29 @@
         "command": "vibeoffice.open",
         "title": "Open in VibeOffice",
         "category": "VibeOffice"
+      },
+      {
+        "command": "vibeoffice.newDocx",
+        "title": "Word Document (.docx)",
+        "category": "VibeOffice"
+      },
+      {
+        "command": "vibeoffice.newXlsx",
+        "title": "Excel Workbook (.xlsx)",
+        "category": "VibeOffice"
+      },
+      {
+        "command": "vibeoffice.newPptx",
+        "title": "PowerPoint Presentation (.pptx)",
+        "category": "VibeOffice"
       }
     ],
     "menus": {
+      "file/newFile": [
+        { "command": "vibeoffice.newDocx", "group": "file" },
+        { "command": "vibeoffice.newXlsx", "group": "file" },
+        { "command": "vibeoffice.newPptx", "group": "file" }
+      ],
       "explorer/context": [
         {
           "command": "vibeoffice.open",

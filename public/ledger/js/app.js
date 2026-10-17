@@ -1464,6 +1464,17 @@
     G().focus();
     L.bus.emit('app-ready');
     if (window.VO) VO.attach('ledger', {
+      adoptBlank(name) {
+        const b = book();
+        if (!b) return;
+        b.name = name || 'Book1.xlsx';
+        b.type = 'xlsx';
+        b.untitled = false;
+        b.saved = true;
+        b.dirty = false;
+        if (b.wb) b.wb.fileName = b.name;
+        updateTitle();
+      },
       async open(f, o) {
         await A.openFiles([f]);
         /* an unsaved version: the changes are not saved yet, and a never-saved workbook still needs Save As */
