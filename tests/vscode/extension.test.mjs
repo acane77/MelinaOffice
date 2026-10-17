@@ -100,6 +100,8 @@ test('the pages recognise the vscode host', () => {
   const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
   const core = fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8');
   assert.match(suite, /kind === 'vscode'/);
+  assert.match(suite, /selectall/);
+  assert.match(suite, /stopPropagation\(\)/);
   assert.match(suite, /writeFile\(name, blob, opts\)/);
   assert.match(suite, /l\.vscode/);
   assert.match(suite, /createDocument/);
