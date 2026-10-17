@@ -7,6 +7,12 @@ body { margin: 0; background: var(--dock-b); color: var(--ink); font: var(--ui-s
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; }
 input, select, textarea { font: inherit; color: var(--ink); }
+/* Selected document text: a translucent gray over the glyphs. The glyphs keep their own colour. */
+:is(.pages, .sl, .outline) ::selection,
+:is(.notes-in, .np-notes, .celledit, .fb-input)::selection {
+  background-color: var(--text-sel);
+  color: inherit;
+}
 :focus-visible { outline: 1px dotted var(--ink); outline-offset: 1px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
