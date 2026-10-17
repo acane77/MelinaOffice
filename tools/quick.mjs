@@ -38,6 +38,7 @@ const RULES = [
   [/^public\/lectern\//, ['tests/ooxml/lectern-review.test.mjs', 'tests/ui/lectern.test.mjs']],
   [/^public\/common\/(core|dml|numfmt|xml|opc|opc-order|zip|sha|crypto|metafile|geometry|charts)\.js$/, ['tests/ledger/*.test.js', 'tests/quire/*.test.js']],
   [/^public\/common\/(ui|ribbon|search)\.js$/, ['tests/ui/focus.test.mjs :: classic', 'tests/ui/drag.test.mjs']],   // focus in the Classic look
+  [/^public\/common\/minibar\.js$/, ['tests/minibar.test.mjs']],
   [/^public\/common\/(ui\.css|looks\.css)$|^public\/[^/]+\/css\//, ['tests/looks.test.mjs']],
   [/^public\/common\/ribbon\.js$|^public\/[^/]+\/js\/ribbon\.js$/, ['tests/ribbon.test.mjs']],
   [/^public\/common\/search\.js$/, ['tests/search.test.mjs']],

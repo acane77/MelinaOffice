@@ -15,6 +15,7 @@ so the site is served rather than opened from disk (a `file://` page cannot fetc
 works, but spelling and the thesaurus stay off). To run it locally, see [testing.md](testing.md).
 The metric-compatible fonts (see *Rendering notes*) are served with the site from `public/fonts/`.
 The status bar ends in a zoom slider (10–500%). The percent can be edited, and the slider moves the zoom as it is dragged. A pinch over the page zooms it; two-finger scrolling moves the page. A pinch on the toolbars or the status bar does not zoom the window.
+Selecting text with the mouse or the keyboard shows a small formatting bar just above and to the right of the pointer: font, size, grow and shrink, clear formatting, highlight, font colour, bold, italic, underline, bullets, numbering and the style list. It starts partly see-through, becomes solid while the pointer is on it or on a menu it opened, and fades out with the distance from where it opened, gone past 50 pixels. Once it has faded out it stays hidden until the next selection. A caret, typing, Escape or scrolling the page also puts it away.
 
 ## Proofing tools (offline)
 
@@ -467,7 +468,7 @@ compatibility results are archived with the run history rather than mixed into c
 | `../common/dict/` | Spelling word lists, thesaurus, licences (shared with Ledger) |
 | `js/outline.js`, `js/rulers.js`, `js/panes.js` | Outline view, rulers, task panes (Research/Thesaurus, Clip Art, Styles…; while open, Picture or Drawing Tools for a selected object, docs/suite.md), Document Map, thumbnails, Print Preview, Reading Layout |
 | `js/mailmerge.js`, `js/templates.js` | Mail Merge wizard and toolbar, document templates |
-| `../common/ui.js`, `../common/search.js`, `../common/icons.js`, `../common/looks.css`, `../common/ui.css` | Menus, toolbars, dialogs, colour pickers, Search commands, original 16×16 icon set, the looks (shared) |
+| `../common/ui.js`, `../common/search.js`, `../common/icons.js`, `../common/minibar.js`, `../common/looks.css`, `../common/ui.css` | Menus, toolbars, dialogs, colour pickers, Search commands, original 16×16 icon set, the formatting bar after a text selection, the looks (shared) |
 | `js/commands.js`, `js/dialogs*.js`, `js/find.js`, `js/app.js` | Command registry, all dialogs, Find and Replace, application controller |
 | `js/ribbon.js`, `../common/ribbon.js` | The Paper 2016 look's ribbon: Word's tabs and groups over Quire's commands ([suite.md](suite.md#the-ribbon)) |
 | `../common/scout/` | Scout, the assistant: Help ▸ Show the Assistant ([suite.md](suite.md#the-assistant-scout)) |
