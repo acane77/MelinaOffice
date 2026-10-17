@@ -140,4 +140,36 @@ test('Ledger: the rows of a Japanese or Korean Excel\'s default font', () => {
   assert.equal(L.model.fontRowPt({ name: '游ゴシック', sz: 11 }), 18.75);
   assert.equal(L.model.fontRowPt({ name: '맑은 고딕', sz: 11 }), 16.5);
   assert.equal(L.model.fontRowPt({ name: 'Calibri', sz: 11 }), 15, 'Latin fonts as before');
+  assert.equal(L.model.fontRowPt({ name: 'ＭＳ Ｐゴシック;MS PGothic', sz: 11 }), 13.5);
+});
+
+test('a font named as several families is drawn with the first one available', () => {
+  assert.equal(L.fontFace('Times New Roman'), 'Times New Roman');
+  assert.equal(L.fontFace('宋体;SimSun'), '宋体');
+  assert.equal(L.fontFace('黑体;SimHei'), '黑体');
+  assert.equal(L.fontFace('楷体_GB2312;楷体'), '楷体');
+  assert.equal(L.fontFace('  宋体 ; SimSun  '), '宋体');
+  assert.equal(L.fontFace('NotARealFont;Arial'), 'Arial');
+  assert.equal(L.fontFace('NotARealFont;AlsoMissing'), 'NotARealFont');
+  assert.equal(L.fontFace('Arial, Helvetica'), 'Arial');
+  assert.equal(L.fontKey('宋体;SimSun'), 'simsun');
+  assert.equal(L.fontKey('楷体_GB2312;楷体'), 'kaiti');
+  assert.equal(L.fontUsesEA('宋体;SimSun', 'SimSun'), true);
+  const song = L.fontStack('宋体;SimSun');
+  assert.ok(song.startsWith('"宋体",'), song);
+  assert.equal(song.includes(';'), false, song);
+  assert.ok(song.includes('"SimSun"'), song);
+  assert.ok(L.fontStack('楷体_GB2312;楷体').startsWith('"楷体",'));
+  assert.ok(L.fontStack('Times New Roman', '黑体;SimHei').includes('"黑体"'));
+  assert.equal(L.fontStack('Arial'), L.fontStack('Arial'), 'one name is unchanged');
+  const orig = L.fontInstalled;
+  L.fontInstalled = (f) => f === 'SimSun' || f === '楷体_GB2312';
+  try {
+    assert.equal(L.fontFace('Missing Face;SimSun'), 'SimSun');
+    assert.equal(L.fontFace('楷体_GB2312;楷体'), '楷体_GB2312');
+    assert.equal(L.fontFace('宋体;SimSun'), 'SimSun');
+    assert.ok(L.fontStack('宋体;SimSun').startsWith('"SimSun",'));
+  } finally {
+    L.fontInstalled = orig;
+  }
 });

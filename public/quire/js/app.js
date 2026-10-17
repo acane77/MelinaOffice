@@ -336,8 +336,8 @@
       const ch = E.collapsed() ? it.text[Math.max(0, loc.off - 1)] : it.text[loc.off];
       ea = !!(ch && L.hasEAText(ch));
     }
-    if (E.collapsed()) { const r = E.curRun(); return (ea ? (r.fontEA || r.font) : r.font) || ''; }
-    return E.uniformRun(ea ? 'fontEA' : 'font') || '';
+    if (E.collapsed()) { const r = E.curRun(); return L.fontFace((ea ? (r.fontEA || r.font) : r.font) || ''); }
+    return L.fontFace(E.uniformRun(ea ? 'fontEA' : 'font') || '');
   };
   A.setFont = (v) => {
     if (!v || !E.sel) return;
