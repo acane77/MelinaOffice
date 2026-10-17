@@ -470,6 +470,33 @@
   };
 
   /**
+   * Justification of a display equation: m:oMathParaPr/m:jc. Omitted means Centered as Group,
+   * which is what Word uses when the element is absent.
+   */
+  M.jcOf = function (xml) {
+    const pr = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(String(xml || ''));
+    if (!pr) return 'centerGroup';
+    const m = /<m:jc\b[^>]*\bm:val="(left|right|center|centerGroup)"/.exec(pr[0]);
+    return m ? m[1] : 'centerGroup';
+  };
+
+  /** Set m:jc on a display equation. The equation body is kept. An inline equation is unchanged. */
+  M.setJc = function (xml, jc) {
+    if (jc !== 'left' && jc !== 'right' && jc !== 'center' && jc !== 'centerGroup') return xml;
+    const s = String(xml || '').trim();
+    if (!/^<m:oMathPara[\s>]/.test(s)) return s;
+    const tag = `<m:jc m:val="${jc}"/>`;
+    const empty = /<m:oMathParaPr\b[^>]*\/>/.exec(s);
+    if (empty) return s.slice(0, empty.index) + '<m:oMathParaPr>' + tag + '</m:oMathParaPr>' + s.slice(empty.index + empty[0].length);
+    const pr = /<m:oMathParaPr\b[^>]*>[\s\S]*?<\/m:oMathParaPr>/.exec(s);
+    if (!pr) return s.replace(/^(<m:oMathPara\b[^>]*>)/, '$1<m:oMathParaPr>' + tag + '</m:oMathParaPr>');
+    let body = pr[0];
+    if (/<m:jc\b/.test(body)) body = body.replace(/<m:jc\b[^>]*\/>/, tag).replace(/<m:jc\b[^>]*>[\s\S]*?<\/m:jc>/, tag);
+    else body = body.replace(/(<m:oMathParaPr\b[^>]*>)/, '$1' + tag);
+    return s.slice(0, pr.index) + body + s.slice(pr.index + pr[0].length);
+  };
+
+  /**
    * Inline m:oMath wrapped as a display m:oMathPara. Namespaces move to the outer element.
    * An equation that is already display is returned unchanged.
    */

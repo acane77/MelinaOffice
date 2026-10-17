@@ -142,3 +142,18 @@ test('Change to Display wraps an inline equation and Change to Inline unwraps it
   assert.equal(L.omml.asInline(numbered), '<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><m:r><m:t>x</m:t></m:r></m:oMath>');
   assert.equal(L.omml.asInline(inline), inline);
 });
+
+test('Justification is m:jc on a display equation and is left off an inline one', () => {
+  const bare = '<m:oMathPara><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath></m:oMathPara>';
+  assert.equal(L.omml.jcOf(bare), 'centerGroup');
+  const left = L.omml.setJc(bare, 'left');
+  assert.equal(left, '<m:oMathPara><m:oMathParaPr><m:jc m:val="left"/></m:oMathParaPr><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath></m:oMathPara>');
+  const right = L.omml.setJc(left, 'right');
+  assert.equal(right.match(/<m:jc\b/g).length, 1);
+  assert.equal(L.omml.jcOf(right), 'right');
+  const extra = '<m:oMathPara><m:oMathParaPr><m:jc m:val="left"/><m:foo/></m:oMathParaPr><m:oMath/></m:oMathPara>';
+  assert.match(L.omml.setJc(extra, 'center'), /<m:jc m:val="center"\/><m:foo\/>/);
+  const inline = '<m:oMath><m:r><m:t>x</m:t></m:r></m:oMath>';
+  assert.equal(L.omml.setJc(inline, 'left'), inline);
+  assert.equal(L.omml.jcOf(inline), 'centerGroup');
+});

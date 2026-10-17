@@ -47,6 +47,23 @@
     }
     return text.replace(/[\s()[\]0-9.,:;\-–]/g, '').length === 0;
   };
+  /* an equation number such as (1), not a lone equation and not ordinary text */
+  R.mathNumbered = (p) => {
+    if (!R.mathLine(p)) return false;
+    let text = '';
+    for (const it of p.runs) if (it.t === 'text' && !(it.rPr && it.rPr.del)) text += it.text || '';
+    return /\d/.test(text);
+  };
+  /**
+   * Where a display equation sits on a justified line.
+   * Left and Right do what they say. Centered and Centered as Group both center the equation
+   * (Centered as Group is what Word uses when m:jc is omitted). A group of equations stays
+   * aligned with each other; an equation number sits on the right margin.
+   */
+  R.mathAlign = function (jc) {
+    if (jc === 'left' || jc === 'right') return jc;
+    return 'center';
+  };
   /* equations: MathML built once per source XML */
   const mathCache = new Map();
   R.mathFor = (it) => {
@@ -285,6 +302,7 @@
       and 14pt text at 1.7 lines takes two pitches, 31.2pt (issue 11; tests/from-issues/11/) */
   R.gridLine = (pitch, mult, sz, font) => L.round(pitch * Math.max(1, mult, Math.ceil(R.px(sz * R.lineFactor(font)) / pitch - 0.02)), 3);
   const ALIGN = { left: 'left', start: 'left', center: 'center', right: 'right', end: 'right', both: 'justify', distribute: 'justify', lowKashida: 'justify', mediumKashida: 'justify', highKashida: 'justify', thaiDistribute: 'justify' };
+  R.isJustified = (jc) => ALIGN[jc] === 'justify';
 
   /**
    * Render a fragment [from,to) of paragraph p.
@@ -481,7 +499,7 @@
     const items = p.runs;
     const controls = (p.pPr.sdts || []).slice();
     const controlSpan = el => { const c = controls.at(-1); if (c && !c.converted && c.type === 'checkbox') { el.dataset.control = c.key; el.style.cursor = 'pointer'; el.title = c.name; } };
-    let lastSpan = null, lastCss = null;
+    let lastSpan = null, lastCss = null, groupNum = false;
     for (let idx = 0; idx < items.length; idx++) {
       const it = items[idx];
       const n = D.ilen(it);
@@ -584,6 +602,7 @@
       if (r.link || rp.link) cls.push('lnk');
       let el;
       if (it.t === 'text') {
+        if (groupNum) cls.push('eqnum');
         // Keep one DOM character per model character for caret/selection offsets.
         // Chromium ignores CR in a Text node; LF produces the intended line break.
         const text = it.text.slice(a - s, b - s).replace(/\r/g, (_, at) => {
@@ -641,6 +660,7 @@
       lastSpan = null;
       if (it.t === 'tab' || it.t === 'ptab') {
         el = document.createElement('span');
+        if (groupNum) cls.push('eqnum');
         el.className = 'tb' + (cls.length ? ' ' + cls.join(' ') : '');
         el.contentEditable = 'false';
         el.style.cssText = R.runCSS(r, mult) + extra;
@@ -717,19 +737,22 @@
           if (mres.display) {
             el.classList.add('mpara');
             const pjc = ALIGN[pPr.jc] || 'left';
-            let align = mres.jc === 'left' ? 'left' : mres.jc === 'right' ? 'right' : 'center';
-            /* a display equation beside text takes the next line. Justified text stays at the left; the equation goes to the right. */
-            if (withText) {
-              if (pjc === 'justify' && align === 'center') align = 'right';
-              el.classList.add('mbreak');
-            }
+            const justified = pjc === 'justify';
+            const jc = mres.jc || 'centerGroup';
+            /* On Justify, m:jc places the equation. Centered and Centered as Group both center it.
+               Off Justify the menu is grey. */
+            const align = justified ? R.mathAlign(jc) : (jc === 'left' ? 'left' : jc === 'right' ? 'right' : 'center');
+            if (withText) el.classList.add('mbreak');
+            if (justified && !withText && jc === 'centerGroup' && R.mathNumbered(p)) { pc.classList.add('eq-group'); groupNum = true; }
+            if (justified && jc === 'center') el.dataset.each = '1';
             el.style.textAlign = align;
             el.style.textAlignLast = align;
-            /* a justified or left line packs a short inline to the start; Word centers the display equation (centerGroup) */
             if (!withText && align === 'center' && pjc !== 'center') {
               pc.style.textAlign = 'center';
               pc.style.textAlignLast = 'center';
             }
+            if (!withText && justified && align === 'left') { pc.style.textAlign = 'left'; pc.style.textAlignLast = 'left'; }
+            if (!withText && justified && align === 'right') { pc.style.textAlign = 'right'; pc.style.textAlignLast = 'right'; }
           }
           const mm = mres.math.cloneNode(true);
           if (withText) {
@@ -740,6 +763,10 @@
             mm.setAttribute('displaystyle', 'true');
           }
           el.appendChild(mm);
+          /* Centered puts each equation of a group on the middle of the line. Centered as Group keeps them
+             aligned with each other and centers the whole group, so a single equation is just centered. */
+          if (el.dataset.each && mm.querySelector('mtable')) el.classList.add('jc-each');
+          delete el.dataset.each;
         } else {
           el.style.cssText = R.runCSS(r, mult) + (it.math ? ';font-family:"Cambria Math",Caladea,serif;font-style:italic' : '');
           el.textContent = it.text || rawLabel(it.label) || '';

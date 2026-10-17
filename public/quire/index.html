@@ -116,6 +116,12 @@
 .raw.mml.mpara { display: inline-block; max-width: 100%; margin: 0; }
 /* a display equation beside text: its own line. The caret anchors on either side take no line. */
 .raw.mml.mpara.mbreak { display: block; width: 100%; max-width: 100%; vertical-align: baseline; }
+.raw.mml.mpara.jc-each { display: block; width: 100%; }
+.raw.mml.mpara.jc-each mtable { width: 100%; }
+.raw.mml.mpara.jc-each mtd { text-align: center; }
+.pc.eq-group { position: relative; }
+.pc.eq-group .eqnum { position: absolute; right: 0; top: 50%; transform: translateY(-50%); white-space: pre; }
+.pc.eq-group .tb.eqnum { display: none; }
 .zw:has(+ .mbreak), .mbreak + .zw { display: block; height: 0; overflow: hidden; line-height: 0; font-size: 0; }
 .mstack { display: inline-block; max-width: 100%; vertical-align: middle; text-align: left; text-align-last: left; }
 .raw.mml.mpara .mstack { display: inline-block; }

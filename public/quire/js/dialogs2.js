@@ -895,6 +895,37 @@
       return { a: { p, o: start }, f: { p, o: start + 1 } };
     });
   };
+  const JC_NAME = { left: 'Left', right: 'Right', center: 'Centered', centerGroup: 'Centered as Group' };
+  /** Justification is Word's m:jc. It applies only to a display equation on a justified paragraph. */
+  G.setEquationJc = function (jc) {
+    const it = selectedEquation();
+    if (!it || !it.para || !it.xml || !L.omml || !L.omml.setJc) return;
+    if (L.omml.jcOf(it.xml) === jc && /<m:jc\b/.test(it.xml)) return;
+    const xml = L.omml.setJc(it.xml, jc);
+    if (!xml || xml === it.xml) return;
+    const p = E.sel.f.p;
+    const start = Math.min(E.sel.a.o, E.sel.f.o);
+    E.edit(L.N(JC_NAME[jc] || 'Justification'), () => {
+      D.touch(p);
+      it.xml = xml;
+      return { a: { p, o: start }, f: { p, o: start + 1 } };
+    });
+  };
+  /** Equation commands for the right-click menu. Justification is grey unless this paragraph is justified. */
+  G.equationItems = function (display) {
+    const it = selectedEquation();
+    const p = it && E.sel.f.p;
+    const jcName = (p && D.pProps(D.doc, p).jc) || '';
+    const justified = !!(L.R && L.R.isJustified && L.R.isJustified(jcName));
+    const cur = it && it.xml && L.omml && L.omml.jcOf ? L.omml.jcOf(it.xml) : 'centerGroup';
+    const opt = (val, label) => ({ label, radio: true, checked: () => cur === val, run: () => G.setEquationJc(val) });
+    return [
+      { label: 'Edit &Equation...', run: () => G.editEquation() },
+      display ? { label: 'Change to In&line', run: () => G.setEquationDisplay(false) } : { label: 'Change to &Display', run: () => G.setEquationDisplay(true) },
+      { label: '&Justification', disabled: !justified || !display, sub: [opt('left', '&Left'), opt('right', '&Right'), opt('center', '&Centered'), opt('centerGroup', 'Centered as &Group')] },
+      '-',
+    ];
+  };
   /**
    * Pages-style equation editor: LaTeX above, a live preview below.
    * Editing fills the field from the equation; Update replaces its OMML when the text changed and parses.

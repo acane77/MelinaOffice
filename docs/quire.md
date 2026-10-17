@@ -109,14 +109,19 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   stored, otherwise LaTeX derived from the OMML). Update writes that LaTeX back as OMML and stays
   disabled while the LaTeX has a syntax error. The same menu has Change to Inline on a display
   equation and Change to Display on an inline one: the OMML is wrapped or unwrapped, and what was
-  not edited is kept. Insert ▸ Equation (and Insert ▸ Object ▸ Equation,
+  not edited is kept. Justification (Left, Right, Centered, Centered as Group) is on that menu for a
+  display equation whose paragraph is justified, and is grey otherwise. The choice is saved as `m:jc`
+  on the math paragraph; when it is omitted, Word's Centered as Group is used. Left, Right and Centered
+  place the equation that way. Centered as Group centers one equation, centers a group of equations
+  that stay aligned with each other, and puts an equation number on the right margin. A display
+  equation that shares the paragraph with other text breaks to the next line: under Justify the text
+  stays at the left and the equation is centered (Centered as Group) or placed by the justification
+  that was chosen, at the size of an inline equation. Insert ▸ Equation (and Insert ▸ Object ▸ Equation,
   and Equation in the ribbon's Symbols group) opens the same editor; Insert adds the equation at the
   caret, as a display equation when the paragraph is empty and as an inline equation when it already
   has text. Insert ▸ Object ▸ Equation (Legacy) still inserts Cambria Math italics.
   An equation sits in the line, as Word does, so a table cell does not gain a blank line above
-  and below it. A display equation alone on a justified line (or with only its number) is centered.
-  When the paragraph also has text, the equation breaks to the next line: under Justify the text stays
-  at the left and the equation sits at the right, at the same size as an inline equation. An inline
+  and below it. An inline
   equation that is the only thing in its paragraph is saved with a space after it, so Word keeps it
   inline. An equation wider than its column or table cell
   breaks before a binary operator (+, =, and the like), as Word does. A line break beside an

@@ -608,6 +608,11 @@
    "ledger/js/dialogs3.js:445"
   ]
  },
+ "&Centered": {
+  "where": [
+   "quire/js/dialogs2.js:925"
+  ]
+ },
  "&Change": {
   "where": [
    "ledger/js/spell.js:149",
@@ -1901,6 +1906,11 @@
  "&Iteration": {
   "where": [
    "ledger/js/dialogs.js:788"
+  ]
+ },
+ "&Justification": {
+  "where": [
+   "quire/js/dialogs2.js:925"
   ]
  },
  "&Justify": {
@@ -7763,6 +7773,16 @@
    "quire/js/dialogs3.js:68"
   ]
  },
+ "Centered as &Group": {
+  "where": [
+   "quire/js/dialogs2.js:925"
+  ]
+ },
+ "Centered as Group": {
+  "where": [
+   "quire/js/dialogs2.js:898"
+  ]
+ },
  "Centimeters": {
   "where": [
    "quire/js/dialogs3.js:583"
@@ -7851,22 +7871,22 @@
  },
  "Change to &Display": {
   "where": [
-   "quire/js/app.js:1124"
+   "quire/js/dialogs2.js:924"
   ]
  },
  "Change to Display": {
   "where": [
-   "quire/js/dialogs2.js:873"
+   "quire/js/dialogs2.js:888"
   ]
  },
  "Change to In&line": {
   "where": [
-   "quire/js/app.js:1124"
+   "quire/js/dialogs2.js:924"
   ]
  },
  "Change to Inline": {
   "where": [
-   "quire/js/dialogs2.js:873"
+   "quire/js/dialogs2.js:888"
   ]
  },
  "Changes": {
@@ -8861,7 +8881,7 @@
    "quire/js/editor.js:460",
    "quire/js/find.js:391",
    "quire/js/find.js:393",
-   "quire/js/render.js:651"
+   "quire/js/render.js:673"
   ]
  },
  "Column Width": {
@@ -11972,7 +11992,7 @@
  },
  "Edit &Equation...": {
   "where": [
-   "quire/js/app.js:1124"
+   "quire/js/dialogs2.js:923"
   ]
  },
  "Edit Chart Data...": {
@@ -12003,7 +12023,7 @@
  },
  "Edit Equation": {
   "where": [
-   "quire/js/dialogs2.js:905"
+   "quire/js/dialogs2.js:953"
   ]
  },
  "Edit Field": {
@@ -12197,14 +12217,14 @@
  },
  "Embedded content": {
   "where": [
-   "quire/js/render.js:469"
+   "quire/js/render.js:489"
   ]
  },
  "Embedded object": {
   "where": [
    "lectern/js/frames.js:15",
    "lectern/js/render.js:580",
-   "quire/js/render.js:469"
+   "quire/js/render.js:489"
   ]
  },
  "Ember": {
@@ -13981,7 +14001,7 @@
  },
  "Form control": {
   "where": [
-   "quire/js/render.js:469"
+   "quire/js/render.js:489"
   ]
  },
  "Forma&ts": {
@@ -15922,8 +15942,8 @@
  "Insert Equation": {
   "where": [
    "quire/js/commands.js:284",
-   "quire/js/dialogs2.js:905",
-   "quire/js/dialogs2.js:915"
+   "quire/js/dialogs2.js:953",
+   "quire/js/dialogs2.js:963"
   ]
  },
  "Insert Equation (Legacy)": {
@@ -16351,7 +16371,7 @@
    "lectern/js/diagram.js:589",
    "lectern/js/render.js:580",
    "lectern/js/ribbon.js:40",
-   "quire/js/render.js:469"
+   "quire/js/render.js:489"
   ]
  },
  "IntelliArt SmartArt organization chart org": {
@@ -16511,6 +16531,11 @@
    "index.html:194"
   ]
  },
+ "Justification": {
+  "where": [
+   "quire/js/dialogs2.js:908"
+  ]
+ },
  "Justified": {
   "where": [
    "quire/js/dialogs.js:329",
@@ -16608,7 +16633,7 @@
  },
  "LaTeX": {
   "where": [
-   "quire/js/dialogs2.js:906"
+   "quire/js/dialogs2.js:954"
   ]
  },
  "Label &product:": {
@@ -20286,7 +20311,7 @@
  "Page Break": {
   "where": [
    "quire/js/editor.js:459",
-   "quire/js/render.js:651"
+   "quire/js/render.js:673"
   ]
  },
  "Page Break Pre&view": {
@@ -21809,7 +21834,7 @@
  },
  "Quire word processor": {
   "where": [
-   "quire/index.html:345"
+   "quire/index.html:351"
   ]
  },
  "R&eading Layout": {
@@ -25183,28 +25208,28 @@
  },
  "Section Break (Continuous)": {
   "where": [
-   "quire/js/render.js:461"
+   "quire/js/render.js:481"
   ]
  },
  "Section Break (Even Page)": {
   "where": [
-   "quire/js/render.js:461"
+   "quire/js/render.js:481"
   ]
  },
  "Section Break (Next Column)": {
   "where": [
-   "quire/js/render.js:461"
+   "quire/js/render.js:481"
   ]
  },
  "Section Break (Next Page)": {
   "where": [
    "quire/js/app.js:1364",
-   "quire/js/render.js:461"
+   "quire/js/render.js:481"
   ]
  },
  "Section Break (Odd Page)": {
   "where": [
-   "quire/js/render.js:461"
+   "quire/js/render.js:481"
   ]
  },
  "Section break types": {
@@ -29227,9 +29252,9 @@
  },
  "This LaTeX has a syntax error.": {
   "where": [
-   "quire/js/dialogs2.js:912",
-   "quire/js/dialogs2.js:926",
-   "quire/js/dialogs2.js:949"
+   "quire/js/dialogs2.js:960",
+   "quire/js/dialogs2.js:974",
+   "quire/js/dialogs2.js:997"
   ]
  },
  "This browser blocked the image export.": {
@@ -30406,7 +30431,7 @@
  },
  "Update Equation": {
   "where": [
-   "quire/js/dialogs2.js:929"
+   "quire/js/dialogs2.js:977"
   ]
  },
  "Update Field": {
