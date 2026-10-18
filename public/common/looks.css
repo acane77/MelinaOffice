@@ -344,7 +344,8 @@
 [data-look="win7"] .tb-btn.on, [data-look="win7"] .tb-btn.on:hover { background: var(--w7-glass-down); border-color: #888; }
 [data-look="win7"] .combo { height: 21px; border-radius: 2px; border-color: #8e8f8f; }
 [data-look="win7"] .combo-in { height: 19px; }
-[data-look="win7"] .combo-btn, [data-look="win7"] .combo-btn:hover { width: 15px; border-left-color: transparent; background: var(--w7-btn); }
+/* editable combo: the drop button is its own button, so the left edge stays (7.css .combobox button) */
+[data-look="win7"] .combo-btn, [data-look="win7"] .combo-btn:hover { width: 15px; border-left-color: #8e8f8f; background: var(--w7-btn); }
 [data-look="win7"] .readbar, [data-look="win7"] .preview-bar { background: #f0f0f0; border-bottom-color: #c8c8c8; border-radius: 0; }
 
 [data-look="win7"] .taskpane { background: #f0f0f0; }
@@ -360,7 +361,7 @@
 [data-look="win7"] .minibar .combo { background: transparent; border-color: transparent; box-shadow: none; }
 [data-look="win7"] .minibar .combo-in { background: transparent; color: #000; text-shadow: 0 0 4px #fff, 0 0 1px #fff !important; }
 [data-look="win7"] .minibar .combo-btn, [data-look="win7"] .minibar .combo-btn:hover { background: transparent; border-left-color: transparent; }
-[data-look="win7"] .minibar .combo:hover, [data-look="win7"] .minibar .combo.focus { background: var(--w7-glass); border-color: #888; }
+[data-look="win7"] .minibar .combo:not(.dis):hover, [data-look="win7"] .minibar .combo.focus:not(.dis) { background: var(--w7-glass); border-color: #888; }
 [data-look="win7"] .floatbar .fb-title, [data-look="win7"] .floatbar .fb-body { position: relative; z-index: 1; }
 [data-look="win7"] .floatbar .fb-title { box-sizing: content-box; height: 21px; padding: 3px 5px 3px 3px; flex-shrink: 0; color: #000; font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-weight: normal; text-shadow: 0 0 12px #fff, 0 0 5px #fff; background: var(--w7-stripes); background-attachment: fixed; border-bottom: 0; box-shadow: inset 0 1px 0 #fffd, inset 1px 0 0 #fffd, inset -1px 0 0 #fffd; }
 
@@ -428,9 +429,18 @@
 [data-look="win7"] .tp-body input[type=text]:focus { border-color: #bee6fd; border-top-color: #98d1ef; outline: none; }
 [data-look="win7"] .dlg select:not([size]), [data-look="win7"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #8e8f8f; border-radius: 3px; padding: 1px 18px 1px 4px;
   background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4=") right 2px center / 14px 12px no-repeat, var(--w7-btn); }
-[data-look="win7"] .dlg select:not([size]):hover, [data-look="win7"] .tp-body select:not([size]):hover { border-color: #3c7fb1; background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4="), var(--w7-btn-hot); }
-[data-look="win7"] .dlg select:not([size]):active, [data-look="win7"] .tp-body select:not([size]):active { outline: none; border-color: #6d91ab; box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4="), var(--w7-btn-down); }
-[data-look="win7"] .combo-btn:active { border-color: #6d91ab; background: var(--w7-btn-down); box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
+[data-look="win7"] .dlg select:not([size]):not(:disabled):hover, [data-look="win7"] .tp-body select:not([size]):not(:disabled):hover { border-color: #3c7fb1; background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4="), var(--w7-btn-hot); }
+[data-look="win7"] .dlg select:not([size]):not(:disabled):active, [data-look="win7"] .tp-body select:not([size]):not(:disabled):active { outline: none; border-color: #6d91ab; box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiMwMDAiLz48L3N2Zz4="), var(--w7-btn-down); }
+/* 7.css select:disabled — flat face, grey arrow, grey type. Hover and press stay on the enabled control. */
+[data-look="win7"] .dlg select:not([size]):disabled, [data-look="win7"] .tp-body select:not([size]):disabled { opacity: 1; border-color: #adb2b5; color: #838383; -webkit-text-fill-color: #838383; box-shadow: none;
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTExIDZINHYxaDF2MWgxdjFoMXYxaDFWOWgxVjhoMVY3aDFWNloiIGZpbGw9IiNhZmFmYWYiLz48L3N2Zz4=") right 2px center / 14px 12px no-repeat, #f4f4f4; }
+[data-look="win7"] .combo:not(.dis) .combo-btn:active { border-color: #6d91ab; background: var(--w7-btn-down); box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
+/* disabled editable combo: the field is 7.css textbox:disabled, the button is button:disabled, and neither lights up */
+[data-look="win7"] .combo.dis, [data-look="win7"] .combo.dis:hover, [data-look="win7"] .combo.dis.focus { opacity: 1; border-color: #afafaf; background: #f0f0f0; box-shadow: inset 0 0 0 1px #fff; color: #838383; }
+[data-look="win7"] .combo.dis .combo-in { color: #838383; -webkit-text-fill-color: #838383; background: transparent; }
+[data-look="win7"] .minibar .combo.dis .combo-in { text-shadow: none !important; }
+[data-look="win7"] .combo.dis .combo-btn, [data-look="win7"] .combo.dis .combo-btn:hover, [data-look="win7"] .combo.dis .combo-btn:active { background: #f4f4f4; border-left-color: #adb2b5; box-shadow: none; color: #838383; }
+[data-look="win7"] .combo.dis .dd-arrow { border-top-color: #afafaf; }
 [data-look="win7"] .dlg fieldset, [data-look="win7"] .grp { border-color: #cdd7db; border-radius: 3px; box-shadow: inset 0 0 0 1px #fff; }
 [data-look="win7"] .dlg legend, [data-look="win7"] .grp legend { color: #000; }
 [data-look="win7"] .spin { border-radius: 2px; border-color: #8e8f8f; }
@@ -447,7 +457,8 @@
 [data-look="win7"] .ck:hover input[type=radio]:not(:disabled),
 [data-look="win7"] :is(.dlg, .tp-body, dialog, .taskpane) input[type=radio]:hover:not(:disabled) { border-color: #3c7fb1; box-shadow: inset 0 0 0 1.5px #def9fa, inset 1px 1px 0 1.5px #79c6f9, inset -1px -1px 0 1.5px #c6e9fc, inset 3px 3px 6px #b1dffd; }
 [data-look="win7"] :is(.dlg, .tp-body, dialog, .taskpane) input[type=checkbox]:checked { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><text x='1' y='12' font-family='Segoe UI, sans-serif' font-size='13' font-weight='700' fill='%234a5f97'>✔</text></svg>"); }
-[data-look="win7"] .ck:has(input[type=checkbox]:checked)::after { content: "\2714"; position: absolute; left: 2px; top: 0; color: #4a5f97; font-weight: bold; font-size: 13px; line-height: 14px; pointer-events: none; }
+/* the tick is a glyph on the label, not on the box. A wrapped label is taller than the box, so the glyph is centred with the box. */
+[data-look="win7"] .ck:has(input[type=checkbox]:checked)::after { content: "\2714"; position: absolute; left: 2px; top: 50%; height: 14px; margin-top: -7px; color: #4a5f97; font-weight: bold; font-size: 13px; line-height: 14px; pointer-events: none; }
 [data-look="win7"] .ck:has(input[type=checkbox]:disabled:checked)::after { color: #bfbfbf; }
 [data-look="win7"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=radio]:checked { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><circle cx='7' cy='7' r='3.1' fill='%237cd3eb' stroke='%2327506d' stroke-width='1.5'/></svg>"); }
 [data-look="win7"] .ck:has(input:focus-visible) { outline: 1px dotted #000; }
