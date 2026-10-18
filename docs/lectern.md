@@ -53,8 +53,11 @@ language). Format ▸ Font sets the two faces, and "(Use Asian text font)" write
 into the Latin slot as well. The toolbar Font box writes an East Asian family into both slots and a
 Latin family into the Latin slot only, keeping the East Asian face. When the two names differ, East
 Asian characters are drawn in their own face, so a Latin font that also has Chinese glyphs does not
-take the Chinese. In a Chinese presentation the horizontal ellipsis (…) is one of those characters,
-and is drawn with the East Asian font. A new presentation follows the UI's language ([i18n.md](i18n.md)): its text
+take the Chinese. In a Chinese presentation every symbol of East Asian Width Ambiguous (the
+ellipsis, the middle dot, the multiplication sign, the degree sign, the dashes, the quotation
+marks, the roman numerals and the rest) is drawn with the East Asian font, including beside
+digits. Accented Latin, Greek and Cyrillic keep their own font. Other general punctuation is
+drawn with the font of the characters beside it. A new presentation follows the UI's language ([i18n.md](i18n.md)): its text
 language, and 等线 for both faces unless that language has its own East Asian font.
 
 **Password-protected presentations** ask for the password, as PowerPoint does, and say so when it is wrong. Decryption happens in the browser (Agile encryption from Office 2010 on, Standard encryption from Office 2007). A presentation opened with a password is saved with the same password; Tools ▸ Options ▸ Security sets, changes or removes it (AES-256 with SHA-512, the scheme PowerPoint 2013 and later use).

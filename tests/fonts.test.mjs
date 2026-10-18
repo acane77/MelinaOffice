@@ -135,7 +135,7 @@ test('a run splits into East Asian characters and the rest', () => {
   assert.deepEqual(L.splitEA(''), []);
 });
 
-test('a Chinese document draws the horizontal ellipsis as an East Asian character', () => {
+test('a Chinese document draws East Asian Width Ambiguous symbols with the East Asian font', () => {
   assert.equal(L.chineseLang('zh-CN'), true);
   assert.equal(L.chineseLang('zh-Hant'), true);
   assert.equal(L.chineseLang('zh-TW'), true);
@@ -143,16 +143,42 @@ test('a Chinese document draws the horizontal ellipsis as an East Asian characte
   assert.equal(L.chineseLang('en-US'), false);
   assert.equal(L.chineseLang('ja-JP'), false);
   assert.equal(L.chineseLang(''), false);
-  assert.equal(L.hasEAText('……'), false);
-  assert.equal(L.hasEAText('……', true), true);
   assert.equal(L.hasEAText('...'), false);
   assert.equal(L.hasEAText('...', true), false);
+  assert.equal(L.hasEAText('×'), false);
+  assert.equal(L.hasEAText('×', true), true);
+  assert.equal(L.hasEAText('·'), false);
+  assert.equal(L.hasEAText('·', true), true);
+  assert.equal(L.hasEAText('……', true), true);
+  /* outside a Chinese document the ellipsis follows the characters beside it */
   assert.deepEqual(L.splitEA('（a）……等'), [
-    { ea: true, text: '（' }, { ea: false, text: 'a' }, { ea: true, text: '）' }, { ea: false, text: '……' }, { ea: true, text: '等' },
-  ]);
-  assert.deepEqual(L.splitEA('（a）……等', true), [
     { ea: true, text: '（' }, { ea: false, text: 'a' }, { ea: true, text: '）……等' },
   ]);
+  assert.deepEqual(L.splitEA('Wait…'), [{ ea: false, text: 'Wait…' }]);
+  assert.deepEqual(L.splitEA('Wait…', true), [{ ea: false, text: 'Wait' }, { ea: true, text: '…' }]);
+  assert.deepEqual(L.splitEA('如·3·', true), [
+    { ea: true, text: '如·' }, { ea: false, text: '3' }, { ea: true, text: '·' },
+  ]);
+  assert.deepEqual(L.splitEA('mm×297', true), [
+    { ea: false, text: 'mm' }, { ea: true, text: '×' }, { ea: false, text: '297' },
+  ]);
+  assert.deepEqual(L.splitEA('·3·'), [{ ea: false, text: '·3·' }]);
+  /* outside a Chinese document a quotation mark takes the script of the character beside it */
+  assert.deepEqual(L.splitEA('A“中”'), [{ ea: false, text: 'A“' }, { ea: true, text: '中”' }]);
+  assert.deepEqual(L.splitEA('“A”', true), [{ ea: true, text: '“' }, { ea: false, text: 'A' }, { ea: true, text: '”' }]);
+  assert.deepEqual(L.splitEA('“A”'), [{ ea: false, text: '“A”' }]);
+  assert.deepEqual(L.splitEA('12°', true), [{ ea: false, text: '12' }, { ea: true, text: '°' }]);
+  assert.equal(L.hasEAText('°', true), true);
+  assert.equal(L.hasEAText('°'), false);
+  assert.equal(L.hasEAText('—', true), true);
+  assert.equal(L.hasEAText('Ⅰ', true), true);
+  assert.equal(L.hasEAText('é', true), false);
+  assert.equal(L.hasEAText('α', true), false);
+  assert.equal(L.hasEAText('Д', true), false);
+  assert.deepEqual(L.splitEA('“中”'), [{ ea: true, text: '“中”' }]);
+  assert.equal(L.hasEAText('“”'), false);
+  assert.equal(L.hasEAText('“”', true), true);
+  assert.equal(L.hasEAText('□', true), true);
   assert.equal(L.chineseDoc({ settings: { themeLang: { eastAsia: 'zh-CN' } } }), true);
   assert.equal(L.chineseDoc({ defaults: { rPr: { langEA: 'zh-TW' } } }), true);
   assert.equal(L.chineseDoc({ lang: 'zh-CN' }), true);
