@@ -425,8 +425,12 @@
     /* CJK has no spaces for the browser to stretch; Word's Distributed puts the extra between every character */
     if (pPr.jc === 'distribute') st.push('text-justify:inter-character');
     if (jc === 'justify' && !last) outer.classList.add('jl');
-    /* document grid (lines): R.gridLine */
-    const gridPx = ctx.grid && !pPr.noSnap && !ls.exact && !ls.atLeast ? ctx.grid : 0;
+    /* document grid (lines): R.gridLine. A table cell keeps the paragraph's own line spacing unless the
+       document asks to adjust line height to the grid inside tables. Otherwise a line taller than one
+       pitch jumps to the next whole pitch, and the cell grows an empty band above and below the glyphs.
+       LibreOffice sw/source/core/text/itrform2.cxx SwTextFormatter::CalcRealHeight (tdf#88752, tdf#167583);
+       the flag defaults off when a DOCX omits w:adjustLineHeightInTable. */
+    const gridPx = ctx.grid && !pPr.noSnap && !ls.exact && !ls.atLeast && (!ctx.inCell || R.adjustLineHeightInTable(d)) ? ctx.grid : 0;
     const gridLine = (rr) => R.gridLine(gridPx, ls.mult || 1, rr.sz || 12, rr.font);
     /* line height strut from the first text run (Word sizes lines by their content, not the mark) */
     const firstText = p.runs.find((it) => it.t === 'text' && it.text && !(it.rPr && it.rPr.hidden && !ctx.showHidden) && !(it.rPr && it.rPr.del && ctx.markup === 'final'));
@@ -1112,6 +1116,8 @@
    */
   /** documents saved with Word 97 spacing rules add space after and space before together */
   R.cumulativeSpacing = (d) => { const c = d.settings && d.settings.compatXML; return !!c && /doNotUseHTMLParagraphAutoSpacing(?![^>]*w:val="(0|false)")/.test(c); };
+  /** snap lines inside tables to the document grid. Omitted, or val 0/false/off, means the cell uses its own spacing. */
+  R.adjustLineHeightInTable = (d) => { const c = d && d.settings && d.settings.compatXML; return !!c && /<w:adjustLineHeightInTable\b(?![^>]*\bw:val="(?:0|false|off)")/.test(c); };
   R.layoutTabs = function (outer, p, ctx, colLeftClient, scale, colWidthPx) {
     const tabs = outer.querySelectorAll('.tb');
     if (!tabs.length) return;

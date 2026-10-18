@@ -98,7 +98,10 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   Word's PDF of 90 cases (`tools/linegrid.py`: 10.5 to 28pt text, 0.8 to 3 lines, 15.6pt and 18pt
   grids, English and Chinese), all 90 line heights match, and pages 1 to 5 and the 18pt grid's pages
   break where Word's do. Of the 135 Word-saved corpus files with a grid, 126 show Word's stored page
-  count, as before.
+  count, as before. A table cell does not take that grid unless the document sets
+  `adjustLineHeightInTable`: the cell keeps the paragraph's own line spacing, so a font taller than
+  one pitch does not gain a whole extra pitch of empty space above and below the text (LibreOffice
+  `CalcRealHeight`, the same default as a DOCX that omits the flag). Body text still snaps.
 - Page and section totals are filled in once pagination is complete, and tabbed text around them
   is measured again. Pages are laid out again only from the first page where a new total changes a
   paragraph's height (a line wraps, a footer grows), so a long document with "Page X of Y" opens in
