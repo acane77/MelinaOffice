@@ -4,9 +4,11 @@
     python3 tools/vscode_vsix.py [out.vsix]
 
 The archive holds package.json, vscode/ and public/ (the pages the webview loads).
-Install:  code-server --install-extension vibeoffice-1.0.1.vsix
+The version is package.json's "version". With no path argument the file is
+tmp/vibeoffice-v<version>-<commit>.vsix, where <commit> is the short id of HEAD.
 """
 import json
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -15,9 +17,29 @@ ROOT = Path(__file__).resolve().parents[1]
 SKIP = {'.git', 'node_modules', '__pycache__', 'target', 'gen'}
 
 
+def head_commit():
+    try:
+        out = subprocess.run(
+            ['git', '-C', str(ROOT), 'rev-parse', '--short', 'HEAD'],
+            check=True, capture_output=True, text=True)
+    except (OSError, subprocess.CalledProcessError) as error:
+        sys.exit(f'cannot read the git commit id: {error}')
+    commit = out.stdout.strip()
+    if not commit:
+        sys.exit('cannot read the git commit id')
+    return commit
+
+
+def default_vsix(version):
+    return ROOT / 'tmp' / f'vibeoffice-v{version}-{head_commit()}.vsix'
+
+
 def main():
     pkg = json.loads((ROOT / 'package.json').read_text(encoding='utf-8'))
-    out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'tmp' / f"vibeoffice-{pkg['version']}.vsix"
+    version = pkg.get('version')
+    if not version:
+        sys.exit('package.json has no version')
+    out = Path(sys.argv[1]) if len(sys.argv) > 1 else default_vsix(version)
     out.parent.mkdir(parents=True, exist_ok=True)
     ident = pkg['publisher'], pkg['name'], pkg['version']
     manifest = f'''<?xml version="1.0" encoding="utf-8"?>

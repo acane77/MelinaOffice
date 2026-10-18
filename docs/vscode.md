@@ -21,17 +21,18 @@ The extension runs in the Node extension host (`extensionKind: workspace`), whic
 On the code-server machine, from this repository (Linux and macOS; the extensions directory is `~/.local/share/code-server/extensions` on Linux and `~/Library/Application Support/code-server/extensions` on macOS):
 
 ```
+ext=$(python3 -c "import json; p=json.load(open('package.json')); print(p['publisher']+'.'+p['name']+'-'+p['version'])")
 mkdir -p ~/.local/share/code-server/extensions
-ln -sfn "$PWD" ~/.local/share/code-server/extensions/vibeoffice.vibeoffice-1.0.1
+ln -sfn "$PWD" ~/.local/share/code-server/extensions/$ext
 ```
 
-On Windows the same directory is `%APPDATA%\code-server\extensions`. Restart code-server. If it was started with `--extensions-dir`, link into that directory instead. The folder name is `publisher.name-version` from `package.json`.
+On Windows the same directory is `%APPDATA%\code-server\extensions`. Restart code-server. If it was started with `--extensions-dir`, link into that directory instead. The folder name is `publisher.name-version` from `package.json`. The version lives only there.
 
-Or pack a VSIX and install that (the archive contains `package.json`, `vscode/` and `public/`):
+Or pack a VSIX and install that (the archive contains `package.json`, `vscode/` and `public/`). The script reads the version from `package.json` and writes `tmp/vibeoffice-v<version>-<commit>.vsix`, where `<commit>` is the short id of HEAD, then prints that path:
 
 ```
 python3 tools/vscode_vsix.py
-code-server --install-extension tmp/vibeoffice-1.0.1.vsix
+code-server --install-extension <the path the script prints>
 ```
 
 In desktop VS Code the same folder is an extension: Run and Debug, **VibeOffice extension** (`.vscode/launch.json`), which starts an Extension Development Host.
