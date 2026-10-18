@@ -49,7 +49,7 @@ Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor
 
 ## Why VibeOffice
 
-- **Familiar.** Windows 7 menus and toolbars, on the glass chrome (the default look). Classic, Paper and Paper 2016 are under Themes.
+- **Familiar.** Windows 7 menus and toolbars, on the glass chrome (the default look). Windows XP, Classic, Paper and Paper 2016 are under Themes.
 - **Lossless editing.** Open what colleagues send you, and save files built to open in Microsoft Office and LibreOffice, without losing what you didn't touch (below).
 - **Private.** Everything runs on your machine. There is no server behind it, no upload and no sign-in.
 - **Installable.** In Chrome or Edge, install it from the Start Center. It then opens .docx, .xlsx and .pptx files from your file manager. The same pages run inside VS Code and code-server: [docs/vscode.md](docs/vscode.md).
