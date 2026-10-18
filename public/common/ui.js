@@ -533,8 +533,9 @@
     layoutWindows();
   }
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless}
-   * a new window opens in front of the ones already open and leaves them where they are
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose}
+   * a new window opens in front of the ones already open and leaves them where they are.
+   * canClose false hides the title's close button, and Escape does not close the window (it does not press Cancel either).
    */
   ui.dialog = function (opts) {
     ui.closeMenus();
@@ -548,7 +549,7 @@
     dlg.style.width = Math.min(opts.width || 380, window.innerWidth - 16) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
-      h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', html: '<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.5"/></svg>', onclick: () => close(null) }));
+      opts.canClose === false ? null : h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', html: '<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.5"/></svg>', onclick: () => close(null) }));
     const body = h('div', { class: 'dlg-body' });
     if (opts.body) body.appendChild(opts.body);
     const foot = h('div', { class: 'dlg-foot' });
@@ -594,7 +595,14 @@
     layoutWindows();
     syncActive(entry);
     entry.keys = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); const ci = (opts.buttons || []).findIndex((b) => b.cancel || /^cancel$|^close$/i.test(plainAmp(b.label))); if (ci >= 0) btns[ci].click(); else close(null); return true; }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        /* canClose false: stay open. Escape must not press Cancel, which would close the window too. */
+        if (opts.canClose === false) return true;
+        const ci = (opts.buttons || []).findIndex((b) => b.cancel || /^cancel$|^close$/i.test(plainAmp(b.label)));
+        if (ci >= 0) btns[ci].click(); else close(null);
+        return true;
+      }
       if (e.key === 'Enter' && !e.shiftKey && !(e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.isContentEditable || e.target.tagName === 'SELECT'))) {
         const pi = (opts.buttons || []).findIndex((b) => b.primary);
         if (pi >= 0) { e.preventDefault(); btns[pi].click(); return true; }
@@ -1311,4 +1319,9 @@
     if (on) { if (!b) { b = h('div', { class: 'busy' }, h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), h('span', { class: 'busy-t' }))); document.body.appendChild(b); } b.querySelector('.busy-t').textContent = t(text || 'Working...'); b.hidden = false; }
     else if (b) b.hidden = true;
   };
+  /* a host that set VO.openingDialog (the VS Code editor) shows it once dialogs exist, before the app paints */
+  if (typeof window !== 'undefined' && window.VO && typeof VO.openingDialog === 'function') {
+    const run = () => VO.openingDialog();
+    if (VO.i18n) VO.i18n.whenReady(run); else run();
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

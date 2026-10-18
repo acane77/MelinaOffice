@@ -625,6 +625,28 @@
       }
     }
   });
+  /* VS Code: this dialog is up from the moment dialogs exist until the workspace file is open, so the blank
+     document the page builds first is covered. Cancel closes the editor tab. The title has no close button,
+     and Escape does not dismiss it (ui.dialog, canClose: false). */
+  let openingDlg = null;
+  let openingCancelled = false;
+  const endOpening = () => {
+    const d = openingDlg;
+    openingDlg = null;
+    if (d) d.close(null);
+  };
+  if (inVs) VO.openingDialog = () => {
+    if (openingDlg || openingCancelled || !window.L || !L.ui || !L.ui.dialog || !L.h) return;
+    const body = L.h('div', { text: 'Opening the file. Please wait...' });
+    openingDlg = L.ui.dialog({
+      title: VO.t('Starting {0}', L.APP || ''),
+      width: 440,
+      canClose: false,
+      body,
+      focus: body,
+      buttons: [{ label: 'Cancel', cancel: true, onClick() { openingCancelled = true; vsPost({ type: 'close' }); return false; } }],
+    });
+  };
   /** an app is ready: open the file it was launched with, if any, then show the Document Recovery pane when
    *  other documents of this app have unsaved changes.
    *  hooks: open(file, { draft, name, saved }), adoptBlank(name) keeps the page's own blank document as that
@@ -641,6 +663,7 @@
       if (l.vscode) {
         try {
           const file = await VO.host.takeDocument();
+          if (openingCancelled) return;
           if (file && file.voBlank) {
             /* the page already built a blank document; name it as this file and write that document in.
                A failed write is reported by the extension; the document stays on screen so Save can try again. */
@@ -649,8 +672,10 @@
               hostLive = true;
               const doc = current.hooks.current && current.hooks.current();
               const blob = doc && current.hooks.snapshot ? await current.hooks.snapshot(doc) : null;
+              if (openingCancelled) return;
               if (!blob) throw new Error('The editor did not build a document.');
               await VO.host.writeFile(file.name, blob);
+              if (openingCancelled) return;
               VO.saved(file.name, blob, doc);
             } catch (e) { console.error(e); }
           } else {
@@ -661,14 +686,18 @@
               catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
             }
             if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
-            else (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
+            if (openingCancelled) return;
+            if (!(file && current.hooks.open)) (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
             if (file) hostLive = true;
             /* unsaved bytes opened into this tab still belong to the workspace file, so the tab shows them as changes */
             if (draft) vsPost({ type: 'dirty', dirty: true });
           }
         } catch (e) {
+          if (openingCancelled) return;
           console.error(e);
           (current.hooks.message || alert)('That file could not be opened. ' + (e.message || e));
+        } finally {
+          if (!openingCancelled) endOpening();
         }
       } else if (l.open) {
         let rec = null;

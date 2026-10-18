@@ -160,6 +160,12 @@ test('the pages recognise the vscode host', () => {
   assert.match(ext, /canSelectFolders: true/);
   assert.match(ui, /saveLocation/);
   assert.match(ui, /kind !== 'vscode'/);
+  assert.match(ui, /canClose === false/);
+  assert.match(suite, /openingDialog/);
+  assert.match(suite, /canClose: false/);
+  assert.match(suite, /Starting \{0\}/);
+  assert.match(suite, /Opening the file\. Please wait\.\.\./);
+  assert.match(suite, /openingCancelled/);
   for (const file of ['public/quire/js/dialogs3.js', 'public/lectern/js/dialogs.js', 'public/ledger/js/dialogs.js']) {
     assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /saveLocation/);
   }
