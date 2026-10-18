@@ -63,7 +63,8 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   font only and leaves the East Asian face in place. Typing in a Font box, on the toolbar or in Format ▸ Font,
   completes to a listed family, a recently used one before the others. When the two
   names differ, East Asian characters are drawn with the East Asian font and the other characters with
-  the Latin font. Distributed alignment spreads the spare space between fullwidth characters. A
+  the Latin font. In a Chinese document the horizontal ellipsis (…) is one of those characters, so it
+  is drawn with the East Asian font. Distributed alignment spreads the spare space between fullwidth characters. A
   justified or distributed line that is only a little wider than the measure narrows fullwidth
   punctuation (down to half an em, and only by as much as it overflows) so the line stays one line;
   left alignment does not, and wraps. With "balance single-byte and double-byte characters",

@@ -300,7 +300,8 @@
           const latin = L.style.font(rp.font, design);
           const ea = L.style.fontEA(rp.fontEA, design);
           const raw = r.fld ? fieldText(r, ctx) : r.t;
-          const parts = !r.fld && ea && L.fontKey(latin) !== L.fontKey(ea) && L.hasEAText(raw) ? L.splitEA(raw) : null;
+          const zh = L.chineseLang(r.lang) || L.chineseDoc(ctx && ctx.pres);
+          const parts = !r.fld && ea && L.fontKey(latin) !== L.fontKey(ea) && L.hasEAText(raw, zh) ? L.splitEA(raw, zh) : null;
           const emit = (text, face, eaFace) => {
             const sp = h('span', { class: 'r' });
             if (Object.keys(own).length) sp.dataset.r = JSON.stringify(own);

@@ -334,7 +334,7 @@
     if (it && it.t === 'text' && it.text) {
       const loc = D.locate(a.p, a.o, E.collapsed() ? 'before' : undefined);
       const ch = E.collapsed() ? it.text[Math.max(0, loc.off - 1)] : it.text[loc.off];
-      ea = !!(ch && L.hasEAText(ch));
+      ea = !!(ch && L.hasEAText(ch, L.chineseDoc(doc())));
     }
     if (E.collapsed()) { const r = E.curRun(); return L.fontFace((ea ? (r.fontEA || r.font) : r.font) || ''); }
     return L.fontFace(E.uniformRun(ea ? 'fontEA' : 'font') || '');

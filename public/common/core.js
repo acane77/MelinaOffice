@@ -544,9 +544,28 @@
     return yes;
   };
   const EA_RE = /[\u1100-\u11ff\u2e80-\u9fff\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/;
+  /* In a Chinese document Word, WPS and PowerPoint draw U+2026 HORIZONTAL ELLIPSIS with the East Asian
+     font, as a CJK character. An English document keeps it in the Latin font. */
+  const ZH_ELLIPSIS = '\u2026';
+  const eaChar = (ch, zh) => EA_RE.test(ch) || (!!zh && ch === ZH_ELLIPSIS);
+  /** zh, zh-CN, zh-Hans, zh-Hant, zh-TW and the other Chinese tags */
+  L.chineseLang = (lang) => /^zh(?:-|$)/i.test(String(lang || ''));
+  /** a Chinese document: Word's East Asian language (theme or the default run), or a presentation's text language */
+  L.chineseDoc = function (doc) {
+    if (!doc) return false;
+    const theme = doc.settings && doc.settings.themeLang;
+    if (theme && L.chineseLang(theme.eastAsia)) return true;
+    const def = doc.defaults && doc.defaults.rPr;
+    if (def && L.chineseLang(def.langEA)) return true;
+    return L.chineseLang(doc.lang);
+  };
   /** whether text has East Asian characters (Han, kana, Hangul, full-width forms), which Word draws with a run's
-      East Asian font */
-  L.hasEAText = (s) => EA_RE.test(s || '');
+      East Asian font. Pass true for a Chinese document: the horizontal ellipsis is one of those characters. */
+  L.hasEAText = (s, zh) => {
+    s = s || '';
+    if (EA_RE.test(s)) return true;
+    return !!(zh && s.includes(ZH_ELLIPSIS));
+  };
   /** the Latin slot names the same East Asian family as the East Asian slot: Word's Font box shows
       "(Use Asian text font)" rather than that family again */
   L.fontUsesEA = (font, ea) => !!(font && ea && L.fontIsEA(ea) && L.fontKey(font) === L.fontKey(ea));
@@ -613,12 +632,13 @@
     if (out.every((r) => L.fontKey(r.font.name) === L.fontKey(latin))) return null;
     return out;
   };
-  /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font */
-  L.splitEA = function (s) {
+  /** text in order, each piece { ea, text }: East Asian characters, then the rest, as Word picks a run's font.
+      zh: a Chinese document, where the horizontal ellipsis is an East Asian character. */
+  L.splitEA = function (s, zh) {
     const out = [];
     let buf = '', ea = false, on = false;
     for (const ch of String(s || '')) {
-      const e = EA_RE.test(ch);
+      const e = eaChar(ch, zh);
       if (!on) { on = true; ea = e; buf = ch; }
       else if (e === ea) buf += ch;
       else { out.push({ ea, text: buf }); ea = e; buf = ch; }

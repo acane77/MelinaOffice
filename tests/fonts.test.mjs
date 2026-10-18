@@ -135,6 +135,31 @@ test('a run splits into East Asian characters and the rest', () => {
   assert.deepEqual(L.splitEA(''), []);
 });
 
+test('a Chinese document draws the horizontal ellipsis as an East Asian character', () => {
+  assert.equal(L.chineseLang('zh-CN'), true);
+  assert.equal(L.chineseLang('zh-Hant'), true);
+  assert.equal(L.chineseLang('zh-TW'), true);
+  assert.equal(L.chineseLang('zh'), true);
+  assert.equal(L.chineseLang('en-US'), false);
+  assert.equal(L.chineseLang('ja-JP'), false);
+  assert.equal(L.chineseLang(''), false);
+  assert.equal(L.hasEAText('……'), false);
+  assert.equal(L.hasEAText('……', true), true);
+  assert.equal(L.hasEAText('...'), false);
+  assert.equal(L.hasEAText('...', true), false);
+  assert.deepEqual(L.splitEA('（a）……等'), [
+    { ea: true, text: '（' }, { ea: false, text: 'a' }, { ea: true, text: '）' }, { ea: false, text: '……' }, { ea: true, text: '等' },
+  ]);
+  assert.deepEqual(L.splitEA('（a）……等', true), [
+    { ea: true, text: '（' }, { ea: false, text: 'a' }, { ea: true, text: '）……等' },
+  ]);
+  assert.equal(L.chineseDoc({ settings: { themeLang: { eastAsia: 'zh-CN' } } }), true);
+  assert.equal(L.chineseDoc({ defaults: { rPr: { langEA: 'zh-TW' } } }), true);
+  assert.equal(L.chineseDoc({ lang: 'zh-CN' }), true);
+  assert.equal(L.chineseDoc({ settings: { themeLang: { eastAsia: 'ja-JP' } }, lang: 'en-US' }), false);
+  assert.equal(L.chineseDoc(null), false);
+});
+
 test('Ledger: the rows of a Japanese or Korean Excel\'s default font', () => {
   assert.equal(L.model.fontRowPt({ name: 'ＭＳ Ｐゴシック', sz: 11 }), 13.5);
   assert.equal(L.model.fontRowPt({ name: '游ゴシック', sz: 11 }), 18.75);

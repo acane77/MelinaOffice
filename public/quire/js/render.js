@@ -802,7 +802,8 @@
            span so a Latin font that also has Chinese glyphs does not draw the Chinese. One span when the
            run names a single font. Offsets stay one DOM character per model character. */
         const distinct = r.fontEA && L.fontKey(r.fontEA) !== L.fontKey(r.font || '');
-        const pieces = distinct ? L.splitEA(text) : [{ ea: !!(r.fontEA && L.hasEAText(text)), text }];
+        const zh = L.chineseDoc(d) || L.chineseLang(r.langEA);
+        const pieces = distinct ? L.splitEA(text, zh) : [{ ea: !!(r.fontEA && L.hasEAText(text, zh)), text }];
         let at = a;
         for (const piece of pieces) {
           const ea = piece.ea && !!r.fontEA;
