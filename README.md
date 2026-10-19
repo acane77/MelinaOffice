@@ -6,22 +6,22 @@
 </p>
 
 <p align="center">
-  <a href="https://vibeoffice.work"><b>▶&nbsp;&nbsp;Try it now at vibeoffice.work</b></a>
+  <a href="https://acane77.github.io/vibeoffice"><b>▶&nbsp;&nbsp;Try it now!</b></a>
 </p>
 
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://vibeoffice.work/quire/?template=flyer"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
-      <b><a href="https://vibeoffice.work/quire/">Quire</a></b><br>Word processor
+      <a href="https://acane77.github.io/vibeoffice/quire/?template=flyer"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
+      <b><a href="https://acane77.github.io/vibeoffice/quire/">Quire</a></b><br>Word processor
     </td>
     <td align="center" width="33%">
-      <a href="https://vibeoffice.work/ledger/?template=loan"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
-      <b><a href="https://vibeoffice.work/ledger/">Ledger</a></b><br>Spreadsheet
+      <a href="https://acane77.github.io/vibeoffice/ledger/?template=loan"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
+      <b><a href="https://acane77.github.io/vibeoffice/ledger/">Ledger</a></b><br>Spreadsheet
     </td>
     <td align="center" width="33%">
-      <a href="https://vibeoffice.work/lectern/"><img src="docs/images/lectern.png" alt="Lectern, the presentation editor, with the sample deck: a drawn title slide, then a chart, a table, a timeline and a funnel diagram"></a><br>
-      <b><a href="https://vibeoffice.work/lectern/">Lectern</a></b><br>Presentations
+      <a href="https://acane77.github.io/vibeoffice/lectern/"><img src="docs/images/lectern.png" alt="Lectern, the presentation editor, with the sample deck: a drawn title slide, then a chart, a table, a timeline and a funnel diagram"></a><br>
+      <b><a href="https://acane77.github.io/vibeoffice/lectern/">Lectern</a></b><br>Presentations
     </td>
   </tr>
 </table>
@@ -33,8 +33,8 @@ This fork implements a vscode/code-server plugin, it works in VSCode!
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://vibeoffice.work/quire/?template=flyer"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
-      <b><a href="https://vibeoffice.work/quire/">VS Code Plugin</a></b><br>
+      <a href="https://acane77.github.io/vibeoffice/quire/?template=flyer"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
+      <b><a href="https://acane77.github.io/vibeoffice/quire/">VS Code Plugin</a></b><br>
     </td>
     <td align="center" width="33%">
       &nbsp;
@@ -85,7 +85,7 @@ I personally found Apple Pages' equation editor is easier to use than Word's dur
 | [Ledger](docs/ledger.md) | Spreadsheet | .xlsx, .xlsm, .xltx, .xltm, .csv, XML Spreadsheet 2003, .htm; PDF |
 | [Lectern](docs/lectern.md) | Presentations | .pptx, .pptm, .ppsx, .ppsm, .potx, .potm; PDF, PNG, .htm |
 
-Start at vibeoffice.work, the Start Center: open a file, pick one from Recent Files, or create a document, spreadsheet or presentation from a blank page or a template.
+Start at the Start Center: open a file, pick one from Recent Files, or create a document, spreadsheet or presentation from a blank page or a template.
 
 ## Feedback and contributing
 
@@ -103,7 +103,7 @@ VibeOffice is plain HTML and JavaScript with no build step. Read [AGENTS.md](AGE
 
 **How the code is reviewed.** VibeOffice is written with the help of AI coding assistants. Such tools are trained on large amounts of public code, which may include LibreOffice and other office software, and can occasionally produce code that resembles their training material. To reduce that risk, VibeOffice's code is reviewed on an ongoing basis against the open-source projects it could most plausibly resemble: office suites such as LibreOffice, Apache OpenOffice, OnlyOffice and Gnumeric, and common open-source libraries. Code that matches or closely resembles work under terms VibeOffice does not accept is removed and rewritten independently, from published standards and mathematics, or replaced by an equivalent under a compatible licence. Code that matches permissively licensed work is kept and credited, as its licence requires. The project's contribution rules ([AGENTS.md](AGENTS.md)) apply the same terms to all new code. The first full review was completed in October 2026.
 
-**Code from other projects.** VibeOffice uses, or translates into JavaScript, only code under licences compatible with its own; that code is credited, with its licence, at [vibeoffice.work/oss-licenses.html](https://vibeoffice.work/oss-licenses.html). If you believe something in VibeOffice comes from your work without credit, please [open an issue](https://github.com/tcchen2026/VibeOffice/issues): we take such reports seriously and review each one.
+**Code from other projects.** VibeOffice uses, or translates into JavaScript, only code under licences compatible with its own; that code is credited, with its licence, at [oss-licenses.html](https://acane77.github.io/vibeoffice/oss-licenses.html). If you believe something in VibeOffice comes from your work without credit, please [open an issue](https://github.com/tcchen2026/VibeOffice/issues): we take such reports seriously and review each one.
 
 **Artwork.** The icons, clip art, app icons, Scout's drawing and the sample documents are original. Nikki (暖暖), the other assistant, is a sprite from [codex-pets.net](https://codex-pets.net/#/pets/nikki-bloom-poetry); her name and likeness are the copyright of Papergames (叠纸), also known as Infold, and that sprite is not licensed for commercial use. The menus and toolbars follow the general style of a classic desktop office suite; no artwork was copied from one.
 
