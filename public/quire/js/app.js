@@ -19,7 +19,7 @@
   };
 
   const DEFAULT_OPTS = {
-    statusBar: true, ruler: true, vruler: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
+    statusBar: true, ruler: true, vruler: true, whiteSpace: true, taskOpen: true, startupPane: true, paneFollows: true, docMap: false, thumbs: false,
     toolbars: { standard: true, formatting: true, drawing: true, tables: false, reviewing: 'auto', picture: 'auto', outlining: 'auto', headerFooter: 'auto', mailMerge: false, wordart: 'auto' },
     showMarks: false, marks: { tabs: false, spaces: false, para: false, hidden: false, all: false }, textBoundaries: true, fieldShading: 'selected', bookmarks: false,
     smartQuotes: true, autocorrect: true, autoFormat: true, capSentence: true, autoBullets: true, autoNumbers: true, autoBorders: true, autoHeadings: false, autoUrl: true, ordinals: true, fractions: true, dashes: true,
@@ -48,6 +48,7 @@
     LY.root.spellcheck = false; /* Quire draws its own spelling and grammar underlines */
     if (L.spell) L.spell.refreshSoon(0);
     LY.root.classList.toggle('fshade', A.opts.fieldShading === 'always');
+    if (LY.syncWhiteSpace && LY.scroller) { const r = LY.scroller.getBoundingClientRect(); LY.syncWhiteSpace(r.top + LY.scroller.clientHeight / 2); }
     A.updateRulers();
     A.updateToolbars();
   };

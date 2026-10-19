@@ -884,7 +884,52 @@
       if (E.applySerialized(h.sel)) E.restoreDom();
       E.selChanged();
     });
+    wireWhiteSpace();
   };
+  /** double-click the gap between sheets, or the sliver left when that gap is hidden */
+  function wireWhiteSpace() {
+    const sc = LY.scroller;
+    if (!sc) return;
+    let tip = null, timer = null, over = false, px = 0, py = 0;
+    const hideTip = () => { clearTimeout(timer); timer = null; over = false; if (tip) tip.hidden = true; };
+    const placeTip = () => {
+      if (!tip || tip.hidden) return;
+      const r = tip.getBoundingClientRect();
+      let left = px + 2, top = py + 20;
+      if (left + r.width > window.innerWidth - 4) left = window.innerWidth - r.width - 4;
+      if (top + r.height > window.innerHeight - 4) top = py - r.height - 6;
+      tip.style.left = Math.max(2, left) + 'px';
+      tip.style.top = Math.max(2, top) + 'px';
+    };
+    const showTip = () => {
+      if (document.body.classList.contains('notips') || !LY.pageGapAt(px, py)) return;
+      if (!tip) { tip = document.createElement('div'); tip.className = 'tooltip'; document.body.appendChild(tip); }
+      tip.textContent = LY.whiteSpaceHidden() ? L.t('Double-click to show white space') : L.t('Double-click to hide white space');
+      tip.hidden = false;
+      placeTip();
+    };
+    sc.addEventListener('pointermove', (e) => {
+      px = e.clientX; py = e.clientY;
+      const gap = !!LY.pageGapAt(px, py);
+      sc.classList.toggle('ws-gap', gap);
+      if (!gap) { hideTip(); return; }
+      if (tip && !tip.hidden) placeTip();
+      if (!over) { over = true; clearTimeout(timer); timer = setTimeout(showTip, 650); }
+    });
+    sc.addEventListener('pointerleave', () => { sc.classList.remove('ws-gap'); hideTip(); });
+    sc.addEventListener('scroll', () => { sc.classList.remove('ws-gap'); hideTip(); }, { passive: true });
+    sc.addEventListener('mousedown', (e) => {
+      if (e.button === 0 && e.detail === 2 && LY.pageGapAt(e.clientX, e.clientY)) e.preventDefault();
+    }, true);
+    sc.addEventListener('dblclick', (e) => {
+      if (e.button !== 0 || !LY.pageGapAt(e.clientX, e.clientY)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hideTip();
+      sc.classList.remove('ws-gap');
+      LY.toggleWhiteSpace(e.clientY);
+    }, true);
+  }
 
   function onBeforeInput(e) {
     const t = e.inputType;
