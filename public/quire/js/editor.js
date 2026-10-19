@@ -82,14 +82,28 @@
        puts a caret back into a focused page left with no selection at all) */
     const a = LY.posToDom(E.sel.a), f = E.objSel && E.objSel.float ? a : LY.posToDom(E.sel.f);
     if (!a || !f) return;
+    /* setBaseAndExtent reveals the caret on its own, and after a relayout the line box is often not ready, so
+       Chromium aims that reveal at the top of the editable. Pin the scroller across the call. A drag (noScroll)
+       only needs the synchronous pin: holding it for another frame would cancel the drag's own autoscroll. */
+    const hold = LY.scroller ? holdScroller(LY.scroller) : null;
     settingDom++;
     try {
       if (s.anchorNode !== a.node || s.anchorOffset !== a.offset || s.focusNode !== f.node || s.focusOffset !== f.offset) s.setBaseAndExtent(a.node, a.offset, f.node, f.offset);
     } catch (e) { /* ignore */ }
     /* remember exactly what we put there, so a later read can tell our own selection from the user's */
     lastDom = { an: s.anchorNode, ao: s.anchorOffset, fn: s.focusNode, fo: s.focusOffset };
+    if (hold) { hold.freeze(); hold.pause(); }
     setTimeout(() => { settingDom = Math.max(0, settingDom - 1); }, 0);
     if (!noScroll) E.scrollToCaret();
+    if (hold && !noScroll) {
+      hold.retarget();
+      hold.resume();
+      let left = 3;
+      const tick = () => { hold.freeze(); if (--left === 0) hold.release(); };
+      requestAnimationFrame(tick);
+      requestAnimationFrame(() => requestAnimationFrame(tick));
+      setTimeout(tick, 0);
+    } else if (hold) hold.release();
     E.markCells();
     markMathSel();
   };
@@ -336,34 +350,96 @@
   /** notify UI (debounced through rAF) */
   E.selChanged = L.rafThrottle(() => { L.bus.emit('sel', E.sel); });
 
+  /** dy / dx added to the scroller. The caret stays put in the top 90% of the viewport. Once its
+      line bottom crosses the line 10% up from the bottom, scroll only the overflow, which is one
+      line when typing just crossed it. A line that has left the top comes back by the smallest
+      step that puts its top on the viewport top — never by aligning it to the document start. */
+  E.caretScroll = function (sr, r) {
+    let dy = 0, dx = 0;
+    const viewH = sr.bottom - sr.top;
+    if (viewH > 0) {
+      const limit = sr.bottom - viewH * 0.1;
+      if (r.bottom > limit) dy = r.bottom - limit;
+      else if (r.top < sr.top) dy = r.top - sr.top;
+    }
+    if (r.left < sr.left) dx = r.left - sr.left - 30;
+    else if (r.right > sr.right) dx = r.right - sr.right + 30;
+    return { dx, dy };
+  };
+  /* Chromium reveals the caret asynchronously after setBaseAndExtent. A newer hold supersedes an older one. */
+  let scrollHold = 0;
+  function holdScroller(sc) {
+    const id = ++scrollHold;
+    const pin = { top: sc.scrollTop, left: sc.scrollLeft };
+    let freezing = false, listening = false;
+    const freeze = () => {
+      if (id !== scrollHold || freezing) return;
+      if (sc.scrollTop === pin.top && sc.scrollLeft === pin.left) return;
+      freezing = true;
+      sc.scrollTop = pin.top;
+      sc.scrollLeft = pin.left;
+      freezing = false;
+    };
+    const listen = () => { if (id === scrollHold && !listening) { sc.addEventListener('scroll', freeze); listening = true; } };
+    const unlisten = () => { if (listening) { sc.removeEventListener('scroll', freeze); listening = false; } };
+    listen();
+    return {
+      freeze,
+      pause: unlisten,
+      retarget() { pin.top = sc.scrollTop; pin.left = sc.scrollLeft; },
+      resume: listen,
+      release() { unlisten(); if (id === scrollHold) scrollHold++; },
+    };
+  }
+  /** the caret's own line. A collapsed range's first rect is often the previous line, or a box as
+      tall as the page; either one sends the scroller to the top. Keep the last line-sized rect. */
+  function caretLineRect(node, offset, maxH) {
+    if (!node) return null;
+    const rng = document.createRange();
+    try { rng.setStart(node, offset); rng.collapse(true); } catch (e) { return null; }
+    const cap = maxH > 0 ? maxH : 240;
+    const pick = (list) => {
+      let found = null;
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
+        if (c.height < 1 || c.height > cap) continue;
+        found = c;
+      }
+      return found;
+    };
+    const one = rng.getBoundingClientRect();
+    const direct = pick(rng.getClientRects()) || (one && one.height >= 1 && one.height <= cap ? one : null);
+    if (direct) return direct;
+    /* an empty paragraph's caret sits just before its <br>, and a collapsed range there has no
+       rect. The break's own box is that line. */
+    if (node.nodeType === 1) {
+      const kid = node.childNodes[offset] || node.childNodes[offset - 1];
+      if (kid && kid.getClientRects) {
+        const hit = pick(kid.getClientRects());
+        if (hit) return hit;
+        const b = kid.getBoundingClientRect();
+        if (b.height >= 1 && b.height <= cap) return b;
+      }
+    }
+    return null;
+  }
   /** bring the caret into view: the page's selection, or (fromModel) the model's, when the page's isn't moved */
   E.scrollToCaret = function (fromModel) {
     const sc = LY.scroller;
     if (!sc || !E.sel) return;
     const s = window.getSelection();
     const at = fromModel ? LY.posToDom(E.sel.f) : s.rangeCount ? { node: s.focusNode, offset: s.focusOffset } : null;
-    if (!at) return;
-    const rng = document.createRange();
-    try { rng.setStart(at.node, at.offset); rng.collapse(true); } catch (e) { return; }
-    let r = rng.getClientRects()[0] || rng.getBoundingClientRect();
-    if (!r || (!r.height && !r.top)) {
-      const n = at.node && (at.node.nodeType === 3 ? at.node.parentNode : at.node);
-      if (n && n.getBoundingClientRect) r = n.getBoundingClientRect();
-    }
+    if (!at || !at.node) return;
+    const r = caretLineRect(at.node, at.offset, Math.max(160, sc.clientHeight * 0.75));
     if (!r) return;
-    const sr = sc.getBoundingClientRect();
-    const m = 30;
-    if (r.top < sr.top + 4) sc.scrollTop -= sr.top - r.top + m;
-    else if (r.bottom > sr.bottom - 4) sc.scrollTop += r.bottom - sr.bottom + m;
-    if (r.left < sr.left) sc.scrollLeft -= sr.left - r.left + m;
-    else if (r.right > sr.right) sc.scrollLeft += r.right - sr.right + m;
+    const d = E.caretScroll(sc.getBoundingClientRect(), r);
+    if (d.dy) sc.scrollTop += d.dy;
+    if (d.dx) sc.scrollLeft += d.dx;
   };
   E.caretRect = function () {
     const s = window.getSelection();
     if (!s.rangeCount) return null;
-    const rng = document.createRange();
-    try { rng.setStart(s.focusNode, s.focusOffset); rng.collapse(true); } catch (e) { return null; }
-    return rng.getClientRects()[0] || null;
+    return caretLineRect(s.focusNode, s.focusOffset, 240);
   };
 
   /* ---------- editing primitives ---------- */

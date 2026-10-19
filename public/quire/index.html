@@ -39,7 +39,7 @@
 .rmark.tabstop { width: 8px; height: 8px; margin-left: -1px; top: 11px; }
 .rmark.colmark { width: 6px; height: 14px; margin-left: -3px; top: 3px; background: repeating-linear-gradient(var(--ruler-line) 0 1px, var(--ruler-mark-bg) 1px 3px); border: 1px solid var(--ruler-mark-line); cursor: col-resize; }
 .r-guide { position: absolute; top: 0; bottom: 0; border-left: 1px dotted #000; pointer-events: none; z-index: 50; }
-.scroller { grid-column: 2; grid-row: 2; position: relative; overflow: auto; outline: none; min-width: 0; min-height: 0; background: var(--page-canvas); }
+.scroller { grid-column: 2; grid-row: 2; position: relative; overflow: auto; overflow-anchor: none; outline: none; min-width: 0; min-height: 0; background: var(--page-canvas); }
 .scroller.flowview { background: #fff; }
 .scroller.webview { background: #fff; }
 .sizer { position: relative; min-height: 100%; }
@@ -50,7 +50,7 @@
 /* ---------- pages ---------- */
 .pages { position: absolute; top: 14px; left: 10px; transform-origin: 0 0; outline: none; color: #000; font-size: 16px; line-height: normal; caret-color: #000; -webkit-user-modify: read-write-plaintext-only; }
 .pages { -webkit-user-modify: read-write; }
-.pg { position: relative; margin: 0 auto 14px; background: #fff; box-shadow: 0 0 0 1px var(--page-line); contain: layout paint; overflow: hidden; }
+.pg { position: relative; margin: 0 auto 14px; background: #fff; box-shadow: 0 0 0 1px var(--page-line); contain: layout paint; overflow: clip; }
 .pages.multi { display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: flex-start; }
 .pages.multi .pg { margin: 0; }
 .pg.blank::after { content: var(--t-blank, "(This page intentionally left blank by a section break)"); position: absolute; left: 0; right: 0; top: 45%; text-align: center; color: #999; font: 12px Arial, Arimo, sans-serif; }
