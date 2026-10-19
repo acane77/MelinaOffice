@@ -280,11 +280,14 @@
   function buildToolbars() {
     const host = L.$('#toolbars');
     const styleCombo = A.parts.style(), fontCombo = A.parts.font(), sizeCombo = A.parts.size(), zoomCombo = A.parts.zoom();
+    const clearBtn = ui.tbButton('clearFormats', { icon: 'eraser' });
+    clearBtn.setAttribute('data-tip', 'Clear Formatting');
+    clearBtn.setAttribute('aria-label', L.t('Clear Formatting'));
     A.toolbarsEl = {
       standard: ui.toolbar('standard', 'Standard', ['new', 'open', 'save', 'permission', 'sendMail', 'print', 'printPreview', 'spelling', 'research', '|', 'cut', 'copy', 'paste', 'painter', '|',
         ui.tbSplit('undo', (r) => A.historyMenu(r, 'undo')), ui.tbSplit('redo', (r) => A.historyMenu(r, 'redo')), '|', 'hyperlink', ui.tbButton('tb_tables', { icon: 'tablesBorders' }),
         ui.tbDrop('', 'table', (r) => tableGridPicker(r), 'Insert Table'), 'insertExcel', ui.tbDrop('', 'columns', (r) => columnsPicker(r), 'Columns'), ui.tbButton('tb_drawing', { icon: 'drawing' }), 'docMap', 'showMarks', zoomCombo, 'help', ui.tbButton('viewReading', { label: 'Read', icon: 'read' })]),
-      formatting: ui.toolbar('formatting', 'Formatting', ['stylesPane', styleCombo, fontCombo, sizeCombo, 'bold', 'italic', 'underline', '|', 'alignLeft', 'alignCenter', 'alignRight', 'justify', '|',
+      formatting: ui.toolbar('formatting', 'Formatting', ['stylesPane', styleCombo, fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'growFont', 'shrinkFont', 'changeCase', clearBtn, '|', 'alignLeft', 'alignCenter', 'alignRight', 'justify', '|',
         ui.tbDrop('', 'lineSpacing', lineSpacingMenu, 'Line Spacing'), '|', 'numbering', 'bullets', 'decIndent', 'incIndent', '|', ui.tbSplit('borderBtn', bordersDD), ui.tbSplit('highlightBtn', highlightDD), ui.tbSplit('fontColorBtn', fontColorDD)]),
       tables: ui.toolbar('tables', 'Tables and Borders', ['drawTable', 'eraser', '|', ui.tbDrop('', 'dashStyle', (r) => A.borderStyleMenu(r), 'Line Style'), ui.tbDrop('', 'lineStyle', (r) => A.borderWeightMenu(r), 'Line Weight'), ui.tbDrop('', 'lineColor', (r, b) => ui.colorMenu(b, { mode: 'plain', automatic: true }, (v) => { A.borderPen.color = v && v.auto ? 'auto' : typeof v === 'string' ? v.replace('#', '') : A.borderPen.color; }), 'Border Color'),
         ui.tbSplit('borderBtn', bordersDD), ui.tbDrop('', 'fillColor', (r, b) => ui.colorMenu(b, { mode: 'fill' }, (v) => { if (L.tables) L.tables.shade(v && v.none ? null : typeof v === 'string' ? v.replace('#', '') : null); }), 'Shading Color'), '|',
@@ -1282,7 +1285,7 @@
       clear.setAttribute('aria-label', L.t('Clear Formatting'));
       return [
         row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbButton('highlightBtn'), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b))),
-        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('highlightBtn', (r, b) => A.menus.highlight(r, b)), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b)), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r)), h('span', { class: 'tb-sep' }), A.parts.style({ width: 128, id: 'mb-style' })),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbButton('strike'), ui.tbButton('subscript'), ui.tbButton('superscript'), ui.tbSplit('highlightBtn', (r, b) => A.menus.highlight(r, b)), ui.tbSplit('fontColorBtn', (r, b) => A.menus.fontColor(r, b)), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r)), h('span', { class: 'tb-sep' }), A.parts.style({ width: 128, id: 'mb-style' })),
       ];
     });
     const selectKey = (e) => (e.key === 'a' && (e.ctrlKey || e.metaKey) && !e.altKey) || (e.shiftKey && /^(Arrow(?:Left|Right|Up|Down)|Home|End|Page(?:Up|Down))$/.test(e.key));

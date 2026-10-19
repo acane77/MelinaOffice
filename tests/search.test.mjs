@@ -28,7 +28,7 @@ const FIRST = {
 };
 
 /* first results with no menu, toolbar or ribbon place (reached through a dialog) */
-const NOWHERE = { quire: ['bars:strikethrough'], ledger: [], lectern: [] };
+const NOWHERE = { quire: [], ledger: [], lectern: [] };
 
 const page = (cases) => `
 const out = {};

@@ -561,7 +561,7 @@
     const fontSplit = ui.tbSplit('fontColorApply', A.menus.fontColor);
     const borderSplit = ui.tbSplit('bordersApply', A.menus.borders);
     TB.standard = ui.toolbar('standard', 'Standard', ['newBook', 'open', 'save', '|', 'printQuick', 'printPreview', 'spelling', '|', 'cut', 'copy', 'paste', 'formatPainter', '|', 'undo', 'redo', '|', 'hyperlink', sumSplit, 'sortAsc', 'sortDesc', '|', 'chartWizard', ui.tbButton('tb_drawing', { icon: 'drawing' }), zoomCombo, '|', 'help']);
-    TB.formatting = ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, '|', 'bold', 'italic', 'underline', '|', 'alignLeft', 'alignCenter', 'alignRight', 'mergeCenter', '|', 'currencyStyle', 'percentStyle', 'commaStyle', 'incDecimal', 'decDecimal', '|', 'decIndent', 'incIndent', '|', borderSplit, fillSplit, fontSplit]);
+    TB.formatting = ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, '|', 'bold', 'italic', 'underline', 'strike', '|', 'alignLeft', 'alignCenter', 'alignRight', 'mergeCenter', '|', 'currencyStyle', 'percentStyle', 'commaStyle', 'incDecimal', 'decDecimal', '|', 'decIndent', 'incIndent', '|', borderSplit, fillSplit, fontSplit]);
     TB.borders = ui.toolbar('borders', 'Borders', [ui.tbSplit('bordersApply', A.menus.borders), ui.tbButton('borderNone', { icon: 'bordersNone' }), ui.tbButton('borderOutline', { icon: 'bordersOut' })]);
     TB.auditing = ui.toolbar('auditing', 'Formula Auditing', ['traceError', '|', 'tracePrecedents', 'traceDependents', 'removeArrows', '|', 'insertComment', 'validation', 'circleInvalid', 'clearCircles', '|', 'watchWindow', 'evaluateFormula']);
     TB.reviewing = ui.toolbar('reviewing', 'Reviewing', ['insertComment', 'showHideComment', 'deleteComment', '|', 'showComments']);

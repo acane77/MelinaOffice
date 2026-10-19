@@ -196,7 +196,7 @@
     const fontCombo = A.parts.font(), sizeCombo = A.parts.size(), zoomCombo = A.parts.zoom();
     A.toolbarsEl = {
       standard: ui.toolbar('standard', 'Standard', ['new', 'open', 'save', '|', 'print', 'printPreview', 'spelling', '|', 'cut', 'copy', 'paste', 'painter', '|', 'undo', 'redo', '|', 'insertChart', 'insertTable', ui.tbButton('tb_tables', { icon: 'tablesBorders' }), 'hyperlink', '|', 'expandAll', 'showFormatting', 'showGrid', ui.tbSplit('viewGray', (r) => ui.openMenu(['viewColor', 'viewGray', 'viewBW'], r)), zoomCombo, 'help']),
-      formatting: ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'shadowText', '|', 'alignLeft', 'alignCenter', 'alignRight', '|', 'numbering', 'bullets', '|', 'growFont', 'shrinkFont', '|', 'promote', 'demote', '|', ui.tbSplit('fontColor', colorDD('font')), '|', ui.tbButton('slideDesign', { label: 'Design' }), ui.tbButton('newSlide', { label: 'New Slide' })]),
+      formatting: ui.toolbar('formatting', 'Formatting', [fontCombo, sizeCombo, 'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'changeCase', 'shadowText', '|', 'alignLeft', 'alignCenter', 'alignRight', '|', 'numbering', 'bullets', '|', 'growFont', 'shrinkFont', '|', 'promote', 'demote', '|', ui.tbSplit('fontColor', colorDD('font')), '|', ui.tbButton('slideDesign', { label: 'Design' }), ui.tbButton('newSlide', { label: 'New Slide' })]),
       outlining: ui.toolbar('outlining', 'Outlining', ['promote', 'demote', 'moveParaUp', 'moveParaDown', '|', 'summarySlide', 'showFormatting']),
       picture: ui.toolbar('picture', 'Picture', ['insertPicture', ui.tbDrop('', 'colorPic', A.menus.picColor, 'Color'), 'picMoreContrast', 'picLessContrast', 'picMoreBright', 'picLessBright', '|', 'picCrop', 'rotateLeft', ui.tbDrop('', 'lineStyle', lineStyleMenu, 'Line Style'), '|', ui.tbButton('formatObject', { icon: 'formatPicture' }), 'picTransparent', 'picReset']),
       tables: ui.toolbar('tables', 'Tables and Borders', [ui.tbDrop('', 'dashStyle', (r) => ui.openMenu([{ custom: (close) => listPanel(L.dlg.DASHES.map(([k, n]) => ({ html: lineSVG(2, (L.render.dashArray(k, 2) || '').replace(/,/g, ' ')), label: n, run: () => { A.tblBorder.dash = k; } })), close) }], r), 'Border Style'),
@@ -1198,8 +1198,8 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
     const st = L.fmt.state();
     if (!st) return;
     const on = !st[key];
-    const label = { b: L.N('Bold'), i: L.N('Italic'), u: L.N('Underline'), shd: L.N('Shadow') }[key];
-    L.fmt.run((r) => { const n = Object.assign({}, r); if (key === 'u') { if (on) n.u = 'sng'; else n.u = 'none'; } else n[key] = on ? true : false; return n; }, label, (wa) => { if (key === 'b' || key === 'i') wa[key] = on; if (key === 'shd') wa.shadow = on ? { c: '#000000', a: 0.4, dx: 3, dy: 3, blur: 0 } : null; });
+    const label = { b: L.N('Bold'), i: L.N('Italic'), u: L.N('Underline'), shd: L.N('Shadow'), strike: L.N('Strikethrough') }[key];
+    L.fmt.run((r) => { const n = Object.assign({}, r); if (key === 'u') { if (on) n.u = 'sng'; else n.u = 'none'; } else if (key === 'strike') n.strike = on ? 'sngStrike' : 'noStrike'; else n[key] = on ? true : false; return n; }, label, (wa) => { if (key === 'b' || key === 'i') wa[key] = on; if (key === 'shd') wa.shadow = on ? { c: '#000000', a: 0.4, dx: 3, dy: 3, blur: 0 } : null; });
   };
   A.toggleBaseline = function (v) {
     const st = L.fmt.state();
@@ -2152,7 +2152,7 @@ addEventListener('resize',fit);fit();show(0);<\/script></body></html>`], { type:
       const color = (r, b) => A.menus.color('font')(r, b);
       return [
         row(A.parts.font({ width: 132, id: 'mb-font' }), A.parts.size({ width: 48, id: 'mb-size' }), ui.tbButton('growFont'), ui.tbButton('shrinkFont'), clear, ui.tbSplit('fontColor', color)),
-        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbSplit('fontColor', color), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r))),
+        row(ui.tbButton('bold'), ui.tbButton('italic'), ui.tbButton('underline'), ui.tbButton('strike'), ui.tbButton('subscript'), ui.tbButton('superscript'), ui.tbSplit('fontColor', color), ui.tbSplit('bullets', (r) => ui.openMenu(['bulletsDlg'], r)), ui.tbSplit('numbering', (r) => ui.openMenu(['bulletsDlg'], r))),
       ];
     });
     const range = () => {
