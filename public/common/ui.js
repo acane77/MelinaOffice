@@ -731,9 +731,18 @@
       h('div', { class: 'brand-fade brand-fade-top' }),
       h('div', { class: 'brand-fade brand-fade-bottom' }),
       credits);
+    /* Not translated, half-width colons. public/version.json is written by tools/package_vsix.sh. */
+    const versionLine = h('p', { class: 'brand-version', translate: 'no', text: ['Version', ': ', L.VERSION || 'dev'].join('') });
+    try {
+      const url = new URL('../version.json', document.baseURI);
+      fetch(url.href).then((r) => (r.ok ? r.json() : null)).then((info) => {
+        if (!info || !versionLine.isConnected || info.version == null) return;
+        versionLine.textContent = 'Version: v' + info.version + ' (' + (info.commit_id || '') + '), Build Date: ' + (info.build_time || '');
+      }).catch(() => {});
+    } catch (e) { /* opened without a base URL */ }
     const body = h('div', { class: 'brand-about' },
       h('p', { class: 'brand-name', translate: 'no', text: o.name }),
-      h('p', { class: 'brand-version', text: t('Version {0}', L.VERSION) }),
+      versionLine,
       view);
     let roll = null;
     return ui.dialog({

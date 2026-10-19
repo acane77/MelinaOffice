@@ -28,10 +28,10 @@ ln -sfn "$PWD" ~/.local/share/code-server/extensions/$ext
 
 On Windows the same directory is `%APPDATA%\code-server\extensions`. Restart code-server. If it was started with `--extensions-dir`, link into that directory instead. The folder name is `publisher.name-version` from `package.json`. The version lives only there.
 
-Or pack a VSIX and install that (the archive contains `package.json`, `vscode/` and `public/`). The script reads the version from `package.json` and writes `tmp/vibeoffice-v<version>-<commit>.vsix`, where `<commit>` is the short id of HEAD, then prints that path:
+Or pack a VSIX and install that (the archive contains `package.json`, `vscode/` and `public/`). `tools/package_vsix.sh` writes `public/version.json` (version from `package.json`, the short commit id, the current branch, and today's date) and then packs `tmp/vibeoffice-v<version>-<commit>.vsix`. Help ▸ About reads that file and shows `Version: v<version> (<commit>), Build Date: <date>`, with half-width colons and no translation.
 
 ```
-python3 tools/vscode_vsix.py
+tools/package_vsix.sh
 code-server --install-extension <the path the script prints>
 ```
 
