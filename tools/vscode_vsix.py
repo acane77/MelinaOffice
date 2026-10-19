@@ -68,6 +68,7 @@ def main():
   <Default Extension="png" ContentType="image/png"/>
   <Default Extension="jpg" ContentType="image/jpeg"/>
   <Default Extension="woff2" ContentType="font/woff2"/>
+  <Default Extension="ttf" ContentType="font/ttf"/>
   <Default Extension="txt" ContentType="text/plain"/>
   <Default Extension="md" ContentType="text/markdown"/>
   <Default Extension="vsixmanifest" ContentType="text/xml"/>

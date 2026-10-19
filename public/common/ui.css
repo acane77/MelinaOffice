@@ -298,7 +298,7 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .dlg.brand .dlg-foot { background-color: var(--brand-bg); }
 .brand-splash { height: 200px; }
 .brand-about { height: 400px; display: flex; flex-direction: column; }
-.brand-name { margin: 0; color: var(--brand-ink); font-size: 40pt; font-weight: normal; line-height: 150px; text-align: center; }
+.brand-name { margin: 0; color: var(--brand-ink); font-family: "Google Sans Flex", sans-serif; font-size: 40pt; font-weight: 400; font-synthesis: none; line-height: 150px; text-align: center; }
 .brand-version { margin: 0; color: var(--brand-credits); font-size: 9px; line-height: 14px; text-align: center; }
 .brand-wait { margin: 0; color: var(--brand-ink); font-size: 9pt; line-height: 50px; text-align: center; }
 .brand-credits-view { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
