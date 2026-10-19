@@ -76,6 +76,9 @@
   --ruler-mark-bg: #dfe8f7; --ruler-mark-line: #6a82ad;
   --ruler-tick: #444; --ruler-ink: #222; --ruler-deftab: #777; --ruler-row: #7f95bd; --indent-fill: #e8eef9; --indent-line: #3b5a8c;
   --ruler-off-2: #c5d6f3; --ruler-tick-2: #4b5d7e; --ruler-ink-2: #334;
+  /* opening and about content: each app's colour, the same in every look */
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 /* Paper (and Paper 2016, the same with the ribbon): VibeOffice's own light look — warm paper chrome, one ink-teal accent, soft rounded shapes.
@@ -142,6 +145,8 @@
   --ruler-mark-bg: var(--p-paper-2); --ruler-mark-line: var(--p-line-strong);
   --ruler-tick: #8C857A; --ruler-ink: #4A463F; --ruler-deftab: #B0A99D; --ruler-row: var(--p-line-strong); --indent-fill: #fff; --indent-line: #7A7368;
   --ruler-off-2: var(--p-paper-2); --ruler-tick-2: #8C857A; --ruler-ink-2: #4A463F;
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 /* Paper's shapes */
 :is([data-look="paper"], [data-look="paper2016"]) .menubar::before, :is([data-look="paper"], [data-look="paper2016"]) .tb-grip { display: none; }
@@ -314,6 +319,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -616,6 +623,8 @@
   --xp-blt: 18px;
   --xp-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --xp-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
+  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
 }
 
 [data-look="xp"] .menurow { height: 20px; min-height: 20px; background: #e8e6d6; }

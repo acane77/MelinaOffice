@@ -290,6 +290,25 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .about p { margin: 6px 0; line-height: 1.4; }
 .about .about-marks { color: var(--ink-5); font-size: 11px; line-height: 1.35; }
 .about .about-oss { color: var(--pane-link); }
+/* opening and about: colour of the content only. The window frame is unchanged. */
+.dlg.brand[data-brand="quire"] { --brand-bg: var(--brand-quire); }
+.dlg.brand[data-brand="ledger"] { --brand-bg: var(--brand-ledger); }
+.dlg.brand[data-brand="lectern"] { --brand-bg: var(--brand-lectern); }
+.dlg.brand .dlg-body,
+.dlg.brand .dlg-foot { background-color: var(--brand-bg); }
+.brand-splash { height: 200px; }
+.brand-about { height: 400px; display: flex; flex-direction: column; }
+.brand-name { margin: 0; color: var(--brand-ink); font-size: 40pt; font-weight: normal; line-height: 150px; text-align: center; }
+.brand-version { margin: 0; color: var(--brand-credits); font-size: 9px; line-height: 14px; text-align: center; }
+.brand-wait { margin: 0; color: var(--brand-ink); font-size: 9pt; line-height: 50px; text-align: center; }
+.brand-credits-view { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.brand-credits-view.is-done { overflow: auto; }
+.brand-fade { position: absolute; left: 0; right: 0; height: 48px; z-index: 1; pointer-events: none; }
+.brand-fade-top { top: 0; background: linear-gradient(to bottom, var(--brand-bg), transparent); }
+.brand-fade-bottom { bottom: 0; background: linear-gradient(to top, var(--brand-bg), transparent); }
+.brand-marquee { margin: 0; padding: 0 28px 40px; color: var(--brand-credits); font-size: 9px; line-height: 1.45; text-align: center; }
+.brand-marquee p { margin: 0 0 12px; }
+.dlg.brand .brand-marquee a { color: var(--brand-credits); text-decoration: underline; }
 .preview-box { border: 1px solid var(--field-border); background: var(--surface); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .font-preview { height: 60px; font-size: 22px; padding: 0 8px; white-space: nowrap; }
 .prev-cap { color: var(--ink-5); text-align: center; font-size: 10px; margin-top: 3px; }

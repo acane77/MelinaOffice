@@ -723,10 +723,13 @@
   };
   if (inVs) VO.openingDialog = () => {
     if (openingDlg || openingCancelled || !window.L || !L.ui || !L.ui.dialog || !L.h) return;
-    const body = L.h('div', { text: 'Opening the file. Please wait...' });
+    const body = L.h('div', { class: 'brand-splash' },
+      L.h('p', { class: 'brand-name', translate: 'no', text: L.APP || '' }),
+      L.h('p', { class: 'brand-wait', text: 'Opening the file. Please wait...' }));
     openingDlg = L.ui.dialog({
       title: VO.t('Starting {0}', L.APP || ''),
-      width: 440,
+      width: 500,
+      brand: true,
       canClose: false,
       body,
       focus: body,

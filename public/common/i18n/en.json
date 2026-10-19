@@ -32158,11 +32158,6 @@
    "lectern/js/panes.js:140"
   ]
  },
- "{0} Web Edition": {
-  "where": [
-   "common/ui.js:681"
-  ]
- },
  "{0} What would you like to do?": {
   "where": [
    "common/scout/assistant.js:120"

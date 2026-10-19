@@ -533,9 +533,10 @@
     layoutWindows();
   }
   /**
-   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose}
+   * opts: {title, body, width, buttons:[{label, primary, cancel, onClick(close, button)→false to keep open}], onClose, help, modeless, canClose, brand}
    * a new window opens in front of the ones already open and leaves them where they are.
    * canClose false hides the title's close button, and Escape does not close the window (it does not press Cancel either).
+   * brand sets data-brand to the app, so the body and foot use that app's --brand-bg. The frame is not restyled.
    */
   ui.dialog = function (opts) {
     ui.closeMenus();
@@ -545,7 +546,7 @@
     const s0 = window.getSelection();
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
     const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') });
-    const dlg = h('div', { class: 'dlg', role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title });
+    const dlg = h('div', { class: 'dlg' + (opts.brand ? ' brand' : ''), role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title, dataset: opts.brand && L.APP_ID ? { brand: L.APP_ID } : null });
     dlg.style.width = Math.min(opts.width || 380, window.innerWidth - 16) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
@@ -672,21 +673,75 @@
     const d = ui.dialog({ title: o.title || L.APP, body, width: o.width || 380, buttons: labels.map((l, i) => ({ label: l, primary: i === (o.def || 0), cancel: /cancel|^no$/i.test(plainAmp(l)) })) });
     return d.done;
   };
-  /** Help ▸ About, the same in every app: icon, name and version, the app's own paragraphs, the link to the open
-   *  source licenses, the suite's license and font notes (as in the Start Center's About), then the trademark note
-   *  naming the Office program it follows (o: { name, text: [paragraphs], office }) */
+  /** The about copyright rolls up once, from below the area until it has left the top. Reduced motion shows it in place. */
+  function rollCredits(view, track) {
+    let anim = null;
+    let done = false;
+    const stopAnim = () => { if (anim) { anim.cancel(); anim = null; } view.removeEventListener('wheel', onWheel); };
+    const hold = (ty) => {
+      if (done) return;
+      done = true;
+      stopAnim();
+      track.style.transform = 'translateY(' + ty + 'px)';
+    };
+    const onWheel = (e) => {
+      let ty = 0;
+      try {
+        const m = getComputedStyle(track).transform;
+        if (m && m !== 'none') ty = new DOMMatrix(m).m42;
+      } catch (err) { /* stop where it is */ }
+      if (done) return;
+      done = true;
+      stopAnim();
+      track.style.transform = '';
+      view.classList.add('is-done');
+      view.scrollTop = Math.max(0, Math.round(-ty + (e.deltaY || 0)));
+    };
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const viewH = view.clientHeight;
+    const trackH = track.scrollHeight;
+    if (reduce || !viewH || !trackH || typeof track.animate !== 'function') {
+      done = true;
+      view.classList.add('is-done');
+      return { stop() {} };
+    }
+    const start = viewH;
+    const end = -trackH;
+    const duration = Math.max(6000, Math.round((start - end) / 40 * 1000));
+    anim = track.animate(
+      [{ transform: 'translateY(' + start + 'px)' }, { transform: 'translateY(' + end + 'px)' }],
+      { duration, easing: 'linear', fill: 'forwards' });
+    anim.onfinish = () => hold(end);
+    view.addEventListener('wheel', onWheel, { passive: true });
+    return { stop() { if (!done) hold(end); } };
+  }
+  /** Help ▸ About, the same in every app. The frame stays. Inside: the name, then the version, the app's
+   *  paragraphs, the open-source licenses, the license and font notes, and the trademark note, rolling up once.
+   *  The button is OK. o: { name, text: [paragraphs], office } */
   ui.about = function (o) {
-    const body = h('div', { class: 'col about' },
-      h('div', { class: 'about-head' }, h('span', { html: L.icons.app ? L.icons.app(48) : '' }),
-        h('div', null, h('div', { class: 'about-name', text: t('{0} Web Edition', o.name) }), h('div', { text: t('Version {0}', L.VERSION) }))),
-      ...o.text.map((t) => h('p', { text: t })),
+    const credits = h('div', { class: 'brand-marquee' },
+      ...o.text.map((para) => h('p', { text: para })),
       h('p', null, ...t('Made possible by open source software: {0}.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: root.VO ? root.VO.LICENSES : '../oss-licenses.html', target: '_blank', rel: 'noopener',
         class: 'about-oss', text: 'Open source licenses', onclick: (e) => { if (root.VO) { e.preventDefault(); root.VO.showLicenses(); } } }), part] : [part]))),
       h('p', { text: 'Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.' }),
       h('p', null, ...t('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: 'https://codex-pets.net/#/pets/nikki-bloom-poetry', target: '_blank', rel: 'noopener', class: 'about-oss', text: 'a sprite published at codex-pets.net' }), part] : [part]))),
-      h('p', { class: 'about-marks', text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.' }),
-      h('p', { class: 'about-marks', text: t('Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.', o.office, o.name) }));
-    return ui.dialog({ title: t('About {0}', o.name), width: 420, body, buttons: [{ label: 'OK', primary: true }] });
+      h('p', { text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.' }),
+      h('p', { text: t('Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.', o.office, o.name) }));
+    const view = h('div', { class: 'brand-credits-view' },
+      h('div', { class: 'brand-fade brand-fade-top' }),
+      h('div', { class: 'brand-fade brand-fade-bottom' }),
+      credits);
+    const body = h('div', { class: 'brand-about' },
+      h('p', { class: 'brand-name', translate: 'no', text: o.name }),
+      h('p', { class: 'brand-version', text: t('Version {0}', L.VERSION) }),
+      view);
+    let roll = null;
+    return ui.dialog({
+      title: t('About {0}', o.name), width: 500, brand: true, body,
+      buttons: [{ label: 'OK', primary: true }],
+      onOpen() { requestAnimationFrame(() => { if (view.isConnected) roll = rollCredits(view, credits); }); },
+      onClose() { if (roll) roll.stop(); },
+    });
   };
   ui.prompt = function (label, value, title) {
     const inp = h('input', { type: 'text', id: 'prompt-in', value: value || '', style: 'width:100%' });

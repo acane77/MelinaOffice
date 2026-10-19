@@ -63,6 +63,16 @@ test('the shared chrome has no colours of its own', () => {
   }
 });
 
+test('opening and about content uses each app colour and does not restyle the frame', () => {
+  assert.match(looks, /--brand-quire:\s*#2D5999/);
+  assert.match(looks, /--brand-ledger:\s*#137E43/);
+  assert.match(looks, /--brand-lectern:\s*#B8492B/);
+  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 4);
+  const ui = read('common/ui.css');
+  assert.match(ui, /\.dlg\.brand \.dlg-body,\n\.dlg\.brand \.dlg-foot \{ background-color: var\(--brand-bg\); \}/);
+  assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
+});
+
 test('Windows 7 is the stored default, and its default button keeps the blue highlight', () => {
   const suite = read('common/suite.js');
   assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'win7'/);
