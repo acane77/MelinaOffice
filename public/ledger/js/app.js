@@ -594,11 +594,17 @@
     if (k === 'list') return !!A.tableAt();
     return !!o && (k === 'chart' ? o.kind === 'chart' : k === 'picture' ? o.kind === 'image' : k === 'shape' ? o.kind === 'shape' : false);
   };
-  A.toggleToolbar = (id, force) => { const cur = A.toolbarVisible(id); A.opts.toolbars[id] = force != null ? force : !cur; A.updateToolbars(); A.saveOpts(); };
+  A.toggleToolbar = (id, force) => {
+    const cur = A.toolbarVisible(id);
+    A.opts.toolbars[id] = force != null ? force : !cur;
+    if (cur && !A.toolbarVisible(id) && ui.tbDock) ui.tbDock.reset(id);
+    A.updateToolbars(); A.saveOpts();
+  };
   A.updateToolbars = function () {
     for (const id in TB) { const v = A.toolbarVisible(id); TB[id].hidden = !v; }
     const r2 = TB.borders && TB.borders.parentElement;
     if (r2) r2.hidden = !Array.from(r2.children).some((x) => !x.hidden);
+    if (ui.tbDock) ui.tbDock.sync();
     ui.refresh();
   };
   const curStyle = () => { const s = G().sel(); return LY.styleOf(sh(), s.r, s.c, sh().get(s.r, s.c)); };

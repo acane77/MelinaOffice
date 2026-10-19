@@ -221,6 +221,33 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .floatbar .fb-body .toolbar { border: 0; background: none; height: auto; flex-wrap: wrap; }
 .floatbar .fb-body .tb-grip { display: none; }
 
+/* toolbars that dock and float (ui.tbDock): Classic, Windows 7, Windows XP. A float is the ordinary modeless window. */
+html.tb-dock .tb-dockable > .tb-grip { cursor: move; touch-action: none; }
+html.tb-dock .tb-dock-side { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 2px; padding: 2px; min-height: 0; max-height: 100%; overflow: auto; background: linear-gradient(var(--dock-a), var(--dock-b)); }
+html.tb-dock .tb-dock-left { border-right: 1px solid var(--chrome-line); }
+html.tb-dock .tb-dock-right { border-left: 1px solid var(--chrome-line); }
+html.tb-dock .tb-dock-side .tb-band { display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-height: 0; }
+html.tb-dock .tb-dock-side .toolbar { flex-direction: row; flex-wrap: wrap; align-content: flex-start; align-items: center; width: 164px; height: auto; max-height: 100%; overflow: auto; }
+html.tb-dock .tb-dock-side .tb-grip { width: 100%; height: 8px; margin: 1px 0 2px; }
+html.tb-dock .tb-dock-side .tb-sep { width: 22px; height: 2px; margin: 2px 3px; border-left: 0; border-right: 0; border-top: 1px solid var(--sep-dark); border-bottom: 1px solid var(--sep-light); }
+html.tb-dock .tb-dock-side .combo { width: 152px !important; }
+html.tb-dock .tb-dock-side .tb-btn { max-width: 100%; }
+html.tb-dock .tb-dock-side .tb-lbl { overflow: hidden; text-overflow: ellipsis; }
+html.tb-dock #drawrow:not([hidden]) { display: flex; flex-direction: column; overflow: visible; }
+.tb-ghost { position: fixed; z-index: 8000; pointer-events: none; box-sizing: border-box; border: 1px dotted var(--ink); outline: 1px dotted var(--surface); background: transparent; }
+.tb-ghost.dock { border: 1px solid var(--hot-border); outline: 1px solid var(--surface); background: var(--drop-veil); }
+.app.fullscreen .tb-dock-side { display: none !important; }
+@media print { .dlg-overlay.toolbox, .tb-ghost, .tb-dock-side { display: none !important; } }
+/* a toolbox is the same window. Its close button is square, and the title's padding is the margin above and below it. */
+html:not([data-look="win7"]):not([data-look="xp"]) .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) { width: 20px; min-width: 20px; height: 20px; min-height: 20px; margin-top: 0; margin-bottom: 0; align-self: center; }
+.dlg.toolbox > .dlg-foot { padding: 0; gap: 0; min-height: 0; }
+.dlg.toolbox .dlg-body {
+    padding: 0;
+}
+.dlg.toolbox .dlg-title {
+    height: 17px;
+}
+
 /* ---------- dialogs ---------- */
 /* a dialog's overlay only hosts the window: it does not paint over the windows already open.
    the veil, when a modal dialog is up, is a separate layer behind every window */

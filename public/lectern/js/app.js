@@ -258,7 +258,12 @@
     if (k === 'shape') { const p = E.primary && E.primary(); return !!(p && !p.wa && ['shape', 'line', 'group', 'text'].includes(p.type) && !(L.diagram && L.diagram.of(p))); }
     return ctxToolbar(k === 'table' ? 'tables' : k);
   };
-  A.toggleToolbar = (id) => { const v = A.opts.toolbars[id]; A.opts.toolbars[id] = v === true ? (['picture', 'tables', 'wordart', 'diagram'].includes(id) ? false : false) : true; A.saveOpts(); A.updateToolbars(); };
+  A.toggleToolbar = (id) => {
+    const hiding = A.opts.toolbars[id] === true;
+    A.opts.toolbars[id] = hiding ? false : true;
+    if (hiding && ui.tbDock) ui.tbDock.reset(id);
+    A.saveOpts(); A.updateToolbars();
+  };
   A.updateToolbars = function () {
     if (!A.toolbarsEl) return;
     if (E.holdLayout && E.holdLayout(A.updateToolbars)) return;   /* not under a press on the slide (editor.js) */
@@ -266,8 +271,10 @@
     A.toolbarsEl.outlining.hidden = !(A.opts.toolbars.outlining === true || (L.panes.left.tab === 'outline' && A.view === 'normal' && A.opts.toolbars.outlining !== false && false));
     A.toolbarsEl.master.hidden = A.view !== 'master';
     A.toolbarsEl.sorter.hidden = A.view !== 'sorter';
+    if (A.view === 'sorter') A.toolbarsEl.drawing.hidden = true;
     A.tbRows.forEach((r) => { r.hidden = Array.from(r.children).every((c) => c.hidden); });
-    L.$('#drawrow').hidden = !A.tbShown('drawing') || A.view === 'sorter' || A.view === 'preview';
+    L.$('#drawrow').hidden = !!A.toolbarsEl.drawing.hidden;
+    if (ui.tbDock) ui.tbDock.sync();
     E.layout();
   };
 

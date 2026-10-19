@@ -390,6 +390,33 @@
 [data-look="win7"] .dlg-title > .dlg-x:last-of-type::after { border-bottom-right-radius: 4px; border-right: 1px solid #fffe; margin-left: 0; }
 [data-look="win7"] .dlg-title > .dlg-x:not(.dlg-help)::after { width: 47px; }
 [data-look="win7"] .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after { width: 48px; margin-left: -2px; }
+/* toolbox: the same caption button, square and inset in the title, so all four corners are rounded (a normal caption button is flush with the top and only rounds the bottom) */
+[data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help) {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin-top: 0;
+    margin-bottom: 0;
+    align-self: center;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    scale: 75%;
+    margin-right: -2px;
+}
+[data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help)::after, [data-look="win7"] .dlg.toolbox > .dlg-title > .dlg-x:not(.dlg-help):first-of-type::after {
+    width: 21px;
+    height: 21px;
+    margin-top: -2px;
+    margin-left: -2px;
+    border-top: 1px solid #fffe;
+    border-left: 1px solid #fffe;
+    border-right: 1px solid #fffe;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
 [data-look="win7"] .dlg-body, [data-look="win7"] .dlg-foot { position: relative; z-index: 1; margin-left: 6px; margin-right: 6px; background: #f0f0f0; border-left: 1px solid #000000b3; border-right: 1px solid #000000b3; }
 [data-look="win7"] .dlg-body { margin-top: 0; border-top: 1px solid #000000b3; box-shadow: 0 -1px 0 #fff9; }
 [data-look="win7"] .dlg-foot { margin-bottom: 4px; border-bottom: 1px solid #000000b3; box-shadow: 0 1px 0 #fff9; }
@@ -653,7 +680,21 @@
 [data-look="xp"] .dlg.inactive { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive::after { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive .dlg-title { background: var(--xp-title-off); color: #eee; }
-[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) { width: 21px; min-width: 21px; height: 21px; min-height: 21px; margin: 0 0 0 2px; padding: 0; border: 0; border-radius: 0; color: transparent; background: var(--xp-close) center / 21px 21px no-repeat; box-shadow: none; }
+[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    min-height: 21px;
+    margin: 0 0 0 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: transparent;
+    background: var(--xp-close) center / 21px 21px no-repeat;
+    box-shadow: none;
+    scale: 0.75;
+    margin-right: -3px;
+}
 [data-look="xp"] .dlg-x:not(.dlg-help) svg { display: none; }
 [data-look="xp"] .dlg-x:not(.dlg-help):hover { background: var(--xp-close-hot) center / 21px 21px no-repeat; border-color: transparent; }
 [data-look="xp"] .dlg-x:not(.dlg-help):active { background: var(--xp-close-down) center / 21px 21px no-repeat; }

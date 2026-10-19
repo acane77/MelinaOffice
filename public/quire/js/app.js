@@ -645,13 +645,21 @@
     if (k === 'shape') return !!(it && (it.t === 'shape' || it.t === 'group' || it.t === 'text' || it.tb || it.wordart));
     return ctxToolbar(k);
   };
-  A.toggleToolbar = (id) => { const v = A.opts.toolbars[id]; A.opts.toolbars[id] = A.tbShown(id) ? (v === 'auto' || v === true ? false : false) : true; if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart'].includes(id) && v === true) A.opts.toolbars[id] = 'auto'; A.saveOpts(); A.updateToolbars(); };
+  A.toggleToolbar = (id) => {
+    const v = A.opts.toolbars[id], was = A.tbShown(id);
+    A.opts.toolbars[id] = was ? false : true;
+    if (A.opts.toolbars[id] === false && ['reviewing', 'picture', 'outlining', 'headerFooter', 'wordart'].includes(id) && v === true) A.opts.toolbars[id] = 'auto';
+    if (was && ui.tbDock) ui.tbDock.reset(id);
+    A.saveOpts(); A.updateToolbars();
+  };
   A.updateToolbars = function () {
     if (!A.toolbarsEl) return;
     for (const id of Object.keys(A.toolbarsEl)) if (id !== 'drawing') A.toolbarsEl[id].hidden = !A.tbShown(id) || A.view === 'preview';
     if (A.view === 'reading') for (const id of Object.keys(A.toolbarsEl)) if (id !== 'drawing') A.toolbarsEl[id].hidden = id !== 'standard';
+    A.toolbarsEl.drawing.hidden = !A.tbShown('drawing') || A.view === 'preview' || A.view === 'reading' || A.view === 'outline';
     A.tbRows.forEach((r) => { r.hidden = Array.from(r.children).every((c) => c.hidden); });
-    L.$('#drawrow').hidden = !A.tbShown('drawing') || A.view === 'preview' || A.view === 'reading' || A.view === 'outline';
+    L.$('#drawrow').hidden = A.toolbarsEl.drawing.hidden;
+    if (ui.tbDock) ui.tbDock.sync();
     ui.refresh();
   };
 
