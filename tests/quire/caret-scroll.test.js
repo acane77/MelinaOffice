@@ -20,9 +20,9 @@ test('crossing the bottom tenth parks the line on that line', () => {
   assert.equal(L.ed.caretScroll(view, { top: 1400, bottom: 1420, left: 40, right: 42 }).dy, 420);
 });
 
-test('a line above the window comes back to the top edge only', () => {
-  assert.equal(L.ed.caretScroll(view, { top: 40, bottom: 60, left: 40, right: 42 }).dy, -60);
-  assert.equal(L.ed.caretScroll(view, { top: 90, bottom: 110, left: 40, right: 42 }).dy, -10);
+test('a line above the window comes back just inside the top edge', () => {
+  assert.equal(L.ed.caretScroll(view, { top: 40, bottom: 60, left: 40, right: 42 }).dy, -62);
+  assert.equal(L.ed.caretScroll(view, { top: 90, bottom: 110, left: 40, right: 42 }).dy, -12);
 });
 
 test('horizontal follow is the overflow plus a small margin', () => {
