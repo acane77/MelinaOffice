@@ -33,8 +33,8 @@ This fork implements a vscode/code-server plugin, it works in VSCode!
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/quire/?template=flyer"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
-      <b><a href="https://acane77.github.io/vibeoffice/quire/">VS Code Plugin</a></b><br>
+      <a href="https://github.com/acane77/VibeOffice-vscode-plugin/releases"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
+      <b><a href="https://github.com/acane77/VibeOffice-vscode-plugin/releases">VS Code Plugin</a></b><br>
     </td>
     <td align="center" width="33%">
       &nbsp;
