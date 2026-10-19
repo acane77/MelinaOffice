@@ -421,7 +421,7 @@
 [data-look="win7"] .btn:active:not(:disabled), [data-look="win7"] dialog form button:active, [data-look="win7"] dialog .btn:active { border-color: #6d91ab; background: var(--w7-btn-down); box-shadow: inset 1px 1px 0 #0003, inset -1px 1px 0 #0001; }
 [data-look="win7"] .btn:disabled { color: #999; background: #f2f2f1; border-color: #cdcac3; box-shadow: none; }
 /* default button: the blue edge and the blue lower half stay on while another control has the focus */
-[data-look="win7"] .btn.primary:not(:disabled), [data-look="win7"] dialog form button { border-color: var(--w7-btn-default-line); background: var(--w7-btn-default); box-shadow: inset 0 0 0 1px #fffc; }
+[data-look="win7"] .btn.primary:not(:disabled), [data-look="win7"] dialog form button { border-color: var(--w7-btn-default-line); background: var(--w7-btn-default); box-shadow: inset 0 0 1.3px 1px rgba(52, 222, 255, .867), inset 0 0 0 1px #fffc; }
 [data-look="win7"] .btn.primary:hover:not(:disabled), [data-look="win7"] dialog form button:hover { border-color: #3c7fb1; background: var(--w7-btn-hot); }
 [data-look="win7"] .btn.primary:active:not(:disabled), [data-look="win7"] dialog form button:active { border-color: #6d91ab; background: var(--w7-btn-down); }
 [data-look="win7"] .btn.primary:focus:not(:disabled), [data-look="win7"] dialog form button:focus { animation: win7-pulse 1s ease-in-out infinite alternate; outline: 1px dotted #000; outline-offset: -4px; }
@@ -693,9 +693,9 @@
 [data-look="xp"] .spin-b:hover { box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a; }
 [data-look="xp"] .spin-b:active { background: var(--xp-btn-down); box-shadow: none; }
 
-[data-look="xp"] .tab { background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 249, 1) 26%, rgba(240, 240, 234, 1) 95%, rgba(236, 235, 229, 1) 100%); border-color: #91a7b4; border-top-left-radius: 3px; border-top-right-radius: 3px; padding: 2px 12px 2px; }
+[data-look="xp"] .tab { background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 249, 1) 26%, rgba(240, 240, 234, 1) 95%, rgba(236, 235, 229, 1) 100%); border-color: #91a7b4; border-top-left-radius: 3px; border-top-right-radius: 3px; padding: 2px 12px 2px; top: 3px; height: 20px; }
 [data-look="xp"] .tab:hover:not(.on):not(:disabled) { border-top-color: #e68b2c; box-shadow: inset 0 2px #ffc73c; }
-[data-look="xp"] .tab.on { background: #fcfcfe; border-color: #919b9c; border-top: 1px solid #e68b2c; box-shadow: inset 0 2px #ffc73c; }
+[data-look="xp"] .tab.on { background: #fcfcfe; border-color: #919b9c; border-top: 1px solid #e68b2c; box-shadow: inset 0 2px #ffc73c; height: 23px; top: 1px; }
 [data-look="xp"] .tabs-body { border: 1px solid #919b9c; box-shadow: inset 1px 1px #fcfcfe, inset -1px -1px #fcfcfe, 1px 2px 2px 0 rgba(208, 206, 191, 0.75); }
 
 [data-look="xp"] :is(.ck, .dlg, .tp-body, dialog, .taskpane) input[type=checkbox],
