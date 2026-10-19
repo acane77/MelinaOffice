@@ -137,6 +137,74 @@ test('New File offers a blank document, workbook and presentation', () => {
   }
 });
 
+test('one editor save is shared, and a closed editor does not fail a write that finished', async () => {
+  const s = proto.createSaveSession();
+  assert.equal(s.onDirty(false), 'ignore');
+  assert.equal(s.onDirty(true), 'mark');
+  assert.equal(s.onDirty(true), 'ignore');
+  assert.equal(s.onRequest(), 'start');
+
+  const first = s.begin();
+  assert.equal(first.action, 'run');
+  assert.equal(s.runs, 1);
+  assert.equal(s.onRequest(), 'join');
+  assert.equal(s.onDirty(true), 'ignore');
+  const second = s.begin();
+  assert.equal(second.action, 'join');
+  assert.equal(second.promise, first.promise);
+  assert.equal(s.runs, 1);
+  s.noteWritten();
+  const again = s.succeed({ ok: true });
+  assert.equal(again, true);
+  assert.deepEqual(await first.promise, { ok: true });
+  assert.equal(s.saving, false);
+  assert.equal(s.dirty, true);
+  assert.equal(s.onRequest(), 'start');
+
+  const clean = proto.createSaveSession();
+  const run = clean.begin();
+  clean.noteWritten();
+  const closed = clean.close();
+  assert.equal(closed, false);
+  const saved = await run.promise;
+  assert.equal(saved.ok, true);
+  assert.equal(clean.saving, false);
+
+  const lost = proto.createSaveSession();
+  const pending = lost.begin();
+  const failed = lost.close();
+  assert.equal(failed, false);
+  await assert.rejects(pending.promise, /The editor was closed\./);
+  assert.equal(lost.saving, false);
+  assert.equal(lost.onRequest(), 'closed');
+
+  const skip = proto.createSaveSession();
+  skip.onDirty(true);
+  skip.armSkip();
+  assert.equal(skip.begin().action, 'skip');
+  assert.equal(skip.dirty, false);
+  const next = skip.begin();
+  assert.equal(next.action, 'run');
+  assert.equal(skip.runs, 1);
+  skip.succeed({ ok: true });
+  await next.promise;
+});
+
+test('Ledger save returns the promise VS Code awaits', () => {
+  const src = fs.readFileSync(path.join(root, 'public/ledger/js/commands.js'), 'utf8');
+  assert.match(src, /const run = \(fn\) => \(\) => \{ if \(E\(\)\.active && !E\(\)\.commit\(\)\) return; let r; try \{ r = fn\(\); \} catch \(e\) \{ A\(\)\.error\(e\); \} G\(\)\.paint\(\); return r; \}/);
+  assert.match(src, /cmd\('save'[\s\S]*?run: run\(\(\) => A\(\)\.save\(\)\)/);
+  const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
+  const ext = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
+  assert.match(suite, /saveThroughEditor/);
+  assert.match(suite, /request-save/);
+  assert.match(suite, /pendingWrite/);
+  assert.match(ext, /request-save/);
+  assert.match(ext, /noteWritten/);
+  assert.equal(ext.includes('savingFromHost'), false);
+  assert.equal(ext.includes('workbench.action.files.save'), false);
+});
+
 test('the pages recognise the vscode host', () => {
   const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
   const core = fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8');

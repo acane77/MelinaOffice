@@ -105,14 +105,20 @@ class OfficeDocument {
     this.viewType = viewType;
     this.panel = null;
     this.pending = new Map();
-    this.dirty = false;
-    this.savingFromHost = false;
-    this.skipSave = false;
+    this.save = proto.createSaveSession();
     this.backupId = '';
   }
   dispose() {
-    for (const p of this.pending.values()) p.reject(new Error('The editor was closed.'));
-    this.pending.clear();
+    this.save.close();
+    this._settlePending();
+  }
+  /** Wake every request the page or the host is waiting on. A save whose bytes are already
+   *  on disk resolves; anything still waiting rejects once, so the flag cannot stay stuck. */
+  _settlePending() {
+    for (const p of [...this.pending.values()]) {
+      if (p.expect === 'save-result' && this.save.wrote) p.resolve({ ok: true, inplace: true });
+      else p.reject(new Error('The editor was closed.'));
+    }
   }
 }
 
@@ -140,29 +146,39 @@ class OfficeEditorProvider {
     roots.push(parentUri(doc.uri));
     panel.webview.options = { enableScripts: true, localResourceRoots: roots };
     panel.webview.onDidReceiveMessage((msg) => this._onMessage(doc, msg));
+    panel.onDidDispose(() => {
+      if (doc.panel === panel) doc.panel = null;
+      doc._settlePending();
+    });
     panel.webview.html = this._html(doc);
   }
 
   async saveCustomDocument(doc) {
-    if (doc.skipSave) { doc.skipSave = false; doc.dirty = false; return; }
-    doc.savingFromHost = true;
+    const started = doc.save.begin();
+    if (started.action === 'skip') return;
+    if (started.action === 'join') return started.promise;
+    let again = false;
     try {
       const res = await this._request(doc, 'save-result', { type: 'do-save' });
-      if (!res || !res.ok) throw new Error((res && res.error) || 'Save was cancelled.');
-      doc.dirty = false;
-    } finally {
-      doc.savingFromHost = false;
+      if (!res || !res.ok) again = doc.save.fail(new Error((res && res.error) || 'Save was cancelled.'));
+      else again = doc.save.succeed(res);
+    } catch (e) {
+      again = doc.save.fail(e);
     }
+    /* a keystroke during the save stays an edit after this promise resolves, which is when
+       VS Code drops the edits it had when the save started */
+    if (again) this._fireDirty(doc);
+    return started.promise;
   }
 
   async saveCustomDocumentAs(doc, destination) {
     const bytes = await this._backupBytes(doc);
     await vscode.workspace.fs.writeFile(destination, bytes);
-    doc.dirty = false;
+    doc.save.dirty = false;
   }
 
   async revertCustomDocument(doc) {
-    doc.dirty = false;
+    doc.save.dirty = false;
     doc.backupId = '';
     if (doc.panel) doc.panel.webview.html = this._html(doc);
   }
@@ -194,18 +210,26 @@ class OfficeEditorProvider {
   }
 
   _request(doc, expect, msg) {
+    if (!doc.panel || !doc.panel.webview) return Promise.reject(new Error('The editor was closed.'));
     const id = Math.random().toString(36).slice(2);
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         doc.pending.delete(id);
         reject(new Error('The editor did not answer.'));
       }, 300000);
+      const finish = (fn, value) => {
+        if (!doc.pending.has(id)) return;
+        clearTimeout(timer);
+        doc.pending.delete(id);
+        fn(value);
+      };
       doc.pending.set(id, {
         expect,
-        resolve: (v) => { clearTimeout(timer); doc.pending.delete(id); resolve(v); },
-        reject: (e) => { clearTimeout(timer); doc.pending.delete(id); reject(e); },
+        resolve: (v) => finish(resolve, v),
+        reject: (e) => finish(reject, e),
       });
-      doc.panel.webview.postMessage(Object.assign({ id }, msg));
+      try { doc.panel.webview.postMessage(Object.assign({ id }, msg)); }
+      catch (e) { finish(reject, e); }
     });
   }
 
@@ -230,13 +254,11 @@ class OfficeEditorProvider {
     return vscode.workspace.fs.readFile(doc.uri);
   }
 
-  _markDirty(doc) {
-    if (doc.dirty) return;
-    doc.dirty = true;
+  _fireDirty(doc) {
     this._onDidChange.fire({
       document: doc,
-      undo() { doc.dirty = false; },
-      redo() { doc.dirty = true; },
+      undo() { doc.save.dirty = false; },
+      redo() { doc.save.dirty = true; },
     });
   }
 
@@ -245,19 +267,18 @@ class OfficeEditorProvider {
     if (msg.type === 'ready') { await this._sendOpen(doc); return; }
     if (msg.type === 'read-fallback') { await this._sendBytes(doc, null, proto.baseName(doc.uri.path)); return; }
     if (msg.type === 'dirty') {
-      if (msg.dirty) this._markDirty(doc);
-      else if (!doc.savingFromHost && doc.dirty) {
-        doc.skipSave = true;
-        await vscode.commands.executeCommand('workbench.action.files.save');
-      }
+      /* dirty:false does not save. The tab clears only when saveCustomDocument resolves. */
+      if (msg.dirty && doc.save.onDirty(true) === 'mark') this._fireDirty(doc);
       return;
     }
+    if (msg.type === 'request-save') { await this._onRequestSave(doc, msg); return; }
     if (msg.type === 'close') {
       /* the page already asked about unsaved changes; clear the tab's dot without writing them again */
       try {
-        if (doc.dirty) {
-          doc.skipSave = true;
-          await vscode.commands.executeCommand('workbench.action.files.save');
+        if (doc.save.dirty) {
+          doc.save.armSkip();
+          try { await vscode.workspace.save(doc.uri); }
+          finally { doc.save.disarmSkip(); }
         }
       } catch (e) { /* close the tab either way */ }
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
@@ -318,10 +339,13 @@ class OfficeEditorProvider {
         await vscode.workspace.fs.writeFile(target, done.bytes);
         pendingBlank.delete(target.toString());
         const wroteInPlace = target.toString() === doc.uri.toString();
+        if (wroteInPlace) doc.save.noteWritten();
         if (!wroteInPlace) await vscode.commands.executeCommand('vscode.openWith', target, doc.viewType);
-        if (doc.panel) doc.panel.webview.postMessage({
-          type: 'wrote', id: done.id, ok: true, inplace: wroteInPlace, name: proto.baseName(target.path),
-        });
+        try {
+          if (doc.panel) doc.panel.webview.postMessage({
+            type: 'wrote', id: done.id, ok: true, inplace: wroteInPlace, name: proto.baseName(target.path),
+          });
+        } catch (err) { /* the bytes are written; a webview that already closed does not undo that */ }
       } catch (e) {
         const error = e && e.message ? e.message : String(e);
         if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: false, error });
@@ -332,6 +356,35 @@ class OfficeEditorProvider {
 
   _reply(doc, id, body) {
     if (doc.panel) doc.panel.webview.postMessage(Object.assign({ type: 'reply', id }, body));
+  }
+
+  /** The page's Save, Ctrl+S and a save before close. One write, through saveCustomDocument,
+   *  so the tab dot and the bytes stay the same save. A save already running is that write. */
+  async _onRequestSave(doc, msg) {
+    const reply = (ok, error) => this._reply(doc, msg.id, { ok: !!ok, error: error || '' });
+    try {
+      const how = doc.save.onRequest();
+      if (how === 'closed') { reply(false, 'The editor was closed.'); return; }
+      if (how === 'join') {
+        await doc.save.chain;
+        reply(true);
+        return;
+      }
+      if (!doc.save.dirty) {
+        doc.save.dirty = true;
+        this._fireDirty(doc);
+      }
+      const before = doc.save.runs;
+      const saved = await vscode.workspace.save(doc.uri);
+      if (!saved || (doc.save.runs === before && !doc.save.chain)) {
+        reply(false, 'Save was cancelled.');
+        return;
+      }
+      reply(true);
+    } catch (e) {
+      /* wrote-then-closed resolves saveCustomDocument, so it does not arrive here */
+      reply(false, e && e.message ? e.message : String(e));
+    }
   }
 
   /** the next free Document1.docx / Book1.xlsx / Presentation1.pptx beside the open file */

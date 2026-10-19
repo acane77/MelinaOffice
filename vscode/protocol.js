@@ -117,6 +117,102 @@ function createAssembler() {
   };
 }
 
+/** One custom-editor save. VS Code's tab dot is this session plus the edit it fired, not the
+ *  page's "Saved" line. A second save joins the first. A dirty notice during the save is held
+ *  and, if the document is still dirty when the save ends, becomes one new edit so the dot
+ *  does not stick and a real keystroke during the save is not forgotten. Dispose after the
+ *  bytes are on disk resolves the save; dispose before that rejects it once. */
+function createSaveSession() {
+  const s = {
+    dirty: false,
+    saving: false,
+    skip: false,
+    wrote: false,
+    closed: false,
+    dirtyAfter: false,
+    runs: 0,
+    chain: null,
+    _wait: null,
+  };
+  function end(ok, value, error) {
+    const w = s._wait;
+    if (!w) return false;
+    s._wait = null;
+    const again = !!(ok && s.dirtyAfter && !s.closed);
+    s.dirtyAfter = false;
+    s.saving = false;
+    if (ok) {
+      s.dirty = again;
+      w.resolve(value || { ok: true });
+    } else {
+      w.reject(error instanceof Error ? error : new Error(String(error || 'Save was cancelled.')));
+    }
+    return again;
+  }
+  return {
+    get dirty() { return s.dirty; },
+    set dirty(v) { s.dirty = !!v; },
+    get saving() { return s.saving; },
+    get wrote() { return s.wrote; },
+    get closed() { return s.closed; },
+    get chain() { return s.chain; },
+    get runs() { return s.runs; },
+    noteWritten() { if (s.saving) s.wrote = true; },
+    armSkip() { s.skip = true; },
+    /** drop a skip that this save did not consume, so the next real save still writes */
+    disarmSkip() { s.skip = false; },
+    begin() {
+      if (s.skip) {
+        s.skip = false;
+        s.dirty = false;
+        return { action: 'skip', promise: Promise.resolve() };
+      }
+      if (s.chain) return { action: 'join', promise: s.chain };
+      s.runs++;
+      s.saving = true;
+      s.wrote = false;
+      s.dirtyAfter = false;
+      let resolve, reject;
+      const inner = new Promise((res, rej) => { resolve = res; reject = rej; });
+      s._wait = { resolve, reject };
+      const chain = inner.finally(() => {
+        s.saving = false;
+        if (s.chain === chain) s.chain = null;
+      });
+      /* dispose can reject this before saveCustomDocument returns it */
+      chain.catch(() => {});
+      s.chain = chain;
+      return { action: 'run', promise: chain };
+    },
+    succeed(value) { return end(true, value); },
+    fail(error) { return end(false, null, error); },
+    /** the custom document or its webview went away */
+    close() {
+      s.closed = true;
+      if (!s._wait) return false;
+      if (s.wrote) return end(true, { ok: true, inplace: true });
+      return end(false, null, new Error('The editor was closed.'));
+    },
+    /** @returns {'mark'|'ignore'} */
+    onDirty(dirty) {
+      if (s.closed) return 'ignore';
+      if (s.saving) {
+        if (dirty) s.dirtyAfter = true;
+        return 'ignore';
+      }
+      if (!dirty || s.dirty) return 'ignore';
+      s.dirty = true;
+      return 'mark';
+    },
+    /** @returns {'join'|'start'|'closed'} */
+    onRequest() {
+      if (s.closed) return 'closed';
+      if (s.chain) return 'join';
+      return 'start';
+    },
+  };
+}
+
 module.exports = {
-  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, saveFolder, toBytes, createAssembler,
+  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, saveFolder, toBytes, createAssembler, createSaveSession,
 };
