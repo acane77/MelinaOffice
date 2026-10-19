@@ -411,14 +411,28 @@
       const buf = await L.readAsArrayBuffer(file);
       const progress = (i, n) => ui.busy(true, L.t('Opening {0}... (slide {1} of {2})', file.name, i, n));
       let pres = null, password, wrong = false;
+      /* this tab was opened on the file: a refused password closes it instead of leaving Presentation1.
+         Elsewhere a wrong password is asked again, as PowerPoint does. */
+      const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
       for (;;) {
         try { pres = await L.pptx.read(buf, { progress, password }); break; } catch (e) {
+          if (e && e.code === 'unsupported') {
+            ui.busy(false);
+            await ui.msg(L.t(e.message), { icon: 'warn' });
+            giveUp();
+            return;
+          }
           if (!(e && (e.code === 'password' || e.code === 'badpassword'))) throw e;
-          /* a password to open: ask for it, as PowerPoint does */
           ui.busy(false);
+          if (file.voLaunch && e.code === 'badpassword') {
+            await ui.msg(L.t(e.message), { icon: 'warn' });
+            giveUp();
+            return;
+          }
+          /* a password to open: ask for it, as PowerPoint does */
           wrong = e.code === 'badpassword';
           password = await ui.password(file.name, wrong);
-          if (password == null) return;
+          if (password == null) { giveUp(); return; }
           ui.busy(true, L.t('Opening {0}...', file.name));
         }
       }

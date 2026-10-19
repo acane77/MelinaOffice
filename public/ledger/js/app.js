@@ -157,16 +157,19 @@
       } else {
         try { w = await L.xlsxRead.read(bytes, { password }); }
         catch (e) {
-          if (e.code === 'badpassword') {
+          /* this tab was opened on the file: a refused password closes it instead of leaving Book1 */
+          const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
+          if (e.code === 'badpassword' || e.code === 'unsupported') {
             /* as Excel: say so and cancel the open; File ▸ Open again to retry */
             ui.busy(false);
             await ui.msg(e.message, { icon: 'warn' });
+            giveUp();
             return;
           }
           if (e.code === 'password') {
             ui.busy(false);
             const pw = ui.password ? await ui.password(name) : await ui.prompt(L.t("'{0}' is protected.\n\nPassword:", name), '', 'Password');
-            if (pw == null) return;
+            if (pw == null) { giveUp(); return; }
             return A.openFile(file, pw, opts);
           }
           if (e.code === 'xls') { ui.busy(false); if (L.xls && L.xls.read) { w = await L.xls.read(bytes); type = 'xls'; } else throw Object.assign(new Error(L.t("'{0}' is a binary Excel 97–2003 workbook (.xls). Ledger opens .xlsx, .xlsm, .csv and XML Spreadsheet 2003 files. Open it in Excel or LibreOffice and save it as .xlsx first.", name)), { code: 'xls' }); }

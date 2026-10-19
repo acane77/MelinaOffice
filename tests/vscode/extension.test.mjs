@@ -234,6 +234,14 @@ test('the pages recognise the vscode host', () => {
   assert.match(suite, /Starting \{0\}/);
   assert.match(suite, /Opening the file\. Please wait\.\.\./);
   assert.match(suite, /openingCancelled/);
+  assert.match(suite, /abandonEditor = \(\) =>/);
+  assert.match(suite, /file\.voLaunch = true/);
+  for (const file of ['public/quire/js/app.js', 'public/ledger/js/app.js', 'public/lectern/js/app.js']) {
+    const src = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.match(src, /voLaunch/);
+    assert.match(src, /abandonEditor/);
+    assert.match(src, /unsupported/);
+  }
   for (const file of ['public/quire/js/dialogs3.js', 'public/lectern/js/dialogs.js', 'public/ledger/js/dialogs.js']) {
     assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /saveLocation/);
   }

@@ -808,8 +808,13 @@
     } catch (e) {
       ui.busy(false);
       console.error(e);
-      if (e && e.code === 'cancel') return;
-      if (e && e.code === 'ole') ui.msg(e.message, { icon: 'warn' });
+      /* this tab was opened on the file: leave it only when the file is actually open */
+      const giveUp = () => { if (file.voLaunch && window.VO && VO.abandonEditor) VO.abandonEditor(); };
+      if (e && e.code === 'cancel') { giveUp(); return; }
+      if (e && e.code === 'ole') {
+        await ui.msg(e.message, { icon: 'warn' });
+        if (e.badPassword || e.unsupported) giveUp();
+      }
       else ui.msg(L.t("{0} can't open {1}. {2}", L.APP, file.name, e && e.message ? e.message : ''), { icon: 'error' });
     }
   };
@@ -828,6 +833,7 @@
         const b = new Error(err && err.code === 'badpass' ? L.t('The password is incorrect. {0} cannot open the document.', L.APP) : err && err.message === 'unsupported' ? L.t('This document is encrypted in a way {0} cannot read.', L.APP) : String(err && err.message || err));
         b.code = 'ole';
         b.badPassword = !!(err && err.code === 'badpass');
+        b.unsupported = !!(err && err.message === 'unsupported');
         throw b;
       }
       const res = await L.docx.read(plain.buffer.slice(plain.byteOffset, plain.byteOffset + plain.byteLength));

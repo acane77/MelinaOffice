@@ -721,6 +721,14 @@
     openingDlg = null;
     if (d) d.close(null);
   };
+  /** this editor was opened on a file that will not be shown: the password was cancelled, it was wrong,
+   *  or the encryption cannot be read. Leave the opening dialog up and close the tab, so the blank
+   *  document underneath never appears. No effect outside VS Code. */
+  VO.abandonEditor = () => {
+    if (!inVs) return;
+    openingCancelled = true;
+    vsPost({ type: 'close' });
+  };
   if (inVs) VO.openingDialog = () => {
     if (openingDlg || openingCancelled || !window.L || !L.ui || !L.ui.dialog || !L.h) return;
     const body = L.h('div', { class: 'brand-splash' },
@@ -775,6 +783,8 @@
               try { const rec = await VO.recent.get(file.voDraft); lossState = rec && rec.draft && rec.draft.lossState; }
               catch (err) { /* the unsaved copy's notes stay with the tab that wrote them */ }
             }
+            /* voLaunch: this open is the file the tab was opened on. A refused password closes the tab. */
+            if (file) file.voLaunch = true;
             if (file && current.hooks.open) await current.hooks.open(file, draft ? { draft: true, name: file.name, saved: true, lossState } : {});
             if (openingCancelled) return;
             if (!(file && current.hooks.open)) (current.hooks.message || alert)('That file is no longer available here. Open it again from the Explorer.');
