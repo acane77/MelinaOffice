@@ -45,7 +45,7 @@
   --tab-a: #fbfcfe; --tab-b: #e4ebf6; --grp-line: #c8d3e6;
   --spin-line: #b6c6e6; --spin-a: #f7faff; --spin-b: #c9dbf7; --spin-ink: #4d6185;
   /* overlays and shadows */
-  --overlay: rgba(0,0,0,.08); --busy-veil: rgba(0,0,0,.1); --drop-veil: rgba(49,106,197,.18);
+  --overlay: rgba(0,0,0,.08); --drop-veil: rgba(49,106,197,.18);
   --shadow-c: rgba(0,0,0,.35); --dlg-shadow-c: rgba(16,36,80,.28);
   --tip-bg: #ffffe1; --tip-line: #000; --tip-shadow-c: rgba(0,0,0,.25); --toast-shadow-c: rgba(0,0,0,.3);
   /* app chrome: sheet tabs, split bars, scroll bars, print preview, dialog previews */
@@ -119,7 +119,7 @@
   --btn-ring: transparent; --btn-dis-ink: #B5AFA5; --btn-dis-line: var(--p-line); --btn-dis-bg: #fff;
   --tab-a: transparent; --tab-b: transparent; --grp-line: var(--p-line);
   --spin-line: transparent; --spin-a: var(--p-paper); --spin-b: var(--p-paper); --spin-ink: #4A463F;
-  --overlay: rgba(40,32,20,.06); --busy-veil: rgba(40,32,20,.08); --drop-veil: rgba(15,111,116,.12);
+  --overlay: rgba(40,32,20,.06); --drop-veil: rgba(15,111,116,.12);
   --shadow-c: rgba(60,48,30,.16); --dlg-shadow-c: rgba(40,32,20,.22);
   --tip-bg: #FFFDF6; --tip-line: var(--p-line-strong); --tip-shadow-c: rgba(60,48,30,.14); --toast-shadow-c: rgba(60,48,30,.16);
   --face-2: var(--p-paper-2); --face-2-line: var(--p-line); --sheet-tab-edge: var(--p-line-strong); --scroll-bg: var(--p-paper);
@@ -206,7 +206,6 @@
 :is([data-look="paper"], [data-look="paper2016"]) .listbox, :is([data-look="paper"], [data-look="paper2016"]) .preview-box, :is([data-look="paper"], [data-look="paper2016"]) .chart-preview { border-radius: 6px; }
 :is([data-look="paper"], [data-look="paper2016"]) .tooltip { border-radius: 4px; padding: 2px 7px; }
 :is([data-look="paper"], [data-look="paper2016"]) .toast { border-radius: 10px; padding: 8px 14px; }
-:is([data-look="paper"], [data-look="paper2016"]) .busy-box { border-radius: 10px; background: #fff; }
 :is([data-look="paper"], [data-look="paper2016"]) .readbar, :is([data-look="paper"], [data-look="paper2016"]) .preview-bar { border-radius: 0; }
 /* app chrome */
 :is([data-look="paper"], [data-look="paper2016"]) .lp-tabs { padding: 6px 8px; }
@@ -263,7 +262,7 @@
   --btn-dis-ink: #999999; --btn-dis-line: #cdcac3; --btn-dis-bg: #f2f2f1;
   --tab-a: #fafafa; --tab-b: #e6e6e6; --grp-line: #d0d0bf;
   --spin-line: #cfcfcf; --spin-a: #f8f8f8; --spin-b: #e2e2e2; --spin-ink: #333;
-  --overlay: rgba(0,0,0,.12); --busy-veil: rgba(0,0,0,.12); --drop-veil: rgba(60,127,177,.16);
+  --overlay: rgba(0,0,0,.12); --drop-veil: rgba(60,127,177,.16);
   --dlg-shadow-c: rgba(0,0,0,.45);
   --tip-bg: #ffffe1; --tip-line: #000; --tip-shadow-c: rgba(0,0,0,.25); --toast-shadow-c: rgba(0,0,0,.3);
   --face-2: #f0f0f0; --face-2-line: #b0b0b0; --sheet-tab-edge: #6b6b6b; --scroll-bg: #f0f0f0;
@@ -588,7 +587,7 @@
   --btn-dis-ink: #a3a9b4; --btn-dis-line: #c9d1de; --btn-dis-bg: #f4f6fa;
   --tab-a: #fbfcfe; --tab-b: #e4ebf6; --grp-line: #c8d3e6;
   --spin-line: #b6c6e6; --spin-a: #f7faff; --spin-b: #c9dbf7; --spin-ink: #4d6185;
-  --overlay: rgba(0,0,0,.08); --busy-veil: rgba(0,0,0,.1); --drop-veil: rgba(49,106,197,.18);
+  --overlay: rgba(0,0,0,.08); --drop-veil: rgba(49,106,197,.18);
   --shadow-c: rgba(0,0,0,.35); --dlg-shadow-c: rgba(16,36,80,.28);
   --tip-bg: #ffffe1; --tip-line: #000; --tip-shadow-c: rgba(0,0,0,.25); --toast-shadow-c: rgba(0,0,0,.3);
   --face-2: #ECE9D8; --face-2-line: #a0a0a0; --sheet-tab-edge: #6b6b6b; --scroll-bg: #F4F4F0;

@@ -1796,11 +1796,28 @@
     clearTimeout(t._t);
     t._t = setTimeout(() => { t.hidden = true; }, ms || 2600);
   };
+  /* a modal while work keeps the user waiting. The title is the app's name. No close button and no buttons, so
+     Escape does not dismiss it. A window already open stays where it is and this one covers it. Another call
+     while it is up only changes the message. */
+  let busyDlg = null;
   ui.busy = (on, text) => {
-    let b = L.$('.busy');
-    if (!!on !== !!(b && !b.hidden)) tell('vo-busy', { on: !!on, text: on ? text || 'Working...' : '' });
-    if (on) { if (!b) { b = h('div', { class: 'busy' }, h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), h('span', { class: 'busy-t' }))); document.body.appendChild(b); } b.querySelector('.busy-t').textContent = t(text || 'Working...'); b.hidden = false; }
-    else if (b) b.hidden = true;
+    const open = !!(busyDlg && busyDlg.el.isConnected);
+    if (!!on !== open) tell('vo-busy', { on: !!on, text: on ? text || 'Working...' : '' });
+    if (!on) { if (open) { const d = busyDlg; busyDlg = null; d.close(null); } return; }
+    const msg = t(text || 'Working...');
+    if (open) { busyDlg.text.textContent = msg; return; }
+    const label = h('span', { class: 'busy-t' });
+    label.textContent = msg;
+    busyDlg = ui.dialog({
+      title: L.APP || L.APP_NAME || 'VibeOffice',
+      width: 360,
+      canClose: false,
+      buttons: [],
+      body: h('div', { class: 'busy-box' }, h('span', { class: 'busy-spin' }), label),
+      focus: label,
+    });
+    busyDlg.text = label;
+    busyDlg.el.classList.add('busy');
   };
   /* a host that set VO.openingDialog (the VS Code editor) shows it once dialogs exist, before the app paints */
   if (typeof window !== 'undefined' && window.VO && typeof VO.openingDialog === 'function') {
