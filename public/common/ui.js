@@ -865,6 +865,11 @@
   const winStack = [];
   let dlgBackdrop = null;
   ui.dialogOpen = () => dlgStack.length > 0;
+  /** Windows 7 window show and close. Other looks, and reduced motion, stay instant. */
+  function win7WindowMotion() {
+    if (!document.documentElement || document.documentElement.dataset.look !== 'win7') return false;
+    try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+  }
   /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */
   function layoutWindows() {
     for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].overlay.isConnected) {
@@ -991,6 +996,13 @@
     const step = Math.min(winStack.length, 8) * 28;
     dlg.style.left = L.clamp((window.innerWidth - r.width) / 2 + step, 4, Math.max(4, window.innerWidth - r.width - 4)) + 'px';
     dlg.style.top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40)) + 'px';
+    /* measured before the class, so the opening scale does not shift the centred box */
+    if (win7WindowMotion()) {
+      dlg.classList.add('is-opening');
+      const endOpen = (e) => { if (e.target !== dlg || e.animationName !== 'win7-open') return; dlg.classList.remove('is-opening'); dlg.removeEventListener('animationend', endOpen); };
+      dlg.addEventListener('animationend', endOpen);
+      setTimeout(() => dlg.classList.remove('is-opening'), 400);
+    }
     const entry = { overlay, dlg, modeless: !!opts.modeless, isToolBoxWindow: opts.isToolBoxWindow, keys: null };
     dlg.addEventListener('pointerdown', (e) => {
       raiseWindow(entry);
@@ -1036,11 +1048,21 @@
       return false;
     };
     function close(i) {
+      if (entry.closed) return;
+      entry.closed = true;
       const k = dlgStack.indexOf(entry);
       if (k >= 0) dlgStack.splice(k, 1);
       const w = winStack.indexOf(entry);
       if (w >= 0) winStack.splice(w, 1);
-      overlay.remove();
+      const drop = () => { if (overlay.isConnected) overlay.remove(); };
+      if (win7WindowMotion()) {
+        dlg.classList.remove('is-opening');
+        dlg.classList.add('is-closing');
+        let dropped = false;
+        const finish = () => { if (dropped) return; dropped = true; drop(); };
+        dlg.addEventListener('animationend', (e) => { if (e.target === dlg && e.animationName === 'win7-close') finish(); });
+        setTimeout(finish, 400);
+      } else drop();
       layoutWindows();
       if (opts.onClose) opts.onClose(i);
       result(i);
