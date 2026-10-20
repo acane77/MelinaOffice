@@ -134,9 +134,12 @@
     const depth = opts.depth || 0;
     ui.closeMenus(depth);
     const list = (typeof items === 'function' ? items() : items).map(resolveItem).filter((x) => x && !(typeof x.hidden === 'function' ? x.hidden() : x.hidden));
-    /* popup menus and right-click menus stay above every window, modal or not */
+    /* popup menus and right-click menus stay above every window, modal or not, and above the formatting bar */
     let menuZ = 6000;
-    for (const w of winStack) { const n = parseInt(w.overlay.style.zIndex, 10); if (n >= menuZ) menuZ = n + 20; }
+    const above = (n) => { if (n >= menuZ) menuZ = n + 20; };
+    for (const w of winStack) above(parseInt(w.overlay.style.zIndex, 10));
+    const bar = document.querySelector('.minibar');
+    if (bar && !bar.hidden) above(parseInt(bar.style.zIndex, 10));
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
     el.style.zIndex = String(menuZ);
     const rows = [];
@@ -883,7 +886,21 @@
     });
     if (flashing && flashing !== (topModal >= 0 ? winStack[topModal] : null)) stopFlash();
     syncActive();
+    ui.placeMinibar();
   }
+  /** the formatting bar sits one above the front window. With no window open that is 2000, under the menu floor.
+   *  A modal hides the bar (it is not a layer above the dialog). */
+  ui.placeMinibar = function () {
+    const bar = document.querySelector('.minibar');
+    if (!bar || bar.hidden) return;
+    if (dlgStack.length) { if (L.minibar) L.minibar.hide(); return; }
+    let z = 1999;
+    for (const w of winStack) {
+      const n = parseInt(w.overlay.style.zIndex, 10);
+      if (n > z) z = n;
+    }
+    bar.style.zIndex = String(z + 1);
+  };
   /** the front modal is active; otherwise the modeless window that holds the keyboard. prefer: a window just clicked or opened.
    *  a modal that is flashing owns its own active/inactive class until the flash ends */
   function syncActive(prefer) {

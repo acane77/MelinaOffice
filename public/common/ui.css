@@ -207,8 +207,9 @@ input, select, textarea { font: inherit; color: var(--ink); }
 .sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
 @media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
 
-/* the formatting bar after a text selection (common/minibar.js): above menus' layer is the menu itself */
-.minibar { position: fixed; z-index: 1400; display: flex; flex-direction: column; padding: 2px 3px 1px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); user-select: none; }
+/* the formatting bar after a text selection (common/minibar.js): above the front window, under every menu.
+   ui.placeMinibar sets the z-index; 2000 is the place when no window is open. */
+.minibar { position: fixed; z-index: 2000; display: flex; flex-direction: column; padding: 2px 3px 1px; border: 1px solid var(--tb-border); border-radius: var(--tray-radius); background: linear-gradient(var(--tb-a), var(--tb-b) 50%, var(--tb-c)); box-shadow: 2px 3px 6px var(--shadow-c); user-select: none; }
 .minibar-row { display: flex; align-items: center; }
 .minibar .combo-in { user-select: text; }
 
