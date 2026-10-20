@@ -539,6 +539,12 @@
         toolButton({ label: 'DOM API References', icon: 'read' }, () => { /* the reference is not written yet */ }),
       );
     }
+    term.write([
+      L.t('Welcome to the DOM Console.'),
+      L.t('Tips:'),
+      L.t('1. If the right-click menu cannot paste, use the Paste button.'),
+      L.t('2. Outside a function, do not declare variables with let, var, or const. Each entry runs on its own, so those declarations do not carry to the next line. Assign directly, as in x = 1. The name is then on the global object, and later entries can use it.'),
+    ].join('\r\n') + '\r\n');
     term.write('> ');
     term.focus();
     return box;
