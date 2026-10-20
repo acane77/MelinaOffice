@@ -12,7 +12,7 @@ Quire is not Microsoft Word. `Creator` is not reported as Word's creator code.
 - Constants use Word's numeric values (`wdAlignParagraphCenter` is `1`). They are defined beside the API.
 - A returned `Range` is an anchor to content Quire already addresses (a paragraph, a selection, a cell, a bookmark, a find hit). It is not a story character index. `Start` and `End` are not part of that anchor.
 - Edits go through the existing document operations (`js/ops.js`, the editor, tables, fields, notes, review, find, drawing, and the document session). Undo, redraw, and save stay on those paths.
-- The script host (how a snippet is evaluated, and where `console.log` is printed) is a later step. The object model itself is this inventory.
+- The script host is Help ▸ Quire DOM Console (`public/quire/js/dom-console.js`). A snippet runs in the page, and `console.log` prints in that window. The object model itself is this inventory.
 
 Shared members `Application` and `Parent` exist on every object below and are **Implemented** (navigation only). They are not repeated on each row. `Creator` is **Not implemented** on every object (`G-ENGINE`: Quire does not report Word's creator code).
 

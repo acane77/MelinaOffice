@@ -17,6 +17,7 @@ The metric-compatible fonts (see *Rendering notes*) are served with the site fro
 The status bar ends in a zoom slider (10–500%). The percent can be edited, and the slider moves the zoom as it is dragged. A pinch over the page zooms it; two-finger scrolling moves the page. A pinch on the toolbars or the status bar does not zoom the window. Typing keeps the page still while the caret is in the top nine tenths of the window. Once the caret's line reaches the bottom tenth, the page moves up by that line and the caret stays on that line. A line that has left the top of the window is brought back to the top edge.
 In Print Layout, double-click the gray gap between two pages to hide the white space there: the top and bottom margins (and the header and footer in them) drop away, and a little of each margin stays so the pages meet on a black line. Double-click that edge to show the margins again. Tools ▸ Options ▸ View ▸ White space between pages is the same switch. Reading Layout, Print Preview and printing keep the whole page.
 Selecting text with the mouse or the keyboard shows a small formatting bar just above and to the right of the pointer (in the Windows 7 look, a glass window with the controls drawn on the glass): font, size, grow and shrink, clear formatting, highlight, font colour, bold, italic, underline, strikethrough, subscript, superscript, bullets, numbering and the style list. It starts partly see-through, becomes solid while the pointer is on it or on a menu it opened, and fades out with the distance from where it opened, gone past 50 pixels. Once it has faded out it stays hidden until the next selection. A caret, typing, Escape or scrolling the page also puts it away.
+Help ▸ Quire DOM Console (File, in the Paper 2016 look) opens a terminal on this page. What you run there uses the open document and stays on the machine. Enter runs a finished line. Shift+Enter, or a line that still has an open bracket or string, keeps the line open. A function written at the top level stays, so the next line can call it. Closing the window is the title's close button.
 
 ## Proofing tools (offline)
 
@@ -462,6 +463,7 @@ compatibility results are archived with the run history rather than mixed into c
 | `../common/sha.js`, `../common/crypto.js` | Password-protected documents: compound-file reader/writer, AES, ECMA-376 agile and standard encryption |
 | `js/dmodel.js`, `js/ops.js` | Document model (paragraphs, runs, tables, sections, styles, numbering), undo history, editing operations |
 | `js/dom.js` | Word object model on the open document ([quire_dom_api_specifications.md](quire_dom_api_specifications.md)) |
+| `js/dom-console.js`, `../common/vendor/xterm/` | Help ▸ Quire DOM Console: a terminal that runs JavaScript on the page |
 | `js/render.js`, `js/layout.js` | Paragraph/run rendering, pagination, headers/footers, footnotes, columns, floats |
 | `js/portions.js` | How tall each line is, from what it holds (after Apache OpenOffice Writer's line portions) |
 | `js/editor.js` | contentEditable bridge: selection mapping, typing, IME, clipboard, keyboard |

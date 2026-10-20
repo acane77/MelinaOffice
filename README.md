@@ -76,6 +76,17 @@ I personally found Apple Pages' equation editor is easier to use than Word's dur
   <img src="docs/images/formula-editing.png" width="720" alt="Quire's Edit Equation dialog">
 </p>
 
+## Quire's Document Object Model (DOM) Support
+
+**This feature is experimental, I'm still working on introducing more compabilities with original Word's DOM.**
+
+With Quire DOM, you can easily create `.docx` documents programmatically using JavaScript.
+
+<p align="center">
+  <img src="docs/images/QuireDOM.png" width="720" alt="Quire's Document Object Model (DOM)">
+</p>
+
+For the test script, see [tests/quire/dom-sample.js](tests/quire/dom-sample.js).
 
 ## The apps
 

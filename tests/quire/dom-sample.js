@@ -1,5 +1,11 @@
-/* Paste into the Quire page console (F12), then run: await buildSample()
-   Covers the object model through M5. Does not save. */
+/* 
+Run this code in Quire:
+   1. Open Quire App
+   2. Open: Help -> Quire DOM Console
+   3. Paste the following code into the console
+   4. Run "await buildSample()"
+See how document changes!
+ */
 async function buildSample() {
   await Documents.Add();
 
