@@ -865,9 +865,10 @@
   const winStack = [];
   let dlgBackdrop = null;
   ui.dialogOpen = () => dlgStack.length > 0;
-  /** Windows 7 window show and close. Other looks, and reduced motion, stay instant. */
+  /** Windows 7, Paper and Paper 2016 window show and close. Other looks, and reduced motion, stay instant. */
   function win7WindowMotion() {
-    if (!document.documentElement || document.documentElement.dataset.look !== 'win7') return false;
+    const look = document.documentElement && document.documentElement.dataset.look;
+    if (look !== 'win7' && look !== 'paper' && look !== 'paper2016') return false;
     try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
   }
   /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */

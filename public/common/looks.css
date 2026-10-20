@@ -85,6 +85,8 @@
    Values first; then the few shape rules a colour cannot express, all scoped to Paper. */
 [data-look="paper"], [data-look="paper2016"] {
   --theme-color: #FAF8F4;
+  /* same curve as Windows 7: hover 1s, a press 250ms. Colours stay this look's own. */
+  --p-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --tray-radius: 10px; --ctl-radius: 6px;
   --ui-font: system-ui, "Segoe UI", "Helvetica Neue", Ubuntu, Cantarell, "DejaVu Sans", var(--ui-cjk, sans-serif);
   --ui-size: 12px;
@@ -222,6 +224,21 @@
 :is([data-look="paper"], [data-look="paper2016"]) dialog form button { height: 28px; border-radius: 6px; background: var(--p-accent); border-color: var(--p-accent); color: #fff; box-shadow: none; }
 :is([data-look="paper"], [data-look="paper2016"]) dialog form button:hover { background: var(--p-accent-ink); }
 :is([data-look="paper"], [data-look="paper2016"]) .combo-in { font-size: 11px; }   /* the boxes' widths are set for 11 px text */
+/* the same window and control timings as Windows 7, on the colours already set above. Menu items stay instant. */
+:is([data-look="paper"], [data-look="paper2016"]) .dlg.is-opening,
+:is([data-look="paper"], [data-look="paper2016"]) .dlg.is-closing { transform-origin: 50% 45%; }
+:is([data-look="paper"], [data-look="paper2016"]) .dlg.is-opening { animation: win7-open 250ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+:is([data-look="paper"], [data-look="paper2016"]) .dlg.is-closing { animation: win7-close 300ms cubic-bezier(0.16, 1, 0.3, 1) both; pointer-events: none; }
+/* a toolbar button rests on no colour. A transparent gradient is the same paint, and it can ease into the hover gradient. */
+:is([data-look="paper"], [data-look="paper2016"]) :is(.tb-btn, .tb-dd) { background: linear-gradient(transparent, transparent); }
+:is([data-look="paper"], [data-look="paper2016"]) :is(
+  .btn, dialog form button, dialog .btn, .tab, .tb-btn, .tb-dd, .dlg-x, .combo, .combo-btn, .spin-b,
+  .shape-grid button, .style-list button, .cp-wide, .border-grid button, .dm-item, .tp-nav, .tp-title, .tp-link,
+  .sf-item, .clip-it, .cb-item, .search-hit, .sb-cell, .sb-zoom-btn, .sb-zoom-pct, .floatbar .fb-title button,
+  .rb-tab, .rb-launch, .rb-pin,
+  input[type="checkbox"], input[type="radio"], input[type="text"], input[type="number"], input[type="password"], textarea, select
+) { transition: background-color 1s var(--p-ease), background-image 1s var(--p-ease), border-color 1s var(--p-ease), box-shadow 1s var(--p-ease), color 1s var(--p-ease); }
+:is([data-look="paper"], [data-look="paper2016"]) :is(.btn, dialog form button, dialog .btn, .tab, .tb-btn, .tb-dd, .dlg-x, .spin-b, .sb-zoom-btn, .rb-tab):active { transition-duration: 250ms; }
 
 /* Windows 7: the glass chrome from the reference theme (buttons, toolbars, dialogs, status bar).
    The menu bar uses the Windows 7 menu-bar gradient. Popup menus, including right-click menus,
@@ -719,21 +736,8 @@
 [data-look="xp"] .dlg.inactive { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive::after { box-shadow: var(--xp-frame-off); }
 [data-look="xp"] .dlg.inactive .dlg-title { background: var(--xp-title-off); color: #eee; }
-[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) {
-    width: 21px;
-    min-width: 21px;
-    height: 21px;
-    min-height: 21px;
-    margin: 0 0 0 2px;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    color: transparent;
-    background: var(--xp-close) center / 21px 21px no-repeat;
-    box-shadow: none;
-    scale: 0.75;
-    margin-right: -3px;
-}
+[data-look="xp"] .dlg-title > .dlg-x:not(.dlg-help) { width: 21px; min-width: 21px; height: 21px; min-height: 21px; margin: 0 0 0 2px; padding: 0; border: 0; border-radius: 0; color: transparent; background: var(--xp-close) center / 21px 21px no-repeat; box-shadow: none; }
+[data-look="xp"] .dlg.toolbox .dlg-title > .dlg-x:not(.dlg-help) { scale: 0.75; margin-right: -3px; }
 [data-look="xp"] .dlg-x:not(.dlg-help) svg { display: none; }
 [data-look="xp"] .dlg-x:not(.dlg-help):hover { background: var(--xp-close-hot) center / 21px 21px no-repeat; border-color: transparent; }
 [data-look="xp"] .dlg-x:not(.dlg-help):active { background: var(--xp-close-down) center / 21px 21px no-repeat; }
