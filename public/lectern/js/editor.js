@@ -107,28 +107,70 @@
   /* blank past the content, so the scroll bar can travel after the last of this slide before the page changes */
   const RUNWAY = 72, RUNWAY_FLIP = 36, WHEEL_PAGE = 20, WHEEL_GAP = 350;
 
+  /* thickness of a classic scroll bar; overlay bars measure 0 */
+  function scrollbarSize() {
+    if (E._sb != null) return E._sb;
+    const o = h('div', { style: 'position:absolute;left:-9999px;top:0;width:100px;height:100px;overflow:scroll' });
+    document.body.appendChild(o);
+    E._sb = o.offsetWidth - o.clientWidth;
+    o.remove();
+    return E._sb || 0;
+  }
+  /* the editing area's own box, which does not change when a scroll bar appears */
+  function paneBox() {
+    const s = E.scroller;
+    const cs = getComputedStyle(s);
+    const bl = parseFloat(cs.borderLeftWidth) || 0, br = parseFloat(cs.borderRightWidth) || 0;
+    const bt = parseFloat(cs.borderTopWidth) || 0, bb = parseFloat(cs.borderBottomWidth) || 0;
+    return { w: Math.max(0, s.offsetWidth - bl - br), h: Math.max(0, s.offsetHeight - bt - bb) };
+  }
+  /* fit and content size for one assumption about which scroll bars are showing */
+  function fitMetrics(cw, ch, W, H) {
+    const margin = Math.max(16, Math.min(40, cw * 0.04));
+    const scale = E.zoom === 'fit' ? Math.max(0.05, Math.min((cw - margin * 2) / W, (ch - margin * 2) / H)) : E.zoom * L.PX_PER_PT;
+    const sw = W * scale, sh = H * scale;
+    const b = E.contentBounds();
+    const extL = Math.max(0, -b.x0) * scale, extR = Math.max(0, b.x1 - W) * scale;
+    const extT = Math.max(0, -b.y0) * scale, extB = Math.max(0, b.y1 - H) * scale;
+    const contentW = extL + sw + extR + margin * 2;
+    const contentH = extT + sh + extB + margin * 2;
+    return { margin, scale, sw, sh, extL, extR, extT, extB, contentW, contentH, cw, ch, needV: contentH > ch + 1, needH: contentW > cw + 1 };
+  }
+
   E.layout = function (opts) {
     if (!E.scroller || !E.scroller.isConnected) return;
     if (opts && opts.scroll) E._scrollTo = opts.scroll;
     if (opts && opts.point) E._scrollPoint = opts.point;
     const W = L.pres.W, H = L.pres.H;
-    const cw = E.scroller.clientWidth, ch = E.scroller.clientHeight;
-    if (!cw || !ch) return;
+    const box = paneBox();
+    if (!box.w || !box.h) return;
     const mode = E._scrollTo || 'keep';
     const anchor = mode === 'keep' ? viewAnchor() : null;
     const point = mode === 'point' ? E._scrollPoint : null;
-    const margin = Math.max(16, Math.min(40, cw * 0.04));
-    if (E.zoom === 'fit') E.scale = Math.max(0.05, Math.min((cw - margin * 2) / W, (ch - margin * 2) / H));
-    else E.scale = E.zoom * L.PX_PER_PT;
-    const sw = W * E.scale, sh = H * E.scale;
-    const b = E.contentBounds();
-    const extL = Math.max(0, -b.x0) * E.scale, extR = Math.max(0, b.x1 - W) * E.scale;
-    const extT = Math.max(0, -b.y0) * E.scale, extB = Math.max(0, b.y1 - H) * E.scale;
-    const contentW = extL + sw + extR + margin * 2;
-    const contentH = extT + sh + extB + margin * 2;
+    /* Decide the bars from the pane itself, then again with those bars taking their space. A bar that
+       appears and disappears as the fit changes would keep resizing the slide; keep that bar. */
+    const sb = scrollbarSize();
+    const sized = (v, horiz) => fitMetrics(Math.max(1, box.w - (v ? sb : 0)), Math.max(1, box.h - (horiz ? sb : 0)), W, H);
+    let m = sized(false, false);
+    let forceV = false, forceH = false;
+    if (m.needV || m.needH) {
+      const m2 = sized(m.needV, m.needH);
+      if (m2.needV === m.needV && m2.needH === m.needH) m = m2;
+      else {
+        const v = m.needV || m2.needV, horiz = m.needH || m2.needH;
+        m = sized(v, horiz);
+        forceV = v && !m.needV;
+        forceH = horiz && !m.needH;
+      }
+    }
+    const { margin, sw, sh, extL, extR, extT, extB, contentW, contentH, cw, ch } = m;
+    E.scale = m.scale;
     const vert = contentH > ch + 1;
     const runway = E.view === 'normal' && vert ? RUNWAY : 0;
-    const canW = Math.max(cw, contentW), canH = Math.max(ch, contentH + runway * 2);
+    let canW = Math.max(cw, contentW), canH = Math.max(ch, contentH + runway * 2);
+    if (forceV) canH = Math.max(canH, box.h + 1);
+    if (forceH) canW = Math.max(canW, box.w + 1);
+    canW = Math.ceil(canW); canH = Math.ceil(canH);
     E.canvas.style.width = canW + 'px';
     E.canvas.style.height = canH + 'px';
     const minOx = margin + extL, maxOx = canW - margin - extR - sw;
