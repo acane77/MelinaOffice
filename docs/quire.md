@@ -461,6 +461,7 @@ compatibility results are archived with the run history rather than mixed into c
 | `../common/xml.js`, `../common/opc.js`, `../common/opc-order.js` | Shared OOXML package graph, identity reservations, AlternateContent capture and schema-order merges |
 | `../common/sha.js`, `../common/crypto.js` | Password-protected documents: compound-file reader/writer, AES, ECMA-376 agile and standard encryption |
 | `js/dmodel.js`, `js/ops.js` | Document model (paragraphs, runs, tables, sections, styles, numbering), undo history, editing operations |
+| `js/dom.js` | Word object model on the open document ([quire_dom_api_specifications.md](quire_dom_api_specifications.md)) |
 | `js/render.js`, `js/layout.js` | Paragraph/run rendering, pagination, headers/footers, footnotes, columns, floats |
 | `js/portions.js` | How tall each line is, from what it holds (after Apache OpenOffice Writer's line portions) |
 | `js/editor.js` | contentEditable bridge: selection mapping, typing, IME, clipboard, keyboard |
