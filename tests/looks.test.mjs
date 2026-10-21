@@ -17,7 +17,7 @@ const SHEETS = {
   'index.html': styleOf(read('index.html')),
 };
 /* set per element by the apps for document content (and by scout.js for his size and balloon tip), not by a look */
-const DOCUMENT_VARS = new Set(['--tabc', '--olvl', '--bu-c', '--bu-f', '--bu-s', '--bu-w', '--icon-swatch', '--scout-w', '--scout-tip']);
+const DOCUMENT_VARS = new Set(['--tabc', '--olvl', '--bu-c', '--bu-f', '--bu-s', '--bu-w', '--icon-swatch', '--scout-w', '--scout-tip', '--mt', '--mb', '--ws-pad']);
 
 const names = (css) => new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
 /** look id → the settings its blocks set (a block's selector may list several looks) */
@@ -67,7 +67,7 @@ test('opening and about content uses each app colour and does not restyle the fr
   assert.match(looks, /--brand-quire:\s*#2D5999/);
   assert.match(looks, /--brand-ledger:\s*#137E43/);
   assert.match(looks, /--brand-lectern:\s*#B8492B/);
-  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 4);
+  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 5);
   const ui = read('common/ui.css');
   assert.match(ui, /\.dlg\.brand \.dlg-body,\n\.dlg\.brand \.dlg-foot \{ background-color: var\(--brand-bg\); \}/);
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
