@@ -290,6 +290,11 @@ html:not([data-look="win7"]):not([data-look="xp"]):not([data-look="paper"]):not(
 .btn.small { min-width: 0; height: 21px; padding: 0 6px; }
 .dlg input[type=text], .dlg input[type=number], .dlg input[type=password], .dlg select, .dlg textarea, .tp-body input[type=text], .tp-body select { border: 1px solid var(--field-border); background: var(--surface); height: 21px; padding: 1px 3px; }
 .dlg textarea { height: auto; padding: 3px; resize: vertical; }
+/* Disabled and read-only text fields take the dialog's control colour. Disabled text is grey and cannot be clicked or selected; a read-only field keeps ordinary text and a selection. A disabled field is :read-only too, so the grey rule follows. Combo fields keep their own face. */
+.dlg input[type=text]:read-only:not(.combo-in), .dlg textarea:read-only,
+.tp-body input[type=text]:read-only:not(.combo-in), .tp-body textarea:read-only { background: var(--dlg); color: var(--dlg-ink); -webkit-text-fill-color: var(--dlg-ink); user-select: text; }
+.dlg input[type=text]:disabled:not(.combo-in), .dlg textarea:disabled,
+.tp-body input[type=text]:disabled:not(.combo-in), .tp-body textarea:disabled { background: var(--dlg); color: var(--dis-ink); -webkit-text-fill-color: var(--dis-ink); opacity: 1; user-select: none; pointer-events: none; cursor: default; }
 .dlg select, .tp-body select { padding: 0 1px; }
 .dlg select[size] { height: auto; }
 .dlg fieldset, .grp { border: 1px solid var(--grp-line); padding: 6px 8px 8px; margin: 0 0 8px; min-width: 0; }

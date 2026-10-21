@@ -506,7 +506,9 @@
 [data-look="win7"] :is(.sb-zoom-btn, .tp-nav, .dlg-x.dlg-help):active { transition-duration: 250ms; }
 
 [data-look="win7"] .dlg input[type=text], [data-look="win7"] .dlg input[type=number], [data-look="win7"] .dlg input[type=password], [data-look="win7"] .dlg textarea,
-[data-look="win7"] .tp-body input[type=text] { background: #fff; border: 1px solid #ccc; border-top-color: #8e8f8f; border-radius: 2px; transition: border-color 1s var(--w7-ease), background-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="win7"] .tp-body input[type=text] { border: 1px solid #ccc; border-top-color: #8e8f8f; border-radius: 2px; transition: border-color 1s var(--w7-ease), background-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease); }
+[data-look="win7"] .dlg input[type=text]:not(:read-only), [data-look="win7"] .dlg input[type=number]:not(:read-only), [data-look="win7"] .dlg input[type=password]:not(:read-only), [data-look="win7"] .dlg textarea:not(:read-only),
+[data-look="win7"] .tp-body input[type=text]:not(:read-only) { background: #fff; }
 [data-look="win7"] .dlg input[type=text]:focus, [data-look="win7"] .dlg input[type=number]:focus, [data-look="win7"] .dlg input[type=password]:focus, [data-look="win7"] .dlg textarea:focus,
 [data-look="win7"] .tp-body input[type=text]:focus { border-color: #bee6fd; border-top-color: #98d1ef; outline: none; }
 [data-look="win7"] .dlg select:not([size]), [data-look="win7"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #8e8f8f; border-radius: 3px; padding: 1px 18px 1px 4px; --w7-sel-1: #f2f2f2; --w7-sel-2: #ebebeb; --w7-sel-3: #cfcfcf; transition: --w7-sel-1 1s var(--w7-ease), --w7-sel-2 1s var(--w7-ease), --w7-sel-3 1s var(--w7-ease), border-color 1s var(--w7-ease), box-shadow 1s var(--w7-ease);
@@ -754,7 +756,9 @@
 [data-look="xp"] .btn.primary:active:not(:disabled) { background: var(--xp-btn-down); box-shadow: none; }
 
 [data-look="xp"] .dlg input[type=text], [data-look="xp"] .dlg input[type=number], [data-look="xp"] .dlg input[type=password], [data-look="xp"] .dlg textarea,
-[data-look="xp"] .tp-body input[type=text] { padding: 3px 4px; border: 1px solid #7f9db9; background: #fff; border-radius: 0; height: 21px; }
+[data-look="xp"] .tp-body input[type=text] { padding: 3px 4px; border: 1px solid #7f9db9; border-radius: 0; height: 21px; }
+[data-look="xp"] .dlg input[type=text]:not(:read-only), [data-look="xp"] .dlg input[type=number]:not(:read-only), [data-look="xp"] .dlg input[type=password]:not(:read-only), [data-look="xp"] .dlg textarea:not(:read-only),
+[data-look="xp"] .tp-body input[type=text]:not(:read-only) { background: #fff; }
 [data-look="xp"] .dlg textarea { height: auto; }
 [data-look="xp"] input::selection, [data-look="xp"] textarea::selection { background: #2267cb; color: #fff; }
 [data-look="xp"] .dlg select:not([size]), [data-look="xp"] .tp-body select:not([size]) { appearance: none; height: 21px; border: 1px solid #7f9db9; border-radius: 0; padding: 3px 32px 3px 4px; background: var(--xp-dd) top 1px right 1px / 15px no-repeat, #fff; }

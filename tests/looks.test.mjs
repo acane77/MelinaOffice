@@ -104,6 +104,15 @@ test('Windows XP keeps the reference images and the transparent veil', () => {
   assert.match(looks, /\[data-look="xp"\] \{[^}]*--ui-font:\s*"Microsoft Yahei UI", "Segoe UI", system-ui, var\(--ui-cjk, sans-serif\)/);
 });
 
+test('disabled and read-only text fields use the dialog control colour', () => {
+  const ui = read('common/ui.css');
+  assert.match(ui, /\.dlg input\[type=text\]:read-only:not\(\.combo-in\), \.dlg textarea:read-only,[\s\S]*?background:\s*var\(--dlg\); color:\s*var\(--dlg-ink\)/);
+  assert.match(ui, /\.dlg input\[type=text\]:disabled:not\(\.combo-in\), \.dlg textarea:disabled,[\s\S]*?color:\s*var\(--dis-ink\)[\s\S]*?user-select:\s*none; pointer-events:\s*none/);
+  /* an editable field keeps the look's own face; a disabled field is :read-only, so it is left off that face */
+  assert.match(looks, /\[data-look="win7"\] \.dlg input\[type=text\]:not\(:read-only\)[\s\S]*?background:\s*#fff/);
+  assert.match(looks, /\[data-look="xp"\] \.dlg input\[type=text\]:not\(:read-only\)[\s\S]*?background:\s*#fff/);
+});
+
 test('the pages pick the look before the first paint and load looks.css first', () => {
   for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
     const html = read(page);
