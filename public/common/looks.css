@@ -716,7 +716,7 @@
 [data-look="ribbon2010"] .mb-item:hover, [data-look="ribbon2010"] .mb-item.open { background: #3399ff; color: #fff; border-color: #3399ff; }
 [data-look="ribbon2010"] .menu { font: 11px/13.75px "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); }
 [data-look="ribbon2010"] :is(.tooltip, .rf-tree, .rf-tree h5, .help-topic h4, .about .about-marks, .rb-label, .rb-ctx-name, .stab, .namebox input, .ftip, .acl, .af-panel, .lbox-i, .af-list, .pp-status, .pp-empty, .swatch-btn, .fr-table, .hl-kind, .afmt-item, .fc-preset, .revpane) { font-family: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif); font-size: 11px; }
-/* 7.css menus: gray face, gutter line, blue hover. Command menus and right-click menus; not the font list or the colour grid. */
+/* 7.css menus: gray face, gutter line, blue hover. The File menu and right-click menus. Lists on the ribbon are restyled with the ribbon chrome. */
 [data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) { background: #f0f0f0; color: #000; border: 1px solid #0006; box-shadow: 4px 4px 3px -2px #00000080; padding: 2px; }
 [data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: ""; pointer-events: none; position: absolute; left: 28px; top: 2px; width: 2px; height: calc(100% - 4px); box-shadow: inset 1px 0 #00000026, inset -1px 0 #fff; }
 [data-look="ribbon2010"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item { border-radius: 3px; min-height: 22px; }
@@ -962,23 +962,59 @@
 [data-look="ribbon2010"] {
   --rb-bg: #eaedf1; --rb-panel: #fff; --rb-line: #b6babf; --rb-tab-ink: #444; --rb-tab-on-ink: #444; --rb-tab-hot: #f1f3f4;
   --rb-label-ink: #5B626C; --rb-file-ink: #fff;
+  /* rulers follow the ribbon gray, including the marks and indent handles */
+  --ruler: #eaedf1; --ruler-off: #d5d8de; --ruler-line: #b6babf; --tabsel-line: #8b9097;
+  --ruler-mark-bg: #f1f3f4; --ruler-mark-line: #8b9097;
+  --ruler-tick: #5B626C; --ruler-ink: #444; --ruler-deftab: #8b9097; --ruler-row: #b6babf; --indent-fill: #fff; --indent-line: #5B626C;
+  --ruler-off-2: #d5d8de; --ruler-tick-2: #5B626C; --ruler-ink-2: #444;
 }
+[data-look="ribbon2010"] :is(.r-corner, .ruler, .ruler-h) { background: #eaedf1; }
+[data-look="ribbon2010"] .ruler-v { background: #eaedf1; }
 [data-look="ribbon2010"] .cmdbars { background: #eaedf1; border-bottom-color: transparent; }
-[data-look="ribbon2010"] .rb-tab { border-radius: 4px 4px 0 0; padding: 5px 10px; }
+[data-look="ribbon2010"] .rb-tab { border-radius: 4px 4px 0 0; padding: 5px 10px; min-width: 60px; text-align: center; }
 [data-look="ribbon2010"] .rb-tab:hover { background: #f1f3f4; border-color: #b6babf; }
-[data-look="ribbon2010"] .rb-tab.on, [data-look="ribbon2010"] .rb-tab.on:hover { background: #fff; border-color: #b6babf; border-bottom-color: #fff; color: #444; }
-[data-look="ribbon2010"] .rb-tab.file, [data-look="ribbon2010"] .rb-tab.file:hover { color: #fff; background: linear-gradient(#4488e5, #2860b3); border: 1px solid #1f48a1; border-bottom-color: #4488e5; padding: 5px 20px; }
-[data-look="ribbon2010"] .rb-tab.file:hover { background: linear-gradient(#5498f5, #3870c3); }
-[data-look="ribbon2010"] .rb-panel, [data-look="ribbon2010"] .rb-pop { background: linear-gradient(#fff, #eaedf1); border-top: 1px solid #b6babf; border-bottom: 1px solid #8b9097; }
+[data-look="ribbon2010"] .rb-tab.on, [data-look="ribbon2010"] .rb-tab.on:hover { background: #fff; border-color: #b6babf; border-bottom-color: #fff; color: #444; top: 0; }
+[data-look="ribbon2010"] .rb-tab.file {
+  position: relative; z-index: 0; overflow: hidden; color: #fff; border-color: #1f48a1; border-bottom: 0;
+  background: linear-gradient(#458ae6 0%, #3a78d4 10%, #2b63b5 28%, #275fb1 55%, #2561b4 68%, #2866c5 86%, #2d70cf 100%);
+}
+[data-look="ribbon2010"] .rb-tab.file::before, [data-look="ribbon2010"] .rb-tab.file::after {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: -15px; width: 50%; pointer-events: none;
+}
+[data-look="ribbon2010"] .rb-tab.file::before { left: 0; background: radial-gradient(ellipse 130% 85% at 100% 82%, rgba(110, 176, 245, .80) 0%, rgba(70, 145, 225, .28) 46%, transparent 74%); }
+[data-look="ribbon2010"] .rb-tab.file::after { right: 0; background: radial-gradient(ellipse 130% 85% at 0% 82%, rgba(110, 176, 245, .80) 0%, rgba(70, 145, 225, .28) 46%, transparent 74%); }
+[data-look="ribbon2010"] .rb-tab.file:hover { background: linear-gradient(#54a0f3 0%, #427edc 12%, #3368bf 28%, #2f67bb 56%, #3674c6 78%, #5093e6 100%); }
+[data-look="ribbon2010"] .rb-tab.file:active { background: linear-gradient(#2e6cc1 0%, #265dad 10%, #265db1 48%, #3168c2 64%, #3d7bd8 80%, #489aed 100%); }
+[data-look="ribbon2010"] .rb-panel, [data-look="ribbon2010"] .rb-pop { background: linear-gradient(#fff, #eaedf1); border-top: none; border-bottom: 1px solid #8b9097; }
 [data-look="ribbon2010"] .rb-panel { box-shadow: 0 1px 3px #8b9097; }
 [data-look="ribbon2010"] .rb-group:not(.rb-pop) { border-right: 1px solid #fff; box-shadow: inset -1px 0 #e0e0e0; }
 [data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) { border-radius: 3px; }
-[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .tb-btn.on, .tb-btn.on:hover, .rb-launch:hover, .rb-pin:hover) { border: 1px solid #f1c43f; background: #fdeeb3; }
-[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):active, .tb-split:active > .tb-btn:not(.dis)) { border-color: #f1c43f; background: #f1c43f; }
+/* sample.html: hover glass with a pale top and bottom, pressed gold with an inset shadow.
+   A button that stays selected uses the original ribbon hover: flat #fdeeb3, edge #F1C43F (ribbon.css .ribbon-button:hover). */
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) { border: 1px solid #f1ca58; border-bottom-color: #f6d74b; background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) .tb-btn.on:not(.dis) { border: 1px solid #F1C43F; background: #fdeeb3; box-shadow: none; }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn:not(.dis):active, .tb-split:active > .tb-btn:not(.dis), .tb-dd:active, .rb-launch:active, .rb-pin:active) { border-color: #c2762b; border-bottom-color: #c29e47; background: linear-gradient(#f3c25f, #f8cf6e 2px, #fddd81 5px, #fddd81 calc(100% - 2px), #f6ce6f); box-shadow: inset 0 1px 2px rgba(140, 72, 8, .40); transition-duration: 250ms; }
 [data-look="ribbon2010"] .rb-bar .cmd-search input { height: 21px; border-radius: 2px; border: 1px solid #8e8f8f; background: #fff; padding: 0 6px 0 22px; }
-/* the ribbon lights up at once; the copied Windows 7 timing stays on the windows and their buttons */
-[data-look="ribbon2010"] .ribbon :is(.rb-tab, .tb-btn, .tb-dd, .rb-launch, .rb-pin):not(.dis),
-[data-look="ribbon2010"] .rb-pop :is(.tb-btn, .tb-dd):not(.dis) { transition: none; }
+/* tabs change at once; toolbar buttons fade like the Windows 7 toolbar (1s, 250ms while pressed) */
+[data-look="ribbon2010"] .ribbon .rb-tab:not(.dis) { transition: none; }
+[data-look="ribbon2010"] :is(.ribbon, .rb-pop) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin):not(.dis) { transition: background 1s var(--w7-ease), border-color 1s var(--w7-ease); }
+/* lists opened from the ribbon (font, colour, grid): Paper 2016's rounded menu, in the ribbon gray, with the gold selection */
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) {
+  background: rgba(234, 237, 241, .75); backdrop-filter: blur(5px); color: #444; border: 1px solid #b6babf; border-radius: 10px; padding: 4px;
+  box-shadow: 0 6px 24px rgba(40, 44, 52, .16), 0 1px 3px rgba(40, 44, 52, .08);
+}
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-item,
+[data-look="ribbon2010"] .menu.combo-list.fonts .m-item { border: 0; border-radius: 6px; min-height: 26px; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-ico.on { border: 0; border-radius: 4px; background: transparent; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-sep { margin: 4px 8px 4px 30px; background: #b6babf; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-head { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 8px 8px 3px; color: #5B626C; background: transparent; border: 0; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.chk:not(.dis) { background: #fdeeb3; box-shadow: inset 0 0 0 1px #f1c43f; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item.act:not(.dis) { background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); box-shadow: inset 0 0 0 1px #f1ca58; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .m-check { color: #444; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) :is(.shape-grid, .style-list, .color-panel, .border-grid, .tbl-grid-pick) { background: transparent; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) :is(.shape-grid button:hover, .style-list button:hover, .cp-wide:hover, .border-grid button:hover) { background: linear-gradient(#fdf9e8 0%, #fdeeb3 8%, #fde38a 40%, #fde48c 48%, #fdf4c6 78%, #fdfdeb 100%); border-color: #f1ca58; border-bottom-color: #f6d74b; border-radius: 3px; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .cp-sw:hover { outline-color: #f1c43f; }
+[data-look="ribbon2010"] .menu:is(.combo-list, .color-menu, .grid-menu, .cs-pop) .tgp-cells span.on { background: #fdeeb3; border-color: #f1c43f; }
 
 
 /* Windows XP. Derived from XP.css themes/XP (MIT) and paint-xp/xp.css.

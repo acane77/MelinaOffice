@@ -73,12 +73,12 @@ test('opening and about content uses each app colour and does not restyle the fr
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
 });
 
-test('Windows 7 is the stored default, and its default button keeps the blue highlight', () => {
+test('Ribbon 2010 is the stored default, and the Windows 7 default button keeps the blue highlight', () => {
   const suite = read('common/suite.js');
-  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'win7'/);
-  assert.match(suite, /id: 'win7', name: N\('Windows 7'\)/);
+  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'ribbon2010'/);
+  assert.match(suite, /id: 'ribbon2010', name: N\('Ribbon 2010'\)/);
   for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
-    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'win7'/);
+    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'ribbon2010'/);
   }
   /* the reference defined the default-button colours and a pulse, then applied neither:
      the keyframes rule was not valid, and nothing selected the default button */
