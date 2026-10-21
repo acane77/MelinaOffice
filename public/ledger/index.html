@@ -168,7 +168,9 @@
 .ref-edit { display: flex; align-items: center; gap: 0; }
 .ref-edit input { flex: 1; min-width: 0; }
 .ref-edit button { width: 22px; height: 21px; margin-left: -1px; padding: 0; border: 1px solid var(--field-border); background: linear-gradient(var(--btn-a), var(--btn-b)); }
-.dlg.collapsed .dlg-body > *:not(.ref-keep), .dlg.collapsed .dlg-foot { display: none; }
+.dlg.collapsed .dlg-body > *:not(.ref-keep) { display: none; }
+.dlg.collapsed .dlg-foot { padding: 0; gap: 0; min-height: 0; }
+.dlg.collapsed .dlg-foot > * { display: none; }
 .cf-cond { border: 1px solid var(--grp-line-2); border-radius: 3px; padding: 6px 8px; margin-bottom: 6px; }
 .cf-cond .cf-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .cf-prev { flex: 1; min-width: 120px; height: 24px; border: 1px solid var(--preview-line); display: flex; align-items: center; justify-content: center; background: var(--surface); font: 11px Arial, Arimo, sans-serif; }
