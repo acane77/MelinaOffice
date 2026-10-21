@@ -476,7 +476,7 @@ support for every formula or external data source.
 
 ## Known limitations
 
-- Macros are kept in `.xlsm` files but never run; there is no VBA editor.
+- Tools ▸ Macro ▸ Macros (Alt+F8; View ▸ Macros in the Paper 2016 look) says that Ledger does not run macros and that a workbook with macros (`.xlsm`) opens and saves with them intact. There is no VBA editor.
 - PivotTables: Data ▸ PivotTable builds a static summary report. Pivot tables in opened files keep
   their cached cells and original pivot/cache parts. Source/output edits follow the rules above;
   slicer dependents are retained and the batch-3 Excel samples are accepted.

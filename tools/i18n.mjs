@@ -183,7 +183,7 @@ function scanJS(file, src, add, fragment, markedOnly) {
     if (top && top.kind === '{' && PROPS.has(top.key)) ui = true;
     if (top && top.kind === '(' && top.callee) {
       const name = top.callee.replace(/^(window|root)\./, '').replace(/^L\.ui\./, 'ui.');
-      if (CALLS[name] && CALLS[name].includes(top.arg)) ui = true;
+      if (Array.isArray(CALLS[name]) && CALLS[name].includes(top.arg)) ui = true;
       if (H.has(name) && top.arg >= 2) ui = true;
     }
     /* [['id', 'Label'], …] in the first argument of ui.select */
@@ -227,7 +227,7 @@ function gather() {
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
   for (const abs of walk(PUB).filter((f) => f.endsWith('.js')).sort()) {
     const rel = path.relative(PUB, abs).split(path.sep).join('/');
-    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/')) continue;   // word lists and vendored libraries are not UI text
+    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('quire/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
     const src = fs.readFileSync(abs, 'utf8');
     if (SKIP.has(rel)) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N
     if (rel === 'ledger/js/fninfo.js') scanFninfo(rel, src, add);

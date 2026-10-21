@@ -19,7 +19,8 @@ async function buildSample() {
   title.Range.Font.Name = 'Times New Roman';
   title.Range.Font.NameFarEast = '宋体';
 
-  title.Range.Collapse(wdCollapseEnd);
+  title.Range.Select();
+  Selection.Collapse(wdCollapseEnd);
   Selection.TypeParagraph();
   Selection.Font.Name = 'Times New Roman';
   Selection.Font.NameFarEast = '宋体';
@@ -42,8 +43,10 @@ async function buildSample() {
   Selection.TypeText('A numbered item from ListFormat');
   Selection.Range.ListFormat.ApplyNumberDefault();
   Selection.TypeParagraph();
-
+  // A numbered anchor would number every cell. Clear it for the insert, then number the paragraph that follows the table.
+  Selection.Range.ListFormat.RemoveNumbers();
   const table = ActiveDocument.Tables.Add(Selection.Range, 2, 2);
+  ActiveDocument.Paragraphs.Last.Range.ListFormat.ApplyNumberDefault();
   table.Cell(1, 1).Range.Text = 'Name';
   table.Cell(1, 2).Range.Text = 'Value';
   table.Cell(2, 1).Range.Text = 'DOM';

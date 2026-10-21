@@ -13,6 +13,7 @@ Quire is not Microsoft Word. `Creator` is not reported as Word's creator code.
 - A returned `Range` is an anchor to content Quire already addresses (a paragraph, a selection, a cell, a bookmark, a find hit). It is not a story character index. `Start` and `End` are not part of that anchor.
 - Edits go through the existing document operations (`js/ops.js`, the editor, tables, fields, notes, review, find, drawing, and the document session). Undo, redraw, and save stay on those paths.
 - The script host is Help ▸ Quire DOM Console (`public/quire/js/dom-console.js`). A snippet runs in the page, and `console.log` prints in that window. The object model itself is this inventory.
+- Calls from another language go through the DOM IR (`js/dom-ir.js`, [quire_dom_ir_specifications.md](quire_dom_ir_specifications.md)). The IR forwards this inventory. It does not add members and it does not lay out the document.
 
 Shared members `Application` and `Parent` exist on every object below and are **Implemented** (navigation only). They are not repeated on each row. `Creator` is **Not implemented** on every object (`G-ENGINE`: Quire does not report Word's creator code).
 
@@ -185,7 +186,7 @@ Anchored span. Story-index members are in the story-index section.
 
 | Member | VBA signature | Status | Gap |
 |---|---|---|---|
-| Text | Property | Implemented | Get returns the span's text. Set replaces that span. On a whole-paragraph range, the paragraph is kept: the new text replaces its runs. Word joins with the next paragraph when the assigned string has no trailing paragraph mark and the range included that mark. That join is not done. |
+| Text | Property | Implemented | Get returns the span's text. Set replaces that span. On a whole-paragraph range, the paragraph is kept: the new text replaces its runs. Word joins with the next paragraph when the assigned string has no trailing paragraph mark and the range included that mark. That join is not done. Setting `Text`, a paragraph's `Style`, or its `Alignment` does not move the Selection. |
 | InsertBefore | `InsertBefore(Text)` | Implemented | |
 | InsertAfter | `InsertAfter(Text)` | Implemented | |
 | InsertParagraph | `InsertParagraph()` | Implemented | |
@@ -193,7 +194,7 @@ Anchored span. Story-index members are in the story-index section.
 | InsertParagraphAfter | `InsertParagraphAfter()` | Implemented | |
 | Delete | `Delete()` | Implemented | No `Unit` / `Count` (G-STORY). |
 | Select | `Select()` | Implemented | |
-| Collapse | `Collapse(Direction)` | Implemented | |
+| Collapse | `Collapse(Direction)` | Implemented | Collapses this range. The Selection stays where it is. |
 | Duplicate | `Duplicate()` | Implemented | A second anchor to the same span. |
 | Copy, Cut, Paste | `Copy()`, `Cut()`, `Paste()` | Implemented | Same clipboard limit as Selection. |
 | Font | Property | Implemented | |
@@ -244,7 +245,7 @@ Wrapped from `js/tables.js`. A `Cell.Range` is the cell's paragraphs, not a stor
 | Member | VBA signature | Status | Gap |
 |---|---|---|---|
 | Tables.Count, Item | `Item(Index)` | Implemented | Document order. |
-| Tables.Add | `Add(Range, NumRows, NumColumns, DefaultTableBehavior, AutoFitBehavior)` | Implemented | Inserts at the anchor. `DefaultTableBehavior` and `AutoFitBehavior` are G-ENGINE; the table uses Quire's current insert. |
+| Tables.Add | `Add(Range, NumRows, NumColumns, DefaultTableBehavior, AutoFitBehavior)` | Implemented | Inserts at the anchor. `DefaultTableBehavior` and `AutoFitBehavior` are G-ENGINE; the table uses Quire's current insert. When that paragraph is in a list, every cell paragraph joins the same list and the numbers continue through the table. |
 | Table.Cell | `Cell(Row, Column)` | Implemented | 1-based. A merged cell is returned for each grid square it covers. |
 | Table.Rows, Columns, Range | Properties | Implemented | `Range` is the whole table's cell contents. |
 | Table.Style | Property | Implemented | Table styles Quire can apply. |

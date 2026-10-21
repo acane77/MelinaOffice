@@ -60,6 +60,35 @@ test('a function inside a string or another function is not published', async ()
   delete globalThis.named;
 });
 
+test('a VB line stays open for a continuation or an unfinished block', () => {
+  assert.equal(L.domConsole.vbNeedsMore('x = 1 _'), true);
+  assert.equal(L.domConsole.vbNeedsMore('x = 1 _\n + 2'), false);
+  assert.equal(L.domConsole.joinVb('x = 1 _\n + 2'), 'x = 1 + 2');
+  assert.equal(L.domConsole.vbNeedsMore('Sub Main()\n  x = 1'), true);
+  assert.equal(L.domConsole.vbNeedsMore('Sub Main()\n  x = 1\nEnd Sub'), false);
+  assert.equal(L.domConsole.vbNeedsMore('Function Twice(n As Long) As Long\n  Twice = n * 2'), true);
+  assert.equal(L.domConsole.vbNeedsMore('Function Twice(n As Long) As Long\n  Twice = n * 2\nEnd Function'), false);
+  assert.equal(L.domConsole.vbNeedsMore('If a Then'), true);
+  assert.equal(L.domConsole.vbNeedsMore('If a Then b = 1'), false);
+  assert.equal(L.domConsole.vbNeedsMore('If a Then\n  b = 1\nEnd If'), false);
+  assert.equal(L.domConsole.vbNeedsMore('With ActiveDocument\nEnd With'), false);
+  assert.equal(L.domConsole.vbNeedsMore('x = 1'), false);
+});
+
+test('an empty console script opens on the sample that types at the cursor', () => {
+  const sample = L.domConsole.scriptSource('');
+  assert.equal(sample, L.domConsole.scriptSource(null));
+  assert.equal(sample, L.domConsole.scriptSource(' \n\t'));
+  assert.match(sample, /^' Welcome to Visual Basic Playground\n/);
+  assert.match(sample, /click Run to run and test it/);
+  assert.match(sample, /https:\/\/learn\.microsoft\.com\/en-us\/office\/vba\/api\/overview\/Word\/object-model/);
+  assert.match(sample, /' Your code should contain a Main procedure\nSub Main\(\)/);
+  assert.match(sample, /Selection\.TypeText "Hello World from Visual Basic"/);
+  assert.doesNotMatch(sample, /Documents\.Add/);
+  const kept = 'Sub Main()\n  x = 1\nEnd Sub\n';
+  assert.equal(L.domConsole.scriptSource(kept), kept);
+});
+
 test('the page globals are visible', async () => {
   fresh();
   assert.equal(await L.domConsole.evaluate('ActiveDocument.Paragraphs.Count'), 1);

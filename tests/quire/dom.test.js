@@ -117,7 +117,7 @@ test('collapsed font is used by the next TypeText', () => {
   assert.ok(Selection.Font.Bold);
 });
 
-test('a heading stays when the next sentence is typed after it', () => {
+test('typing stays in the heading when the range edit did not move the selection', () => {
   fresh();
   Documents.Add();
   const p = ActiveDocument.Paragraphs(1);
@@ -130,12 +130,39 @@ test('a heading stays when the next sentence is typed after it', () => {
   Selection.TypeText('Quire exposes a Word object model. ');
   Selection.Font.Bold = true;
   Selection.TypeText('This sentence is bold.');
+  assert.equal(ActiveDocument.Paragraphs.Count, 2);
+  assert.equal(D.ptext(ActiveDocument.Paragraphs(1)._block), '');
+  assert.equal(ActiveDocument.Paragraphs(1)._block.pPr.style, 'Heading1');
+  const merged = ActiveDocument.Paragraphs(2)._block;
+  assert.equal(D.ptext(merged), 'Quire exposes a Word object model. This sentence is bold.DOM Test');
+  assert.equal(merged.pPr.style, 'Heading1');
+  assert.equal(merged.pPr.jc, 'center');
+  const runs = merged.runs.filter((r) => r.t === 'text');
+  assert.ok(runs.length && runs.every((r) => r.rPr && r.rPr.color === '000080'));
+  assert.equal(runs.filter((r) => r.rPr && r.rPr.b).map((r) => r.text).join(''), 'This sentence is bold.');
+});
+
+test('a heading stays when the selection is moved to its end first', () => {
+  fresh();
+  Documents.Add();
+  const p = ActiveDocument.Paragraphs(1);
+  p.Style = 'Heading 1';
+  p.Alignment = wdAlignParagraphCenter;
+  p.Range.Text = 'DOM Test';
+  p.Range.Font.Color = wdColorDarkBlue;
+  p.Range.Select();
+  Selection.Collapse(wdCollapseEnd);
+  Selection.TypeParagraph();
+  Selection.TypeText('Quire exposes a Word object model. ');
+  Selection.Font.Bold = true;
+  Selection.TypeText('This sentence is bold.');
   assert.equal(D.ptext(ActiveDocument.Paragraphs(1)._block), 'DOM Test');
   assert.equal(ActiveDocument.Paragraphs(1)._block.pPr.style, 'Heading1');
   assert.equal(ActiveDocument.Paragraphs(1)._block.pPr.jc, 'center');
   assert.equal(ActiveDocument.Paragraphs(1)._block.runs.find((r) => r.t === 'text').rPr.color, '000080');
   const body = ActiveDocument.Paragraphs(2)._block;
   assert.equal(D.ptext(body), 'Quire exposes a Word object model. This sentence is bold.');
+  assert.notEqual(body.pPr.style, 'Heading1');
   assert.equal(body.runs.filter((r) => r.t === 'text' && r.rPr && r.rPr.b).map((r) => r.text).join(''), 'This sentence is bold.');
 });
 
@@ -151,7 +178,8 @@ test('Latin and East Asian faces are stored on the same run', () => {
   assert.equal(run.rPr.fontEA, '宋体');
   assert.equal(p.Range.Font.Name, 'Times New Roman');
   assert.equal(p.Range.Font.NameFarEast, '宋体');
-  p.Range.Collapse(wdCollapseEnd);
+  p.Range.Select();
+  Selection.Collapse(wdCollapseEnd);
   Selection.TypeParagraph();
   Selection.Font.Name = 'Times New Roman';
   Selection.Font.NameFarEast = '宋体';
@@ -160,6 +188,45 @@ test('Latin and East Asian faces are stored on the same run', () => {
   assert.equal(typed.rPr.font, 'Times New Roman');
   assert.equal(typed.rPr.fontEA, '宋体');
   assert.equal(D.ptext(p._block), 'DOM 标题');
+});
+
+test('a table inserted in a numbered paragraph continues the list through every cell', () => {
+  fresh();
+  Documents.Add();
+  Selection.TypeText('Item');
+  Selection.Range.ListFormat.ApplyNumberDefault();
+  Selection.TypeParagraph();
+  const table = ActiveDocument.Tables.Add(Selection.Range, 2, 2);
+  const labels = D.computeLists(D.doc);
+  const item = ActiveDocument.Paragraphs(1)._block;
+  assert.equal(labels.get(item.id).text, '1.');
+  const nums = [];
+  for (const row of table._table.rows) for (const cell of row.cells) {
+    const p = cell.blocks[0];
+    assert.equal(p.pPr.num.id, item.pPr.num.id);
+    nums.push(labels.get(p.id).text);
+  }
+  assert.deepEqual(nums, ['2.', '3.', '4.', '5.']);
+  const after = D.doc.main.blocks[D.doc.main.blocks.length - 1];
+  assert.equal(labels.get(after.id).text, '6.');
+});
+
+test('clearing the list before the table keeps the cells plain and the following paragraph numbered', () => {
+  fresh();
+  Documents.Add();
+  Selection.TypeText('Item');
+  Selection.Range.ListFormat.ApplyNumberDefault();
+  Selection.TypeParagraph();
+  Selection.Range.ListFormat.RemoveNumbers();
+  const table = ActiveDocument.Tables.Add(Selection.Range, 2, 2);
+  ActiveDocument.Paragraphs.Last.Range.ListFormat.ApplyNumberDefault();
+  for (const row of table._table.rows) for (const cell of row.cells) {
+    const num = cell.blocks[0].pPr.num;
+    assert.ok(!num || num.id === '0');
+  }
+  const labels = D.computeLists(D.doc);
+  assert.equal(labels.get(ActiveDocument.Paragraphs(1)._block.id).text, '1.');
+  assert.equal(labels.get(ActiveDocument.Paragraphs.Last._block.id).text, '2.');
 });
 
 test('Tables.Add inserts a grid and cell text keeps the paragraph', () => {

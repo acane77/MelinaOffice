@@ -15,3 +15,4 @@ node_modules
 !/.github
 /refs
 /todos
+/public/quire/vendor/vb6/

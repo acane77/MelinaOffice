@@ -1,0 +1,3 @@
+[submodule "third_party/VB6"]
+	path = third_party/VB6
+	url = git@github.com:acane77/VB6.git
