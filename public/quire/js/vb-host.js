@@ -1,5 +1,6 @@
 /* Quire VB host. Immediate VM for evalVB6, a second VM for runVB6,
-   and a document-macro VM that stays loaded so macros can call each other.
+   a document-macro VM that stays loaded so macros can call each other,
+   and a debug VM for the Visual Basic IDE (debugBegin / debugEnd).
    Form slots stay empty until a form project is loaded.
    Build the engine first: make */
 (function () {
@@ -455,6 +456,77 @@
     }
   };
 
+  /* Debug VM for the Visual Basic IDE. The Immediate VM stays. Maps stay swapped until debugEnd. */
+  QuireVbHost.prototype.debugBegin = async function (source) {
+    if (this.script) throw new Error('A VB script is running');
+    if (this.vm && this.vm.debugEvaluation) throw new Error('A VB statement is running');
+    if (!this.vm || this.vm.state === 'stopped' || !this.ir || !this.engine) {
+      throw new Error('The VB runtime is not running');
+    }
+    const project = projectOf('quire-vb-ide', [
+      { id: 'quire-dom', name: 'QuireDOM', kind: 'module', code: moduleCode() },
+      { id: 'module1', name: 'Module1', kind: 'module', code: String(source) },
+    ]);
+    const program = this.engine.compileProject(project);
+    if (!program.valid) {
+      const err = new Error(program.diagnostics.map(function (d) {
+        return d.source + ':' + d.line + ': ' + d.message;
+      }).join('\n'));
+      err.diagnostics = program.diagnostics;
+      err.number = 1002;
+      throw err;
+    }
+    const saved = { byHandle: this.byHandle, byObject: this.byObject, auto: this.auto };
+    this.byHandle = new Map();
+    this.byObject = new WeakMap();
+    this.auto = null;
+    let machine = null;
+    try {
+      const vmHost = this.machineHost(this.registry());
+      /* Debug.Print stays on the VM output event. The DOM console reads host.output. */
+      vmHost.print = function () {};
+      vmHost.error = function () {};
+      machine = new this.engine.VirtualMachine(program, vmHost, {
+        debuggerEnabled: true,
+        debugStatements: true,
+        errorTrapping: 'unhandled',
+      });
+      const host = this;
+      const initialize = machine.initialize.bind(machine);
+      machine.initialize = async function () {
+        await initialize();
+        await host.bindQuire(machine);
+      };
+      this.script = machine;
+      this.debugSaved = saved;
+      return { vm: machine, moduleName: 'Module1' };
+    } catch (error) {
+      if (machine && machine.stop && machine.state !== 'stopped') {
+        try { machine.stop(); } catch (e) { /* already stopped */ }
+      }
+      this.script = null;
+      this.debugSaved = null;
+      this.byHandle = saved.byHandle;
+      this.byObject = saved.byObject;
+      this.auto = saved.auto;
+      throw error;
+    }
+  };
+
+  QuireVbHost.prototype.debugEnd = function () {
+    if (!this.debugSaved) return;
+    const saved = this.debugSaved;
+    this.debugSaved = null;
+    const machine = this.script;
+    this.script = null;
+    if (machine && machine.stop && machine.state !== 'stopped') {
+      try { machine.stop(); } catch (e) { /* already stopped */ }
+    }
+    this.byHandle = saved.byHandle;
+    this.byObject = saved.byObject;
+    this.auto = saved.auto;
+  };
+
   QuireVbHost.prototype.eval = function (text) {
     if (this.script) return Promise.reject(new Error('A VB script is running'));
     if (!this.vm || this.vm.state === 'stopped') return Promise.reject(new Error('The VB runtime is not running'));
@@ -462,6 +534,7 @@
   };
 
   QuireVbHost.prototype.close = function () {
+    this.debugEnd();
     this.unloadMacros();
     const script = this.script;
     this.script = null;

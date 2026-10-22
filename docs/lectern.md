@@ -39,7 +39,8 @@ Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testi
 | `js/commands.js` | Every menu/toolbar command |
 | `js/dom.js` | PowerPoint object model on the open presentation (Help ▸ Lectern DOM Console) |
 | `js/dom-ir.js` | Handle protocol the VB host calls |
-| `js/vb-host.js` | Immediate VB (`evalVB6`), Run Script (`runVB6`), and the document-macro VM |
+| `js/vb-host.js` | Immediate VB (`evalVB6`), Run Script (`runVB6`), the document-macro VM, and `debugBegin` / `debugEnd` for View ▸ Visual Basic IDE |
+| `../common/vb-ide.js` | View ▸ Visual Basic IDE: one Module1, breakpoints, stepping, call stack, object values, expression |
 | `js/macros.js` | Macros in the presentation (`urn:vibeoffice:macros`) and in this browser |
 | `js/dom-console.js`, `js/vb-dom-ref.js`, `../common/vb-dom-ref.js` | The DOM Console window, and the Visual Basic DOM API Reference task pane |
 | `js/app.js` | Application wiring, keyboard shortcuts, clipboard, sample deck (Harbor & Pine Coffee, 16:9 on the Evergreen design: a title picture drawn with shapes, figure cards, a chart, a table, a shape timeline, a Funnel, builds) |
@@ -394,3 +395,5 @@ Tools ▸ Macro ▸ Macros (Alt+F8), and View ▸ Macros on the Paper 2016 ribbo
 A macro is one standard module whose public Sub has the macro's name. The modules are compiled together, so one macro can call another. Current Document is a custom XML part (`urn:vibeoffice:macros`) on `ppt/presentation.xml`, written with `.pptx`, `.pptm`, `.ppsx`, `.ppsm`, `.potx` and `.potm`. PowerPoint leaves that part in place and does not run it. All templates and documents is stored in this browser (`vibeoffice.lectern.allMacros`), not in the file. A VBA project in the file is kept and is not listed or run. Saving as HTML, PNG, PDF or text asks before continuing, because those files cannot store the macros.
 
 Edit and Create open the DOM Console on that macro. Run there compiles the buffer with the other saved macros. Run Script from the console, without a macro, is still `runVB6` and does not see them. Step Into and Organizer stay disabled. `node --test tests/lectern/macros.test.mjs` checks the part, undo and the browser list.
+
+View ▸ Visual Basic IDE opens a modeless window that debugs one standard module, Module1, against the open presentation. Start Debug stops on breakpoints. Start Run does not install them. Continue, Step Into and Step Over are statement steps. A breakpoint row shows that source line. A call-stack row shows the line and the procedure name, and jumps to that line when it is in the editor. Expression evaluates only while paused. The project is a JSON file. Closing the window stops the session. It does not design a form, and it is not the macro editor.

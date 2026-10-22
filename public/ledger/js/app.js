@@ -506,7 +506,7 @@
       {
         label: '&View', items: () => ['viewNormal', 'viewPageBreak', '-', 'taskPane',
           { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_borders', 'tb_chart', 'tb_drawing', 'tb_auditing', 'tb_reviewing', 'tb_picture', 'tb_list', '-', 'customize'] },
-          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg'],
+          'formulaBar', 'statusBar', '-', 'headerFooter', 'showComments', '-', 'fullScreen', 'zoomDlg', '-', 'vbIde'],
       },
       {
         label: '&Insert', items: () => ['insertCells', 'insertRows', 'insertCols', 'insertSheet', 'insertChart', 'insertSymbol', 'insertPageBreak', '-', 'insertFunction',

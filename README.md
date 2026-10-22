@@ -80,6 +80,28 @@ The goal: edit a Word, Excel or PowerPoint file here, save it in the same format
 
 4,697 real files from public test collections (LibreOffice, Apache POI, Open XML SDK) are opened, saved, edited, undone and recovered, and every save is compared with the original. Where the apps stand today, the known gaps and what comes next: [docs/LOSSLESS_SAVE.md](docs/LOSSLESS_SAVE.md).
 
+## Visual Basic 6 Support
+
+*Melina is still working on introducing more APIs and functionalities.*
+
+### VB6 IDE
+
+Editing, running and testing code in VB6 IDE.
+
+With VB6 IDE, you can easily debug your code, make your development faster.
+
+<p align="center">
+  <img src="docs/images/VB6_IDE.png" width="720" alt="VB6 IDE">
+</p>
+
+### VB6 Playground
+
+Or you just want a place to run code snippets, use VB6 console or VB6 Playground
+
+<p align="center">
+  <img src="docs/images/VB6_Playground.png" width="720" alt="VB6 Playground">
+</p>
+
 ## Equations in LaTeX
 
 I personally found Apple Pages' equation editor is easier to use than Word's during the experience when I was completing my Master degree's thsis, so this one is inspired by it: type the formula in LaTeX. Word opens the file and shows the same formula.
@@ -88,15 +110,6 @@ I personally found Apple Pages' equation editor is easier to use than Word's dur
   <img src="docs/images/formula-editing.png" width="720" alt="Quire's Edit Equation dialog">
 </p>
 
-## VB6 Playground
-
-*Melina is still working on introducing more APIs and functionalities.*
-
-Editing, running and testing code in VB6 code editor.
-
-<p align="center">
-  <img src="docs/images/VB6_Playground.png" width="720" alt="Quire's Edit Equation dialog">
-</p>
 
 ## The apps
 

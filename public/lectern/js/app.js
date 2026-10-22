@@ -68,7 +68,7 @@
         label: '&View', items: () => ['viewNormal', 'viewSorter', 'showFromStart', 'viewNotes', '-',
           { label: '&Master', sub: ['viewMaster'] },
           { label: 'Co&lor/Grayscale', sub: ['viewColor', 'viewGray', 'viewBW'] }, '-',
-          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg'],
+          'taskPane', 'slidesPane', { label: '&Toolbars', sub: ['tb_standard', 'tb_formatting', 'tb_drawing', 'tb_outlining', 'tb_picture', 'tb_tables', 'tb_wordart'] }, 'ruler', 'gridGuides', '-', 'headerFooter', '-', 'zoomDlg', '-', 'vbIde'],
       },
       {
         label: '&Insert', items: ['newSlide', 'duplicateSlide', '-', 'insertSlideNumber', 'insertDateTime', 'insertSymbol', '-', 'slidesFromFiles', 'slidesFromOutline', '-',
