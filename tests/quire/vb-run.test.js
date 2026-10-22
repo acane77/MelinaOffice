@@ -90,6 +90,22 @@ test('runVB6 compiles a module without disturbing Immediate locals', { timeout: 
     }
     assert.equal(ActiveDocument.Paragraphs(1).Range.Text, 'ok\r');
     assert.equal(await evalVB6('?scratch'), 7);
+
+    const live = [];
+    host.onPrint = () => { live.push(host.output[host.output.length - 1]); };
+    let atBox = null;
+    host.msgBox = () => {
+      atBox = live.slice();
+      return Promise.resolve(7);
+    };
+    try {
+      await runVB6('Sub Main()\n  Debug.Print "one"\n  MsgBox "again?"\n  Debug.Print "two"\nEnd Sub');
+      assert.deepEqual(atBox, ['one']);
+      assert.deepEqual(live, ['one', 'two']);
+    } finally {
+      host.onPrint = null;
+      host.msgBox = null;
+    }
   } finally {
     const host = await L.vb.session();
     host.close();

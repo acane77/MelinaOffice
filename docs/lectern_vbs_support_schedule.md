@@ -73,7 +73,7 @@ Implemented. `tests/lectern/vb-run.test.js`. `Twice(21)` is 42 and does not chan
 
 ### P5. DOM Console
 
-Implemented. Help ▸ Lectern DOM Console, and the same command on the File menu of the Paper 2016 ribbon. The window is modeless. The language starts as Visual Basic 6 and is remembered in `vibeoffice.lectern.domConsole.lang`. JavaScript still runs. Run Script stores its buffer in `vibeoffice.lectern.vbScript`. The default sample sets the title placeholder and points at the PowerPoint VBA object model. After a line or a script, the slide is drawn again.
+Implemented. Help ▸ Lectern DOM Console, and the same command on the File menu of the Paper 2016 ribbon. The window is modeless. The language starts as Visual Basic 6 and is remembered in `vibeoffice.lectern.domConsole.lang`. JavaScript still runs. Run Script stores its buffer in `vibeoffice.lectern.vbScript`. The default sample sets the title placeholder and points at the PowerPoint VBA object model. After a line or a script, the slide is drawn again. Debug.Print is written to the Output box when the statement runs, so the line is visible while a message box is still open.
 
 `tests/lectern/vb-milestones-sample.js` is pasted into that window with the language set to JavaScript, then `await runVbMilestones()`. It is not a Node test. Node runs the `vb-m*.test.js` files.
 

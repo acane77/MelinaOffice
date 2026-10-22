@@ -241,7 +241,11 @@
     const host = this;
     const vmHost = {
       automation: registry,
-      print: function (text) { host.output.push(text == null ? '' : String(text)); },
+      /* onPrint runs in this turn, so the Output box can show the line before MsgBox waits. */
+      print: function (text) {
+        host.output.push(text == null ? '' : String(text));
+        if (typeof host.onPrint === 'function') host.onPrint();
+      },
       error: function (err) { host.errors.push(err); },
     };
     for (let i = 0; i < SLOTS.length; i++) {

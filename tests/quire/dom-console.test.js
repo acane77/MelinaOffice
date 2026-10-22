@@ -89,6 +89,29 @@ test('an empty console script opens on the sample that types at the cursor', () 
   assert.equal(L.domConsole.scriptSource(kept), kept);
 });
 
+test('a print is shown while the script is still waiting', async () => {
+  const host = { output: ['earlier'] };
+  const shown = [];
+  let release;
+  const paused = new Promise((resolve) => { release = resolve; });
+  const stop = L.domConsole.followPrints(host, (line) => { shown.push(line); });
+  const running = (async () => {
+    host.output.push('0.3750879');
+    host.onPrint();
+    await paused;
+    host.output.push('done');
+    host.onPrint();
+  })();
+  assert.deepEqual(shown, ['0.3750879']);
+  release();
+  await running;
+  stop();
+  assert.deepEqual(shown, ['0.3750879', 'done']);
+  host.output.push('after');
+  assert.equal(host.onPrint, undefined);
+  assert.deepEqual(shown, ['0.3750879', 'done']);
+});
+
 test('the page globals are visible', async () => {
   fresh();
   assert.equal(await L.domConsole.evaluate('ActiveDocument.Paragraphs.Count'), 1);
