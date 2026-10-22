@@ -76,7 +76,7 @@ with passwords), Goal Seek, Scenarios (with summary report), Formula Auditing (t
 dependents and errors with arrows, Evaluate Formula step by step, Watch Window, Show Formulas),
 Calculate Now (F9), AutoCorrect Options, Options (View, Calculation with manual mode and iteration,
 Edit, General, Spelling…). Tools ▸ Macro ▸ Macros (Alt+F8) first shows Notice on Macros in Ledger, unless Never show this message again was checked the last time OK was clicked. OK opens the Macros window. Macros in is Current Document or All templates and documents. Current Document macros stay in the workbook, in a custom XML part (`urn:vibeoffice:macros`). All templates and documents is stored in this browser (`vibeoffice.ledger.allMacros`), the same list for every workbook opened here. A VBA project in the file is kept and is not listed or run. Help ▸ Ledger DOM Console runs Visual Basic 6 against the open workbook
-through the Excel-shaped object model (`js/dom.js`). It does not run `vbaProject.bin`. The inventory,
+through the Excel-shaped object model (`js/dom.js`). DOM API References opens the Visual Basic DOM API Reference on the task pane (`js/vb-dom-ref.js`), which lists the members this app runs and how they differ from Microsoft VBA. It does not run `vbaProject.bin`. The inventory,
 the handle protocol, the milestones and the schedule are
 [ledger_dom_api_specifications.md](ledger_dom_api_specifications.md),
 [ledger_dom_ir_specifications.md](ledger_dom_ir_specifications.md),
@@ -523,7 +523,7 @@ support for every formula or external data source.
 | `../common/ui.js`, `../common/search.js`, `../common/icons.js`, `../common/looks.css`, `../common/ui.css`, `js/commands.js`, `js/dialogs*.js`, `js/app.js` | Menus, toolbars and dialogs; Search commands; original 16×16 icons; the command registry; the application controller |
 | `../common/scout/` | Scout, the assistant: Help ▸ Show the Assistant ([suite.md](suite.md#the-assistant-scout)) |
 | `js/ribbon.js`, `../common/ribbon.js` | The Paper 2016 look's ribbon: Excel's tabs and groups over Ledger's commands ([suite.md](suite.md#the-ribbon)) |
-| `js/dom.js`, `js/dom-ir.js`, `js/vb-host.js`, `js/dom-console.js` | The Excel-shaped object model, the handle protocol, the VB6 host and Help ▸ Ledger DOM Console. The engine bundle under `vendor/vb6/` is gitignored |
+| `js/dom.js`, `js/dom-ir.js`, `js/vb-host.js`, `js/dom-console.js`, `js/vb-dom-ref.js`, `../common/vb-dom-ref.js` | The Excel-shaped object model, the handle protocol, the VB6 host, Help ▸ Ledger DOM Console, and the Visual Basic DOM API Reference task pane. A member change updates [ledger_dom_api_specifications.md](ledger_dom_api_specifications.md) and `js/vb-dom-ref.js` together. The engine bundle under `vendor/vb6/` is gitignored |
 | `js/macros.js`, `../common/macros.js` | Tools ▸ Macros: the workbook's custom XML part, the All templates and documents list, and the notice |
 | `../common/dict/` | Spelling word lists (English U.S. and U.K.) and their licences (shared with Quire) |
 | `tests/ledger/` | The test harnesses described above (Node.js and Playwright) |

@@ -41,7 +41,7 @@ Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testi
 | `js/dom-ir.js` | Handle protocol the VB host calls |
 | `js/vb-host.js` | Immediate VB (`evalVB6`), Run Script (`runVB6`), and the document-macro VM |
 | `js/macros.js` | Macros in the presentation (`urn:vibeoffice:macros`) and in this browser |
-| `js/dom-console.js` | The DOM Console window |
+| `js/dom-console.js`, `js/vb-dom-ref.js`, `../common/vb-dom-ref.js` | The DOM Console window, and the Visual Basic DOM API Reference task pane |
 | `js/app.js` | Application wiring, keyboard shortcuts, clipboard, sample deck (Harbor & Pine Coffee, 16:9 on the Evergreen design: a title picture drawn with shapes, figure cards, a chart, a table, a shape timeline, a Funnel, builds) |
 | `js/templates.js` | Content templates (Project Status Report, Team Meeting, Lesson, Event Announcement) for the Start Center and File ▸ New |
 | `tests/lectern/` | The real-file test harness described below |
@@ -383,7 +383,7 @@ counts. Four pages load without console errors. All 15 batch-4 samples passed Po
 
 ## DOM Console
 
-Help ▸ Lectern DOM Console opens a modeless window on this page. The language starts as Visual Basic 6. A line is one statement (`ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text = "Hello"`). `?` reads a value. Run Script compiles a standard module whose entry is `Sub Main`. The default sample writes the title placeholder. JavaScript in the same window can call `evalVB6` and `runVB6`.
+Help ▸ Lectern DOM Console opens a modeless window on this page. The language starts as Visual Basic 6. A line is one statement (`ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text = "Hello"`). `?` reads a value. Run Script compiles a standard module whose entry is `Sub Main`. The default sample writes the title placeholder. JavaScript in the same window can call `evalVB6` and `runVB6`. DOM API References opens the Visual Basic DOM API Reference on the task pane (`js/vb-dom-ref.js`). That page lists the members this app runs and how they differ from Microsoft VBA. A change to a member updates [lectern_dom_api_specifications.md](lectern_dom_api_specifications.md) and that file together.
 
 The members, the gap codes (`G-TEXT`, `G-ENGINE`, `G-HOST`) and the worked calls are in [lectern_dom_api_specifications.md](lectern_dom_api_specifications.md). The handle protocol is [lectern_dom_ir_specifications.md](lectern_dom_ir_specifications.md). Milestones M1–M5 are implemented ([lectern_dom_ir_porting_milestones.md](lectern_dom_ir_porting_milestones.md)). The VB schedule P1–P5 is implemented; a form project is not ([lectern_vbs_support_schedule.md](lectern_vbs_support_schedule.md)). Paste `tests/lectern/vb-milestones-sample.js` into the console with the language set to JavaScript, then run `await runVbMilestones()`. The Node checks are `node --test tests/lectern/vb-m1.test.js` through `vb-m5`, plus `vb-host`, `vb-eval`, `vb-run` and `vb-macros`. The engine bundle is gitignored; `node tools/vb6/build-engine.mjs` writes it.
 

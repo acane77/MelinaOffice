@@ -30,7 +30,7 @@ Shared members `Application` and `Parent` exist on every object below and are **
 | G-ENGINE | The document has no operation that does this. A wrapper would have nothing to call. |
 | G-HOST | The member needs a filesystem path, a Word window, a modal VBA dialog, or an add-in. The in-browser document does not have that host. |
 
-**Update rule.** Any later change that adds a member, or that closes a gap, updates this table in the same change. A row that still says Not implemented is not a working member. A new member that is not listed here is not added in code; add the row first, with its status and gap.
+**Update rule.** Any later change that adds a member, or that closes a gap, updates this table in the same change. A row that still says Not implemented is not a working member. A new member that is not listed here is not added in code; add the row first, with its status and gap. The same change updates the task-pane reference in `public/quire/js/vb-dom-ref.js`. That page is what a script sees. A member listed only here, or only there, is out of date.
 
 ## Story index (not implemented)
 

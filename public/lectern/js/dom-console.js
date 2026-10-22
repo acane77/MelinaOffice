@@ -705,7 +705,7 @@
         toolButton({ label: 'Paste', icon: 'paste' }, pasteIn),
         toolButton({ label: 'Clear', icon: 'eraser' }, clearScreen),
         L.h('span', { class: 'tb-sep' }),
-        toolButton({ label: 'DOM API References', icon: 'read' }, () => { window.open('https://learn.microsoft.com/en-us/office/vba/api/overview/PowerPoint', '_blank', 'noopener'); }),
+        toolButton({ label: 'DOM API References', icon: 'read' }, () => { if (L.vbDomRef) L.vbDomRef.show(); }),
         L.h('span', { class: 'tb-sep' }),
         L.h('span', { class: 'dom-console-lang' },
           L.h('label', { for: 'dom-console-lang', html: L.ui.ampHTML('&Language:') }),

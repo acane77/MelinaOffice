@@ -12,6 +12,7 @@ A row is implemented when `dom.js` performs it. A gap is callable and rejects wi
 - Colour is `ColorFormat`. `RGB` is an Office BGR long. `ObjectThemeColor` is a Lectern slot (`dk1`, `lt1`, `accent1`, …). `SchemeColor` is one of the eight 2003 slots. Tint, shade and brightness writes are `G-ENGINE`.
 - `TextFrame2` is the same object as `TextFrame`. Members that exist only on `TextFrame2` are `G-ENGINE` or absent.
 - Edits go through the presentation model, the text operations and undo. The object model does not layout the slide and does not add members that are not in this inventory.
+- The task-pane reference is `public/lectern/js/vb-dom-ref.js`. A change to a member or a gap updates that file in the same change. That page is what a script sees. A member listed only here, or only there, is out of date.
 - `Creator` is `G-ENGINE` on every object. Lectern is not PowerPoint.
 - Shape `Left`, `Top`, `Width` and `Height` are points.
 - A text range is an anchor `{p, o}` inside one shape. `Text` joins paragraphs with a carriage return. `Characters.Count` counts stored characters and does not include that carriage return. `Characters(index)`, `Words`, `Sentences`, `Lines`, `Runs`, `Find`, `Replace`, `Start`, `Length` and the `Bound*` members are `G-TEXT`.

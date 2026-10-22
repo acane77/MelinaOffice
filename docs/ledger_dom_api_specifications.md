@@ -18,6 +18,7 @@ A row is implemented when `dom.js` performs it. A gap is callable and rejects wi
 - Copy and `PasteSpecial` use an in-app snapshot, not the operating-system clipboard. `Save` works when the workbook already has a destination. `SaveAs`, `Open`, `PrintOut`, `FullName` and `Path` are `G-HOST`. Closing the last workbook opens a blank one. With `DisplayAlerts` and a dirty book, `Close` with no `SaveChanges` argument is `G-HOST`. `SaveChanges` true is also `G-HOST`.
 - `Creator` is `G-ENGINE` on every object. Ledger is not Excel.
 - Edits go through the workbook operations and undo. The object model does not invent members that are not in this inventory.
+- The task-pane reference is `public/ledger/js/vb-dom-ref.js`. A change to a member or a gap updates that file in the same change. That page is what a script sees. A member listed only here, or only there, is out of date.
 - `vbaProject.bin` is kept, not listed and not run. Macros written here are VB6 source in the custom XML part `urn:vibeoffice:macros`, or in this browser for All templates and documents. The object model does not expose either store. `Application.Run` is `G-HOST`.
 
 ## Status and gaps
