@@ -37,6 +37,11 @@ Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testi
 | `js/pptx-read.js` | PresentationML import (themes, masters, layouts, placeholders, table styles, charts, SmartArt, custom geometry, animations; repairs damaged packages) |
 | `js/pptx-write.js` | PresentationML export (validated against the OOXML schema) |
 | `js/commands.js` | Every menu/toolbar command |
+| `js/dom.js` | PowerPoint object model on the open presentation (Help ▸ Lectern DOM Console) |
+| `js/dom-ir.js` | Handle protocol the VB host calls |
+| `js/vb-host.js` | Immediate VB (`evalVB6`), Run Script (`runVB6`), and the document-macro VM |
+| `js/macros.js` | Macros in the presentation (`urn:vibeoffice:macros`) and in this browser |
+| `js/dom-console.js` | The DOM Console window |
 | `js/app.js` | Application wiring, keyboard shortcuts, clipboard, sample deck (Harbor & Pine Coffee, 16:9 on the Evergreen design: a title picture drawn with shapes, figure cards, a chart, a table, a shape timeline, a Funnel, builds) |
 | `js/templates.js` | Content templates (Project Status Report, Team Meeting, Lesson, Event Announcement) for the Start Center and File ▸ New |
 | `tests/lectern/` | The real-file test harness described below |
@@ -369,9 +374,23 @@ counts. Four pages load without console errors. All 15 batch-4 samples passed Po
 
 ## Known limits
 
-* Legacy binary `.ppt` files must be re-saved as `.pptx` first. Macro-enabled OOXML variants keep their VBA; see *What a save keeps, converts and drops* for the remaining preservation gaps. There is no Macros command. VBA in a `.pptm` file stays in the package and is not run.
+* Legacy binary `.ppt` files must be re-saved as `.pptx` first. Macro-enabled OOXML variants keep their VBA; see *What a save keeps, converts and drops* for the remaining preservation gaps. VBA in a `.pptm` file stays in the package and is not run. Tools ▸ Macro ▸ Macros runs Lectern's own VB6 source; it does not read `vbaProject.bin`. Help ▸ Lectern DOM Console runs VB6 against the open presentation and does not see those saved macros.
 * SmartArt in a layout Lectern does not have is displayed as grouped shapes and keeps its original frame until the group's content is edited or ungrouped; PowerPoint SmartArt edited here takes our layout of the same name, so its look in PowerPoint changes to ours (*IntelliArt (SmartArt)*). When a file carries only diagram data, Lectern draws it with a built-in layout family, so unusual layouts can look simpler in the editor.
 * 3-D charts are drawn in a fixed oblique view (no perspective, no lighting); surface charts, trendlines and error bars are not drawn (they are kept in unedited charts).
 * Embedded OLE objects and ActiveX controls import as their preview pictures.
 * Fonts that aren't installed fall back to metric-compatible ones: Carlito, Caladea and Gelasio (for Calibri, Cambria and Georgia) are served with the site, and Save as Web Page embeds the ones its slides name; Arial, Times New Roman and Courier New use the computer's own copies or the Liberation/Arimo/Tinos/Cousine fonts of the same widths where installed.
 * Spelling uses the browser's spell checker.
+
+## DOM Console
+
+Help ▸ Lectern DOM Console opens a modeless window on this page. The language starts as Visual Basic 6. A line is one statement (`ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text = "Hello"`). `?` reads a value. Run Script compiles a standard module whose entry is `Sub Main`. The default sample writes the title placeholder. JavaScript in the same window can call `evalVB6` and `runVB6`.
+
+The members, the gap codes (`G-TEXT`, `G-ENGINE`, `G-HOST`) and the worked calls are in [lectern_dom_api_specifications.md](lectern_dom_api_specifications.md). The handle protocol is [lectern_dom_ir_specifications.md](lectern_dom_ir_specifications.md). Milestones M1–M5 are implemented ([lectern_dom_ir_porting_milestones.md](lectern_dom_ir_porting_milestones.md)). The VB schedule P1–P5 is implemented; a form project is not ([lectern_vbs_support_schedule.md](lectern_vbs_support_schedule.md)). Paste `tests/lectern/vb-milestones-sample.js` into the console with the language set to JavaScript, then run `await runVbMilestones()`. The Node checks are `node --test tests/lectern/vb-m1.test.js` through `vb-m5`, plus `vb-host`, `vb-eval`, `vb-run` and `vb-macros`. The engine bundle is gitignored; `node tools/vb6/build-engine.mjs` writes it.
+
+## Macros
+
+Tools ▸ Macro ▸ Macros (Alt+F8), and View ▸ Macros on the Paper 2016 ribbon, open the shared Macros window. The first time, a notice titled “Notice on Macros in Lectern” comes first. OK opens the window. Closing the title does not. “Never show this message again” stays unchecked until it is checked and OK is clicked. The flag is `lectern.macroNotice`, so Quire keeps its own.
+
+A macro is one standard module whose public Sub has the macro's name. The modules are compiled together, so one macro can call another. Current Document is a custom XML part (`urn:vibeoffice:macros`) on `ppt/presentation.xml`, written with `.pptx`, `.pptm`, `.ppsx`, `.ppsm`, `.potx` and `.potm`. PowerPoint leaves that part in place and does not run it. All templates and documents is stored in this browser (`vibeoffice.lectern.allMacros`), not in the file. A VBA project in the file is kept and is not listed or run. Saving as HTML, PNG, PDF or text asks before continuing, because those files cannot store the macros.
+
+Edit and Create open the DOM Console on that macro. Run there compiles the buffer with the other saved macros. Run Script from the console, without a macro, is still `runVB6` and does not see them. Step Into and Organizer stay disabled. `node --test tests/lectern/macros.test.mjs` checks the part, undo and the browser list.

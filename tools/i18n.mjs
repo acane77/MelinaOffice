@@ -227,7 +227,7 @@ function gather() {
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
   for (const abs of walk(PUB).filter((f) => f.endsWith('.js')).sort()) {
     const rel = path.relative(PUB, abs).split(path.sep).join('/');
-    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('quire/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
+    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('quire/vendor/') || rel.startsWith('lectern/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
     const src = fs.readFileSync(abs, 'utf8');
     if (SKIP.has(rel)) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N
     if (rel === 'ledger/js/fninfo.js') scanFninfo(rel, src, add);
