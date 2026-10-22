@@ -145,10 +145,16 @@
     const bar = document.querySelector('.minibar');
     if (bar && !bar.hidden) above(parseInt(bar.style.zIndex, 10));
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
-    /* the glass sits on a shell. The menu itself scrolls, and overflow on the blurred element paints a solid fill. */
+    /* the glass sits on a shell. The menu itself scrolls, and overflow on the blurred element paints a solid fill.
+       position:relative drops the viewport as the containing block, so the percentage max-height never applies. */
     const shell = document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark' ? h('div', { class: 'gg-menu-glass' }) : null;
     const host = shell || el;
-    if (shell) { shell.appendChild(el); el.style.position = 'relative'; }
+    if (shell) {
+      shell.appendChild(el);
+      el.style.position = 'relative';
+      el.style.maxHeight = Math.max(80, window.innerHeight - 8) + 'px';
+      el.style.overflowY = 'auto';
+    }
     host.style.zIndex = String(menuZ);
     const rows = [];
     list.forEach((it) => {

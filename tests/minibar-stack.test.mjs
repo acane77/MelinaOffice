@@ -105,10 +105,10 @@ function load() {
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/ui.js'), 'utf8'), sandbox, { filename: 'ui.js' });
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/minibar.js'), 'utf8'), sandbox, { filename: 'minibar.js' });
   sandbox.L.minibar.mount(() => []);
-  return { L: sandbox.L, bar: () => find('.minibar') };
+  return { L: sandbox.L, bar: () => find('.minibar'), document };
 }
 
-const { L, bar } = load();
+const { L, bar, document } = load();
 const z = (el) => parseInt(el.style.zIndex, 10);
 
 test('with no window open the bar sits at 2000, and a menu stays above it', () => {
@@ -149,6 +149,23 @@ test('a hidden bar does not lift the menu', () => {
   bar().style.zIndex = '9000';
   const menu = L.ui.openMenu([{ label: 'Font' }], { x: 10, y: 10 });
   assert.equal(z(menu), 6000);
+  L.ui.closeMenus();
+});
+
+test('a Golden Gate menu is capped to the viewport so a long list scrolls', () => {
+  for (const look of ['goldengate', 'goldengatedark']) {
+    document.documentElement.dataset.look = look;
+    const menu = L.ui.openMenu([{ label: 'Calibri' }, { label: 'Cambria' }], { x: 10, y: 40 });
+    assert.equal(menu.style.position, 'relative');
+    assert.equal(menu.style.maxHeight, '592px');
+    assert.equal(menu.style.overflowY, 'auto');
+    assert.equal(menu.parentNode.className, 'gg-menu-glass');
+    L.ui.closeMenus();
+  }
+  document.documentElement.dataset.look = '';
+  const plain = L.ui.openMenu([{ label: 'Calibri' }], { x: 10, y: 40 });
+  assert.equal(plain.style.maxHeight || '', '');
+  assert.notEqual(plain.parentNode.className, 'gg-menu-glass');
   L.ui.closeMenus();
 });
 
