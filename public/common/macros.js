@@ -1,5 +1,4 @@
-/* Tools ▸ Macros. Quire and Lectern fill L.macroHost and open this window after their notices.
-   Ledger shows a message and does not run macros.
+/* Tools ▸ Macros. Quire, Lectern and Ledger fill L.macroHost and open this window after their notices.
    Step Into and Organizer stay disabled: stepping waits for the Visual Basic editor. */
 (function (root) {
   'use strict';

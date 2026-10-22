@@ -62,7 +62,7 @@
  },
  "&About Ledger": {
   "where": [
-   "ledger/js/commands.js:244"
+   "ledger/js/commands.js:245"
   ]
  },
  "&About Quire": {
@@ -148,7 +148,7 @@
  },
  "&Advanced Filter...": {
   "where": [
-   "ledger/js/commands.js:213"
+   "ledger/js/commands.js:214"
   ]
  },
  "&Align or Distribute": {
@@ -235,7 +235,7 @@
  },
  "&Arrange...": {
   "where": [
-   "ledger/js/commands.js:238"
+   "ledger/js/commands.js:239"
   ]
  },
  "&Arrow": {
@@ -279,7 +279,7 @@
  },
  "&Auto Outline": {
   "where": [
-   "ledger/js/commands.js:224"
+   "ledger/js/commands.js:225"
   ]
  },
  "&AutoCorrect": {
@@ -657,7 +657,7 @@
  },
  "&Clear Outline": {
   "where": [
-   "ledger/js/commands.js:225"
+   "ledger/js/commands.js:226"
   ]
  },
  "&Clear Print Area": {
@@ -819,14 +819,14 @@
  },
  "&Create": {
   "where": [
-   "common/macros.js:41",
+   "common/macros.js:40",
    "lectern/js/dialogs.js:1065",
    "ledger/js/dialogs2.js:398"
   ]
  },
  "&Create List...": {
   "where": [
-   "ledger/js/commands.js:227"
+   "ledger/js/commands.js:228"
   ]
  },
  "&Create New": {
@@ -981,7 +981,7 @@
  },
  "&Delete": {
   "where": [
-   "common/macros.js:42",
+   "common/macros.js:41",
    "lectern/js/dialogs.js:953",
    "ledger/js/app.js:416",
    "ledger/js/app.js:478"
@@ -1152,7 +1152,7 @@
  },
  "&Edit": {
   "where": [
-   "common/macros.js:40",
+   "common/macros.js:39",
    "lectern/js/app.js:66",
    "ledger/js/app.js:502",
    "quire/js/app.js:62"
@@ -1510,7 +1510,7 @@
  },
  "&Freeze Panes": {
   "where": [
-   "ledger/js/commands.js:235"
+   "ledger/js/commands.js:236"
   ]
  },
  "&From File...": {
@@ -1548,7 +1548,7 @@
  },
  "&Functions Reference": {
   "where": [
-   "ledger/js/commands.js:243"
+   "ledger/js/commands.js:244"
   ]
  },
  "&General": {
@@ -1654,7 +1654,7 @@
  },
  "&Group...": {
   "where": [
-   "ledger/js/commands.js:220"
+   "ledger/js/commands.js:221"
   ]
  },
  "&Grouping": {
@@ -1736,7 +1736,7 @@
  },
  "&Hide Detail": {
   "where": [
-   "ledger/js/commands.js:222"
+   "ledger/js/commands.js:223"
   ]
  },
  "&Hide Slide": {
@@ -1954,7 +1954,7 @@
  },
  "&Keyboard Shortcuts": {
   "where": [
-   "ledger/js/commands.js:242",
+   "ledger/js/commands.js:243",
    "quire/js/commands.js:461"
   ]
  },
@@ -1996,6 +1996,7 @@
  "&Language:": {
   "where": [
    "lectern/js/dom-console.js:711",
+   "ledger/js/dom-console.js:721",
    "quire/js/dialogs2.js:120",
    "quire/js/dom-console.js:715"
   ]
@@ -2398,7 +2399,7 @@
  },
  "&New Window": {
   "where": [
-   "ledger/js/commands.js:237",
+   "ledger/js/commands.js:238",
    "quire/js/commands.js:456"
   ]
  },
@@ -2782,7 +2783,7 @@
  },
  "&PivotTable and PivotChart Report...": {
   "where": [
-   "ledger/js/commands.js:231"
+   "ledger/js/commands.js:232"
   ]
  },
  "&Popup menu on right mouse click": {
@@ -2943,7 +2944,7 @@
  },
  "&Refresh Data": {
   "where": [
-   "ledger/js/commands.js:232"
+   "ledger/js/commands.js:233"
   ]
  },
  "&Rehearse Timings": {
@@ -3153,7 +3154,7 @@
  },
  "&Run": {
   "where": [
-   "common/macros.js:38"
+   "common/macros.js:37"
   ]
  },
  "&Salutation": {
@@ -3278,12 +3279,12 @@
  },
  "&Show All": {
   "where": [
-   "ledger/js/commands.js:212"
+   "ledger/js/commands.js:213"
   ]
  },
  "&Show Detail": {
   "where": [
-   "ledger/js/commands.js:223"
+   "ledger/js/commands.js:224"
   ]
  },
  "&Show error alert after invalid data is entered": {
@@ -3358,7 +3359,7 @@
  },
  "&Sort...": {
   "where": [
-   "ledger/js/commands.js:208",
+   "ledger/js/commands.js:209",
    "quire/js/commands.js:445"
   ]
  },
@@ -3407,7 +3408,7 @@
  },
  "&Split": {
   "where": [
-   "ledger/js/commands.js:236",
+   "ledger/js/commands.js:237",
    "quire/js/commands.js:458"
   ]
  },
@@ -3471,7 +3472,7 @@
  },
  "&Step Into": {
   "where": [
-   "common/macros.js:39"
+   "common/macros.js:38"
   ]
  },
  "&Step value:": {
@@ -3600,7 +3601,7 @@
  },
  "&Table...|what-if": {
   "where": [
-   "ledger/js/commands.js:217"
+   "ledger/js/commands.js:218"
   ]
  },
  "&Tables": {
@@ -3756,7 +3757,7 @@
  },
  "&Total Row": {
   "where": [
-   "ledger/js/commands.js:228"
+   "ledger/js/commands.js:229"
   ]
  },
  "&Track Changes": {
@@ -3832,7 +3833,7 @@
  },
  "&Ungroup...": {
   "where": [
-   "ledger/js/commands.js:221"
+   "ledger/js/commands.js:222"
   ]
  },
  "&Unhide": {
@@ -4386,6 +4387,7 @@
  "1. If the right-click menu cannot paste, use the Paste button.": {
   "where": [
    "lectern/js/dom-console.js:662",
+   "ledger/js/dom-console.js:672",
    "quire/js/dom-console.js:666"
   ]
  },
@@ -4493,6 +4495,7 @@
  "2. A line is a Visual Basic statement. Assign directly, as in x = 1. The name stays, and a later line can use it. Read a value with ?x.": {
   "where": [
    "lectern/js/dom-console.js:665",
+   "ledger/js/dom-console.js:675",
    "quire/js/dom-console.js:669"
   ]
  },
@@ -4504,6 +4507,7 @@
  "2. Outside a function, do not declare variables with let, var, or const. Each entry runs on its own, so those declarations do not carry to the next line. Assign directly, as in x = 1. The name is then on the global object, and later entries can use it.": {
   "where": [
    "lectern/js/dom-console.js:668",
+   "ledger/js/dom-console.js:678",
    "quire/js/dom-console.js:672"
   ]
  },
@@ -4545,12 +4549,14 @@
  "3. A line ending in _ continues on the next line. An unfinished Sub, Function, If or With stays open until it ends. A whole script belongs in Run Script.": {
   "where": [
    "lectern/js/dom-console.js:666",
+   "ledger/js/dom-console.js:676",
    "quire/js/dom-console.js:670"
   ]
  },
  "3. JavaScript runs here as well, but the F12 console is the better place to run a JavaScript script.": {
   "where": [
    "lectern/js/dom-console.js:669",
+   "ledger/js/dom-console.js:679",
    "quire/js/dom-console.js:673"
   ]
  },
@@ -5235,7 +5241,7 @@
  },
  "Add-&Ins...": {
   "where": [
-   "ledger/js/commands.js:205"
+   "ledger/js/commands.js:206"
   ]
  },
  "Add/remove 12 pt space before": {
@@ -5246,6 +5252,11 @@
  "Additionally, macros created in Lectern cannot be loaded or executed by Microsoft PowerPoint, nor can macros created in PowerPoint be loaded or executed by Lectern.": {
   "where": [
    "lectern/js/dialogs.js:1161"
+  ]
+ },
+ "Additionally, macros created in Ledger cannot be loaded or executed by Microsoft Excel, nor can macros created in Excel be loaded or executed by Ledger.": {
+  "where": [
+   "ledger/js/macros.js:325"
   ]
  },
  "Additionally, macros created in Quire cannot be loaded or executed by Microsoft Word, nor can macros created in Word be loaded or executed by Quire.": {
@@ -5545,7 +5556,7 @@
  },
  "All templates and documents": {
   "where": [
-   "common/macros.js:34"
+   "common/macros.js:33"
   ]
  },
  "Allo&w overlap": {
@@ -5667,7 +5678,7 @@
  },
  "Analysis ToolPak functions (engineering, financial, date) are built in.": {
   "where": [
-   "ledger/js/commands.js:205"
+   "ledger/js/commands.js:206"
   ]
  },
  "Animate your slides": {
@@ -6142,7 +6153,7 @@
  },
  "Auto&Filter": {
   "where": [
-   "ledger/js/commands.js:211"
+   "ledger/js/commands.js:212"
   ]
  },
  "Auto&Fit to contents": {
@@ -6307,7 +6318,7 @@
  "AutoSum": {
   "where": [
    "ledger/js/app.js:1063",
-   "ledger/js/commands.js:249",
+   "ledger/js/commands.js:250",
    "ledger/js/panes.js:132",
    "ledger/js/ribbon.js:37"
   ]
@@ -6376,6 +6387,7 @@
  "Automation session is not open": {
   "where": [
    "lectern/js/vb-host.js:143",
+   "ledger/js/vb-host.js:159",
    "quire/js/vb-host.js:143"
   ]
  },
@@ -7600,7 +7612,7 @@
  "Cancel": {
   "where": [
    "common/charts.js:438",
-   "common/macros.js:44",
+   "common/macros.js:43",
    "common/suite.js:756",
    "common/suite.js:897"
   ]
@@ -8168,7 +8180,7 @@
  },
  "Chart on new sheet": {
   "where": [
-   "ledger/js/commands.js:260"
+   "ledger/js/commands.js:261"
   ]
  },
  "Chart sub-type:": {
@@ -8486,7 +8498,7 @@
    "lectern/js/app.js:1002",
    "lectern/js/dom-console.js:706",
    "lectern/js/textedit.js:786",
-   "ledger/js/ops.js:241"
+   "ledger/js/dom-console.js:716"
   ]
  },
  "Clear &All": {
@@ -8811,7 +8823,7 @@
  },
  "Co&nsolidate...": {
   "where": [
-   "ledger/js/commands.js:219"
+   "ledger/js/commands.js:220"
   ]
  },
  "Co&ntrast:": {
@@ -8994,9 +9006,9 @@
  "Column Width": {
   "where": [
    "ledger/js/dialogs.js:371",
+   "ledger/js/dom.js:335",
    "ledger/js/ops.js:564",
-   "quire/js/rulers.js:276",
-   "quire/js/tables.js:1173"
+   "quire/js/rulers.js:276"
   ]
  },
  "Column break": {
@@ -9247,7 +9259,7 @@
  },
  "Con&vert to Range": {
   "where": [
-   "ledger/js/commands.js:229"
+   "ledger/js/commands.js:230"
   ]
  },
  "Concatenates a list or range of text strings using a delimiter.": {
@@ -9280,8 +9292,8 @@
   "where": [
    "ledger/js/dialogs2.js:443",
    "ledger/js/dialogs2.js:454",
-   "ledger/js/ops.js:470",
-   "ledger/js/ribbon.js:31"
+   "ledger/js/dom.js:1032",
+   "ledger/js/dom.js:1036"
   ]
  },
  "Conditional formatting and validation": {
@@ -9637,6 +9649,7 @@
  "Copy": {
   "where": [
    "lectern/js/dom-console.js:704",
+   "ledger/js/dom-console.js:714",
    "quire/js/dom-console.js:708"
   ]
  },
@@ -9652,11 +9665,12 @@
  },
  "Copy Formula from Above": {
   "where": [
-   "ledger/js/commands.js:252"
+   "ledger/js/commands.js:253"
   ]
  },
  "Copy Sheet": {
   "where": [
+   "ledger/js/dom.js:1162",
    "ledger/js/ops.js:1099"
   ]
  },
@@ -9672,7 +9686,7 @@
  },
  "Copy Value from Above": {
   "where": [
-   "ledger/js/commands.js:253"
+   "ledger/js/commands.js:254"
   ]
  },
  "Copy formula / value from the cell above": {
@@ -10331,7 +10345,7 @@
  },
  "Current Document": {
   "where": [
-   "common/macros.js:33"
+   "common/macros.js:32"
   ]
  },
  "Current Selection": {
@@ -10540,6 +10554,7 @@
  "DOM API References": {
   "where": [
    "lectern/js/dom-console.js:708",
+   "ledger/js/dom-console.js:718",
    "quire/js/dom-console.js:712"
   ]
  },
@@ -11059,6 +11074,7 @@
  "Delete Macro": {
   "where": [
    "lectern/js/macros.js:240",
+   "ledger/js/macros.js:253",
    "quire/js/macros.js:240"
   ]
  },
@@ -11205,8 +11221,8 @@
  },
  "Descr&iption:": {
   "where": [
-   "common/macros.js:124",
-   "common/macros.js:139"
+   "common/macros.js:123",
+   "common/macros.js:138"
   ]
  },
  "Desert": {
@@ -11717,8 +11733,8 @@
   "where": [
    "lectern/js/dom-console.js:805",
    "lectern/js/dom-console.js:834",
-   "quire/js/dom-console.js:809",
-   "quire/js/dom-console.js:838"
+   "ledger/js/dom-console.js:815",
+   "ledger/js/dom-console.js:844"
   ]
  },
  "Don't capitalize after:": {
@@ -12545,7 +12561,7 @@
  },
  "Enter": {
   "where": [
-   "ledger/index.html:21"
+   "ledger/index.html:22"
   ]
  },
  "Enter + and − to move relative to the current location. Example: +4 will move forward four items.": {
@@ -13109,7 +13125,7 @@
  },
  "F&orm...": {
   "where": [
-   "ledger/js/commands.js:214"
+   "ledger/js/commands.js:215"
   ]
  },
  "F&ormat": {
@@ -14466,7 +14482,7 @@
  },
  "Formula Bar": {
   "where": [
-   "ledger/index.html:22"
+   "ledger/index.html:23"
   ]
  },
  "Formula Is": {
@@ -15682,6 +15698,7 @@
  "IR call failed": {
   "where": [
    "lectern/js/vb-host.js:171",
+   "ledger/js/vb-host.js:233",
    "quire/js/vb-host.js:171"
   ]
  },
@@ -15760,7 +15777,7 @@
  },
  "Import &Text File...": {
   "where": [
-   "ledger/js/commands.js:230"
+   "ledger/js/commands.js:231"
   ]
  },
  "Import External &Data": {
@@ -16113,7 +16130,7 @@
  "Insert Date": {
   "where": [
    "lectern/js/app.js:1265",
-   "ledger/js/commands.js:250",
+   "ledger/js/commands.js:251",
    "quire/js/commands.js:375",
    "quire/js/commands.js:539"
   ]
@@ -16176,7 +16193,7 @@
    "ledger/js/dialogs3.js:78",
    "ledger/js/panes.js:132",
    "ledger/js/ribbon.js:58",
-   "ledger/index.html:21"
+   "ledger/index.html:22"
   ]
  },
  "Insert Greeting Line": {
@@ -16354,7 +16371,7 @@
  },
  "Insert Time": {
   "where": [
-   "ledger/js/commands.js:251",
+   "ledger/js/commands.js:252",
    "quire/js/commands.js:376",
    "quire/js/commands.js:540"
   ]
@@ -16712,6 +16729,7 @@
  "JavaScript": {
   "where": [
    "lectern/js/dom-console.js:693",
+   "ledger/js/dom-console.js:703",
    "quire/js/dom-console.js:697"
   ]
  },
@@ -17124,7 +17142,17 @@
  },
  "Ledger &Help": {
   "where": [
-   "ledger/js/commands.js:241"
+   "ledger/js/commands.js:242"
+  ]
+ },
+ "Ledger DOM &Console": {
+  "where": [
+   "ledger/js/commands.js:205"
+  ]
+ },
+ "Ledger DOM Console": {
+  "where": [
+   "ledger/js/dom-console.js:933"
   ]
  },
  "Ledger Help": {
@@ -17140,7 +17168,8 @@
  "Ledger User": {
   "where": [
    "ledger/js/app.js:28",
-   "ledger/js/dialogs.js:748"
+   "ledger/js/dialogs.js:748",
+   "ledger/js/macros.js:32"
   ]
  },
  "Ledger Web Edition": {
@@ -17184,11 +17213,6 @@
    "ledger/js/print.js:383"
   ]
  },
- "Ledger does not run macros. Workbooks with macros (.xlsm) open and save with their macros intact.": {
-  "where": [
-   "ledger/js/commands.js:204"
-  ]
- },
  "Ledger found an error in the formula you entered. Do you want to accept the correction proposed below?\n\n={0}\n\n• To accept the correction, click Yes.\n• To close this message and correct the formula yourself, click No.": {
   "where": [
    "ledger/js/editor.js:252"
@@ -17216,12 +17240,12 @@
  },
  "Ledger shows one window per workbook. Use the Window menu to switch between open workbooks.": {
   "where": [
-   "ledger/js/commands.js:237"
+   "ledger/js/commands.js:238"
   ]
  },
  "Ledger spreadsheet": {
   "where": [
-   "ledger/index.html:14"
+   "ledger/index.html:15"
   ]
  },
  "Left": {
@@ -17967,8 +17991,8 @@
  },
  "M&acros in:": {
   "where": [
-   "common/macros.js:122",
-   "common/macros.js:140"
+   "common/macros.js:121",
+   "common/macros.js:139"
   ]
  },
  "M&in": {
@@ -18046,15 +18070,16 @@
  "Macro created {0} by {1}": {
   "where": [
    "lectern/js/macros.js:97",
+   "ledger/js/macros.js:101",
    "quire/js/macros.js:96"
   ]
  },
  "Macro na&me:": {
   "where": [
-   "common/macros.js:119",
-   "common/macros.js:138",
+   "common/macros.js:118",
+   "common/macros.js:137",
    "lectern/js/dom-console.js:745",
-   "quire/js/dom-console.js:749"
+   "ledger/js/dom-console.js:755"
   ]
  },
  "Macro-Enabled Presentation (*.pptm)": {
@@ -18079,10 +18104,15 @@
  },
  "Macros": {
   "where": [
-   "common/macros.js:89",
-   "common/macros.js:99",
-   "common/macros.js:128",
+   "common/macros.js:88",
+   "common/macros.js:98",
+   "common/macros.js:127",
    "lectern/js/app.js:480"
+  ]
+ },
+ "Macros created by Microsoft Excel are not executed in Ledger. A VBA project in a .xlsm file is kept in the package and is not run.": {
+  "where": [
+   "ledger/js/macros.js:324"
   ]
  },
  "Macros created by Microsoft PowerPoint are not executed in Lectern. A VBA project in a .pptm file is kept in the package and is not run.": {
@@ -18932,7 +18962,7 @@
  },
  "Name Box": {
   "where": [
-   "ledger/index.html:20"
+   "ledger/index.html:21"
   ]
  },
  "Name of the person who last saved the document": {
@@ -18952,7 +18982,7 @@
  },
  "Names": {
   "where": [
-   "ledger/index.html:20"
+   "ledger/index.html:21"
   ]
  },
  "Names in &workbook:": {
@@ -19010,6 +19040,7 @@
  "Never show this message again": {
   "where": [
    "lectern/js/dialogs.js:1154",
+   "ledger/js/macros.js:318",
    "quire/js/dialogs3.js:517"
   ]
  },
@@ -19236,7 +19267,7 @@
  },
  "Next Sheet": {
   "where": [
-   "ledger/js/commands.js:247"
+   "ledger/js/commands.js:248"
   ]
  },
  "Next Slide": {
@@ -19657,6 +19688,11 @@
    "lectern/js/dialogs.js:1157"
   ]
  },
+ "Notice on Macros in Ledger": {
+  "where": [
+   "ledger/js/macros.js:321"
+  ]
+ },
  "Notice on Macros in Quire": {
   "where": [
    "quire/js/dialogs3.js:520"
@@ -19733,6 +19769,7 @@
  },
  "Number Format": {
   "where": [
+   "ledger/js/dom.js:318",
    "ledger/js/ribbon.js:29"
   ]
  },
@@ -20118,7 +20155,7 @@
  },
  "Open workbooks are listed at the bottom of the Window menu.": {
   "where": [
-   "ledger/js/commands.js:238"
+   "ledger/js/commands.js:239"
   ]
  },
  "Open “{0}” from the Explorer.": {
@@ -20207,7 +20244,7 @@
  },
  "Or&ganizer...": {
   "where": [
-   "common/macros.js:43"
+   "common/macros.js:42"
   ]
  },
  "Orange": {
@@ -20408,6 +20445,7 @@
  "Output": {
   "where": [
    "lectern/js/dom-console.js:872",
+   "ledger/js/dom-console.js:882",
    "quire/js/dom-console.js:880"
   ]
  },
@@ -20594,6 +20632,8 @@
  },
  "Page Break": {
   "where": [
+   "ledger/js/dom.js:1219",
+   "ledger/js/dom.js:1231",
    "quire/js/editor.js:556",
    "quire/js/render.js:859"
   ]
@@ -21045,6 +21085,7 @@
  "Paste the text here, then choose OK.": {
   "where": [
    "lectern/js/dom-console.js:635",
+   "ledger/js/dom-console.js:645",
    "quire/js/dom-console.js:639"
   ]
  },
@@ -21203,8 +21244,8 @@
  },
  "Pick From Drop-down &List...": {
   "where": [
-   "ledger/js/commands.js:256",
-   "ledger/js/commands.js:257"
+   "ledger/js/commands.js:257",
+   "ledger/js/commands.js:258"
   ]
  },
  "Pick a style in the Style box at the left of the Formatting toolbar, or open Format ▸ Styles and Formatting for the full list with Modify, New Style and Select All Instances. Type a new name into the Style box to create a style from the current paragraph.": {
@@ -21662,7 +21703,7 @@
  },
  "Previous Sheet": {
   "where": [
-   "ledger/js/commands.js:248"
+   "ledger/js/commands.js:249"
   ]
  },
  "Previous Slide": {
@@ -21817,6 +21858,7 @@
  "Procedure arguments must be an array": {
   "where": [
    "lectern/js/vb-host.js:300",
+   "ledger/js/vb-host.js:346",
    "quire/js/vb-host.js:298"
   ]
  },
@@ -21824,7 +21866,8 @@
   "where": [
    "lectern/js/vb-host.js:196",
    "lectern/js/vb-host.js:337",
-   "quire/js/vb-host.js:196"
+   "ledger/js/vb-host.js:379",
+   "ledger/js/vb-host.js:448"
   ]
  },
  "Process": {
@@ -21959,6 +22002,16 @@
    "lectern/js/vb-host.js:53"
   ]
  },
+ "Public Ledger As Object": {
+  "where": [
+   "ledger/js/vb-host.js:53"
+  ]
+ },
+ "Public Property Get ActiveCell() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:75"
+  ]
+ },
  "Public Property Get ActiveDocument() As Object": {
   "where": [
    "quire/js/vb-host.js:59"
@@ -21969,14 +22022,25 @@
    "lectern/js/vb-host.js:59"
   ]
  },
+ "Public Property Get ActiveSheet() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:71"
+  ]
+ },
  "Public Property Get ActiveWindow() As Object": {
   "where": [
    "lectern/js/vb-host.js:67"
   ]
  },
+ "Public Property Get ActiveWorkbook() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:59"
+  ]
+ },
  "Public Property Get Application() As Object": {
   "where": [
    "lectern/js/vb-host.js:55",
+   "ledger/js/vb-host.js:55",
    "quire/js/vb-host.js:55"
   ]
  },
@@ -21992,7 +22056,23 @@
  },
  "Public Property Get Selection() As Object": {
   "where": [
+   "ledger/js/vb-host.js:79",
    "quire/js/vb-host.js:67"
+  ]
+ },
+ "Public Property Get ThisWorkbook() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:63"
+  ]
+ },
+ "Public Property Get Workbooks() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:67"
+  ]
+ },
+ "Public Property Get WorksheetFunction() As Object": {
+  "where": [
+   "ledger/js/vb-host.js:83"
   ]
  },
  "Public Quire As Object": {
@@ -22688,7 +22768,7 @@
  },
  "Remove &Split": {
   "where": [
-   "ledger/js/commands.js:236"
+   "ledger/js/commands.js:237"
   ]
  },
  "Remove &extra empty paragraphs": {
@@ -22790,7 +22870,7 @@
  "Repeat": {
   "where": [
    "lectern/js/slideshow.js:971",
-   "ledger/js/commands.js:258"
+   "ledger/js/commands.js:259"
   ]
  },
  "Repeat as &header row at the top of each page": {
@@ -25037,6 +25117,7 @@
  "Row Height": {
   "where": [
    "ledger/js/dialogs.js:365",
+   "ledger/js/dom.js:351",
    "ledger/js/ops.js:574",
    "quire/js/tables.js:1188"
   ]
@@ -25095,12 +25176,14 @@
  "Run": {
   "where": [
    "lectern/js/dom-console.js:877",
+   "ledger/js/dom-console.js:887",
    "quire/js/dom-console.js:885"
   ]
  },
  "Run Script": {
   "where": [
    "lectern/js/dom-console.js:701",
+   "ledger/js/dom-console.js:711",
    "quire/js/dom-console.js:705"
   ]
  },
@@ -25134,7 +25217,7 @@
  },
  "S&ettings...": {
   "where": [
-   "ledger/js/commands.js:226"
+   "ledger/js/commands.js:227"
   ]
  },
  "S&hadow": {
@@ -25282,6 +25365,7 @@
  "Save Macro": {
   "where": [
    "lectern/js/macros.js:233",
+   "ledger/js/macros.js:246",
    "quire/js/macros.js:233"
   ]
  },
@@ -25339,8 +25423,8 @@
   "where": [
    "lectern/js/dom-console.js:805",
    "lectern/js/dom-console.js:834",
-   "quire/js/dom-console.js:809",
-   "quire/js/dom-console.js:838"
+   "ledger/js/dom-console.js:815",
+   "ledger/js/dom-console.js:844"
   ]
  },
  "Save was cancelled.": {
@@ -25747,12 +25831,12 @@
  },
  "Select Current Array": {
   "where": [
-   "ledger/js/commands.js:255"
+   "ledger/js/commands.js:256"
   ]
  },
  "Select Current Region": {
   "where": [
-   "ledger/js/commands.js:254"
+   "ledger/js/commands.js:255"
   ]
  },
  "Select Objects": {
@@ -26226,7 +26310,7 @@
  },
  "Sheets": {
   "where": [
-   "ledger/index.html:32"
+   "ledger/index.html:33"
   ]
  },
  "Sheets in new work&book:": {
@@ -26320,7 +26404,7 @@
  },
  "Shortcut Menu": {
   "where": [
-   "ledger/js/commands.js:259"
+   "ledger/js/commands.js:260"
   ]
  },
  "Shortcut menu": {
@@ -27180,13 +27264,13 @@
  },
  "Sort Ascending": {
   "where": [
-   "ledger/js/commands.js:209",
+   "ledger/js/commands.js:210",
    "quire/js/commands.js:446"
   ]
  },
  "Sort Descending": {
   "where": [
-   "ledger/js/commands.js:210",
+   "ledger/js/commands.js:211",
    "quire/js/commands.js:447"
   ]
  },
@@ -27726,6 +27810,7 @@
  "Startup Sub Main or startup form was not found": {
   "where": [
    "lectern/js/vb-host.js:329",
+   "ledger/js/vb-host.js:371",
    "quire/js/vb-host.js:327"
   ]
  },
@@ -27987,7 +28072,7 @@
  },
  "Su&btotals...": {
   "where": [
-   "ledger/js/commands.js:215"
+   "ledger/js/commands.js:216"
   ]
  },
  "Su&perscript": {
@@ -28181,7 +28266,7 @@
  },
  "T&ext to Columns...": {
   "where": [
-   "ledger/js/commands.js:218"
+   "ledger/js/commands.js:219"
   ]
  },
  "T&heme...": {
@@ -28951,6 +29036,11 @@
    "ledger/js/app.js:1332"
   ]
  },
+ "The array and the range are different sizes.": {
+  "where": [
+   "ledger/js/dom.js:475"
+  ]
+ },
  "The cache has no remaining pivot tables.": {
   "where": [
    "ledger/js/pivots.js:243"
@@ -29044,6 +29134,7 @@
  "The document macros are not loaded": {
   "where": [
    "lectern/js/vb-host.js:403",
+   "ledger/js/vb-host.js:438",
    "quire/js/vb-host.js:398"
   ]
  },
@@ -29208,6 +29299,11 @@
    "lectern/js/vb-host.js:265"
   ]
  },
+ "The injected module has no Ledger object": {
+  "where": [
+   "ledger/js/vb-host.js:314"
+  ]
+ },
  "The injected module has no Quire object": {
   "where": [
    "quire/js/vb-host.js:261"
@@ -29230,7 +29326,7 @@
  },
  "The macro could not run.": {
   "where": [
-   "common/macros.js:89"
+   "common/macros.js:88"
   ]
  },
  "The macros in this document cannot be stored in this file type. Save as a Word document to keep them.": {
@@ -29241,6 +29337,7 @@
  "The macros in this document could not be compiled. {0}": {
   "where": [
    "lectern/js/macros.js:275",
+   "ledger/js/macros.js:288",
    "quire/js/macros.js:275"
   ]
  },
@@ -29251,14 +29348,16 @@
  },
  "The macros stored on this computer could not be saved.": {
   "where": [
-   "common/macros.js:99",
+   "common/macros.js:98",
    "lectern/js/dom-console.js:779",
+   "ledger/js/dom-console.js:789",
    "quire/js/dom-console.js:783"
   ]
  },
  "The macros were removed from this document.": {
   "where": [
    "lectern/js/macros.js:172",
+   "ledger/js/macros.js:178",
    "quire/js/macros.js:171"
   ]
  },
@@ -29358,6 +29457,12 @@
    "quire/js/app.js:845"
   ]
  },
+ "The password is not correct.": {
+  "where": [
+   "ledger/js/dom.js:1189",
+   "ledger/js/dom.js:1560"
+  ]
+ },
  "The password to open was removed; the next save is not encrypted.": {
   "where": [
    "quire/js/dialogs3.js:628"
@@ -29392,6 +29497,7 @@
  "The procedure name is not a legal Visual Basic identifier.": {
   "where": [
    "lectern/js/dom-console.js:817",
+   "ledger/js/dom-console.js:827",
    "quire/js/dom-console.js:821"
   ]
  },
@@ -29405,22 +29511,33 @@
    "lectern/js/dialogs.js:1162"
   ]
  },
+ "The purpose of introducing Visual Basic-based macros in Ledger is to automate workbook editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Excel's .xlsm format or VBA projects.": {
+  "where": [
+   "ledger/js/macros.js:326"
+  ]
+ },
  "The purpose of introducing Visual Basic-based macros in Quire is to automate document editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Word's .docm format or VBA projects.": {
   "where": [
    "quire/js/dialogs3.js:525"
   ]
  },
+ "The range address is not valid.": {
+  "where": [
+   "ledger/js/dom.js:248"
+  ]
+ },
  "The requested member of the collection does not exist.": {
   "where": [
    "lectern/js/dom.js:17",
+   "ledger/js/dom.js:52",
    "quire/js/dom.js:71",
-   "quire/js/dom.js:1425",
-   "quire/js/dom.js:1452"
+   "quire/js/dom.js:1425"
   ]
  },
  "The script editor did not load.": {
   "where": [
    "lectern/js/dom-console.js:739",
+   "ledger/js/dom-console.js:749",
    "quire/js/dom-console.js:743"
   ]
  },
@@ -29505,6 +29622,7 @@
  "The terminal library did not load.": {
   "where": [
    "lectern/js/dom-console.js:911",
+   "ledger/js/dom-console.js:921",
    "quire/js/dom-console.js:919"
   ]
  },
@@ -30127,13 +30245,15 @@
  "Tips:": {
   "where": [
    "lectern/js/dom-console.js:661",
+   "ledger/js/dom-console.js:671",
    "quire/js/dom-console.js:665"
   ]
  },
  "Title": {
   "where": [
    "lectern/js/model.js:498",
-   "lectern/js/panes.js:675"
+   "lectern/js/panes.js:675",
+   "ledger/js/dom.js:1431"
   ]
  },
  "Title Master": {
@@ -30715,7 +30835,7 @@
  },
  "Un&freeze Panes": {
   "where": [
-   "ledger/js/commands.js:235"
+   "ledger/js/commands.js:236"
   ]
  },
  "Un&protect Sheet...": {
@@ -30878,13 +30998,14 @@
   "where": [
    "lectern/js/dom-ir.js:436",
    "lectern/js/dom-ir.js:519",
-   "quire/js/dom-ir.js:704",
-   "quire/js/dom-ir.js:787"
+   "ledger/js/dom-ir.js:442",
+   "ledger/js/dom-ir.js:529"
   ]
  },
  "Unknown operation": {
   "where": [
    "lectern/js/dom-ir.js:529",
+   "ledger/js/dom-ir.js:539",
    "quire/js/dom-ir.js:797"
   ]
  },
@@ -31231,7 +31352,8 @@
  },
  "VB6 engine is not built. Run node tools/vb6/build-engine.mjs": {
   "where": [
-   "lectern/js/vb-host.js:32"
+   "lectern/js/vb-host.js:32",
+   "ledger/js/vb-host.js:32"
   ]
  },
  "VB6 engine is not loaded. Run make": {
@@ -31241,7 +31363,8 @@
  },
  "VB6 engine is not loaded. Run node tools/vb6/build-engine.mjs": {
   "where": [
-   "lectern/js/vb-host.js:21"
+   "lectern/js/vb-host.js:21",
+   "ledger/js/vb-host.js:21"
   ]
  },
  "VS Code Golden Gate": {
@@ -31251,7 +31374,7 @@
  },
  "Va&lidation...": {
   "where": [
-   "ledger/js/commands.js:216"
+   "ledger/js/commands.js:217"
   ]
  },
  "Validatio&n": {
@@ -31480,6 +31603,7 @@
  "Visual Basic 6": {
   "where": [
    "lectern/js/dom-console.js:692",
+   "ledger/js/dom-console.js:702",
    "quire/js/dom-console.js:696"
   ]
  },
@@ -31628,6 +31752,7 @@
  "Welcome to the DOM Console.": {
   "where": [
    "lectern/js/dom-console.js:660",
+   "ledger/js/dom-console.js:670",
    "quire/js/dom-console.js:664"
   ]
  },
@@ -31996,7 +32121,7 @@
  },
  "Worksheet grid": {
   "where": [
-   "ledger/index.html:26"
+   "ledger/index.html:27"
   ]
  },
  "Worksheets": {

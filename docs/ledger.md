@@ -75,7 +75,13 @@ or formula), Style (Normal, Comma, Currency, Percent and your own).
 with passwords), Goal Seek, Scenarios (with summary report), Formula Auditing (trace precedents,
 dependents and errors with arrows, Evaluate Formula step by step, Watch Window, Show Formulas),
 Calculate Now (F9), AutoCorrect Options, Options (View, Calculation with manual mode and iteration,
-Edit, General, Spelling…).
+Edit, General, Spelling…). Tools ▸ Macro ▸ Macros (Alt+F8) first shows Notice on Macros in Ledger, unless Never show this message again was checked the last time OK was clicked. OK opens the Macros window. Macros in is Current Document or All templates and documents. Current Document macros stay in the workbook, in a custom XML part (`urn:vibeoffice:macros`). All templates and documents is stored in this browser (`vibeoffice.ledger.allMacros`), the same list for every workbook opened here. A VBA project in the file is kept and is not listed or run. Help ▸ Ledger DOM Console runs Visual Basic 6 against the open workbook
+through the Excel-shaped object model (`js/dom.js`). It does not run `vbaProject.bin`. The inventory,
+the handle protocol, the milestones and the schedule are
+[ledger_dom_api_specifications.md](ledger_dom_api_specifications.md),
+[ledger_dom_ir_specifications.md](ledger_dom_ir_specifications.md),
+[ledger_dom_ir_porting_milestones.md](ledger_dom_ir_porting_milestones.md) and
+[ledger_vbs_support_schedule.md](ledger_vbs_support_schedule.md). A sample is `tests/ledger/vb-playground.bas`.
 
 **Data.** Sort (three keys, by rows or columns, case-sensitive, custom orders), AutoFilter with the
 Excel 2003 drop-down (values, Top 10, Custom AutoFilter), Advanced Filter (criteria ranges, copy to,
@@ -476,7 +482,7 @@ support for every formula or external data source.
 
 ## Known limitations
 
-- Tools ▸ Macro ▸ Macros (Alt+F8; View ▸ Macros in the Paper 2016 look) says that Ledger does not run macros and that a workbook with macros (`.xlsm`) opens and saves with them intact. There is no VBA editor.
+- Tools ▸ Macro ▸ Macros runs Visual Basic 6 source stored by Ledger. It does not run `vbaProject.bin`, and there is no VBA editor. An `.xlsm` workbook still opens and saves with that project intact. Run Script in the DOM Console does not see these macros; Edit and Create open that window for one macro.
 - PivotTables: Data ▸ PivotTable builds a static summary report. Pivot tables in opened files keep
   their cached cells and original pivot/cache parts. Source/output edits follow the rules above;
   slicer dependents are retained and the batch-3 Excel samples are accepted.
@@ -517,6 +523,8 @@ support for every formula or external data source.
 | `../common/ui.js`, `../common/search.js`, `../common/icons.js`, `../common/looks.css`, `../common/ui.css`, `js/commands.js`, `js/dialogs*.js`, `js/app.js` | Menus, toolbars and dialogs; Search commands; original 16×16 icons; the command registry; the application controller |
 | `../common/scout/` | Scout, the assistant: Help ▸ Show the Assistant ([suite.md](suite.md#the-assistant-scout)) |
 | `js/ribbon.js`, `../common/ribbon.js` | The Paper 2016 look's ribbon: Excel's tabs and groups over Ledger's commands ([suite.md](suite.md#the-ribbon)) |
+| `js/dom.js`, `js/dom-ir.js`, `js/vb-host.js`, `js/dom-console.js` | The Excel-shaped object model, the handle protocol, the VB6 host and Help ▸ Ledger DOM Console. The engine bundle under `vendor/vb6/` is gitignored |
+| `js/macros.js`, `../common/macros.js` | Tools ▸ Macros: the workbook's custom XML part, the All templates and documents list, and the notice |
 | `../common/dict/` | Spelling word lists (English U.S. and U.K.) and their licences (shared with Quire) |
 | `tests/ledger/` | The test harnesses described above (Node.js and Playwright) |
 
