@@ -1087,7 +1087,19 @@
         });
         return makeShape(col, slide, sh);
       };
-      col.AddPicture = function () { gap('G-HOST', 'AddPicture'); };
+      col.AddPicture = function (fileName, linkToFile) {
+        if (linkToFile === true || linkToFile === -1) {
+          const e = new Error('The parameter LinkToFile is not available.');
+          e.code = 'error';
+          throw e;
+        }
+        if (!L.hostAudit || !L.hostAudit.has('Picture')) gap('G-HOST', 'AddPicture');
+        L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'LinkToFile', 'SaveWithDocument', 'Left', 'Top', 'Width', 'Height']);
+        return L.hostAudit.readBytes(fileName, 'Picture', 'RequestApproval').then((bytes) => {
+          const file = new File([bytes], String(fileName).split(/[/\\]/).pop());
+          return L.app.insertPictureFiles([file]);
+        });
+      };
       denyFn(col, ['AddChart', 'AddSmartArt', 'AddDiagram', 'AddMediaObject', 'AddOLEObject', 'AddTextEffect'], 'G-ENGINE');
     }
     return col;
@@ -1621,7 +1633,20 @@
     const doc = stamp({}, () => Presentations);
     wrap.api = doc;
     Object.defineProperty(doc, 'Name', { enumerable: true, get() { return wrap.pres === L.pres && L.app && L.app.fileName ? L.app.fileName : wrap.name; } });
-    denyGet(doc, ['FullName', 'Path'], 'G-HOST');
+    Object.defineProperty(doc, 'FullName', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'FullName');
+        return L.hostAudit.documentPath();
+      },
+    });
+    Object.defineProperty(doc, 'Path', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'Path');
+        return L.hostAudit.documentDir();
+      },
+    });
     Object.defineProperty(doc, 'Saved', {
       enumerable: true,
       get() { return !L.hist.dirty; },
@@ -1687,9 +1712,71 @@
     doc.Save = function () {
       if (L.app && typeof L.app.save === 'function') {
         if (!L.app.saved) gap('G-HOST', 'Save');
-        return L.app.save();
+        const run = () => L.app.save();
+        if (!L.hostAudit) return run();
+        return L.hostAudit.must('RequestApproval', 'Save', 'save the presentation').then(run);
       }
       L.hist.dirty = false;
+    };
+    function deckBytes(fileFormat) {
+      const type = fileFormat == null || fileFormat === '' || fileFormat === 'pptx' ? (L.app && L.app.fileType) || 'pptx' : fileFormat;
+      if (type === 'pdf') return L.app.buildPDF('slides');
+      if (!/^(pptx|pptm|ppsx|ppsm|potx|potm)$/.test(String(type))) {
+        const e = new Error('The parameter FileFormat is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      return L.pptx.write(L.pres, { format: type });
+    }
+    doc.SaveAs = function (fileName, fileFormat) {
+      if (!L.hostAudit || !L.hostAudit.has('SaveAs')) gap('G-HOST', 'SaveAs');
+      L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'FileFormat', 'EmbedTrueTypeFonts']);
+      return L.hostAudit.saveCopy(fileName, () => deckBytes(fileFormat));
+    };
+    doc.SaveAs2 = doc.SaveAs;
+    doc.PrintOut = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Print')) gap('G-HOST', 'PrintOut');
+      return L.hostAudit.printPdf(() => L.app.buildPDF('slides'));
+    };
+    doc.ExportAsFixedFormat = function (path, format) {
+      if (!L.hostAudit || !L.hostAudit.has('FixedFormat')) gap('G-HOST', 'ExportAsFixedFormat');
+      return L.hostAudit.exportPdf(format, path, () => L.app.buildPDF('slides'));
+    };
+    doc.Export = async function (path, filter, scaleWidth, scaleHeight) {
+      if (!L.hostAudit || !L.hostAudit.has('Export')) gap('G-HOST', 'Export');
+      const ext = String(filter || 'png').toLowerCase();
+      if (ext !== 'png' && ext !== 'jpg' && ext !== 'jpeg') {
+        const e = new Error('The parameter FilterName is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      const pres = L.pres;
+      let width = scaleWidth == null || scaleWidth === '' ? null : +scaleWidth;
+      let height = scaleHeight == null || scaleHeight === '' ? null : +scaleHeight;
+      if (width == null && height == null) width = Math.round(pres.W * 2.6667);
+      else if (width == null) width = Math.round(height * pres.W / pres.H);
+      await L.hostAudit.must('RequestApproval', 'Export', 'export slides to ' + path, path);
+      const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
+      const suffix = ext === 'jpeg' ? 'jpg' : ext;
+      let n = 0;
+      for (const slide of pres.slides) {
+        n++;
+        let canvas = await L.app.slideCanvas(slide, width);
+        if (scaleWidth != null && scaleWidth !== '' && scaleHeight != null && scaleHeight !== '') {
+          const out = document.createElement('canvas');
+          out.width = +scaleWidth;
+          out.height = +scaleHeight;
+          out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
+          canvas = out;
+        }
+        const blob = await new Promise((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('The picture could not be created.'))), mime, 0.92));
+        await L.hostAudit.writeBlob(L.hostAudit.joinPath(path, 'Slide' + n + '.' + suffix), blob, 'Export', false);
+      }
+    };
+    doc.FollowHyperlink = function (address) {
+      if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'FollowHyperlink');
+      L.hostAudit.rejectExtra(arguments, 1, ['Address', 'SubAddress', 'NewWindow', 'AddHistory', 'ExtraInfo', 'Method', 'HeaderInfo']);
+      return L.hostAudit.follow(address);
     };
     doc.Close = function () {
       const i = wraps.indexOf(wrap);
@@ -1713,7 +1800,7 @@
         }
       }
     };
-    denyFn(doc, ['SaveAs', 'SaveAs2', 'Export', 'ExportAsFixedFormat', 'PrintOut', 'FollowHyperlink', 'NewWindow'], 'G-HOST');
+    denyFn(doc, ['NewWindow'], 'G-HOST');
     denyFn(doc, ['CreateVideo', 'Merge', 'PublishSlides'], 'G-ENGINE');
     return doc;
   }
@@ -1745,7 +1832,11 @@
     }
     return makePresentation(wrap);
   };
-  Presentations.Open = function () { gap('G-HOST', 'Open'); };
+  Presentations.Open = function (fileName) {
+    if (!L.hostAudit || !L.hostAudit.has('Open')) gap('G-HOST', 'Open');
+    L.hostAudit.rejectExtra(arguments, 1, ['FileName', 'ReadOnly', 'Untitled', 'WithWindow']);
+    return L.hostAudit.openPath(fileName);
+  };
 
   function shapeRangeOf(ids) {
     const slide = pres().slides[clampSlide()];
@@ -1872,6 +1963,36 @@
   });
   Object.defineProperty(Application, 'Presentations', { enumerable: true, get() { ensure(); return Presentations; } });
   Object.defineProperty(Application, 'ActiveWindow', { enumerable: true, get() { return ActiveWindow; } });
+  Application.FileDialog = function (type) {
+    if (!L.hostAudit) gap('G-HOST', 'FileDialog');
+    return L.hostAudit.fileDialog(type);
+  };
+  Application.HasHostAbility = function (name) { return L.hostAudit && L.hostAudit.has(name) ? -1 : 0; };
+  Application.MsgBox = function (prompt, buttons, title) {
+    if (!L.hostAudit) gap('G-HOST', 'MsgBox');
+    return L.hostAudit.msgBox(prompt, buttons, title);
+  };
+  Application.InputBox = function (prompt, title, def) {
+    if (!L.hostAudit) gap('G-HOST', 'InputBox');
+    return L.hostAudit.inputBox(prompt, title, def);
+  };
+  Application.HostDir = function (pattern) {
+    if (!L.hostAudit || !L.hostAudit.has('Dir')) gap('G-HOST', 'Dir');
+    return L.hostAudit.dir(pattern);
+  };
+  Application.HostShell = function () {
+    if (!L.hostAudit || !L.hostAudit.has('Shell')) gap('G-HOST', 'Shell');
+    return L.hostAudit.shell();
+  };
+  Application.GetOpenFilename = function (filter, filterIndex, title, buttonText, multi) {
+    void filter; void filterIndex; void title; void buttonText;
+    if (!L.hostAudit) gap('G-HOST', 'GetOpenFilename');
+    return L.hostAudit.getOpenFilename(multi);
+  };
+  Application.GetSaveAsFilename = function () {
+    if (!L.hostAudit) gap('G-HOST', 'GetSaveAsFilename');
+    return L.hostAudit.getSaveAsFilename();
+  };
   Object.defineProperty(Application, 'SlideShowWindows', { enumerable: true, get() { return makeShowWindows(Application); } });
 
   dom.Application = Application;
@@ -1907,6 +2028,8 @@
     ppAnchorTop: 1, ppAnchorMiddle: 3, ppAnchorBottom: 4,
     ppTextOrientationHorizontal: 1,
     msoTrue: -1, msoFalse: 0, msoTriStateMixed: -2,
+    msoFileDialogOpen: 1, msoFileDialogSaveAs: 2, msoFileDialogFilePicker: 3, msoFileDialogFolderPicker: 4,
+    ppFixedFormatTypePDF: 2, ppFixedFormatTypeXPS: 1,
     msoBringToFront: 0, msoSendToBack: 1, msoBringForward: 2, msoSendBackward: 3,
     msoShapeRectangle: 1, msoShapeDiamond: 4, msoShapeRoundedRectangle: 5, msoShapeOval: 9,
     msoShapeHexagon: 10, msoShapeCross: 11, msoShapeCan: 13, msoShapeCube: 14, msoShapeDonut: 18,

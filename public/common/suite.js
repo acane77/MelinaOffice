@@ -121,6 +121,8 @@
     if (m.uri) { file.voUri = m.uri; documentUri = m.uri; }
     if (m.name || file.name) documentName = m.name || file.name;
     if (m.dir) openFolder = { uri: m.dir, label: m.dirLabel || '' };
+    if (m.fsPath) fileFsPath = m.fsPath;
+    if (m.dirLabel) fileDir = m.dirLabel;
     if (m.draft && m.draftKey) file.voDraft = m.draftKey;
     return file;
   };
@@ -128,6 +130,8 @@
   let documentUri = '';   // vscode: the workspace file this editor tab is bound to
   let documentName = '';  // vscode: that file's name, for telling an in-place save from a copy
   let openFolder = null;  // vscode: { uri, label } of that file's folder, for Save As
+  let fileFsPath = '';    // vscode: the open file's path on the extension host
+  let fileDir = '';       // vscode: that file's folder, as a path
   const b64 = (bytes) => {
     let s = '';
     for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, Math.min(bytes.length, i + 0x8000)));
@@ -147,6 +151,22 @@
     updates: !native || native.edition !== 'appstore',
     /** open a web or mail address in the system's browser: a new tab on the web, the default browser in the
      *  desktop app (which also sends every link that leaves the app there), the editor's browser in VS Code */
+    documentPath() { return fileFsPath; },
+    documentDir() { return fileDir; },
+    vbsAgent: false,
+    request(msg) { return vsRequest(msg); },
+    approve(opts) {
+      return vsRequest({
+        type: 'host-approval',
+        ability: (opts && opts.ability) || '',
+        tier: (opts && opts.tier) || '',
+        detail: (opts && opts.detail) || '',
+        path: (opts && opts.path) || '',
+      }).then((m) => ({ ok: !!(m && m.ok), code: m && m.code, message: (m && (m.error || m.message)) || '' }));
+    },
+    pathOutside(path) {
+      return vsRequest({ type: 'host-outside', path: String(path || '') }).then((m) => !!(m && m.outside));
+    },
     async openUrl(url) {
       if (native) return call('host_open_url', { url: String(url) });
       if (inVs) { vsPost({ type: 'open-url', url: String(url) }); return; }
@@ -250,6 +270,9 @@
       const uri = (opts && opts.uri) || '';
       const folder = (opts && opts.folder) || '';
       const draftKey = (opts && opts.draftKey) || '';
+      const hostPath = (opts && opts.path) || '';
+      const ability = (opts && opts.ability) || '';
+      const openAfter = !!(opts && opts.open);
       return blob.arrayBuffer().then((buf) => new Promise((resolve, reject) => {
         const bytes = new Uint8Array(buf);
         const CHUNK = 256 * 1024;
@@ -261,12 +284,13 @@
           clearTimeout(timer);
           window.removeEventListener('message', on);
           if (!m.ok) { reject(new Error(m.error || 'The file could not be saved.')); return; }
+          if (purpose === 'host') { resolve('exported'); return; }
           if (purpose !== 'backup' && purpose !== 'create' && purpose !== 'reopen' && !m.inplace && window.L && L.ui && L.ui.toast) L.ui.toast(VO.t('Saved {0}', m.name || name), 6000);
           resolve(purpose === 'backup' ? m : (m.inplace ? 'saved' : 'exported'));
         }
         window.addEventListener('message', on);
         for (let i = 0; i < n; i++) {
-          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, folder, draftKey, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
+          api.postMessage({ type: 'chunk', id, i, n, name: String(name || ''), purpose, uri, folder, draftKey, path: hostPath, ability, open: openAfter, b64: b64(bytes.subarray(i * CHUNK, Math.min(bytes.length, (i + 1) * CHUNK))) });
         }
       }));
     },
@@ -737,6 +761,9 @@
     let host;
     try { host = await api.vb.session(); }
     catch (e) { return Object.assign(base, { ok: false, error: vbFailure(e) }); }
+    if (window.L && L.hostAudit && L.hostAudit.beginScript) L.hostAudit.beginScript();
+    const wasAgent = VO.host.vbsAgent;
+    VO.host.vbsAgent = !!m.agent;
     const mark = host && host.output ? host.output.length : 0;
     const printed = () => (host && host.output ? host.output.slice(mark).map((line) => String(line)) : []);
     try {
@@ -750,6 +777,8 @@
       return out;
     } catch (e) {
       return { ok: false, app: app, fileName: fileName, prints: printed(), value: null, error: vbFailure(e) };
+    } finally {
+      VO.host.vbsAgent = wasAgent;
     }
   }
   if (inVs) window.addEventListener('message', async (ev) => {

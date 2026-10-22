@@ -2,7 +2,7 @@
 
 The object model on the open workbook. `public/ledger/js/dom.js` implements this inventory. The VB host calls it through [ledger_dom_ir_specifications.md](ledger_dom_ir_specifications.md). Milestones are [ledger_dom_ir_porting_milestones.md](ledger_dom_ir_porting_milestones.md). The schedule is [ledger_vbs_support_schedule.md](ledger_vbs_support_schedule.md).
 
-A row is implemented when `dom.js` performs it. A gap is callable and rejects with `err.code`. The codes are `G-ENGINE` (no document operation) and `G-HOST` (a path, a window, a printer, a modal, or a file picker). There is no `G-STORY` and no `G-TEXT`: a cell is a row and a column.
+A row is implemented when `dom.js` performs it. A gap is callable and rejects with `err.code`. The codes are `G-ENGINE` (no document operation) and `G-HOST` (this session does not have that host ability). There is no `G-STORY` and no `G-TEXT`: a cell is a row and a column. Host abilities and the three audit tiers are in [docs/dom_api_security.md](dom_api_security.md).
 
 ## Rules
 
@@ -15,7 +15,7 @@ A row is implemented when `dom.js` performs it. A gap is callable and rejects wi
 - `WorksheetFunction` is not a catalog of 519 rows. A name in Ledger's function catalog is callable. A dotted name (`BINOM.DIST`) is also `BINOM_DIST`. A name that is not in the catalog is absent. Tests sample `Sum`, `If` and `VLookup`.
 - `ScreenUpdating` and `DisplayAlerts` are host flags. `Calculation` maps automatic and manual onto the workbook. Semiautomatic is `G-ENGINE`. `ReferenceStyle` maps `xlA1` and `xlR1C1`.
 - Classic `FormatConditions` (`cellIs` and `expression`) are implemented. Data bars, colour scales and icon sets stay display-only (`G-ENGINE`). `SortFields` is `G-ENGINE`. `Sort` is Excel 2003 three-key sort. `AutoFilter` stores `{ref, cols:[{values:[string]}]}`.
-- Copy and `PasteSpecial` use an in-app snapshot, not the operating-system clipboard. `Save` works when the workbook already has a destination. `SaveAs`, `Open`, `PrintOut`, `FullName` and `Path` are `G-HOST`. Closing the last workbook opens a blank one. With `DisplayAlerts` and a dirty book, `Close` with no `SaveChanges` argument is `G-HOST`. `SaveChanges` true is also `G-HOST`.
+- Copy and `PasteSpecial` use an in-app snapshot, not the operating-system clipboard. `Save` works when the workbook already has a destination. On the VS Code host, `FullName`, `Path`, `SaveAs`, `Open`, and `PrintOut` run at the tiers in [docs/dom_api_security.md](dom_api_security.md). Elsewhere they are `G-HOST`. Closing the last workbook opens a blank one. With `DisplayAlerts` and a dirty book, `Close` with no `SaveChanges` argument is `G-HOST`. `SaveChanges` true is also `G-HOST`.
 - `Creator` is `G-ENGINE` on every object. Ledger is not Excel.
 - Edits go through the workbook operations and undo. The object model does not invent members that are not in this inventory.
 - The task-pane reference is `public/ledger/js/vb-dom-ref.js`. A change to a member or a gap updates that file in the same change. That page is what a script sees. A member listed only here, or only there, is out of date.
@@ -52,8 +52,11 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Calculation` | rw | Automatic or manual. Semiautomatic is `G-ENGINE` |
 | `ReferenceStyle` | rw | `xlA1` or `xlR1C1` |
 | `Calculate`, `Undo`, `Redo` | call | Recalculate, or one undo or redo step (`-1` if a step ran, else `0`) |
-| `Windows`, `AddIns`, `Dialogs`, `FileDialog`, `CommandBars` | get | `G-HOST` |
-| `Run`, `SendKeys`, `Wait`, `OnTime`, `GetOpenFilename`, `GetSaveAsFilename` | call | `G-HOST` |
+| `Windows`, `AddIns`, `CommandBars` | get | `G-HOST` |
+| `Dialogs` | get | `Item(id).Show` opens the matching in-app window. Open and Save As use VS Code's dialog. An unmapped id is `G-HOST`. The bare name `Dialogs` stays a gap object |
+| `FileDialog`, `GetOpenFilename`, `GetSaveAsFilename` | call | VS Code's file dialog. Cancel returns `""`. The dialog is the approval |
+| `HasHostAbility`, `MsgBox`, `InputBox`, `HostDir`, `HostShell` | call | See [docs/dom_api_security.md](dom_api_security.md). `HostShell` is `E-DENIED` on the VS Code host |
+| `Run`, `SendKeys`, `Wait`, `OnTime` | call | `G-HOST` |
 | `EnableEvents` | get | `G-ENGINE` |
 
 ## Workbooks, Workbook
@@ -61,17 +64,22 @@ These names are registered. Any member is that object's gap. `Application` and `
 | Member | | |
 |---|---|---|
 | `Workbooks.Item`, `Add` | call | By name or index. `Add` opens a blank book |
-| `Workbooks.Open`, `Close` | call | `G-HOST` |
+| `Workbooks.Open` | call | RequestApproval on the VS Code host. Opens that file in its own tab. Elsewhere `G-HOST` |
+| `Workbooks.Close` | call | `G-HOST` |
 | `Name` | get | The workbook name |
-| `FullName`, `Path` | get | `G-HOST` |
+| `FullName`, `Path` | get | AlwaysAllow on the VS Code host: the file path and its folder. Elsewhere `G-HOST` |
 | `Saved` | rw | False after an edit until a successful save |
 | `Worksheets`, `Sheets`, `Charts`, `ActiveSheet`, `Names`, `Styles` | get | `Charts` is the chart sheets inside `Sheets` |
 | `BuiltInDocumentProperties`, `CustomDocumentProperties` | get | Built-in map: title, subject, creator, keywords, description, category, manager, company |
 | `Activate` | call | Makes the book current |
-| `Save` | call | Clears dirty when a destination exists. Otherwise `G-HOST` |
+| `Save` | call | Writes when a destination exists. An agent script on the VS Code host is RequestApproval. Otherwise `G-HOST` |
 | `Close` | call | See the rules above |
 | `Protect`, `Unprotect` | call | Workbook structure. The password is hashed when the dialog helper is loaded |
-| `SaveAs`, `SaveAs2`, `PrintOut`, `ExportAsFixedFormat`, `FollowHyperlink`, `SendMail`, `Windows` | | `G-HOST` |
+| `SaveAs`, `SaveAs2` | call | RequestApproval on the VS Code host. CSV, text, xlsx, or xlsm. A password is an error |
+| `PrintOut` | call | AlwaysAllow. A PDF of the visible sheets beside the file |
+| `ExportAsFixedFormat` | call | RequestApproval. PDF to the given path. XPS errors before the confirmation |
+| `FollowHyperlink` | call | AlwaysAllow. `http`, `https`, or `mailto` |
+| `SendMail`, `Windows` | | `G-HOST` |
 
 `DocumentProperties.Add` with `LinkToContent`, or a type other than a string, is `G-ENGINE`.
 
@@ -101,7 +109,9 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Activate`, `Select`, `Delete`, `Move`, `Calculate`, `Protect`, `Unprotect` | call | |
 | `Copy` | call | A shallow sheet copy |
 | `QueryTables`, `XmlMaps`, `OLEObjects`, `CommentsThreaded` | get | `G-ENGINE` |
-| `PrintOut`, `ExportAsFixedFormat`, `SaveAs` | call | `G-HOST` |
+| `PrintOut` | call | AlwaysAllow. A PDF of this sheet |
+| `ExportAsFixedFormat` | call | RequestApproval. A PDF of this sheet. XPS errors immediately |
+| `SaveAs` | call | RequestApproval (`SheetSaveAs`). This sheet as CSV, text, or a one-sheet workbook |
 
 ## Range
 
@@ -156,7 +166,7 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Chart.ChartType`, `Name` | | Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter `-4169`, area 1, doughnut `-4120`. Any other type is `G-ENGINE` |
 | `Chart.SeriesCollection`, `Axes`, `SetSourceData` | | `G-ENGINE` |
 | `Shapes.Item`, `AddTextbox` | | `AddTextbox` ignores orientation |
-| `Shapes.AddPicture` | call | `G-HOST` |
+| `Shapes.AddPicture` | call | RequestApproval. Embeds the picture. `LinkToFile` True is an error |
 | `Shape.Name`, `Left`, `Top`, `Width`, `Height`, `TextFrame`, `Delete` | | |
 | `Shape.OLEFormat` | get | `G-ENGINE` |
 | `TextFrame.TextRange`, `TextRange.Text` | | |

@@ -71,7 +71,7 @@
     ];
     const names = Object.keys(L.dom).filter(function (key) {
       const value = L.dom[key];
-      return /^wd[A-Za-z][A-Za-z0-9]*$/.test(key) && typeof value === 'number' && Number.isInteger(value) && value >= -2147483648 && value <= 2147483647;
+      return /^(wd|mso)[A-Za-z][A-Za-z0-9]*$/.test(key) && typeof value === 'number' && Number.isInteger(value) && value >= -2147483648 && value <= 2147483647;
     }).sort();
     for (let i = 0; i < names.length; i++) lines.push('Public Const ' + names[i] + ' As Long = ' + L.dom[names[i]]);
     const gaps = gapNames();

@@ -92,12 +92,15 @@ function createAssembler() {
       if (!msg || msg.type !== 'chunk' || msg.id == null) return null;
       let rec = pending.get(msg.id);
       if (!rec) {
-        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', uri: msg.uri || '', folder: msg.folder || '', draftKey: msg.draftKey || '', parts: [], got: 0 };
+        rec = { n: msg.n || 1, name: msg.name || '', purpose: msg.purpose || 'save', uri: msg.uri || '', folder: msg.folder || '', draftKey: msg.draftKey || '', path: msg.path || '', ability: msg.ability || '', open: !!msg.open, parts: [], got: 0 };
         pending.set(msg.id, rec);
       }
       if (msg.uri) rec.uri = msg.uri;
       if (msg.folder) rec.folder = msg.folder;
       if (msg.draftKey) rec.draftKey = msg.draftKey;
+      if (msg.path) rec.path = msg.path;
+      if (msg.ability) rec.ability = msg.ability;
+      if (msg.open) rec.open = true;
       if (rec.parts[msg.i] == null) {
         rec.parts[msg.i] = toBytes(msg.b64 != null ? msg.b64 : msg.bytes);
         rec.got++;
@@ -112,7 +115,7 @@ function createAssembler() {
         const p = rec.parts[i];
         if (p) { out.set(p, o); o += p.length; }
       }
-      return { id: msg.id, name: rec.name, purpose: rec.purpose, uri: rec.uri || '', folder: rec.folder || '', draftKey: rec.draftKey || '', bytes: out };
+      return { id: msg.id, name: rec.name, purpose: rec.purpose, uri: rec.uri || '', folder: rec.folder || '', draftKey: rec.draftKey || '', path: rec.path || '', ability: rec.ability || '', open: !!rec.open, bytes: out };
     },
   };
 }

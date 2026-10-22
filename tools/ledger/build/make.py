@@ -12,7 +12,7 @@ SCRIPTS = ['common/core', 'common/i18n', 'common/locales', 'common/xml', 'common
            'common/geometry', 'common/metafile', 'common/ui', 'common/macros', 'common/numfmt', 'formula', 'model', 'calc',
            'fn-core', 'fn-lookup', 'fn-stat', 'fn-fin', 'fn-eng', 'common/dml', 'common/charts', 'xchart',
            'pivots', 'threads', 'objects', 'slicers', 'extensions', 'tables', 'preserve', 'xlsx-read', 'xlsx-write', 'csv', 'xmlss', 'styles', 'cf', 'layout', 'render', 'ops', 'clipboard',
-           'fninfo', 'grid', 'editor', 'common/spell', 'spell', 'filter', 'drawing', 'commands', 'dialogs',
+           'fninfo', 'grid', 'editor', 'common/spell', 'spell', 'filter', 'drawing', 'commands', 'dialogs', 'common/host-audit',
            'dialogs2', 'dialogs3', 'print', 'panes', 'common/vb-dom-ref', 'vb-dom-ref', 'common/scout/scout', 'common/scout/spritepet', 'common/scout/assistant', 'common/search', 'common/ribbon', 'ribbon', 'app',
            'dom', 'dom-ir', 'vb-host', 'macros', 'common/vendor/xterm/xterm', 'common/vendor/codemirror/codemirror', 'common/vendor/codemirror/vb', 'dom-console']
 tpl = open(os.path.join(D, 'template.html')).read()

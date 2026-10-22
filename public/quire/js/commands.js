@@ -677,6 +677,33 @@
       E.pasteBlocks(blocks);
     } catch (e) { ui.msg(L.t('The file could not be inserted. {0}', e.message || ''), { icon: 'error' }); }
   };
+  /** insert a file the host already read. name decides txt, html, or a Word document. */
+  A.insertFileBytes = async function (name, bytes) {
+    const raw = bytes instanceof ArrayBuffer ? new Uint8Array(bytes) : bytes;
+    let blocks;
+    if (/\.txt$/i.test(name)) blocks = A.docFromText(new TextDecoder().decode(raw)).main.blocks;
+    else if (/\.html?$/i.test(name)) blocks = await L.htmlio.htmlToBlocks(new TextDecoder().decode(raw));
+    else if (/\.(docx|docm|dotx)$/i.test(name)) {
+      const res = await L.docx.read(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength));
+      const src = res.doc;
+      A.mergeStylesFrom(src);
+      blocks = src.main.blocks;
+      const d = doc();
+      E.edit('Insert File', () => {
+        D.touchKey(d, 'fn'); D.touchKey(d, 'en'); D.touchKey(d, 'comments'); D.touchKey(d, 'numbering');
+        for (const k in src.fn) if (!d.fn[k]) d.fn[k] = src.fn[k];
+        for (const k in src.en) if (!d.en[k]) d.en[k] = src.en[k];
+        for (const k in src.comments) if (!d.comments[k]) d.comments[k] = src.comments[k];
+        A.mergeNumbering(src, blocks);
+        return E.sel;
+      });
+    } else {
+      const e = new Error('The parameter FileName is not available.');
+      e.code = 'error';
+      throw e;
+    }
+    E.pasteBlocks(blocks);
+  };
   /** copy styles missing from the current document */
   A.mergeStylesFrom = function (src, overwrite) {
     const d = doc();

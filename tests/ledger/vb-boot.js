@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 async function boot() {
   global.window = global;
+  require('../../public/common/host-audit.js');
   require('../../public/common/core.js');
   L.N = (s) => s;
   require('../../public/common/numfmt.js');

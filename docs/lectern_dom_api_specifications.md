@@ -2,7 +2,7 @@
 
 The object model on the open presentation. `public/lectern/js/dom.js` implements this inventory. The VB host calls it through [lectern_dom_ir_specifications.md](lectern_dom_ir_specifications.md). Milestones are [lectern_dom_ir_porting_milestones.md](lectern_dom_ir_porting_milestones.md).
 
-A row is implemented when `dom.js` performs it. A gap is callable and rejects with `err.code`. The codes are `G-TEXT` (a character index inside a shape), `G-ENGINE` (no document operation) and `G-HOST` (a path, a window, a printer, or a modal).
+A row is implemented when `dom.js` performs it. A gap is callable and rejects with `err.code`. The codes are `G-TEXT` (a character index inside a shape), `G-ENGINE` (no document operation) and `G-HOST` (this session does not have that host ability). Host abilities and the three audit tiers are in [docs/dom_api_security.md](dom_api_security.md).
 
 ## Rules
 
@@ -66,7 +66,7 @@ These names are registered. Any member is that object's gap. They are not reduce
 |---|---|---|
 | `Count`, `Item`, `First`, `Last` | | 1-based. `Presentations(1)` is `Item` |
 | `Add` | call | No arguments. Returns the new presentation and makes it active. `WithWindow` is `G-HOST` |
-| `Open` | call | `G-HOST` |
+| `Open` | call | RequestApproval on the VS Code host. Opens that file in its own tab. Elsewhere `G-HOST` |
 
 Closing the last presentation opens a blank one. The editor always has a presentation.
 
@@ -75,7 +75,7 @@ Closing the last presentation opens a blank one. The editor always has a present
 | Member | | |
 |---|---|---|
 | `Name` | get | The file name, or `Presentation1` |
-| `FullName`, `Path` | get | `G-HOST` |
+| `FullName`, `Path` | get | AlwaysAllow on the VS Code host. Elsewhere `G-HOST` |
 | `Saved` | read/write | `True` when the deck is not dirty. A new unedited deck reads `True` |
 | `Slides` | get | |
 | `PageSetup` | get | |
@@ -88,7 +88,13 @@ Closing the last presentation opens a blank one. The editor always has a present
 | `Undo`, `Redo` | call | Return `-1` when a step ran |
 | `Save` | call | Calls the app save when a file is already saved. Otherwise, in the browser, `G-HOST`. With no save function, clears the dirty flag |
 | `Close` | call | Drops this presentation. The last one is replaced by a blank deck |
-| `SaveAs`, `SaveAs2`, `Export`, `ExportAsFixedFormat`, `PrintOut`, `FollowHyperlink`, `NewWindow` | call | `G-HOST` |
+| `SaveAs`, `SaveAs2` | call | RequestApproval on the VS Code host. The deck's presentation format, or PDF |
+| `Export` | call | RequestApproval. PNG or JPEG of every slide, including hidden slides, as `Slide1.png` in the folder |
+| `ExportAsFixedFormat` | call | RequestApproval. PDF. XPS errors before the confirmation. The path is the first argument |
+| `PrintOut` | call | AlwaysAllow. A PDF of the slides beside the file |
+| `FollowHyperlink` | call | AlwaysAllow. `http`, `https`, or `mailto` |
+| `NewWindow` | call | `G-HOST` |
+| `HasHostAbility`, `MsgBox`, `InputBox`, `FileDialog`, `HostDir`, `HostShell` | call | See [docs/dom_api_security.md](dom_api_security.md). Lectern has no `Dialogs` index |
 | `CreateVideo`, `Merge`, `PublishSlides` | call | `G-ENGINE` |
 
 ## DocumentWindow and Selection
@@ -133,7 +139,7 @@ Closing the last presentation opens a blank one. The editor always has a present
 | `AddShape(type, left, top, width, height)` | call | The types in Enumerations. Any other `AutoShapeType` is `G-ENGINE` |
 | `AddTextbox(orientation, left, top, width, height)` | call | Horizontal only |
 | `AddTable(rows, cols, left, top, width)` | call | |
-| `AddPicture` | call | `G-HOST` |
+| `AddPicture` | call | RequestApproval on the VS Code host. Embeds the picture. `LinkToFile` True is an error |
 | `AddChart`, `AddSmartArt`, `AddDiagram`, `AddMediaObject`, `AddOLEObject`, `AddTextEffect` | call | `G-ENGINE` |
 | `Left`, `Top`, `Width`, `Height`, `Rotation` | read/write | Points. `Rotation` is degrees |
 | `Name` | read/write | |

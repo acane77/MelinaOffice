@@ -37,7 +37,7 @@ A range larger than 1,000,000 cells rejects `Value` and `Formula` with `G-ENGINE
 | Code | When |
 |---|---|
 | `G-ENGINE` | The inventory says there is no document operation, including `Creator` and semiautomatic calculation |
-| `G-HOST` | The inventory says the member needs a path, a window, a printer, a modal or a file picker |
+| `G-HOST` | This session does not have that host ability. `E-APPROVAL` is a denied request. `E-DENIED` is AlwaysDeny. See [docs/dom_api_security.md](dom_api_security.md) |
 | `missing` | The member is in the catalog and the live object rejected the arguments |
 | `missing-live` | The catalog says the member exists and the live object does not have it |
 | `absent` | The name is not in the catalog, and it is not a catalog function |
@@ -59,13 +59,13 @@ The grammar matches Lectern, plus `both` and `array`.
 # TypeName
 # TypeName collection
 # TypeName gap G-ENGINE
-Member get|rw|call|both|gap [return type] [G-ENGINE|G-HOST]
+Member get|rw|call|both|gap [return type] [G-ENGINE|G-HOST] [AlwaysAllow|RequestApproval|AlwaysDeny ability]
 ```
 
 `both` is a function: a get with no arguments calls it, and a call passes the arguments. `Cells` is `both`. `Range` is `call`. Collections receive `Count`, `Item`, `First` and `Last` when the line does not list them. `Range` and the collections use `Item` as the default member. `WorksheetFunction` and the gap types accept any member name at the host.
 
 ## Worked calls
 
-Open a session. Get `ActiveSheet`. Call `Range` with `"A1"`. Set `Value` to `"Hi"`. Get `Value` and receive `{ok:true, kind:"scalar", value:"Hi"}`. Call `Range` with `"A1:B1"`, set `Value` to `[["Hi", 2]]`, and get `{kind:"array", value:[["Hi", 2]]}`. Get `ActiveWorkbook.FullName` and receive `G-HOST`. Get `NotAMember` and receive `absent`. After `release`, the root returns `released`.
+Open a session. Get `ActiveSheet`. Call `Range` with `"A1"`. Set `Value` to `"Hi"`. Get `Value` and receive `{ok:true, kind:"scalar", value:"Hi"}`. Call `Range` with `"A1:B1"`, set `Value` to `[["Hi", 2]]`, and get `{kind:"array", value:[["Hi", 2]]}`. Get `ActiveWorkbook.FullName` and receive `G-HOST` when the host has no path. Get `NotAMember` and receive `absent`. After `release`, the root returns `released`.
 
 `tests/ledger/dom.test.js` runs these calls.

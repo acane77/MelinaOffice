@@ -105,10 +105,12 @@ test('the active tab decides the guide, and a gap comes back as an error', async
   assert.equal(gap.error.code, 'G-STORY');
 });
 
-test('the guide for each app says there is no MsgBox', () => {
+test('the guide for each app names MsgBox and the audit codes', () => {
   for (const app of ['quire', 'ledger', 'lectern']) {
     const text = guide.forApp(app);
-    assert.match(text, /no MsgBox/);
+    assert.match(text, /MsgBox/);
+    assert.match(text, /E-APPROVAL/);
+    assert.match(text, /E-DENIED/);
     assert.match(text, /vbaProject\.bin is kept and is not run|vbaProject/);
   }
   assert.match(guide.forApp('quire'), /G-STORY/);

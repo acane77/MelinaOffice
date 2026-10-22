@@ -28,7 +28,7 @@ Shared members `Application` and `Parent` exist on every object below and are **
 |---|---|
 | G-STORY | The member takes or returns a Word story character index (`Long`). Word's index counts a paragraph mark, and inside a table it also counts a cell mark and an end-of-row mark. Quire stores paragraphs and tables as blocks. `js/find.js` builds a search string (each paragraph's text plus a CR, table cells in reading order) and maps it back to Quire positions. That string is not Word's index, so a `Long` copied from VBA addresses different content as soon as a table, a cell mark, or a drawing is involved. |
 | G-ENGINE | The document has no operation that does this. A wrapper would have nothing to call. |
-| G-HOST | The member needs a filesystem path, a Word window, a modal VBA dialog, or an add-in. The in-browser document does not have that host. |
+| G-HOST | This session does not have that host ability. On the VS Code host the same member may run. The tiers are in [docs/dom_api_security.md](dom_api_security.md). |
 
 **Update rule.** Any later change that adds a member, or that closes a gap, updates this table in the same change. A row that still says Not implemented is not a working member. A new member that is not listed here is not added in code; add the row first, with its status and gap. The same change updates the task-pane reference in `public/quire/js/vb-dom-ref.js`. That page is what a script sees. A member listed only here, or only there, is out of date.
 
@@ -92,6 +92,14 @@ Entry points only. Other `Application` members are in the host list above.
 | ActiveDocument | Property `Document` | Implemented | The open document in the current session. |
 | Documents | Property `Documents` | Implemented | |
 | Selection | Property `Selection` | Implemented | Empty when there is no caret. |
+| HasHostAbility | `HasHostAbility(Ability)` | Implemented | True (`-1`) when this host implements the ability. Unknown names are False. See [docs/dom_api_security.md](dom_api_security.md). |
+| MsgBox | `MsgBox(Prompt, Buttons, Title)` | Implemented | An in-app message. OK, Cancel, Yes, and No return 1, 2, 6, and 7. AlwaysAllow. |
+| InputBox | `InputBox(Prompt, Title, Default)` | Implemented | An in-app prompt. Cancel returns an empty string. AlwaysAllow. |
+| Dialogs | Property `Dialogs` | Implemented | `Dialogs.Item(id).Show` opens the matching in-app window, or a VS Code file dialog for open and save. An unmapped id is `G-HOST`. The bare name `Dialogs` remains a `G-HOST` gap object. |
+| FileDialog | `FileDialog(Type)` | Implemented | VS Code's file or folder dialog. `Show` returns `-1` when a path was chosen. The bare name `FileDialog` remains a `G-HOST` gap object. |
+| GetOpenFilename, GetSaveAsFilename | | Implemented | The same dialogs. Cancel returns `""`. `MultiSelect` returns a string array. |
+| HostDir | `HostDir(PathName)` | Implemented | `Dir` in a script. Virtual files first, then the real folder (`RequestApproval`). |
+| HostShell | `HostShell(PathName)` | Implemented | `Shell` in a script. AlwaysDeny (`E-DENIED`) on the VS Code host. `G-HOST` elsewhere. |
 
 ## Documents
 
@@ -100,7 +108,7 @@ Entry points only. Other `Application` members are in the host list above.
 | Count | Property | Implemented | |
 | Item | `Item(Index)` | Implemented | |
 | Add | `Add(Template, NewTemplate, DocumentType, Visible)` | Implemented | Only the call with no arguments, which creates a blank document. `Template`, `NewTemplate`, `DocumentType`, and `Visible` are G-ENGINE / G-HOST. |
-| Open | `Open(FileName, ConfirmConversions, ReadOnly, AddToRecentFiles, PasswordDocument, PasswordTemplate, Revert, WritePasswordDocument, WritePasswordTemplate, Format, Encoding, Visible, OpenAndRepair, DocumentDirection, NoEncodingDialog, XMLTransform)` | Not implemented | G-HOST. Opening is a file picker, not a path. |
+| Open | `Open(FileName, ...)` | Implemented on the VS Code host | RequestApproval. Opens that file in its own tab and does not return it. Any argument after `FileName` is an error. Elsewhere `G-HOST`. |
 | Close | `Close(SaveChanges, OriginalFormat, RouteDocument)` | Not implemented | G-HOST at collection scope. Close the `Document` instead. |
 | Save | `Save(NoPrompt, OriginalFormat)` | Not implemented | G-HOST at collection scope. Save the `Document` instead. |
 
@@ -109,8 +117,8 @@ Entry points only. Other `Application` members are in the host list above.
 | Member | VBA signature | Status | Gap |
 |---|---|---|---|
 | Name | Property, read | Implemented | File name without a directory. |
-| FullName | Property, read | Not implemented | G-HOST. The browser session has no VBA path. |
-| Path | Property, read | Not implemented | G-HOST. |
+| FullName | Property, read | Implemented on the VS Code host | AlwaysAllow. The open file's path. Elsewhere `G-HOST`. |
+| Path | Property, read | Implemented on the VS Code host | AlwaysAllow. The folder that contains it. Elsewhere `G-HOST`. |
 | Saved | Property | Implemented | `False` when the document is dirty. Assigning `True` clears the dirty flag and does not write the file. |
 | Content | Property `Range` | Implemented | Anchor over the main story. No `Start` / `End` (G-STORY). |
 | Paragraphs | Property | Implemented | |
@@ -138,15 +146,16 @@ Entry points only. Other `Application` members are in the host list above.
 | Select | `Select()` | Implemented | Selects the main story (same as select-all). |
 | Activate | `Activate()` | Implemented | Switches the session to this document. |
 | Close | `Close(SaveChanges, OriginalFormat, RouteDocument)` | Implemented | `SaveChanges` accepts `wdDoNotSaveChanges`, `wdSaveChanges`, and `wdPromptToSaveChanges`. `OriginalFormat` and `RouteDocument` are G-HOST. |
-| Save | `Save()` | Implemented | Writes the current file when it already has a destination. If it has never been saved, Quire opens the Save As dialog (G-HOST for a silent path). |
-| SaveAs, SaveAs2 | the VBA parameter list beginning `FileName, FileFormat, LockComments, Password, ...` | Not implemented | G-HOST. |
+| Save | `Save()` | Implemented | Writes the current file when it already has a destination. On the VS Code host an agent script is RequestApproval. A file that has never been saved stays `G-HOST`. |
+| SaveAs, SaveAs2 | `SaveAs(FileName, FileFormat, ...)` | Implemented on the VS Code host | RequestApproval. Writes that path and opens it in another tab. A password or an unsupported `FileFormat` is an error and does not write. Elsewhere `G-HOST`. |
 | ComputeStatistics | `ComputeStatistics(Statistic, IncludeFootnotesAndEndnotes)` | Implemented | `wdStatisticWords`, `wdStatisticCharacters`, `wdStatisticCharactersWithSpaces`, `wdStatisticParagraphs`, `wdStatisticPages`. `wdStatisticLines` and `wdStatisticLines` of a non-laid-out story are G-ENGINE. Pages use the layout already computed for the open document. |
-| PrintOut, PrintPreview | | Not implemented | G-HOST. |
+| PrintOut | `PrintOut(...)` | Implemented on the VS Code host | AlwaysAllow. A PDF of the whole document beside the file, named by dropping the extension and adding `.pdf`. Copies, the printer, and a page range are ignored. |
+| PrintPreview | | Not implemented | G-HOST. |
 | Protect, Unprotect | `Protect(Type, NoReset, Password, UseIRM, EnforceStyleLock)`, `Unprotect(Password)` | Not implemented | G-ENGINE. Permission in the UI is not the Word protection types. |
 | Compare | `Compare(Name, ...)` | Not implemented | G-HOST. Compare-with is a file picker. |
-| FollowHyperlink | `FollowHyperlink(Address, SubAddress, NewWindow, AddHistory, ExtraInfo, Method, HeaderInfo)` | Not implemented | G-HOST. |
+| FollowHyperlink | `FollowHyperlink(Address, ...)` | Implemented on the VS Code host | AlwaysAllow. `http`, `https`, and `mailto` only. Any later argument is an error. VS Code asks before an external link. |
 | GoTo | `GoTo(What, Which, Count, Name)` | Not implemented | G-STORY when `What` is a character, line, or page offset. Bookmark and comment by name are on those collections. |
-| ExportAsFixedFormat | | Not implemented | G-HOST. PDF export stays the existing command, not this signature. |
+| ExportAsFixedFormat | `ExportAsFixedFormat(OutputFileFormat, OutputFileName, ...)` | Implemented on the VS Code host | RequestApproval. PDF, or an omitted format, to that path. XPS (`wdExportFormatXPS`) errors before the confirmation and before any write. |
 
 ## Selection
 
@@ -173,7 +182,7 @@ The caret or the highlighted span in the active document.
 | MoveLeft, MoveRight, MoveUp, MoveDown, HomeKey, EndKey, Start, End, GoTo | | Not implemented | G-STORY. |
 | Information | `Information(Type)` | Not implemented | G-STORY. |
 | InsertBreak | `InsertBreak(Type)` | Implemented | Page, column, and text-wrapping breaks that the break dialog already inserts. Section-break types the model can store are included. Types it cannot store are G-ENGINE. |
-| InsertFile | `InsertFile(FileName, Range, ConfirmConversions, Link, Attachment)` | Not implemented | G-HOST. |
+| InsertFile | `InsertFile(FileName, Range, ConfirmConversions, Link, Attachment)` | Implemented on the VS Code host | AlwaysAllow for `.txt`, `.htm`, `.html`, `.docx`, `.docm`, and `.dotx`. A path outside the workspace asks first. `Range`, `ConfirmConversions`, `Link`, and `Attachment` are errors. |
 | InsertSymbol | `InsertSymbol(CharacterNumber, Font, Unicode, Bias)` | Implemented | Inserts one character in the given font, the same way Insert Symbol does. |
 | InsertDateTime | `InsertDateTime(DateTimeFormat, InsertAsField, InsertAsFullWidth, DateLanguage, CalendarType)` | Implemented | `InsertAsField` True inserts a date field. Calendar and full-width flags are G-ENGINE. |
 | InsertCaption | `InsertCaption(...)` | Not implemented | G-ENGINE as this signature. Captions are inserted by the caption dialog, which is not positional VBA. |
@@ -442,7 +451,7 @@ Insert and the properties Quire already edits on a picture or a shape. The Excel
 | Member | VBA signature | Status | Gap |
 |---|---|---|---|
 | InlineShapes.Count, Item | | Implemented | Inline pictures and inline shapes. |
-| InlineShapes.AddPicture | `AddPicture(FileName, LinkToFile, SaveWithDocument, Range)` | Not implemented | G-HOST. `FileName` is a path. Inserting from the file picker stays the command. |
+| InlineShapes.AddPicture | `AddPicture(FileName, LinkToFile, SaveWithDocument, Range)` | Implemented on the VS Code host | RequestApproval. Embeds PNG, JPEG, EMF, or WMF. `LinkToFile` True is an error, and so is a range. |
 | InlineShape.Width, Height, ScaleWidth, ScaleHeight | Properties | Implemented | Points and percent, as stored. |
 | InlineShape.Type | Property, read | Implemented | Picture, shape, chart, or text box, mapped to the nearest `WdInlineShapeType`. |
 | InlineShape.Select, Delete | | Implemented | |

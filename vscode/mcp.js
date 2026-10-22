@@ -16,7 +16,7 @@ const TOOLS = [
   },
   {
     name: 'vibeoffice_run_vbs',
-    description: 'Run VB6 on the VibeOffice document in the active editor tab. mode "module" (default) compiles source as a standard module and runs Public Sub Main, or the public procedure named by entry. mode "line" runs one Immediate statement; start a read with ? or Debug.Print. The script can read and edit that document. It cannot open another file.',
+    description: 'Run VB6 on the VibeOffice document in the active editor tab. mode "module" (default) compiles source as a standard module and runs Public Sub Main, or the public procedure named by entry. mode "line" runs one Immediate statement; start a read with ? or Debug.Print. The script can read and edit that document. A call that needs approval asks Allow, Always allow, or Deny inside this tool call. Shell is always refused.',
     inputSchema: {
       type: 'object',
       additionalProperties: false,

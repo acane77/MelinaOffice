@@ -41,7 +41,9 @@ Constants stay the `wd*` numbers defined by `dom.js`. The IR does not re-encode 
 
 | Code | When |
 |---|---|
-| `G-STORY`, `G-ENGINE`, `G-HOST` | The inventory's gap, returned before the live member runs, or thrown by the live member on a partial gap (for example `Documents.Add` with a template). |
+| `G-STORY`, `G-ENGINE`, `G-HOST` | The inventory's gap, returned before the live member runs, or thrown by the live member on a partial gap (for example `Documents.Add` with a template). `G-HOST` means this session does not have that host ability. |
+| `E-APPROVAL` | The user denied a RequestApproval call. |
+| `E-DENIED` | The member is AlwaysDeny. Shell is this code on the VS Code host. |
 | `missing` | The live collection has no such index. |
 | `missing-live` | The inventory lists the member and the live object does not have it. The IR does not invent the behaviour. |
 | `absent` | The name is not in the inventory for that object. Prototype members are not visible. |
@@ -57,7 +59,9 @@ These names are `session.named(name)`. The result is a handle of that type. `App
 
 `ContentControls`, `ContentControl`, `XMLNodes`, `XMLNode`, `CustomXMLParts`, `CustomXMLPart`, `FormFields`, `FormField`, `CheckBox`, `DropDown`, `TextInput`, `Frames`, `Frame`, `Subdocuments`, `MailMerge`, `MailMergeFields`, `MailMergeDataSource`, `OMaths`, `OMath`, `BuildingBlocks`, `BuildingBlock`, `Variables`, `Variable`, `Chart`, `ChartData`, `Diagram`, `DiagramNode`, `OLEFormat`, `OLEControl`, `TablesOfContents`, `Indexes`, `TablesOfFigures` are `G-ENGINE`.
 
-`Windows`, `Window`, `Panes`, `Pane`, `View`, `Dialogs`, `Dialog`, `FileDialog`, `System`, `Tasks`, `CommandBars`, `KeyBindings`, `Languages`, `AutoCorrect`, `Options`, `DefaultWebOptions` are `G-HOST`.
+`Windows`, `Window`, `Panes`, `Pane`, `View`, `Dialogs`, `Dialog`, `FileDialog`, `System`, `Tasks`, `CommandBars`, `KeyBindings`, `Languages`, `AutoCorrect`, `Options`, `DefaultWebOptions` are `G-HOST` when used as those gap objects. `Application.Dialogs` and `Application.FileDialog` are live members. See [docs/dom_api_security.md](dom_api_security.md).
+
+A catalog member may end with `AlwaysAllow`, `RequestApproval`, or `AlwaysDeny`, and then the ability name. `dialog` means the file dialog is the approval, so the IR does not ask as well. `ExportAsFixedFormat` checks for XPS in the live member before that tier runs. Without `L.hostAudit`, a RequestApproval member behaves as it did before the tier: the live member returns `G-HOST` when the host ability is absent.
 
 ## Catalog
 

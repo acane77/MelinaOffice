@@ -40,6 +40,18 @@
     xlThemeColorAccent5: 9, xlThemeColorAccent6: 10, xlThemeColorHyperlink: 11, xlThemeColorFollowedHyperlink: 12,
     xlColorIndexAutomatic: -4105, xlColorIndexNone: -4142,
     msoTrue: -1, msoFalse: 0, msoTextOrientationHorizontal: 1,
+    xlDialogOpen: 1, xlDialogSaveAs: 5, xlDialogPageSetup: 7, xlDialogPrint: 8,
+    xlDialogFormatFont: 150, xlDialogRowHeight: 127, xlDialogColumnWidth: 47, xlDialogZoom: 256,
+    xlDialogFormulaFind: 64, xlDialogFormulaReplace: 130, xlDialogFormulaGoto: 63, xlDialogSelectSpecial: 132,
+    xlDialogPasteSpecial: 53, xlDialogInsert: 55, xlDialogEditDelete: 54, xlDialogSort: 39, xlDialogDataSeries: 40,
+    xlDialogFunctionWizard: 450, xlDialogDefineName: 61, xlDialogCreateNames: 62, xlDialogApplyNames: 133,
+    xlDialogPasteNames: 58, xlDialogSubtotalCreate: 398, xlDialogTextToColumns: 422, xlDialogFilterAdvanced: 370,
+    xlDialogGoalSeek: 198, xlDialogScenarioCells: 305, xlDialogTable: 41, xlDialogConsolidate: 191,
+    xlDialogPivotTableWizard: 312, xlDialogSummaryInfo: 474, xlDialogOptionsGeneral: 356, xlDialogAutoCorrect: 485,
+    xlDialogInsertHyperlink: 596, xlDialogNote: 154, xlDialogWorkbookProtect: 417, xlDialogProtectDocument: 28,
+    xlCSV: 6, xlTextWindows: -4158, xlOpenXMLWorkbook: 51, xlOpenXMLWorkbookMacroEnabled: 52,
+    msoFileDialogOpen: 1, msoFileDialogSaveAs: 2, msoFileDialogFilePicker: 3, msoFileDialogFolderPicker: 4,
+    xlTypePDF: 0, xlTypeXPS: 1,
   };
   Object.assign(dom, XL);
 
@@ -1125,7 +1137,29 @@
     o.Protect = function (password) { protectSheet(sh, password); };
     o.Unprotect = function (password) { unprotectSheet(sh, password); };
     denyGet(o, ['QueryTables', 'XmlMaps', 'OLEObjects', 'CommentsThreaded'], 'G-ENGINE');
-    denyFn(o, ['PrintOut', 'ExportAsFixedFormat', 'SaveAs'], 'G-HOST');
+    function sheetBytes(fileFormat) {
+      if (fileFormat === 6 || fileFormat === 'csv') return L.csv.write(sh.wb, sh, ',');
+      if (fileFormat === -4158 || fileFormat === 'txt') return L.csv.write(sh.wb, sh, '\t');
+      if (fileFormat == null || fileFormat === '' || fileFormat === 51 || fileFormat === 'xlsx') {
+        return L.xlsxWrite.write(Object.assign({}, sh.wb, { sheets: [sh], active: 0 }), { type: 'xlsx' });
+      }
+      const e = new Error('The parameter FileFormat is not available.');
+      e.code = 'error';
+      throw e;
+    }
+    o.PrintOut = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Print')) gap('G-HOST', 'PrintOut');
+      return L.hostAudit.printPdf(() => L.print.pdfBytes({ sheet: sh }));
+    };
+    o.ExportAsFixedFormat = function (format, fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('FixedFormat')) gap('G-HOST', 'ExportAsFixedFormat');
+      return L.hostAudit.exportPdf(format, fileName, () => L.print.pdfBytes({ sheet: sh }));
+    };
+    o.SaveAs = function (fileName, fileFormat) {
+      if (!L.hostAudit || !L.hostAudit.has('SheetSaveAs')) gap('G-HOST', 'SaveAs');
+      L.hostAudit.rejectExtra(arguments, 2, ['Filename', 'FileFormat', 'Password', 'WriteResPassword', 'ReadOnlyRecommended', 'CreateBackup']);
+      return L.hostAudit.saveCopy(fileName, () => sheetBytes(fileFormat), 'SheetSaveAs');
+    };
     return o;
   }
   function unionAddr(a, b) {
@@ -1207,7 +1241,10 @@
     defFont(o, 'PrintArea', () => (p().area ? F.rangeName(p().area) : ''), (v) => set((n) => { n.area = v ? F.parseRange(String(v)) : null; }));
     defFont(o, 'CenterHorizontally', () => tri(p().hCenter), (v) => set((n) => { n.hCenter = on(v); }));
     defFont(o, 'CenterVertically', () => tri(p().vCenter), (v) => set((n) => { n.vCenter = on(v); }));
-    denyFn(o, ['PrintOut'], 'G-HOST');
+    o.PrintOut = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Print')) gap('G-HOST', 'PrintOut');
+      return L.hostAudit.printPdf(() => L.print.pdfBytes({ sheet: sh }));
+    };
     return o;
   }
   function pageBreaks(sh, key) {
@@ -1384,7 +1421,20 @@
       edit(sh.wb, 'Text Box', () => { O.setDrawings(sh, (sh.drawings || []).concat([d])); });
       return shapeOf(sh, d);
     };
-    denyFn(col, ['AddPicture', 'AddChart', 'AddOLEObject'], 'G-HOST');
+    col.AddPicture = function (fileName, linkToFile) {
+      if (linkToFile === true || linkToFile === -1) {
+        const e = new Error('The parameter LinkToFile is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      if (!L.hostAudit || !L.hostAudit.has('Picture')) gap('G-HOST', 'AddPicture');
+      L.hostAudit.rejectExtra(arguments, 2, ['Filename', 'LinkToFile', 'SaveWithDocument', 'Left', 'Top', 'Width', 'Height']);
+      return L.hostAudit.readBytes(fileName, 'Picture', 'RequestApproval').then((bytes) => {
+        const file = new File([bytes], String(fileName).split(/[/\\]/).pop());
+        return L.app.insertPictureFile(file);
+      });
+    };
+    denyFn(col, ['AddChart', 'AddOLEObject'], 'G-HOST');
     return col;
   }
   function shapeOf(sh, d) {
@@ -1527,8 +1577,40 @@
     o.Save = function () {
       const b = bookOf(wb);
       if (!b || b.untitled || !b.saved) gap('G-HOST', 'Save');
-      if (L.app && L.app.save) { L.app.save(); return; }
-      b.dirty = false;
+      const run = () => {
+        if (L.app && L.app.save) return L.app.save();
+        b.dirty = false;
+      };
+      if (!L.hostAudit) return run();
+      return L.hostAudit.must('RequestApproval', 'Save', 'save the workbook').then(run);
+    };
+    function bookBytes(fileFormat) {
+      if (fileFormat == null || fileFormat === '' || fileFormat === 51 || fileFormat === 'xlsx') return L.xlsxWrite.write(wb, { type: 'xlsx' });
+      if (fileFormat === 52 || fileFormat === 'xlsm') return L.xlsxWrite.write(wb, { type: 'xlsm' });
+      if (fileFormat === 6 || fileFormat === 'csv') return L.csv.write(wb, wb.sheets[wb.active] || wb.sheets[0], ',');
+      if (fileFormat === -4158 || fileFormat === 'txt') return L.csv.write(wb, wb.sheets[wb.active] || wb.sheets[0], '\t');
+      const e = new Error('The parameter FileFormat is not available.');
+      e.code = 'error';
+      throw e;
+    }
+    o.SaveAs = function (fileName, fileFormat) {
+      if (!L.hostAudit || !L.hostAudit.has('SaveAs')) gap('G-HOST', 'SaveAs');
+      L.hostAudit.rejectExtra(arguments, 2, ['Filename', 'FileFormat', 'Password', 'WriteResPassword']);
+      return L.hostAudit.saveCopy(fileName, () => bookBytes(fileFormat));
+    };
+    o.SaveAs2 = o.SaveAs;
+    o.PrintOut = function () {
+      if (!L.hostAudit || !L.hostAudit.has('Print')) gap('G-HOST', 'PrintOut');
+      return L.hostAudit.printPdf(() => L.print.pdfBytes({ what: 'workbook' }));
+    };
+    o.ExportAsFixedFormat = function (format, fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('FixedFormat')) gap('G-HOST', 'ExportAsFixedFormat');
+      return L.hostAudit.exportPdf(format, fileName, () => L.print.pdfBytes({ what: 'workbook' }));
+    };
+    o.FollowHyperlink = function (address) {
+      if (!L.hostAudit || !L.hostAudit.has('Hyperlink')) gap('G-HOST', 'FollowHyperlink');
+      L.hostAudit.rejectExtra(arguments, 1, ['Address', 'SubAddress', 'NewWindow', 'AddHistory', 'ExtraInfo', 'Method', 'HeaderInfo']);
+      return L.hostAudit.follow(address);
     };
     o.Close = function (saveChanges) {
       const b = bookOf(wb);
@@ -1563,8 +1645,22 @@
       }
       edit(wb, 'Protect', () => { wb.protection = null; });
     };
-    denyGet(o, ['FullName', 'Path', 'Windows'], 'G-HOST');
-    denyFn(o, ['SaveAs', 'SaveAs2', 'PrintOut', 'ExportAsFixedFormat', 'FollowHyperlink', 'SendMail'], 'G-HOST');
+    Object.defineProperty(o, 'FullName', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'FullName');
+        return L.hostAudit.documentPath();
+      },
+    });
+    Object.defineProperty(o, 'Path', {
+      enumerable: true,
+      get() {
+        if (!L.hostAudit || !L.hostAudit.has('Path')) gap('G-HOST', 'Path');
+        return L.hostAudit.documentDir();
+      },
+    });
+    denyGet(o, ['Windows'], 'G-HOST');
+    denyFn(o, ['SendMail'], 'G-HOST');
     denyFn(o, ['Run', 'Merge'], 'G-ENGINE');
     return o;
   }
@@ -1577,7 +1673,11 @@
       paint();
       return bookObj(rec.wb);
     };
-    col.Open = function () { gap('G-HOST', 'Open'); };
+    col.Open = function (fileName) {
+      if (!L.hostAudit || !L.hostAudit.has('Open')) gap('G-HOST', 'Open');
+      L.hostAudit.rejectExtra(arguments, 1, ['Filename', 'UpdateLinks', 'ReadOnly', 'Format', 'Password']);
+      return L.hostAudit.openPath(fileName);
+    };
     col.Close = function () { gap('G-HOST', 'Close'); };
     return col;
   }
@@ -1686,8 +1786,42 @@
     paint();
     return t ? -1 : 0;
   };
-  denyGet(Application, ['Windows', 'AddIns', 'Dialogs', 'FileDialog', 'CommandBars'], 'G-HOST');
-  denyFn(Application, ['Run', 'SendKeys', 'Wait', 'OnTime', 'GetOpenFilename', 'GetSaveAsFilename'], 'G-HOST');
+  denyGet(Application, ['Windows', 'AddIns', 'CommandBars'], 'G-HOST');
+  denyFn(Application, ['Run', 'SendKeys', 'Wait', 'OnTime'], 'G-HOST');
+  Object.defineProperty(Application, 'Dialogs', {
+    enumerable: true,
+    get() { return L.hostAudit ? L.hostAudit.dialogsCollection() : gap('G-HOST', 'Dialogs'); },
+  });
+  Application.FileDialog = function (type) {
+    if (!L.hostAudit) gap('G-HOST', 'FileDialog');
+    return L.hostAudit.fileDialog(type);
+  };
+  Application.HasHostAbility = function (name) { return L.hostAudit && L.hostAudit.has(name) ? -1 : 0; };
+  Application.MsgBox = function (prompt, buttons, title) {
+    if (!L.hostAudit) gap('G-HOST', 'MsgBox');
+    return L.hostAudit.msgBox(prompt, buttons, title);
+  };
+  Application.InputBox = function (prompt, title, def) {
+    if (!L.hostAudit) gap('G-HOST', 'InputBox');
+    return L.hostAudit.inputBox(prompt, title, def);
+  };
+  Application.HostDir = function (pattern) {
+    if (!L.hostAudit || !L.hostAudit.has('Dir')) gap('G-HOST', 'Dir');
+    return L.hostAudit.dir(pattern);
+  };
+  Application.HostShell = function () {
+    if (!L.hostAudit || !L.hostAudit.has('Shell')) gap('G-HOST', 'Shell');
+    return L.hostAudit.shell();
+  };
+  Application.GetOpenFilename = function (filter, filterIndex, title, buttonText, multi) {
+    void filter; void filterIndex; void title; void buttonText;
+    if (!L.hostAudit) gap('G-HOST', 'GetOpenFilename');
+    return L.hostAudit.getOpenFilename(multi);
+  };
+  Application.GetSaveAsFilename = function () {
+    if (!L.hostAudit) gap('G-HOST', 'GetSaveAsFilename');
+    return L.hostAudit.getSaveAsFilename();
+  };
   denyGet(Application, ['EnableEvents'], 'G-ENGINE');
 
   dom.Application = Application;

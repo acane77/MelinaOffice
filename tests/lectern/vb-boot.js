@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 async function boot() {
   globalThis.window = globalThis;
+  require('../../public/common/host-audit.js');
   require('../../public/common/core.js');
   require('../../public/common/geometry.js');
   require('../../public/lectern/js/model.js');

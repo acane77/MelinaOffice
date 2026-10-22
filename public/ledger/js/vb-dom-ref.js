@@ -54,7 +54,8 @@
           m('ReferenceStyle', 'rw', N('xlA1 or xlR1C1.')),
           m('Calculate, Undo, Redo', 'call', N('Recalculate, or one undo or redo step. Returns -1 if a step ran, else 0.')),
           m('Windows, AddIns, Dialogs, FileDialog, CommandBars', 'get', N('Windows, add-ins and file pickers.'), 'G-HOST'),
-          m('Run, SendKeys, Wait, OnTime, GetOpenFilename, GetSaveAsFilename', 'call', N('Those host calls are not on this page.'), 'G-HOST'),
+          m('Run, SendKeys, Wait, OnTime', 'call', N('Those host calls are not on this page.'), 'G-HOST'),
+          m('GetOpenFilename, GetSaveAsFilename', 'call', N('On the VS Code host, the editor file dialog. Cancel returns an empty string.')),
           m('EnableEvents', 'get', N('Events are not this flag.'), 'G-ENGINE'),
         ],
       },
@@ -70,7 +71,7 @@
         name: 'Workbook',
         members: [
           m('Name', 'get'),
-          m('FullName, Path', 'get', N('The browser session has no VBA path.'), 'G-HOST'),
+          m('FullName, Path', 'get', N('On the VS Code host, the file path and its folder. Elsewhere G-HOST.')),
           m('Saved', 'rw', N('False after an edit until a successful save.')),
           m('Worksheets, Sheets, Charts, ActiveSheet, Names, Styles', 'get', N('Charts is the chart sheets inside Sheets.')),
           m('BuiltInDocumentProperties, CustomDocumentProperties', 'get', N('Title, subject, creator, keywords, description, category, manager, company. Add with LinkToContent, or a type other than string, fails.')),
@@ -78,7 +79,11 @@
           m('Save', 'call', N('Clears dirty when a destination exists. Otherwise G-HOST.')),
           m('Close', 'call', N('See the rules for the last book and for SaveChanges.')),
           m('Protect, Unprotect', 'call', N('Workbook structure. The password is hashed when the dialog helper is loaded.')),
-          m('SaveAs, SaveAs2, PrintOut, ExportAsFixedFormat, FollowHyperlink, SendMail, Windows', 'call', N('Those calls need a path, a printer or a window.'), 'G-HOST'),
+          m('SaveAs, SaveAs2', 'call', N('On the VS Code host, writes that path. Elsewhere G-HOST.')),
+          m('PrintOut', 'call', N('On the VS Code host, a PDF of the visible sheets beside the file.')),
+          m('ExportAsFixedFormat', 'call', N('On the VS Code host, a PDF. XPS is an error.')),
+          m('FollowHyperlink', 'call', N('On the VS Code host, opens http, https, or mailto.')),
+          m('SendMail, Windows', 'call', N('Those calls are not on this page.'), 'G-HOST'),
         ],
       },
       {
@@ -123,7 +128,9 @@
           m('Activate, Select, Delete, Move, Calculate, Protect, Unprotect', 'call'),
           m('Copy', 'call', N('A shallow sheet copy.')),
           m('QueryTables, XmlMaps, OLEObjects, CommentsThreaded', 'get', N('Those collections have no editor.'), 'G-ENGINE'),
-          m('PrintOut, ExportAsFixedFormat, SaveAs', 'call', N('Printing and saving a sheet to a path need a host.'), 'G-HOST'),
+          m('PrintOut', 'call', N('On the VS Code host, a PDF of this sheet.')),
+          m('ExportAsFixedFormat', 'call', N('On the VS Code host, a PDF of this sheet. XPS is an error.')),
+          m('SaveAs', 'call', N('On the VS Code host, this sheet as CSV, text, or a one-sheet workbook.')),
         ],
       },
       {
@@ -220,7 +227,7 @@
         name: 'Shapes',
         members: [
           m('Item, AddTextbox', 'call', N('AddTextbox ignores orientation.')),
-          m('AddPicture', 'call', N('FileName is a path.'), 'G-HOST'),
+          m('AddPicture', 'call', N('On the VS Code host, embeds the picture.')),
           m('Name, Left, Top, Width, Height, TextFrame, Delete', 'rw'),
           m('OLEFormat', 'get', N('Embedded objects are kept, not edited.'), 'G-ENGINE'),
           m('TextFrame.TextRange, TextRange.Text', 'rw'),
@@ -278,7 +285,7 @@
       { title: N('Lines, pattern, page'), items: [['xlContinuous', '1'], ['xlDash', '-4115'], ['xlDot', '-4118'], ['xlDouble', '-4119'], ['xlNone', '-4142'], ['xlHairline', '1'], ['xlThin', '2'], ['xlMedium', '-4138'], ['xlThick', '4'], ['xlUnderlineStyleNone', '-4142'], ['xlUnderlineStyleSingle', '2'], ['xlPatternNone', '-4142'], ['xlPatternSolid', '1'], ['xlPortrait', '1'], ['xlLandscape', '2'], ['xlColorIndexAutomatic', '-4105'], ['xlColorIndexNone', '-4142'], ['msoTrue', '-1'], ['msoFalse', '0'], ['msoTextOrientationHorizontal', '1']] },
       { title: N('Conditions and validation'), items: [['xlCellValue', '1'], ['xlExpression', '2'], ['xlEqual', '3'], ['xlNotEqual', '4'], ['xlGreater', '5'], ['xlLess', '6'], ['xlGreaterEqual', '7'], ['xlLessEqual', '8'], ['xlBetween', '1'], ['xlNotBetween', '2'], ['xlValidateList', '3'], ['xlValidateWholeNumber', '1'], ['xlValidateDecimal', '2'], ['xlValidateDate', '4'], ['xlValidateTime', '5'], ['xlValidateTextLength', '6'], ['xlValidateCustom', '7']] },
     ],
-    exampleNote: N('ActiveWorkbook.FullName is G-HOST. ActiveWorkbook.Creator is G-ENGINE.'),
+    exampleNote: N('ActiveWorkbook.FullName is G-HOST without the VS Code host. ActiveWorkbook.Creator is G-ENGINE.'),
     example: 'ActiveSheet.Range("A1").Value = "Item"\nActiveSheet.Range("B2").Value = 12.5\nActiveSheet.Range("B4").Formula = "=SUM(B2:B3)"\nblock = ActiveSheet.Range("B2:B3").Value\nActiveSheet.Range("A1:B1").Font.Bold = True\nActiveSheet.Range("B2:B4").NumberFormat = "0.00"\nActiveWorkbook.Names.Add "Total", "=Sheet1!$B$4"\nActiveSheet.Range("A6").Value = WorksheetFunction.Sum(ActiveSheet.Range("B2:B3"))',
   });
 })();

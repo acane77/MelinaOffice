@@ -51,7 +51,7 @@ An argument `{ handle }` is unwrapped to the live object. An unknown handle fail
 |---|---|
 | `G-TEXT` | The member needs a character index inside the shape |
 | `G-ENGINE` | No document operation, including `Creator` and every member of a `G-ENGINE` gap object |
-| `G-HOST` | A path, a window, a printer, or a modal, including every member of a `G-HOST` gap object |
+| `G-HOST` | This session does not have that host ability, including every member of a `G-HOST` gap object. `E-APPROVAL` and `E-DENIED` are the audit results in [docs/dom_api_security.md](dom_api_security.md) |
 | `missing` | The index is outside the collection |
 | `missing-live` | The catalog lists the member and this live object does not have it |
 | `absent` | The catalog has no such member |
@@ -95,4 +95,4 @@ const range = s.exec({ op: 'get', handle: frame.handle, member: 'TextRange' });
 s.exec({ op: 'set', handle: range.handle, member: 'Text', value: 'Hello' });
 ```
 
-`Characters(1)` is `item` on `Characters` and returns `G-TEXT`. `FullName` returns `G-HOST`. `session.named('TimeLine')` then a get of `MainSequence` returns `G-ENGINE`.
+`Characters(1)` is `item` on `Characters` and returns `G-TEXT`. `FullName` returns `G-HOST` when the host has no path. `session.named('TimeLine')` then a get of `MainSequence` returns `G-ENGINE`.

@@ -61,6 +61,44 @@ function folderInfo(doc) {
   return { uri: dir.toString(), label: dir.fsPath };
 }
 
+const HOST_ALWAYS = 'vibeoffice.hostAlways';
+
+function alwaysAbilities(context) {
+  const list = context.workspaceState.get(HOST_ALWAYS);
+  return Array.isArray(list) ? list.slice() : [];
+}
+
+function pathOutside(fsPath) {
+  const folders = vscode.workspace.workspaceFolders || [];
+  const norm = String(fsPath || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+  if (!norm || !folders.length) return true;
+  return !folders.some((f) => {
+    const root = f.uri.fsPath.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+    return norm === root || norm.startsWith(root + '/');
+  });
+}
+
+function hostGranted(doc, ability) {
+  return !!(doc.hostGrants && ability && doc.hostGrants.has(ability));
+}
+
+function pauseVbs(doc) {
+  for (const pending of doc.pending.values()) {
+    if (pending.expect === 'vbs-result' && pending.pause) pending.pause();
+  }
+}
+
+function resumeVbs(doc) {
+  for (const pending of doc.pending.values()) {
+    if (pending.expect === 'vbs-result' && pending.resume) pending.resume();
+  }
+}
+
+function globToReg(glob) {
+  const body = String(glob || '*').replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.');
+  return new RegExp('^' + body + '$', 'i');
+}
+
 function extsFromAccept(accept, fallback) {
   if (!accept) return fallback;
   const out = [];
@@ -230,21 +268,42 @@ class OfficeEditorProvider {
     if (!doc.panel || !doc.panel.webview) return Promise.reject(new Error('The editor was closed.'));
     const id = Math.random().toString(36).slice(2);
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
+      const budget = timeoutMs || 300000;
+      let remaining = budget;
+      let started = Date.now();
+      let timer = null;
+      let paused = false;
+      const fire = () => {
         doc.pending.delete(id);
         reject(new Error('The editor did not answer.'));
-      }, timeoutMs || 300000);
+      };
+      const arm = () => { timer = setTimeout(fire, remaining); };
       const finish = (fn, value) => {
         if (!doc.pending.has(id)) return;
-        clearTimeout(timer);
+        if (timer) clearTimeout(timer);
         doc.pending.delete(id);
         fn(value);
       };
       doc.pending.set(id, {
         expect,
+        pause() {
+          if (paused || !timer) return;
+          clearTimeout(timer);
+          timer = null;
+          remaining -= Date.now() - started;
+          if (remaining < 1) remaining = 1;
+          paused = true;
+        },
+        resume() {
+          if (!paused) return;
+          paused = false;
+          started = Date.now();
+          arm();
+        },
         resolve: (v) => finish(resolve, v),
         reject: (e) => finish(reject, e),
       });
+      arm();
       try { doc.panel.webview.postMessage(Object.assign({ id }, msg)); }
       catch (e) { finish(reject, e); }
     });
@@ -324,6 +383,15 @@ class OfficeEditorProvider {
       } catch (e) { /* a page link that is not a web or mail address stays put */ }
       return;
     }
+    if (msg.type === 'host-approval') { await this._approve(doc, msg); return; }
+    if (msg.type === 'host-outside') {
+      this._reply(doc, msg.id, { ok: true, outside: pathOutside(msg.path) });
+      return;
+    }
+    if (msg.type === 'host-read') { await this._hostRead(doc, msg); return; }
+    if (msg.type === 'host-dir') { await this._hostDir(doc, msg); return; }
+    if (msg.type === 'host-open') { await this._hostOpen(doc, msg); return; }
+    if (msg.type === 'host-pick') { await this._hostPick(doc, msg); return; }
     if (msg.type === 'vbs-result') {
       const p = doc.pending.get(msg.id);
       if (p) p.resolve(msg);
@@ -339,6 +407,16 @@ class OfficeEditorProvider {
     if (msg.type === 'chunk') {
       const done = this._assembler.push(msg);
       if (!done) return;
+      if (done.purpose === 'host') {
+        try {
+          await this._writeHost(doc, done);
+          if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: true, inplace: false, name: proto.baseName(done.path) });
+        } catch (e) {
+          const error = e && e.message ? e.message : String(e);
+          if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: false, error, code: e && e.code });
+        }
+        return;
+      }
       if (done.purpose === 'backup') {
         const p = doc.pending.get(done.id);
         if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: true, inplace: false, name: done.name });
@@ -380,11 +458,171 @@ class OfficeEditorProvider {
     if (doc.panel) doc.panel.webview.postMessage(Object.assign({ type: 'reply', id }, body));
   }
 
+  async _whileDialog(doc, fn) {
+    pauseVbs(doc);
+    try { return await fn(); }
+    finally { resumeVbs(doc); }
+  }
+
+  _remember(ability) {
+    const list = alwaysAbilities(this._context);
+    if (list.includes(ability)) return Promise.resolve();
+    list.push(ability);
+    return this._context.workspaceState.update(HOST_ALWAYS, list);
+  }
+
+  _allow(doc, ability) {
+    if (!doc.hostGrants) doc.hostGrants = new Set();
+    doc.hostGrants.add(ability);
+  }
+
+  async _approve(doc, msg) {
+    const ability = String(msg.ability || '');
+    const tier = msg.tier || 'RequestApproval';
+    if (tier === 'AlwaysDeny') {
+      this._reply(doc, msg.id, { ok: false, code: 'E-DENIED', error: 'The editor refused this operation.' });
+      return;
+    }
+    const outside = msg.path ? pathOutside(msg.path) : false;
+    const ask = (tier === 'RequestApproval' || (tier === 'AlwaysAllow' && outside)) && doc.vbsAgent;
+    if (!ask || alwaysAbilities(this._context).includes(ability)) {
+      this._allow(doc, ability);
+      this._reply(doc, msg.id, { ok: true });
+      return;
+    }
+    await this._whileDialog(doc, async () => {
+      let choice;
+      let timer;
+      try {
+        choice = await Promise.race([
+          vscode.window.showWarningMessage(
+            'A script wants to use ' + ability + (msg.detail ? ' (' + msg.detail + ')' : '') + '.',
+            { modal: true },
+            'Allow',
+            'Always allow',
+            'Deny',
+          ),
+          new Promise((resolve) => { timer = setTimeout(() => resolve(undefined), 120000); }),
+        ]);
+      } finally { if (timer) clearTimeout(timer); }
+      if (choice === 'Always allow') await this._remember(ability);
+      if (choice === 'Allow' || choice === 'Always allow') {
+        this._allow(doc, ability);
+        this._reply(doc, msg.id, { ok: true });
+      } else {
+        this._reply(doc, msg.id, { ok: false, code: 'E-APPROVAL', error: 'The editor did not allow this operation.' });
+      }
+    });
+  }
+
+  _needsGrant(doc, ability, filePath) {
+    if (!doc.vbsAgent || !pathOutside(filePath)) return false;
+    if (alwaysAbilities(this._context).includes(ability)) return false;
+    return !hostGranted(doc, ability);
+  }
+
+  async _hostRead(doc, msg) {
+    try {
+      const filePath = String(msg.path || '');
+      if (this._needsGrant(doc, msg.ability || '', filePath)) {
+        const e = new Error('The editor did not allow this operation.');
+        e.code = 'E-APPROVAL';
+        throw e;
+      }
+      const data = await vscode.workspace.fs.readFile(vscode.Uri.file(filePath));
+      if (data.length > 32 * 1024 * 1024) throw new Error('The file is too large.');
+      this._reply(doc, msg.id, { ok: true, b64: Buffer.from(data).toString('base64') });
+    } catch (e) {
+      this._reply(doc, msg.id, { ok: false, code: e && e.code, error: e && e.message ? e.message : String(e) });
+    }
+  }
+
+  async _hostDir(doc, msg) {
+    try {
+      const pattern = String(msg.pattern || '');
+      const slash = Math.max(pattern.lastIndexOf('/'), pattern.lastIndexOf('\\'));
+      const dir = slash >= 0 ? pattern.slice(0, slash) : pattern;
+      const glob = slash >= 0 ? pattern.slice(slash + 1) : '*';
+      if (this._needsGrant(doc, 'Dir', dir)) {
+        const e = new Error('The editor did not allow this operation.');
+        e.code = 'E-APPROVAL';
+        throw e;
+      }
+      const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dir));
+      const re = globToReg(glob);
+      const names = entries.filter((e) => (e[1] & vscode.FileType.File) && re.test(e[0])).map((e) => e[0]);
+      this._reply(doc, msg.id, { ok: true, names });
+    } catch (e) {
+      this._reply(doc, msg.id, { ok: false, code: e && e.code, error: e && e.message ? e.message : String(e) });
+    }
+  }
+
+  async _hostOpen(doc, msg) {
+    try {
+      const filePath = String(msg.path || '');
+      if (this._needsGrant(doc, 'Open', filePath)) {
+        const e = new Error('The editor did not allow this operation.');
+        e.code = 'E-APPROVAL';
+        throw e;
+      }
+      const uri = vscode.Uri.file(filePath);
+      const view = proto.viewTypeFor(filePath);
+      if (!view) throw new Error('That file type is not available.');
+      await vscode.commands.executeCommand('vscode.openWith', uri, view);
+      this._reply(doc, msg.id, { ok: true });
+    } catch (e) {
+      this._reply(doc, msg.id, { ok: false, code: e && e.code, error: e && e.message ? e.message : String(e) });
+    }
+  }
+
+  async _hostPick(doc, msg) {
+    await this._whileDialog(doc, async () => {
+      try {
+        const kind = msg.kind || 'open';
+        let picked;
+        if (kind === 'save') {
+          picked = await vscode.window.showSaveDialog({});
+          this._reply(doc, msg.id, { ok: true, paths: picked ? [picked.fsPath] : [] });
+          return;
+        }
+        picked = await vscode.window.showOpenDialog({
+          canSelectFiles: kind !== 'folder',
+          canSelectFolders: kind === 'folder',
+          canSelectMany: !!msg.multi,
+          openLabel: kind === 'folder' ? 'Select folder' : 'Open',
+        });
+        this._reply(doc, msg.id, { ok: true, paths: picked ? picked.map((u) => u.fsPath) : [] });
+      } catch (e) {
+        this._reply(doc, msg.id, { ok: false, error: e && e.message ? e.message : String(e) });
+      }
+    });
+  }
+
+  async _writeHost(doc, done) {
+    const filePath = String(done.path || '');
+    if (!filePath) throw new Error('The file has no path.');
+    if (this._needsGrant(doc, done.ability || '', filePath)) {
+      const e = new Error('The editor did not allow this operation.');
+      e.code = 'E-APPROVAL';
+      throw e;
+    }
+    const uri = vscode.Uri.file(filePath);
+    await vscode.workspace.fs.writeFile(uri, done.bytes);
+    if (done.open) {
+      const view = proto.viewTypeFor(filePath);
+      if (view) await vscode.commands.executeCommand('vscode.openWith', uri, view);
+    }
+  }
+
   /** The page's Save, Ctrl+S and a save before close. One write, through saveCustomDocument,
    *  so the tab dot and the bytes stay the same save. A save already running is that write. */
   async _onRequestSave(doc, msg) {
     const reply = (ok, error) => this._reply(doc, msg.id, { ok: !!ok, error: error || '' });
     try {
+      if (doc.vbsAgent && !hostGranted(doc, 'Save') && !alwaysAbilities(this._context).includes('Save')) {
+        reply(false, 'The editor did not allow this operation.');
+        return;
+      }
       const how = doc.save.onRequest();
       if (how === 'closed') { reply(false, 'The editor was closed.'); return; }
       if (how === 'join') {
@@ -597,7 +835,7 @@ class OfficeEditorProvider {
          A zero-byte file (New File… with a typed name) is the same case: there is nothing to open. */
       if (doc.panel) {
         const folder = folderInfo(doc);
-        doc.panel.webview.postMessage({ type: 'blank', name: proto.baseName(doc.uri.path), uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label });
+        doc.panel.webview.postMessage({ type: 'blank', name: proto.baseName(doc.uri.path), uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label, fsPath: doc.uri.fsPath });
       }
       return;
     }
@@ -611,7 +849,7 @@ class OfficeEditorProvider {
     if (!doc.panel) return;
     const url = doc.panel.webview.asWebviewUri(doc.uri).toString();
     const folder = folderInfo(doc);
-    doc.panel.webview.postMessage({ type: 'open', name: proto.baseName(doc.uri.path), url, uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label });
+    doc.panel.webview.postMessage({ type: 'open', name: proto.baseName(doc.uri.path), url, uri: doc.uri.toString(), dir: folder.uri, dirLabel: folder.label, fsPath: doc.uri.fsPath });
   }
 
   async _sendBytes(doc, bytes, name, extra) {
@@ -625,7 +863,7 @@ class OfficeEditorProvider {
       const slice = data.subarray(i * CHUNK, Math.min(data.length, (i + 1) * CHUNK));
       doc.panel.webview.postMessage({
         type: 'open-chunk', i, n, name, b64: b64(slice), uri,
-        dir: folder.uri, dirLabel: folder.label,
+        dir: folder.uri, dirLabel: folder.label, fsPath: doc.uri.fsPath,
         draft: !!extra.draft, draftKey: extra.draftKey || '',
       });
     }
@@ -719,9 +957,13 @@ async function onMcpCall(body) {
     if (!entry || !entry.doc || !entry.doc.panel) {
       return { ok: false, app: picked.app, fileName: picked.name, prints: [], value: null, error: { message: docs.NOT_READY } };
     }
+    entry.doc.vbsAgent = true;
+    if (!entry.doc.hostGrants) entry.doc.hostGrants = new Set();
+    entry.doc.hostGrants.clear();
     try {
       return await enqueue(entry.doc, () => entry.ask({
         type: 'run-vbs',
+        agent: true,
         source: call.source,
         mode: call.mode,
         entry: call.entry,
@@ -737,6 +979,8 @@ async function onMcpCall(body) {
         value: null,
         error: { message: timedOut ? 'The script did not finish in time.' : (e && e.message ? e.message : String(e)) },
       };
+    } finally {
+      entry.doc.vbsAgent = false;
     }
   });
 }

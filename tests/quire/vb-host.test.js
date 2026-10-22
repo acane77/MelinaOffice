@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 globalThis.window = globalThis;
+require('../../public/common/host-audit.js');
 require('../../public/common/core.js');
 require('../../public/quire/js/dmodel.js');
 require('../../public/quire/js/ops.js');
@@ -44,6 +45,12 @@ test('an Immediate statement writes the document through the IR', { timeout: 120
     assert.equal(await host.eval('?ActiveDocument.Paragraphs(1).Range.Text'), 'Hello\r');
     await host.eval('scratch = wdAlignParagraphCenter');
     assert.equal(await host.eval('?scratch'), 1);
+    assert.equal(await host.eval('?HasHostAbility("Shell")'), 0);
+    await assert.rejects(() => host.eval('HostShell "x"'), (err) => err && err.code === 'G-HOST');
+    VO.host = { kind: 'vscode', documentPath() { return '/work/A.docx'; }, documentDir() { return '/work'; } };
+    assert.equal(await host.eval('?HasHostAbility("Path")'), -1);
+    assert.equal(await host.eval('?HasHostAbility("NoSuch")'), 0);
+    await assert.rejects(() => host.eval('HostShell "x"'), (err) => err && err.code === 'E-DENIED');
   } finally {
     host.close();
   }
