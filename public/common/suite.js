@@ -701,6 +701,57 @@
       heldDirty = false;
     }
   }
+  /* Keep in step with plainValue in vscode/documents.js. A VB object must not cross postMessage. */
+  function plainVbValue(value, depth) {
+    if (value == null) return null;
+    if (typeof value === 'string' || typeof value === 'boolean') return value;
+    if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+    const level = depth || 0;
+    if (!Array.isArray(value) || level > 8) return undefined;
+    const out = [];
+    for (let i = 0; i < value.length; i++) {
+      const item = plainVbValue(value[i], level + 1);
+      if (item === undefined) return undefined;
+      out.push(item);
+    }
+    return out;
+  }
+  function vbFailure(e) {
+    const error = { message: e && e.message ? String(e.message) : String(e) };
+    if (e && typeof e.number === 'number') error.number = e.number;
+    if (e && e.code != null && e.code !== '') error.code = String(e.code);
+    return error;
+  }
+  /** Run one agent script on the document this tab has open. Prints are the new Debug.Print lines. */
+  async function runHostVbs(m) {
+    const app = current && current.app || '';
+    const fileName = documentName || '';
+    const base = { app: app, fileName: fileName, prints: [], value: null };
+    if (!hostLive || !window.L) {
+      return Object.assign(base, { ok: false, error: { message: 'The file is not open in the editor yet.' } });
+    }
+    const api = window.L;
+    if (!api.vb || typeof api.vb.session !== 'function' || typeof api.runVB6 !== 'function' || typeof api.evalVB6 !== 'function') {
+      return Object.assign(base, { ok: false, error: { message: 'Visual Basic is not available in this editor.' } });
+    }
+    let host;
+    try { host = await api.vb.session(); }
+    catch (e) { return Object.assign(base, { ok: false, error: vbFailure(e) }); }
+    const mark = host && host.output ? host.output.length : 0;
+    const printed = () => (host && host.output ? host.output.slice(mark).map((line) => String(line)) : []);
+    try {
+      let value;
+      if (m.mode === 'line') value = await api.evalVB6(String(m.source || ''));
+      else value = await api.runVB6(String(m.source || ''), m.entry ? String(m.entry) : undefined, Array.isArray(m.args) ? m.args : undefined);
+      const plain = plainVbValue(value);
+      const dropped = value != null && plain === undefined;
+      const out = { ok: true, app: app, fileName: fileName, prints: printed(), value: plain === undefined ? null : plain, error: null };
+      if (dropped) out.note = 'The result was a VB object. Use Debug.Print to return a string, number, or Boolean.';
+      return out;
+    } catch (e) {
+      return { ok: false, app: app, fileName: fileName, prints: printed(), value: null, error: vbFailure(e) };
+    }
+  }
   if (inVs) window.addEventListener('message', async (ev) => {
     const m = ev.data;
     if (!m || typeof m !== 'object') return;
@@ -712,6 +763,13 @@
       if (!hostSaveRun) hostSaveRun = performHostSave().finally(() => { hostSaveRun = null; });
       const result = await hostSaveRun;
       vsPost({ type: 'save-result', id: m.id, ok: result.ok, error: result.error || '' });
+    } else if (m.type === 'run-vbs') {
+      let result;
+      try { result = await runHostVbs(m); }
+      catch (e) {
+        result = { ok: false, app: current && current.app || '', fileName: documentName || '', prints: [], value: null, error: { message: String(e && e.message || e) } };
+      }
+      vsPost(Object.assign({ type: 'vbs-result', id: m.id }, result));
     } else if (m.type === 'backup') {
       try {
         const H = current && current.hooks;

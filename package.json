@@ -130,6 +130,12 @@
         ],
         "priority": "option"
       }
+    ],
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "vibeoffice",
+        "label": "VibeOffice"
+      }
     ]
   }
 }

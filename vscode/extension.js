@@ -4,6 +4,7 @@
  * picked (the open file's folder, unless they choose another) and opens a different file too.
  * File ▸ New and File ▸ Open use VS Code's own dialogs and open the result in a new tab.
  * New File… (file/newFile) creates a blank .docx, .xlsx or .pptx and opens it here.
+ * An agent in the editor runs VB6 on the active tab through the MCP server in vscode/mcp.js.
  * Docs: docs/vscode.md. */
 'use strict';
 
@@ -12,6 +13,8 @@ const path = require('path');
 const vscode = require('vscode');
 const proto = require('./protocol');
 const page = require('./page');
+const docs = require('./documents');
+const bridgeApi = require('./mcp-bridge');
 
 const VIEW = {
   quire: 'vibeoffice.quire',
@@ -25,6 +28,10 @@ const SAVE_LABEL = { quire: 'Document', ledger: 'Workbook', lectern: 'Presentati
 const pendingOpen = new Map();
 /** a file just created from New File…: the page builds a blank document and writes it here */
 const pendingBlank = new Set();
+/** webviews that can run VB, keyed by the file URI. The MCP bridge reads this. */
+const openDocs = new Map();
+/** localhost bridge the MCP process calls. Null until activate finishes listening. */
+let mcpBridge = null;
 
 function publicRoot(extensionPath) {
   const candidates = [path.join(extensionPath, 'public'), path.join(extensionPath, '..', 'public')];
@@ -140,6 +147,14 @@ class OfficeEditorProvider {
 
   async resolveCustomEditor(doc, panel) {
     doc.panel = panel;
+    const key = doc.uri.toString();
+    openDocs.set(key, {
+      uri: key,
+      name: proto.baseName(doc.uri.path),
+      app: this._app,
+      doc,
+      ask: (msg) => this._request(doc, 'vbs-result', msg, docs.VBS_TIMEOUT_MS),
+    });
     const root = this._public ? vscode.Uri.file(this._public) : null;
     const roots = [];
     if (root) roots.push(root);
@@ -148,6 +163,8 @@ class OfficeEditorProvider {
     panel.webview.onDidReceiveMessage((msg) => this._onMessage(doc, msg));
     panel.onDidDispose(() => {
       if (doc.panel === panel) doc.panel = null;
+      const cur = openDocs.get(doc.uri.toString());
+      if (cur && cur.doc === doc) openDocs.delete(doc.uri.toString());
       doc._settlePending();
     });
     panel.webview.html = this._html(doc);
@@ -209,14 +226,14 @@ class OfficeEditorProvider {
     });
   }
 
-  _request(doc, expect, msg) {
+  _request(doc, expect, msg, timeoutMs) {
     if (!doc.panel || !doc.panel.webview) return Promise.reject(new Error('The editor was closed.'));
     const id = Math.random().toString(36).slice(2);
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         doc.pending.delete(id);
         reject(new Error('The editor did not answer.'));
-      }, 300000);
+      }, timeoutMs || 300000);
       const finish = (fn, value) => {
         if (!doc.pending.has(id)) return;
         clearTimeout(timer);
@@ -305,6 +322,11 @@ class OfficeEditorProvider {
         const u = vscode.Uri.parse(String(msg.url || ''));
         if (u.scheme === 'http' || u.scheme === 'https' || u.scheme === 'mailto') await vscode.env.openExternal(u);
       } catch (e) { /* a page link that is not a web or mail address stays put */ }
+      return;
+    }
+    if (msg.type === 'vbs-result') {
+      const p = doc.pending.get(msg.id);
+      if (p) p.resolve(msg);
       return;
     }
     if (msg.type === 'save-result' || (msg.type === 'wrote' && msg.ok === false)) {
@@ -664,7 +686,106 @@ async function createOfficeFile(context, app) {
   }
 }
 
-function activate(context) {
+/** the active editor group's tabs, as the snapshot selectDocument expects */
+function editorTabs() {
+  const group = vscode.window.tabGroups.activeTabGroup;
+  if (!group) return [];
+  const active = group.activeTab;
+  return group.tabs.map((tab) => {
+    const input = tab && tab.input;
+    return {
+      active: tab === active,
+      viewType: input && input.viewType ? String(input.viewType) : '',
+      uri: input && input.uri ? input.uri.toString() : '',
+    };
+  });
+}
+
+function openList() {
+  return [...openDocs.values()].map((d) => ({ uri: d.uri, name: d.name, app: d.app }));
+}
+
+/** one script at a time on a document, so Debug.Print from two calls cannot mix */
+function enqueue(doc, fn) {
+  const prev = doc.vbsChain || Promise.resolve();
+  const run = prev.then(fn, fn);
+  doc.vbsChain = run.then(() => {}, () => {});
+  return run;
+}
+
+async function onMcpCall(body) {
+  return docs.dispatch(body, editorTabs(), openList(), async (picked, call) => {
+    const entry = openDocs.get(picked.uri);
+    if (!entry || !entry.doc || !entry.doc.panel) {
+      return { ok: false, app: picked.app, fileName: picked.name, prints: [], value: null, error: { message: docs.NOT_READY } };
+    }
+    try {
+      return await enqueue(entry.doc, () => entry.ask({
+        type: 'run-vbs',
+        source: call.source,
+        mode: call.mode,
+        entry: call.entry,
+        args: call.args,
+      }));
+    } catch (e) {
+      const timedOut = e && e.message === 'The editor did not answer.';
+      return {
+        ok: false,
+        app: picked.app,
+        fileName: picked.name,
+        prints: [],
+        value: null,
+        error: { message: timedOut ? 'The script did not finish in time.' : (e && e.message ? e.message : String(e)) },
+      };
+    }
+  });
+}
+
+function mcpProcessEnv() {
+  return {
+    ELECTRON_RUN_AS_NODE: '1',
+    VIBEOFFICE_BRIDGE_URL: mcpBridge.url,
+    VIBEOFFICE_BRIDGE_TOKEN: mcpBridge.token,
+  };
+}
+
+function stdioServerDefinition(label, command, args, env) {
+  const Ctor = vscode.McpStdioServerDefinition;
+  if (Ctor.length <= 1) return new Ctor({ label, command, args, env, version: '1.0.3' });
+  return new Ctor(label, command, args, env, '1.0.3');
+}
+
+function registerMcp(context) {
+  const script = path.join(context.extensionPath, 'vscode', 'mcp.js');
+  const env = mcpProcessEnv();
+  const lm = vscode.lm;
+  if (lm && typeof lm.registerMcpServerDefinitionProvider === 'function' && vscode.McpStdioServerDefinition) {
+    try {
+      context.subscriptions.push(lm.registerMcpServerDefinitionProvider('vibeoffice', {
+        provideMcpServerDefinitions() {
+          return [stdioServerDefinition('VibeOffice', process.execPath, [script], env)];
+        },
+        resolveMcpServerDefinition(server) { return server; },
+      }));
+    } catch (e) { /* the host advertised the API and then refused the provider */ }
+  }
+  const cursorMcp = vscode.cursor && vscode.cursor.mcp;
+  if (cursorMcp && typeof cursorMcp.registerServer === 'function') {
+    try {
+      cursorMcp.registerServer({
+        name: 'vibeoffice',
+        server: { command: process.execPath, args: [script], env },
+      });
+      context.subscriptions.push({
+        dispose() {
+          if (typeof cursorMcp.unregisterServer === 'function') cursorMcp.unregisterServer('vibeoffice');
+        },
+      });
+    } catch (e) { /* this host is not Cursor */ }
+  }
+}
+
+async function activate(context) {
   for (const app of Object.keys(VIEW)) {
     const provider = new OfficeEditorProvider(context, app);
     context.subscriptions.push(vscode.window.registerCustomEditorProvider(VIEW[app], provider, {
@@ -692,6 +813,11 @@ function activate(context) {
   for (const [command, app] of [['vibeoffice.newDocx', 'quire'], ['vibeoffice.newXlsx', 'ledger'], ['vibeoffice.newPptx', 'lectern']]) {
     context.subscriptions.push(vscode.commands.registerCommand(command, () => createOfficeFile(context, app)));
   }
+  try {
+    mcpBridge = await bridgeApi.createBridge(onMcpCall);
+    context.subscriptions.push({ dispose: () => { if (mcpBridge) mcpBridge.close(); } });
+    registerMcp(context);
+  } catch (e) { /* the editors still open if this machine will not listen on localhost */ }
 }
 
 function deactivate() {}

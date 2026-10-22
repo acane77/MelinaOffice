@@ -4,11 +4,15 @@ The same Quire, Ledger and Lectern pages run inside a VS Code webview, including
 
 | | |
 |---|---|
-| `package.json` | the extension: custom editors, the Open in VibeOffice command |
-| `vscode/extension.js` | activation, the editors, save and backup |
+| `package.json` | the extension: custom editors, the Open in VibeOffice command, the MCP provider id |
+| `vscode/extension.js` | activation, the editors, save and backup, and registering the MCP server |
+| `vscode/mcp.js` | the MCP process: `vibeoffice_dom_guide` and `vibeoffice_run_vbs` |
+| `vscode/mcp-bridge.js` | the localhost bridge from that process back to the extension host |
+| `vscode/documents.js` | which open tab a script may run on |
+| `vscode/vbs-guide.js` | the object-model note the agent reads, distilled from the three DOM inventories |
 | `vscode/page.js` | the webview document: a `<base>` so the app's relative links resolve, and the host script |
 | `vscode/protocol.js` | which extension opens in which app, and how a save is split into messages |
-| `public/` | the pages, unchanged; the webview loads them from here |
+| `public/` | the pages; `public/common/suite.js` runs a script the extension posts into the open tab |
 
 `VO.host.kind` is `'vscode'`. The page side of that host is `public/common/suite.js` (`takeDocument`, `writeFile`); `L.saveFile` in `public/common/core.js` uses it. The rules shared with the desktop app are in [docs/desktop.md](desktop.md) (Host interface).
 
@@ -41,7 +45,19 @@ In desktop VS Code the same folder is an extension: Run and Debug, **VibeOffice 
 
 ## Checking a change
 
-A feature or a fix for the extension is checked by the user in VS Code (Run and Debug, **VibeOffice extension**), not by starting Chromium. The webview is not the browser: do not start Chromium, `tools/shot.mjs` or CDP for it. `node --test tests/vscode/extension.test.mjs` is the automated check; it does not open a browser. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace.
+A feature or a fix for the extension is checked by the user in VS Code (Run and Debug, **VibeOffice extension**), not by starting Chromium. The webview is not the browser: do not start Chromium, `tools/shot.mjs` or CDP for it. `node --test tests/vscode/extension.test.mjs` and `node --test tests/vscode/mcp.test.mjs` are the automated checks; they do not open a browser. On WSL2, do not look for Chromium on Windows or on the WSL2 host, and do not run commands outside the workspace.
+
+## Running a script from the agent
+
+The extension registers one MCP server, named VibeOffice, when it activates. Activation is still the first Quire, Ledger, or Lectern tab, so the tools appear after a document is open. VS Code uses `vscode.lm.registerMcpServerDefinitionProvider` when that API exists. Cursor uses `vscode.cursor.mcp.registerServer` when that API exists. Nothing is written to an MCP configuration file. A host with neither API opens and saves files as before. The engine requirement stays `^1.75.0`.
+
+The server is a stdio process (`vscode/mcp.js`) started with the editor's executable and `ELECTRON_RUN_AS_NODE=1`. It calls back to a `127.0.0.1` bridge that only the extension knows the token for. The bridge does not open files, save, or read the workspace. It posts `run-vbs` into the webview of the active editor tab, and that page runs the same `runVB6` / `evalVB6` entry the DOM console uses. A hidden VibeOffice tab is not scripted. If the active tab is not one of the three apps, the tool names the open VibeOffice tabs and asks for a click on the right one. If none is open, both tools say to open the file first.
+
+`vibeoffice_dom_guide` is read-only. It returns the guide for the app that owns the active tab (Quire, Ledger, or Lectern), including the gaps versus Microsoft VBA: `G-STORY` in Quire, `G-TEXT` in Lectern, and `G-ENGINE` / `G-HOST` in all three. There is no `MsgBox`. The text is distilled in `vscode/vbs-guide.js` from `docs/quire_dom_api_specifications.md`, `docs/ledger_dom_api_specifications.md`, and `docs/lectern_dom_api_specifications.md`. A change to a member's status in those inventories updates the guide in the same change.
+
+`vibeoffice_run_vbs` runs the script. `mode` `module` is a standard module with `Public Sub Main`, or the public procedure named by `entry`. `mode` `line` is one Immediate statement. Values come back from `Debug.Print`, or from a scalar a `Function` or a `?` line returns. The edit uses the document's own operations, so the tab is marked dirty and Undo in the app removes it. One script runs at a time on that document. A script that does not finish within a minute returns an error. The page must be loaded again after `public/` changes: close the tab and open the file.
+
+To try it, run **VibeOffice extension**, open a `.docx`, `.xlsx`, or `.pptx` on the left, and ask the agent on the right to change that document (for example to set a font size or to write a paragraph). The agent should call the guide, then the script, on that tab only.
 
 ## Opening and saving
 
