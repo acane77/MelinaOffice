@@ -67,7 +67,7 @@ test('opening and about content uses each app colour and does not restyle the fr
   assert.match(looks, /--brand-quire:\s*#2D5999/);
   assert.match(looks, /--brand-ledger:\s*#137E43/);
   assert.match(looks, /--brand-lectern:\s*#B8492B/);
-  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 5);
+  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 6);
   const ui = read('common/ui.css');
   assert.match(ui, /\.dlg\.brand \.dlg-body,\n\.dlg\.brand \.dlg-foot \{ background-color: var\(--brand-bg\); \}/);
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
@@ -120,5 +120,23 @@ test('the pages pick the look before the first paint and load looks.css first', 
     const sheet = html.indexOf('common/looks.css');
     assert.ok(script > 0 && script < sheet, `${page}: the look is picked before looks.css loads`);
     assert.ok(sheet > 0 && (html.indexOf('common/ui.css') < 0 || sheet < html.indexOf('common/ui.css')), `${page}: looks.css before ui.css`);
+    assert.match(html, /l==='paper2016'\|\|l==='ribbon2010'\|\|l==='goldengate'/);
   }
+});
+
+test('Ribbon Golden Gate copies its window motion and leaves Ribbon 2010 alone', () => {
+  assert.match(read('common/suite.js'), /id: 'goldengate', name: N\('Ribbon Golden Gate'\)/);
+  assert.match(looks, /@keyframes goldengate-open[\s\S]*?scale\(0\.94\)/);
+  assert.match(looks, /@keyframes goldengate-close[\s\S]*?scale\(0\.94\)/);
+  assert.match(looks, /\[data-look="goldengate"\] \.dlg\.is-opening \{ animation: goldengate-open 250ms cubic-bezier\(0\.16, 1, 0\.3, 1\) both; \}/);
+  assert.match(read('common/ui.js'), /look !== 'goldengate'/);
+  assert.match(read('common/ui.js'), /animationName === 'goldengate-' \+ name/);
+  assert.match(looks, /background: #ff5c60/);
+  assert.match(looks, /\[data-look="goldengate"\] \.dlg-title::after \{ content: none; \}/);
+  assert.match(looks, /--gg-hover: rgba\(0,0,0,\.08\)/);
+  assert.match(looks, /--gg-on: rgba\(0,0,0,\.11\)/);
+  assert.match(looks, /--gg-down: rgba\(0,0,0,\.16\)/);
+  assert.match(looks, /\[data-look="ribbon2010"\] \.rb-tab\.file \{/);
+  assert.match(looks, /\[data-look="ribbon2010"\] \.dlg\.is-opening \{ animation: win7-open /);
+  assert.doesNotMatch(looks, /\[data-look="goldengate"\][^{]*\.ico[^{]*filter:\s*grayscale/);
 });
