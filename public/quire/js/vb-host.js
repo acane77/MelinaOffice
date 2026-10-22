@@ -77,6 +77,11 @@
     const gaps = gapNames();
     if (gaps.length) lines.push('');
     for (let i = 0; i < gaps.length; i++) lines.push('Public ' + gaps[i] + ' As Object');
+    if (L.hostAudit && L.hostAudit.moduleLines) {
+      lines.push('');
+      const extra = L.hostAudit.moduleLines('Quire');
+      for (let i = 0; i < extra.length; i++) lines.push(extra[i]);
+    }
     return lines.join('\n');
   }
 

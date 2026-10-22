@@ -12,11 +12,11 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/quire/?template=flyer"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
+      <a href="https://acane77.github.io/vibeoffice/quire/"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
       <b><a href="https://acane77.github.io/vibeoffice/quire/">Quire</a></b><br>Word processor
     </td>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/ledger/?template=loan"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
+      <a href="https://acane77.github.io/vibeoffice/ledger/"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
       <b><a href="https://acane77.github.io/vibeoffice/ledger/">Ledger</a></b><br>Spreadsheet
     </td>
     <td align="center" width="33%">
@@ -45,11 +45,23 @@ This fork implements a vscode/code-server plugin, it works in VSCode!
   </tr>
 </table>
 
-Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor tab.
+- **Smooth integration with VS Code and code-server:**: Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor tab. The plugin load/saves the documents from/to your local disk.
+
+## 'Vibe Editing' in VS Code
+
+- **Agent friendly:** This plugin also provides an MCP server, so that AI agents can edit the documents with Visual Basic for you, just to tell the agent what you want to write to the documents. 
+
+- **Visual Basic Sandbox:** AI agents can call tools to write Visual Basic code and execute commands to edit documents in a sandbox environment exposing only essential DOM APIs.
+
+This demostrates writing document with Copilot in VS Code with VibeOffice.
+
+<p align="center">
+  <img src="docs/images/Code_MCP_Sample.png" width="720" alt="MCP Support in VS Code">
+</p>
 
 ## Why VibeOffice
 
-- **Familiar.** The Office 2010 ribbon (the default look). Windows 7, Windows XP, Classic, Paper and Paper 2016 are under Themes.
+- **Familiar.** The Office 2010 ribbon (the default look).
 - **Lossless editing.** Open what colleagues send you, and save files built to open in Microsoft Office and LibreOffice, without losing what you didn't touch (below).
 - **Private.** Everything runs on your machine. There is no server behind it, no upload and no sign-in.
 - **Installable.** In Chrome or Edge, install it from the Start Center. It then opens .docx, .xlsx and .pptx files from your file manager. The same pages run inside VS Code and code-server: [docs/vscode.md](docs/vscode.md).
@@ -68,12 +80,22 @@ The goal: edit a Word, Excel or PowerPoint file here, save it in the same format
 
 4,697 real files from public test collections (LibreOffice, Apache POI, Open XML SDK) are opened, saved, edited, undone and recovered, and every save is compared with the original. Where the apps stand today, the known gaps and what comes next: [docs/LOSSLESS_SAVE.md](docs/LOSSLESS_SAVE.md).
 
-## Equations LaTeX
+## Equations in LaTeX
 
 I personally found Apple Pages' equation editor is easier to use than Word's during the experience when I was completing my Master degree's thsis, so this one is inspired by it: type the formula in LaTeX. Word opens the file and shows the same formula.
 
 <p align="center">
   <img src="docs/images/formula-editing.png" width="720" alt="Quire's Edit Equation dialog">
+</p>
+
+## VB6 Playground
+
+*Melina is still working on introducing more APIs and functionalities.*
+
+Editing, running and testing code in VB6 code editor.
+
+<p align="center">
+  <img src="docs/images/VB6_Playground.png" width="720" alt="Quire's Edit Equation dialog">
 </p>
 
 ## The apps

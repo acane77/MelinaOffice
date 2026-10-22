@@ -14,14 +14,22 @@ ActivePresentation get Presentation
 Presentations get Presentations
 ActiveWindow get DocumentWindow
 SlideShowWindows get SlideShowWindows
+HasHostAbility call
+MsgBox call AlwaysAllow
+InputBox call AlwaysAllow
+HostShell call AlwaysDeny Shell
+HostDir call RequestApproval Dir
+FileDialog call BuiltinFileDialog
+GetOpenFilename call RequestApproval FileDialog dialog
+GetSaveAsFilename call RequestApproval FileDialog dialog
 # Presentations collection
 Item call Presentation
 Add call Presentation
-Open gap G-HOST call
+Open call RequestApproval Open
 # Presentation
 Name get
-FullName gap G-HOST get
-Path gap G-HOST get
+FullName get AlwaysAllow Path
+Path get AlwaysAllow Path
 Saved rw
 Slides get Slides
 PageSetup get PageSetup
@@ -33,14 +41,14 @@ BuiltInDocumentProperties get DocumentProperties
 CustomDocumentProperties get DocumentProperties
 Undo call
 Redo call
-Save call
+Save call RequestApproval Save
 Close call
-SaveAs gap G-HOST call
-SaveAs2 gap G-HOST call
-Export gap G-HOST call
-ExportAsFixedFormat gap G-HOST call
-PrintOut gap G-HOST call
-FollowHyperlink gap G-HOST call
+SaveAs call RequestApproval SaveAs
+SaveAs2 call RequestApproval SaveAs
+Export call RequestApproval Export
+ExportAsFixedFormat call RequestApproval FixedFormat
+PrintOut call AlwaysAllow Print
+FollowHyperlink call AlwaysAllow Hyperlink
 NewWindow gap G-HOST call
 CreateVideo gap G-ENGINE call
 Merge gap G-ENGINE call
@@ -98,7 +106,7 @@ Placeholders get Shapes
 AddShape call Shape
 AddTextbox call Shape
 AddTable call Shape
-AddPicture gap G-HOST call
+AddPicture call RequestApproval Picture
 AddChart gap G-ENGINE call
 AddSmartArt gap G-ENGINE call
 AddDiagram gap G-ENGINE call
@@ -356,6 +364,9 @@ Count get
 # View gap G-HOST
 # CommandBars gap G-HOST
 # FileDialog gap G-HOST
+# BuiltinFileDialog
+Show call RequestApproval FileDialog dialog
+SelectedItems get
 # Dialogs gap G-HOST
 # ActionSettings gap G-ENGINE
 # NamedSlideShows gap G-ENGINE
@@ -363,6 +374,20 @@ Count get
 # ColorSchemes gap G-ENGINE
 # AnimationSettings gap G-ENGINE
 `;
+
+  function takeAudit(parts) {
+    const AUDIT = { AlwaysAllow: 1, RequestApproval: 1, AlwaysDeny: 1 };
+    const out = parts.slice();
+    let fileDialog = false;
+    if (out[out.length - 1] === 'dialog') { fileDialog = true; out.pop(); }
+    let audit = '';
+    let ability = '';
+    const last = out[out.length - 1];
+    const prev = out[out.length - 2];
+    if (prev && AUDIT[prev]) { audit = prev; ability = last; out.splice(out.length - 2, 2); }
+    else if (last && AUDIT[last]) { audit = last; out.pop(); }
+    return { parts: out, audit: audit, ability: ability, fileDialog: fileDialog };
+  }
 
   function parseCatalog(text) {
     const types = {};
@@ -378,8 +403,9 @@ Count get
         types[cur.name] = cur;
         continue;
       }
-      const parts = line.split(/\s+/);
-      const rec = { kind: parts[1] };
+      const taken = takeAudit(line.split(/\s+/));
+      const parts = taken.parts;
+      const rec = { kind: parts[1], audit: taken.audit, ability: taken.ability, fileDialog: taken.fileDialog };
       if (parts[1] === 'gap') {
         rec.code = parts[2];
         rec.as = parts[3] || 'any';
@@ -421,6 +447,21 @@ Count get
 
   function fail(code, member, message) {
     return { ok: false, code: code, member: member || '', message: message || (member ? member + ' is not available (' + code + ')' : code) };
+  }
+
+  function auditCall(desc, member, produce) {
+    if (desc && desc.audit === 'AlwaysDeny') {
+      if (!L.hostAudit || !L.hostAudit.has(desc.ability || '')) return fail('G-HOST', member, member + ' is not available (G-HOST)');
+      return fail('E-DENIED', member, 'The editor refused this operation.');
+    }
+    if (!desc || desc.audit !== 'RequestApproval' || desc.fileDialog || member === 'ExportAsFixedFormat' || !L.hostAudit) return produce();
+    return Promise.resolve(L.hostAudit.gate({
+      tier: 'RequestApproval', ability: desc.ability || member, member: member,
+    })).then(function (r) {
+      if (!r || r.ok === false) return fail((r && r.code) || 'E-APPROVAL', member, (r && r.message) || 'The editor did not allow this operation.');
+      try { return produce(); }
+      catch (e) { return fail((e && e.code) || 'error', member, e && e.message); }
+    });
   }
 
   function hasMember(obj, name) {
@@ -544,7 +585,9 @@ Count get
           return { ok: true, kind: 'empty' };
         }
         const args = bindArgs(session, req.args);
-        if (typeof rec.obj[name] === 'function') return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        if (typeof rec.obj[name] === 'function') return auditCall(desc, member, function () {
+          return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        });
         if (!args.length && hasMember(rec.obj, name)) return settle(session, rec.obj[name], desc.kind === 'call' ? (desc.ret === 'empty' ? 'scalar' : desc.ret) : desc.ret);
         return fail('missing-live', member);
       } catch (e) {

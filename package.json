@@ -2,7 +2,7 @@
   "name": "vibeoffice",
   "displayName": "VibeOffice",
   "description": "Open and edit Word, Excel and PowerPoint files inside VS Code and code-server.",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "publisher": "vibeoffice",
   "license": "Apache-2.0",
   "engines": {

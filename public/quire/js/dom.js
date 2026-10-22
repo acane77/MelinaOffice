@@ -1380,11 +1380,26 @@
 
     doc.Save = function () {
       requireActive(doc);
-      if (L.app && typeof L.app.save === 'function') return L.app.save();
+      const run = () => (L.app && typeof L.app.save === 'function' ? L.app.save() : undefined);
+      if (!L.hostAudit) return run();
+      return L.hostAudit.must('RequestApproval', 'Save', 'save the open file').then(run);
     };
 
-    doc.SaveAs = function () { gap('G-HOST', 'SaveAs'); };
-    doc.SaveAs2 = function () { gap('G-HOST', 'SaveAs2'); };
+    function quireSaveBytes(fileFormat) {
+      if (fileFormat === 17 || fileFormat === 'pdf') return L.app.buildPDF();
+      if (fileFormat != null && fileFormat !== '' && fileFormat !== 12 && fileFormat !== 16 && fileFormat !== 'docx') {
+        const e = new Error('The parameter FileFormat is not available.');
+        e.code = 'error';
+        throw e;
+      }
+      return L.docx.write(model, { format: 'docx' });
+    }
+    doc.SaveAs = function (fileName, fileFormat) {
+      if (!L.hostAudit || !L.hostAudit.has('SaveAs')) gap('G-HOST', 'SaveAs');
+      L.hostAudit.rejectExtra(arguments, 2, ['FileName', 'FileFormat', 'LockComments', 'Password']);
+      return L.hostAudit.saveCopy(fileName, () => quireSaveBytes(fileFormat));
+    };
+    doc.SaveAs2 = doc.SaveAs;
 
     function times(n) { return n == null ? 1 : (n | 0); }
     doc.Undo = function (n) {

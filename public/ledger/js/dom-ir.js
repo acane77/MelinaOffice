@@ -29,25 +29,30 @@ Undo call
 Redo call
 Windows gap G-HOST get
 AddIns gap G-HOST get
-Dialogs gap G-HOST get
-FileDialog gap G-HOST get
+Dialogs get BuiltinDialogs
+FileDialog call BuiltinFileDialog
 CommandBars gap G-HOST get
 Run gap G-HOST call
 SendKeys gap G-HOST call
 Wait gap G-HOST call
 OnTime gap G-HOST call
-GetOpenFilename gap G-HOST call
-GetSaveAsFilename gap G-HOST call
+GetOpenFilename call RequestApproval FileDialog dialog
+GetSaveAsFilename call RequestApproval FileDialog dialog
+HasHostAbility call
+MsgBox call AlwaysAllow
+InputBox call AlwaysAllow
+HostShell call AlwaysDeny Shell
+HostDir call RequestApproval Dir
 EnableEvents gap G-ENGINE get
 # Workbooks collection
 Item call Workbook
 Add call Workbook
-Open gap G-HOST call
+Open call RequestApproval Open
 Close gap G-HOST call
 # Workbook
 Name get
-FullName gap G-HOST get
-Path gap G-HOST get
+FullName get AlwaysAllow Path
+Path get AlwaysAllow Path
 Saved rw
 Worksheets get Worksheets
 Sheets get Sheets
@@ -58,15 +63,15 @@ Styles get Styles
 BuiltInDocumentProperties get DocumentProperties
 CustomDocumentProperties get DocumentProperties
 Activate call
-Save call
+Save call RequestApproval Save
 Close call
 Protect call
 Unprotect call
-SaveAs gap G-HOST call
+SaveAs call RequestApproval SaveAs
 SaveAs2 gap G-HOST call
-PrintOut gap G-HOST call
-ExportAsFixedFormat gap G-HOST call
-FollowHyperlink gap G-HOST call
+PrintOut call AlwaysAllow Print
+ExportAsFixedFormat call RequestApproval FixedFormat
+FollowHyperlink call AlwaysAllow Hyperlink
 SendMail gap G-HOST call
 Windows gap G-HOST get
 # DocumentProperties collection
@@ -128,9 +133,9 @@ QueryTables gap G-ENGINE get
 XmlMaps gap G-ENGINE get
 OLEObjects gap G-ENGINE get
 CommentsThreaded gap G-ENGINE get
-PrintOut gap G-HOST call
-ExportAsFixedFormat gap G-HOST call
-SaveAs gap G-HOST call
+PrintOut call AlwaysAllow Print
+ExportAsFixedFormat call RequestApproval FixedFormat
+SaveAs call RequestApproval SheetSaveAs
 # Range
 Count get
 Row get
@@ -274,7 +279,7 @@ SetSourceData gap G-ENGINE call
 # Shapes collection
 Item call Shape
 AddTextbox call Shape
-AddPicture gap G-HOST call
+AddPicture call RequestApproval Picture
 # Shape
 Name rw
 Left rw
@@ -306,7 +311,7 @@ BottomMargin rw
 PrintArea rw
 CenterHorizontally rw
 CenterVertically rw
-PrintOut gap G-HOST call
+PrintOut call AlwaysAllow Print
 # PageBreaks collection
 Item call PageBreak
 Add call
@@ -353,10 +358,31 @@ ChangeScenario gap G-ENGINE call
 # AddIns gap G-HOST
 # AddIn gap G-HOST
 # Dialogs gap G-HOST
+# BuiltinDialogs
+Item call BuiltinDialog
+# BuiltinDialog
+Show call AlwaysAllow
+# BuiltinFileDialog
+Show call RequestApproval FileDialog dialog
+SelectedItems get
 # Dialog gap G-HOST
 # FileDialog gap G-HOST
 # CommandBars gap G-HOST
 `;
+
+  function takeAudit(parts) {
+    const AUDIT = { AlwaysAllow: 1, RequestApproval: 1, AlwaysDeny: 1 };
+    const out = parts.slice();
+    let fileDialog = false;
+    if (out[out.length - 1] === 'dialog') { fileDialog = true; out.pop(); }
+    let audit = '';
+    let ability = '';
+    const last = out[out.length - 1];
+    const prev = out[out.length - 2];
+    if (prev && AUDIT[prev]) { audit = prev; ability = last; out.splice(out.length - 2, 2); }
+    else if (last && AUDIT[last]) { audit = last; out.pop(); }
+    return { parts: out, audit: audit, ability: ability, fileDialog: fileDialog };
+  }
 
   function parseCatalog(text) {
     const types = {};
@@ -372,8 +398,9 @@ ChangeScenario gap G-ENGINE call
         types[cur.name] = cur;
         continue;
       }
-      const parts = line.split(/\s+/);
-      const rec = { kind: parts[1] };
+      const taken = takeAudit(line.split(/\s+/));
+      const parts = taken.parts;
+      const rec = { kind: parts[1], audit: taken.audit, ability: taken.ability, fileDialog: taken.fileDialog };
       if (parts[1] === 'gap') {
         rec.code = parts[2];
         rec.as = parts[3] || 'any';
@@ -425,6 +452,21 @@ ChangeScenario gap G-ENGINE call
 
   function fail(code, member, message) {
     return { ok: false, code: code, member: member || '', message: message || (member ? member + ' is not available (' + code + ')' : code) };
+  }
+
+  function auditCall(desc, member, produce) {
+    if (desc && desc.audit === 'AlwaysDeny') {
+      if (!L.hostAudit || !L.hostAudit.has(desc.ability || '')) return fail('G-HOST', member, member + ' is not available (G-HOST)');
+      return fail('E-DENIED', member, 'The editor refused this operation.');
+    }
+    if (!desc || desc.audit !== 'RequestApproval' || desc.fileDialog || member === 'ExportAsFixedFormat' || !L.hostAudit) return produce();
+    return Promise.resolve(L.hostAudit.gate({
+      tier: 'RequestApproval', ability: desc.ability || member, member: member,
+    })).then(function (r) {
+      if (!r || r.ok === false) return fail((r && r.code) || 'E-APPROVAL', member, (r && r.message) || 'The editor did not allow this operation.');
+      try { return produce(); }
+      catch (e) { return fail((e && e.code) || 'error', member, e && e.message); }
+    });
   }
 
   function hasMember(obj, name) {
@@ -558,7 +600,9 @@ ChangeScenario gap G-ENGINE call
           return { ok: true, kind: 'empty' };
         }
         const args = bindArgs(session, req.args);
-        if (typeof rec.obj[name] === 'function') return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        if (typeof rec.obj[name] === 'function') return auditCall(desc, member, function () {
+          return settle(session, rec.obj[name].apply(rec.obj, args), desc.ret || 'empty');
+        });
         if (!args.length && hasMember(rec.obj, name)) return settle(session, rec.obj[name], desc.kind === 'call' ? (desc.ret === 'empty' ? 'scalar' : desc.ret) : desc.ret);
         return fail('missing-live', member);
       } catch (e) {
