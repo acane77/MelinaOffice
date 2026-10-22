@@ -76,7 +76,7 @@
     if (!t) return;
     if (!target.closest('[translate="no"]') && L.t) t = L.t(t);   // data (a font's name) stays as it is
     /* Ribbon Golden Gate shows no shortcut keys: a tip's trailing "(Ctrl+S)" or "(⌘S)" comes off */
-    if (document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark') t = t.replace(/\s*\([^)]*\)\s*$/, '');
+    if (document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark' || document.documentElement.dataset.look === 'vscodegg') t = t.replace(/\s*\([^)]*\)\s*$/, '');
     if (!t) return;
     if (!tipEl) { tipEl = h('div', { class: 'tooltip', role: 'tooltip' }); document.body.appendChild(tipEl); }
     tipEl.textContent = t;
@@ -147,7 +147,7 @@
     const el = h('div', { class: 'menu' + (opts.cls ? ' ' + opts.cls : '') + (winStack.length ? ' over-dlg' : ''), role: 'menu', tabindex: '-1' });
     /* the glass sits on a shell. The menu itself scrolls, and overflow on the blurred element paints a solid fill.
        position:relative drops the viewport as the containing block, so the percentage max-height never applies. */
-    const shell = document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark' ? h('div', { class: 'gg-menu-glass' }) : null;
+    const shell = document.documentElement.dataset.look === 'goldengate' || document.documentElement.dataset.look === 'goldengatedark' || document.documentElement.dataset.look === 'vscodegg' ? h('div', { class: 'gg-menu-glass' }) : null;
     const host = shell || el;
     if (shell) {
       shell.appendChild(el);
@@ -882,10 +882,10 @@
   /** Windows 7, Ribbon 2010, Ribbon Golden Gate, Paper and Paper 2016 window show and close. Other looks, and reduced motion, stay instant. */
   function win7WindowMotion() {
     const look = document.documentElement && document.documentElement.dataset.look;
-    if (look !== 'win7' && look !== 'ribbon2010' && look !== 'goldengate' && look !== 'goldengatedark' && look !== 'paper' && look !== 'paper2016') return false;
+    if (look !== 'win7' && look !== 'ribbon2010' && look !== 'goldengate' && look !== 'goldengatedark' && look !== 'vscodegg' && look !== 'paper' && look !== 'paper2016') return false;
     try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
   }
-  const windowMotionDone = (e, name) => e.animationName === 'win7-' + name || e.animationName === 'goldengate-' + name || e.animationName === 'goldengatedark-' + name;
+  const windowMotionDone = (e, name) => e.animationName === 'win7-' + name || e.animationName === 'goldengate-' + name || e.animationName === 'goldengatedark-' + name || e.animationName === 'vscodegg-' + name;
   /** drop windows a test removed from the page, then stack the rest and show the veil behind them when a modal is open */
   function layoutWindows() {
     for (let i = winStack.length - 1; i >= 0; i--) if (!winStack[i].overlay.isConnected) {

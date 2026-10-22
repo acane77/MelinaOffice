@@ -153,7 +153,7 @@ test('a hidden bar does not lift the menu', () => {
 });
 
 test('a Golden Gate menu is capped to the viewport so a long list scrolls', () => {
-  for (const look of ['goldengate', 'goldengatedark']) {
+  for (const look of ['goldengate', 'goldengatedark', 'vscodegg']) {
     document.documentElement.dataset.look = look;
     const menu = L.ui.openMenu([{ label: 'Calibri' }, { label: 'Cambria' }], { x: 10, y: 40 });
     assert.equal(menu.style.position, 'relative');

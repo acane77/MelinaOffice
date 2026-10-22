@@ -67,7 +67,7 @@ test('opening and about content uses each app colour and does not restyle the fr
   assert.match(looks, /--brand-quire:\s*#2D5999/);
   assert.match(looks, /--brand-ledger:\s*#137E43/);
   assert.match(looks, /--brand-lectern:\s*#B8492B/);
-  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 7);
+  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 8);
   const ui = read('common/ui.css');
   assert.match(ui, /\.dlg\.brand \.dlg-body,\n\.dlg\.brand \.dlg-foot \{ background-color: var\(--brand-bg\); \}/);
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
@@ -120,7 +120,8 @@ test('the pages pick the look before the first paint and load looks.css first', 
     const sheet = html.indexOf('common/looks.css');
     assert.ok(script > 0 && script < sheet, `${page}: the look is picked before looks.css loads`);
     assert.ok(sheet > 0 && (html.indexOf('common/ui.css') < 0 || sheet < html.indexOf('common/ui.css')), `${page}: looks.css before ui.css`);
-    assert.match(html, /l==='paper2016'\|\|l==='ribbon2010'\|\|l==='goldengate'\|\|l==='goldengatedark'/);
+    assert.match(html, /l==='paper2016'\|\|l==='ribbon2010'\|\|l==='goldengate'\|\|l==='goldengatedark'\|\|l==='vscodegg'/);
+    assert.match(html, /l==='vscodegg'&&!\(window\.__VO_HOST__&&window\.__VO_HOST__\.kind==='vscode'\)/);
   }
 });
 
@@ -146,4 +147,10 @@ test('Ribbon Golden Gate copies its window motion and leaves Ribbon 2010 alone',
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--gg-hover:\s*rgba\(255,255,255,\.08\)/);
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--page-canvas:\s*#141416/);
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--hdr-a:\s*#ffffff/);
+  assert.match(read('common/suite.js'), /id: 'vscodegg', name: N\('VS Code Golden Gate'\)/);
+  assert.match(looks, /\[data-look="vscodegg"\][\s\S]*?--vsc-editor:\s*var\(--vscode-editor-background/);
+  assert.match(looks, /--vsc-bar:\s*var\(--vscode-titleBar-activeBackground/);
+  assert.match(looks, /@keyframes vscodegg-open[\s\S]*?scale\(0\.94\)/);
+  assert.match(read('common/ui.js'), /animationName === 'vscodegg-' \+ name/);
+  assert.doesNotMatch(looks, /:is\(\[data-look="goldengate"\], \[data-look="vscodegg"\]\)/);
 });

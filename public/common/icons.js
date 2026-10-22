@@ -394,7 +394,11 @@
     inkCache.set(body, lifted);
     return lifted;
   };
-  const darkIcons = () => typeof document !== 'undefined' && document.documentElement.dataset.look === 'goldengatedark';
+  const vscodeDarkGlass = () => {
+    const body = document.body;
+    return !!(body && (body.classList.contains('vscode-dark') || body.classList.contains('vscode-high-contrast')));
+  };
+  const darkIcons = () => typeof document !== 'undefined' && (document.documentElement.dataset.look === 'goldengatedark' || (document.documentElement.dataset.look === 'vscodegg' && vscodeDarkGlass()));
 
   L.icons = {
     raw: I,
@@ -415,10 +419,24 @@
     /** drawing helpers and the Luna palette, for apps that add icons */
     kit: { page, txt, lines, arrow, pg, tl, cellGrid, B, B2, LB, Y, YD, R, G, K, GR },
   };
-  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('vo-look', () => {
+  const repaintIcons = () => {
     document.querySelectorAll('svg.ico[data-ico]').forEach((el) => {
       const html = L.icons.get(el.getAttribute('data-ico'), el.getAttribute('width') || 16);
       if (html) el.outerHTML = html;
     });
-  });
+  };
+  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('vo-look', repaintIcons);
+  /* VS Code updates the body class when its theme changes; the look id stays, so icons and canvas chrome redraw from here */
+  const watchVscodeGlass = () => {
+    if (!document.body || document.body.dataset.vscGlassWatch) return;
+    document.body.dataset.vscGlassWatch = '1';
+    new MutationObserver(() => {
+      if (document.documentElement.dataset.look !== 'vscodegg') return;
+      window.dispatchEvent(new Event('vo-look'));
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  };
+  if (typeof document !== 'undefined') {
+    if (document.body) watchVscodeGlass();
+    else document.addEventListener('DOMContentLoaded', watchVscodeGlass);
+  }
 })(typeof window !== 'undefined' ? window : globalThis);
