@@ -12,11 +12,11 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/quire/?template=flyer"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
+      <a href="https://acane77.github.io/vibeoffice/quire/"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
       <b><a href="https://acane77.github.io/vibeoffice/quire/">Quire</a></b><br>Word processor
     </td>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/ledger/?template=loan"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
+      <a href="https://acane77.github.io/vibeoffice/ledger/"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
       <b><a href="https://acane77.github.io/vibeoffice/ledger/">Ledger</a></b><br>Spreadsheet
     </td>
     <td align="center" width="33%">
@@ -45,7 +45,9 @@ This fork implements a vscode/code-server plugin, it works in VSCode!
   </tr>
 </table>
 
-Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor tab.
+- **Smooth integration with VS Code and code-server:**: Open a `.docx`, `.xlsx` or `.pptx` from the Explorer and the app opens in editor tab. The plugin load/saves the documents from/to your local disk.
+
+- **Agent friendly:** This plugin also provides an MCP server, so that AI agents can edit the documents with Visual Basic for you, just to tell the agent what you want to write to the documents. 
 
 ## Why VibeOffice
 
@@ -68,7 +70,7 @@ The goal: edit a Word, Excel or PowerPoint file here, save it in the same format
 
 4,697 real files from public test collections (LibreOffice, Apache POI, Open XML SDK) are opened, saved, edited, undone and recovered, and every save is compared with the original. Where the apps stand today, the known gaps and what comes next: [docs/LOSSLESS_SAVE.md](docs/LOSSLESS_SAVE.md).
 
-## Equations LaTeX
+## Equations in LaTeX
 
 I personally found Apple Pages' equation editor is easier to use than Word's during the experience when I was completing my Master degree's thsis, so this one is inspired by it: type the formula in LaTeX. Word opens the file and shows the same formula.
 
