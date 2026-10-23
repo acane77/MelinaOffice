@@ -117,4 +117,44 @@ test('the Visual Basic IDE VM pauses, steps, evaluates, and can run past breakpo
   assert.equal(ActiveDocument.Paragraphs(1).Range.Text, held);
   assert.equal(host.script, null);
   assert.equal(await evalVB6('?scratch'), 7);
+
+  const watched = [
+    'Sub Main()',
+    '  Dim x As Long',
+    '  x = 1',
+    '  x = 2',
+    'End Sub',
+  ].join('\n');
+  const skipped = await host.debugBegin(watched);
+  let sawSkip = false;
+  skipped.vm.on('pause', () => { sawSkip = true; skipped.vm.resume('continue'); });
+  skipped.vm.setBreakpoint('Module1', 4, 'x = 0');
+  await skipped.vm.start();
+  assert.equal(sawSkip, false);
+  host.debugEnd();
+
+  const conditional = await host.debugBegin(watched);
+  conditional.vm.setBreakpoint('Module1', 4, 'x = 1');
+  const nextCondition = pausesOf(conditional.vm);
+  const conditionRun = conditional.vm.start();
+  const conditionPause = await nextCondition();
+  assert.equal(conditionPause.reason, 'breakpoint');
+  assert.equal(conditionPause.instruction.line, 4);
+  assert.equal(localValue(conditional.vm, 'x'), '1');
+  assert.equal(VB6Engine.describe(await conditional.vm.immediate('?x')), '1');
+  conditional.vm.resume('continue');
+  await conditionRun;
+  host.debugEnd();
+
+  const broken = await host.debugBegin(watched);
+  broken.vm.setBreakpoint('Module1', 4, '1 / 0');
+  const nextError = pausesOf(broken.vm);
+  const errorRun = broken.vm.start();
+  const failed = await nextError();
+  assert.equal(failed.reason, 'breakpoint-condition');
+  assert.match(String(failed.conditionError || ''), /./);
+  broken.vm.resume('continue');
+  await errorRun;
+  host.debugEnd();
+  assert.equal(await evalVB6('?scratch'), 7);
 });
