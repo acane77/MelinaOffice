@@ -457,7 +457,7 @@
  },
  "&Blue:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Bold": {
@@ -535,7 +535,7 @@
  },
  "&Browse...": {
   "where": [
-   "common/ui.js:1411",
+   "common/ui.js:1468",
    "quire/js/dialogs2.js:500"
   ]
  },
@@ -785,8 +785,8 @@
  },
  "&Continue": {
   "where": [
-   "common/ui.js:1304",
-   "common/vb-ide.js:893"
+   "common/ui.js:1361",
+   "common/vb-ide.js:908"
   ]
  },
  "&Continue Numbering": {
@@ -1309,7 +1309,7 @@
  },
  "&Exit": {
   "where": [
-   "common/vb-ide.js:885"
+   "common/vb-ide.js:900"
   ]
  },
  "&F, Page &P": {
@@ -1622,7 +1622,7 @@
  },
  "&Green:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Grid and Guides...": {
@@ -1989,7 +1989,7 @@
  },
  "&Language": {
   "where": [
-   "common/ui.js:1455",
+   "common/ui.js:1512",
    "quire/js/app.js:81",
    "quire/js/spell.js:287"
   ]
@@ -2139,7 +2139,7 @@
  },
  "&Location:": {
   "where": [
-   "common/ui.js:1424"
+   "common/ui.js:1481"
   ]
  },
  "&Locked": {
@@ -2380,7 +2380,7 @@
  },
  "&New Blank Project": {
   "where": [
-   "common/vb-ide.js:878"
+   "common/vb-ide.js:893"
   ]
  },
  "&New Drawing": {
@@ -2557,12 +2557,12 @@
  },
  "&Open Project...": {
   "where": [
-   "common/vb-ide.js:879"
+   "common/vb-ide.js:894"
   ]
  },
  "&Open Visual Basic File...": {
   "where": [
-   "common/vb-ide.js:883"
+   "common/vb-ide.js:898"
   ]
  },
  "&Open...": {
@@ -2921,7 +2921,7 @@
  },
  "&Red:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "&Redo": {
@@ -3193,7 +3193,7 @@
  },
  "&Save Project": {
   "where": [
-   "common/vb-ide.js:880"
+   "common/vb-ide.js:895"
   ]
  },
  "&Scout": {
@@ -3508,7 +3508,7 @@
  },
  "&Stop Debugging": {
   "where": [
-   "common/vb-ide.js:894"
+   "common/vb-ide.js:909"
   ]
  },
  "&Structure": {
@@ -3696,7 +3696,7 @@
  },
  "&Theme": {
   "where": [
-   "common/ui.js:1431"
+   "common/ui.js:1488"
   ]
  },
  "&Then by": {
@@ -4169,7 +4169,7 @@
  },
  "'{0}' is protected.": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "'{0}' is protected.\n\nPassword:": {
@@ -4255,7 +4255,7 @@
  },
  "(VB bool expression. Leave empty to set unconditional breakpoint)": {
   "where": [
-   "common/vb-ide.js:952"
+   "common/vb-ide.js:967"
   ]
  },
  "(blank)": {
@@ -5117,7 +5117,7 @@
  },
  "About {0}": {
   "where": [
-   "common/ui.js:1271"
+   "common/ui.js:1328"
   ]
  },
  "About {0} MB, kept by VibeOffice on this computer.": {
@@ -5388,8 +5388,8 @@
  },
  "Add": {
   "where": [
-   "common/vb-ide.js:953",
-   "common/vb-ide.js:989"
+   "common/vb-ide.js:968",
+   "common/vb-ide.js:1004"
   ]
  },
  "Add &Watch": {
@@ -6378,7 +6378,7 @@
  },
  "Aqua": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Arc": {
@@ -6593,8 +6593,8 @@
  },
  "Auto (as the browser)": {
   "where": [
-   "common/ui.js:1458",
-   "common/ui.js:1473",
+   "common/ui.js:1515",
+   "common/ui.js:1530",
    "index.html:530"
   ]
  },
@@ -6811,7 +6811,7 @@
  },
  "Automatic": {
   "where": [
-   "common/ui.js:1499",
+   "common/ui.js:1556",
    "lectern/js/dialogs.js:502",
    "ledger/js/dialogs.js:205",
    "ledger/js/dialogs.js:206"
@@ -7185,7 +7185,7 @@
  },
  "Black": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:188"
   ]
@@ -7289,7 +7289,7 @@
  },
  "Blue": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:187",
    "quire/js/dialogs3.js:607"
@@ -7307,7 +7307,7 @@
  },
  "Blue-Gray": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Blueprint": {
@@ -7577,7 +7577,7 @@
  },
  "Break": {
   "where": [
-   "common/vb-ide.js:89",
+   "common/vb-ide.js:96",
    "quire/js/dialogs2.js:20",
    "quire/js/ribbon.js:31"
   ]
@@ -7615,7 +7615,7 @@
  },
  "Bright Green": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -7655,7 +7655,7 @@
  },
  "Brown": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Browse": {
@@ -8146,7 +8146,7 @@
  },
  "Call Stack": {
   "where": [
-   "common/vb-ide.js:1031"
+   "common/vb-ide.js:1046"
   ]
  },
  "Callouts": {
@@ -9250,7 +9250,7 @@
  },
  "Click Continue to save anyway, or Cancel to go back to your document without saving.": {
   "where": [
-   "common/ui.js:1302"
+   "common/ui.js:1359"
   ]
  },
  "Click a button to apply borders:": {
@@ -9386,7 +9386,7 @@
  },
  "Close": {
   "where": [
-   "common/ui.js:1055",
+   "common/ui.js:1101",
    "lectern/js/app.js:946",
    "lectern/js/dialogs.js:285",
    "lectern/js/dialogs.js:727"
@@ -9527,7 +9527,7 @@
  },
  "Code at Line": {
   "where": [
-   "common/vb-ide.js:955"
+   "common/vb-ide.js:970"
   ]
  },
  "Col #:": {
@@ -9670,7 +9670,7 @@
  },
  "Colors": {
   "where": [
-   "common/ui.js:1571",
+   "common/ui.js:1628",
    "lectern/js/diagram.js:553",
    "lectern/js/dialogs.js:408",
    "quire/js/dialogs3.js:158"
@@ -9686,7 +9686,7 @@
  },
  "Colors:": {
   "where": [
-   "common/ui.js:1567"
+   "common/ui.js:1624"
   ]
  },
  "Colour is ColorFormat. RGB is an Office BGR long. ObjectThemeColor is a theme slot. SchemeColor is one of the eight 2003 slots. Writing tint, shade or brightness fails.": {
@@ -9764,7 +9764,7 @@
  },
  "Column#": {
   "where": [
-   "common/vb-ide.js:918"
+   "common/vb-ide.js:933"
   ]
  },
  "ColumnWidth, RowHeight, Hidden": {
@@ -9992,7 +9992,7 @@
  },
  "Compatibility Checker": {
   "where": [
-   "common/ui.js:1303"
+   "common/ui.js:1360"
   ]
  },
  "Complete the merge": {
@@ -10003,7 +10003,7 @@
  },
  "Completions": {
   "where": [
-   "common/vb-ide.js:1183"
+   "common/vb-ide.js:1379"
   ]
  },
  "Complimentary closing:": {
@@ -10058,8 +10058,8 @@
  },
  "Condition Expression": {
   "where": [
-   "common/vb-ide.js:955",
-   "common/vb-ide.js:967"
+   "common/vb-ide.js:970",
+   "common/vb-ide.js:982"
   ]
  },
  "Condition {0}": {
@@ -10070,7 +10070,7 @@
  },
  "Condition:": {
   "where": [
-   "common/vb-ide.js:417"
+   "common/vb-ide.js:421"
   ]
  },
  "Conditional Formatting": {
@@ -10198,7 +10198,7 @@
  },
  "Continue": {
   "where": [
-   "common/vb-ide.js:899"
+   "common/vb-ide.js:914"
   ]
  },
  "Continue Numbering": {
@@ -11212,7 +11212,7 @@
  },
  "Current": {
   "where": [
-   "common/ui.js:1568"
+   "common/ui.js:1625"
   ]
  },
  "Current &array": {
@@ -11274,7 +11274,7 @@
  },
  "Custom": {
   "where": [
-   "common/ui.js:1567",
+   "common/ui.js:1624",
    "lectern/js/model.js:512",
    "ledger/js/dialogs.js:709",
    "ledger/js/dialogs2.js:94"
@@ -11472,29 +11472,29 @@
  },
  "Dark Blue": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
  "Dark Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Dark Red": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Dark Teal": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Dark Yellow": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
@@ -11771,7 +11771,7 @@
  },
  "Decrease": {
   "where": [
-   "common/ui.js:1359",
+   "common/ui.js:1416",
    "quire/js/dialogs.js:30"
   ]
  },
@@ -13463,7 +13463,7 @@
  },
  "Enable this breakpoint": {
   "where": [
-   "common/vb-ide.js:418"
+   "common/vb-ide.js:422"
   ]
  },
  "Enclosures:": {
@@ -13674,7 +13674,7 @@
  },
  "Enter password to open file": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "Enter section number:": {
@@ -13838,12 +13838,12 @@
  },
  "Error Message": {
   "where": [
-   "common/vb-ide.js:918"
+   "common/vb-ide.js:933"
   ]
  },
  "Error Number": {
   "where": [
-   "common/vb-ide.js:918"
+   "common/vb-ide.js:933"
   ]
  },
  "Error in Value": {
@@ -13892,7 +13892,7 @@
  },
  "Errors": {
   "where": [
-   "common/vb-ide.js:1019",
+   "common/vb-ide.js:1034",
    "ledger/js/dialogs.js:564"
   ]
  },
@@ -13940,7 +13940,7 @@
  },
  "Evaluate": {
   "where": [
-   "common/vb-ide.js:940"
+   "common/vb-ide.js:955"
   ]
  },
  "Evaluate &Formula": {
@@ -14126,8 +14126,8 @@
  },
  "Expression": {
   "where": [
-   "common/vb-ide.js:946",
-   "common/vb-ide.js:999",
+   "common/vb-ide.js:961",
+   "common/vb-ide.js:1014",
    "quire/js/find.js:391"
   ]
  },
@@ -14578,7 +14578,7 @@
  },
  "Fill Effects...": {
   "where": [
-   "common/ui.js:1524"
+   "common/ui.js:1581"
   ]
  },
  "Fill Left": {
@@ -15200,7 +15200,7 @@
  },
  "Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.": {
   "where": [
-   "common/ui.js:1250",
+   "common/ui.js:1307",
    "index.html:272"
   ]
  },
@@ -16145,7 +16145,7 @@
  },
  "Gold": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/dialogs.js:307",
    "lectern/js/slideshow.js:889",
    "quire/js/dialogs3.js:147"
@@ -16252,24 +16252,24 @@
  },
  "Gray-25%": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Gray-40%": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Gray-50%": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
  "Gray-80%": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Grayscale": {
@@ -16293,7 +16293,7 @@
  },
  "Green": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:188",
    "quire/js/dialogs3.js:607"
@@ -16479,7 +16479,7 @@
  },
  "He&x:": {
   "where": [
-   "common/ui.js:1566"
+   "common/ui.js:1623"
   ]
  },
  "Header": {
@@ -16628,7 +16628,7 @@
  },
  "Help": {
   "where": [
-   "common/ui.js:1054",
+   "common/ui.js:1100",
    "lectern/js/panes.js:566",
    "ledger/js/panes.js:137",
    "quire/js/commands.js:460"
@@ -17176,7 +17176,7 @@
  },
  "Increase": {
   "where": [
-   "common/ui.js:1358",
+   "common/ui.js:1415",
    "quire/js/dialogs.js:29"
   ]
  },
@@ -17269,7 +17269,7 @@
  },
  "Indigo": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Industrial": {
@@ -18236,7 +18236,7 @@
  },
  "Keyword": {
   "where": [
-   "common/vb-ide.js:1167"
+   "common/vb-ide.js:1363"
   ]
  },
  "Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter -4169, area 1, doughnut -4120. Any other type fails.": {
@@ -18330,7 +18330,7 @@
  },
  "Language:": {
   "where": [
-   "common/ui.js:1473",
+   "common/ui.js:1530",
    "quire/js/panes.js:502"
   ]
  },
@@ -18389,7 +18389,7 @@
  },
  "Last Value": {
   "where": [
-   "common/vb-ide.js:991"
+   "common/vb-ide.js:1006"
   ]
  },
  "Last co&lumn": {
@@ -18454,7 +18454,7 @@
  },
  "Lavender": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Lay out this document as if created in:": {
@@ -18993,27 +18993,27 @@
  },
  "Light Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Orange": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Turquoise": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light Yellow": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Light and calm: warm paper tones, one teal accent, rounded shapes.": {
@@ -19053,7 +19053,7 @@
  },
  "Lime": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Limit formatting to a selection of styles": {
@@ -19115,13 +19115,13 @@
  },
  "Line Number": {
   "where": [
-   "common/vb-ide.js:955",
-   "common/vb-ide.js:963"
+   "common/vb-ide.js:970",
+   "common/vb-ide.js:978"
   ]
  },
  "Line Number:": {
   "where": [
-   "common/vb-ide.js:416"
+   "common/vb-ide.js:420"
   ]
  },
  "Line Numbers": {
@@ -19189,17 +19189,17 @@
  },
  "Line {0}: {1}": {
   "where": [
-   "common/vb-ide.js:296"
+   "common/vb-ide.js:300"
   ]
  },
  "Line {0}| {1}": {
   "where": [
-   "common/vb-ide.js:126"
+   "common/vb-ide.js:133"
   ]
  },
  "Line#": {
   "where": [
-   "common/vb-ide.js:918"
+   "common/vb-ide.js:933"
   ]
  },
  "Linear Venn": {
@@ -19692,7 +19692,7 @@
  },
  "Made possible by open source software: {0}.": {
   "where": [
-   "common/ui.js:1246",
+   "common/ui.js:1303",
    "index.html:440"
   ]
  },
@@ -20154,7 +20154,7 @@
  },
  "Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.": {
   "where": [
-   "common/ui.js:1251"
+   "common/ui.js:1308"
   ]
  },
  "Middle": {
@@ -20304,7 +20304,7 @@
  },
  "More Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Contrast": {
@@ -20315,7 +20315,7 @@
  },
  "More Fill Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Layouts...": {
@@ -20325,7 +20325,7 @@
  },
  "More Line Colors...": {
   "where": [
-   "common/ui.js:1523"
+   "common/ui.js:1580"
   ]
  },
  "More Lines...": {
@@ -20917,7 +20917,7 @@
  },
  "New|color": {
   "where": [
-   "common/ui.js:1568"
+   "common/ui.js:1625"
   ]
  },
  "Nex&t": {
@@ -20993,7 +20993,7 @@
  },
  "Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.": {
   "where": [
-   "common/ui.js:1249",
+   "common/ui.js:1306",
    "index.html:441"
   ]
  },
@@ -21041,7 +21041,7 @@
  },
  "No Fill": {
   "where": [
-   "common/ui.js:1498",
+   "common/ui.js:1555",
    "lectern/js/dialogs.js:22",
    "quire/js/dialogs.js:505",
    "quire/js/dialogs.js:515"
@@ -21054,7 +21054,7 @@
  },
  "No Line": {
   "where": [
-   "common/ui.js:1498",
+   "common/ui.js:1555",
    "lectern/js/dialogs.js:22",
    "quire/js/dialogs3.js:31"
   ]
@@ -21679,9 +21679,9 @@
  "OK": {
   "where": [
    "common/charts.js:438",
-   "common/ui.js:1061",
-   "common/ui.js:1272",
-   "common/ui.js:1280"
+   "common/ui.js:1107",
+   "common/ui.js:1329",
+   "common/ui.js:1337"
   ]
  },
  "OLEFormat, Chart, GroupItems, Nodes": {
@@ -21732,7 +21732,7 @@
  },
  "Object Values": {
   "where": [
-   "common/vb-ide.js:1032"
+   "common/vb-ide.js:1047"
   ]
  },
  "Object positioning": {
@@ -21812,7 +21812,7 @@
  },
  "Olive Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Omit background &graphics from master": {
@@ -22059,13 +22059,13 @@
  },
  "Open source licenses": {
   "where": [
-   "common/ui.js:1247",
+   "common/ui.js:1304",
    "index.html:440"
   ]
  },
  "Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.": {
   "where": [
-   "common/ui.js:1248",
+   "common/ui.js:1305",
    "index.html:270"
   ]
  },
@@ -22212,7 +22212,7 @@
  },
  "Orange": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Order": {
@@ -22814,7 +22814,7 @@
  },
  "Pale Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Panes, Pane, View, CommandBars, FileDialog, Dialogs": {
@@ -22987,7 +22987,7 @@
  },
  "Password": {
   "where": [
-   "common/ui.js:1312",
+   "common/ui.js:1369",
    "ledger/js/app.js:171"
   ]
  },
@@ -23156,7 +23156,7 @@
  },
  "Patterned Lines...": {
   "where": [
-   "common/ui.js:1524"
+   "common/ui.js:1581"
   ]
  },
  "Patterns": {
@@ -23308,7 +23308,7 @@
  },
  "Pick:": {
   "where": [
-   "common/ui.js:1565"
+   "common/ui.js:1622"
   ]
  },
  "Picture": {
@@ -23408,7 +23408,7 @@
  },
  "Pink": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -23502,7 +23502,7 @@
  },
  "Plum": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Plus": {
@@ -24669,8 +24669,8 @@
  },
  "Ready": {
   "where": [
-   "common/vb-ide.js:91",
-   "common/vb-ide.js:1052",
+   "common/vb-ide.js:98",
+   "common/vb-ide.js:1068",
    "ledger/js/app.js:616",
    "ledger/js/app.js:654"
   ]
@@ -24809,7 +24809,7 @@
  },
  "Red": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889",
    "quire/js/app.js:187",
    "quire/js/dialogs3.js:607"
@@ -24992,7 +24992,7 @@
  },
  "Remove": {
   "where": [
-   "common/vb-ide.js:993",
+   "common/vb-ide.js:1008",
    "lectern/js/panes.js:799"
   ]
  },
@@ -25013,12 +25013,12 @@
  },
  "Remove All": {
   "where": [
-   "common/vb-ide.js:994"
+   "common/vb-ide.js:1009"
   ]
  },
  "Remove All Breakpoints": {
   "where": [
-   "common/vb-ide.js:958"
+   "common/vb-ide.js:973"
   ]
  },
  "Remove Borders": {
@@ -25028,7 +25028,7 @@
  },
  "Remove Breakpoint": {
   "where": [
-   "common/vb-ide.js:957"
+   "common/vb-ide.js:972"
   ]
  },
  "Remove Effect": {
@@ -27222,7 +27222,7 @@
  },
  "Rose": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Rota&tion:": {
@@ -27497,7 +27497,7 @@
  },
  "Running": {
   "where": [
-   "common/vb-ide.js:84"
+   "common/vb-ide.js:91"
   ]
  },
  "Runs a macro": {
@@ -27696,7 +27696,7 @@
  },
  "Save Project &As...": {
   "where": [
-   "common/vb-ide.js:881"
+   "common/vb-ide.js:896"
   ]
  },
  "Save Word files as:": {
@@ -27958,7 +27958,7 @@
  },
  "Sea Green": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Search": {
@@ -29323,7 +29323,7 @@
  },
  "Sky Blue": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Slant Down": {
@@ -29770,7 +29770,7 @@
  },
  "Some of this file can't be saved exactly as it was:": {
   "where": [
-   "common/ui.js:1301"
+   "common/ui.js:1358"
   ]
  },
  "Sort": {
@@ -29862,7 +29862,7 @@
  },
  "Source": {
   "where": [
-   "common/vb-ide.js:918",
+   "common/vb-ide.js:933",
    "ledger/js/dialogs.js:982"
   ]
  },
@@ -30257,7 +30257,7 @@
  },
  "Standard": {
   "where": [
-   "common/ui.js:1567",
+   "common/ui.js:1624",
    "lectern/js/app.js:198",
    "ledger/js/app.js:563",
    "ledger/js/dialogs.js:986"
@@ -30299,12 +30299,12 @@
  },
  "Start &Debug": {
   "where": [
-   "common/vb-ide.js:888"
+   "common/vb-ide.js:903"
   ]
  },
  "Start &Run": {
   "where": [
-   "common/vb-ide.js:889"
+   "common/vb-ide.js:904"
   ]
  },
  "Start &With Previous": {
@@ -30320,7 +30320,7 @@
  },
  "Start Debug (F5)": {
   "where": [
-   "common/vb-ide.js:897"
+   "common/vb-ide.js:912"
   ]
  },
  "Start Enforcing Protection": {
@@ -30340,7 +30340,7 @@
  },
  "Start Run": {
   "where": [
-   "common/vb-ide.js:898"
+   "common/vb-ide.js:913"
   ]
  },
  "Start Slide Show": {
@@ -30525,22 +30525,22 @@
  },
  "Step &Into": {
   "where": [
-   "common/vb-ide.js:892"
+   "common/vb-ide.js:907"
   ]
  },
  "Step &Over": {
   "where": [
-   "common/vb-ide.js:891"
+   "common/vb-ide.js:906"
   ]
  },
  "Step Into": {
   "where": [
-   "common/vb-ide.js:900"
+   "common/vb-ide.js:915"
   ]
  },
  "Step Over": {
   "where": [
-   "common/vb-ide.js:901"
+   "common/vb-ide.js:916"
   ]
  },
  "Step Up Process": {
@@ -30585,7 +30585,7 @@
  },
  "Stop Debugging": {
   "where": [
-   "common/vb-ide.js:902"
+   "common/vb-ide.js:917"
   ]
  },
  "Stop Protection": {
@@ -30769,7 +30769,7 @@
  },
  "Sub Main\n    ' Insert your code here\n    \nEnd Sub": {
   "where": [
-   "common/vb-ide.js:9"
+   "common/vb-ide.js:10"
   ]
  },
  "Subject-Verb Agreement": {
@@ -31287,7 +31287,7 @@
  },
  "Tan": {
   "where": [
-   "common/ui.js:1531"
+   "common/ui.js:1588"
   ]
  },
  "Target": {
@@ -31374,7 +31374,7 @@
  },
  "Teal": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -31817,9 +31817,9 @@
  },
  "The VB runtime is not running": {
   "where": [
-   "common/vb-ide.js:587",
-   "common/vb-ide.js:613",
-   "common/vb-ide.js:1076",
+   "common/vb-ide.js:591",
+   "common/vb-ide.js:617",
+   "common/vb-ide.js:1092",
    "lectern/js/dom-console.js:865"
   ]
  },
@@ -31915,7 +31915,7 @@
  },
  "The code could not be compiled.": {
   "where": [
-   "common/vb-ide.js:246"
+   "common/vb-ide.js:250"
   ]
  },
  "The comment body.": {
@@ -32393,8 +32393,8 @@
  },
  "The new language is used in the windows you open from now on.": {
   "where": [
-   "common/ui.js:1444",
-   "common/ui.js:1450"
+   "common/ui.js:1501",
+   "common/ui.js:1507"
   ]
  },
  "The note story.": {
@@ -32515,7 +32515,7 @@
  },
  "The password is incorrect. Try again.": {
   "where": [
-   "common/ui.js:1312"
+   "common/ui.js:1369"
   ]
  },
  "The password is incorrect. {0} cannot open the document.": {
@@ -32579,7 +32579,7 @@
  },
  "The program is not paused.": {
   "where": [
-   "common/vb-ide.js:647"
+   "common/vb-ide.js:651"
   ]
  },
  "The pronoun \"I\" is always capitalized.": {
@@ -32677,7 +32677,7 @@
  },
  "The script editor did not load.": {
   "where": [
-   "common/vb-ide.js:1317",
+   "common/vb-ide.js:1513",
    "lectern/js/dom-console.js:756",
    "ledger/js/dom-console.js:766",
    "quire/js/dom-console.js:760"
@@ -32896,7 +32896,7 @@
  },
  "Theme:": {
   "where": [
-   "common/ui.js:1470"
+   "common/ui.js:1527"
   ]
  },
  "Themes": {
@@ -33324,8 +33324,8 @@
  },
  "This file is not a Visual Basic project.": {
   "where": [
-   "common/vb-ide.js:757",
-   "common/vb-ide.js:761"
+   "common/vb-ide.js:761",
+   "common/vb-ide.js:765"
   ]
  },
  "This file is not an Excel workbook.": {
@@ -34113,17 +34113,17 @@
  },
  "Triggered Breakpoint": {
   "where": [
-   "common/vb-ide.js:86"
+   "common/vb-ide.js:93"
   ]
  },
  "Triggered Error Interrupt": {
   "where": [
-   "common/vb-ide.js:87"
+   "common/vb-ide.js:94"
   ]
  },
  "Triggered Watch": {
   "where": [
-   "common/vb-ide.js:88"
+   "common/vb-ide.js:95"
   ]
  },
  "Triple": {
@@ -34149,7 +34149,7 @@
  },
  "Turquoise": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -35032,13 +35032,13 @@
  },
  "VibeOffice": {
   "where": [
-   "common/ui.js:1919"
+   "common/ui.js:1976"
   ]
  },
  "VibeOffice Visual Basic": {
   "where": [
-   "common/vb-ide.js:250",
-   "common/vb-ide.js:1323",
+   "common/vb-ide.js:254",
+   "common/vb-ide.js:1520",
    "lectern/js/commands.js:152",
    "lectern/js/ribbon.js:69"
   ]
@@ -35115,7 +35115,7 @@
  },
  "Violet": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:188"
   ]
  },
@@ -35424,7 +35424,7 @@
  },
  "White": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "lectern/js/slideshow.js:889"
   ]
  },
@@ -35749,8 +35749,8 @@
  },
  "Working...": {
   "where": [
-   "common/ui.js:1912",
-   "common/ui.js:1914"
+   "common/ui.js:1969",
+   "common/ui.js:1971"
   ]
  },
  "Worksheet": {
@@ -35861,7 +35861,7 @@
  },
  "Yellow": {
   "where": [
-   "common/ui.js:1531",
+   "common/ui.js:1588",
    "quire/js/app.js:187"
   ]
  },
@@ -36004,21 +36004,21 @@
  },
  "Zoom": {
   "where": [
-   "common/ui.js:1765",
-   "common/ui.js:1767",
+   "common/ui.js:1822",
+   "common/ui.js:1824",
    "lectern/js/app.js:185",
    "lectern/js/dialogs.js:989"
   ]
  },
  "Zoom In": {
   "where": [
-   "common/ui.js:1766",
+   "common/ui.js:1823",
    "ledger/js/commands.js:89"
   ]
  },
  "Zoom Out": {
   "where": [
-   "common/ui.js:1764",
+   "common/ui.js:1821",
    "ledger/js/commands.js:90"
   ]
  },
@@ -36035,7 +36035,7 @@
  },
  "[Object]": {
   "where": [
-   "common/vb-ide.js:131"
+   "common/vb-ide.js:138"
   ]
  },
  "[Text]": {
@@ -36058,7 +36058,7 @@
  },
  "a sprite published at codex-pets.net": {
   "where": [
-   "common/ui.js:1249",
+   "common/ui.js:1306",
    "index.html:441"
   ]
  },
@@ -36646,7 +36646,7 @@
  },
  "{0} and {1} more": {
   "where": [
-   "common/ui.js:1299"
+   "common/ui.js:1356"
   ]
  },
  "{0} can't open {1}. {2}": {
@@ -36876,7 +36876,7 @@
  },
  "{0}: line {1}, column {2}: {3} ({4})": {
   "where": [
-   "common/vb-ide.js:244"
+   "common/vb-ide.js:248"
   ]
  },
  "{none}": {

@@ -38,7 +38,8 @@
     return 'procedure';
   }
 
-  function fromSymbol(symbol, host) {
+  function fromSymbol(symbol, host, local) {
+    const here = !!local && !host && !!symbol.line;
     return {
       name: symbol.name,
       kind: kindOf(symbol),
@@ -46,6 +47,8 @@
       params: paramText(symbol.parameters || symbol.params),
       host: !!host,
       accessor: symbol.accessor || '',
+      local: here,
+      line: here ? symbol.line : 0,
     };
   }
 
@@ -56,14 +59,14 @@
     return current;
   }
 
-  function moduleSymbols(index, includePrivate, host) {
+  function moduleSymbols(index, includePrivate, host, local) {
     const map = new Map();
     const symbols = index && index.symbols || [];
     for (let i = 0; i < symbols.length; i++) {
       const symbol = symbols[i];
       if (symbol.ownerId || symbol.kind === 'event' || symbol.kind === 'type' || symbol.kind === 'enum') continue;
       if (!includePrivate && symbol.scope === 'private') continue;
-      const item = fromSymbol(symbol, host);
+      const item = fromSymbol(symbol, host, local);
       const key = id(item.name);
       map.set(key, prefer(map.get(key), item));
     }
@@ -77,7 +80,7 @@
     for (let i = 0; i < symbols.length; i++) {
       const symbol = symbols[i];
       if (symbol.ownerId !== procedure.id || symbol.kind === 'event') continue;
-      const item = fromSymbol(symbol, false);
+      const item = fromSymbol(symbol, false, true);
       map.set(id(item.name), item);
     }
     return [...map.values()];
@@ -89,7 +92,7 @@
     for (let i = 0; i < locals.length; i++) {
       const local = locals[i];
       if (!local || !local.name) continue;
-      map.set(id(local.name), { name: local.name, kind: 'variable', type: local.type || '', params: '', host: false, accessor: '' });
+      map.set(id(local.name), { name: local.name, kind: 'variable', type: local.type || '', params: '', host: false, accessor: '', local: false, line: 0 });
     }
     const procedure = (index.procedures || []).find(function (item) { return id(item.name) === id(frame && frame.procedure); });
     if (procedure) {
@@ -97,10 +100,33 @@
       for (let i = 0; i < symbols.length; i++) {
         const symbol = symbols[i];
         if (symbol.ownerId !== procedure.id || symbol.kind !== 'parameter' || map.has(id(symbol.name))) continue;
-        map.set(id(symbol.name), fromSymbol(symbol, false));
+        map.set(id(symbol.name), fromSymbol(symbol, false, true));
       }
     }
-    return [...map.values()];
+    const items = [...map.values()];
+    for (let i = 0; i < items.length; i++) rememberLine(items[i], index, frame && frame.procedure);
+    return items;
+  }
+
+  function rememberLine(item, index, procedureName) {
+    if (!item || item.line) return;
+    const procedure = (index.procedures || []).find(function (proc) { return id(proc.name) === id(procedureName); });
+    const symbols = index.symbols || [];
+    let moduleLine = 0;
+    for (let i = 0; i < symbols.length; i++) {
+      const symbol = symbols[i];
+      if (id(symbol.name) !== id(item.name) || !symbol.line) continue;
+      if (procedure && symbol.ownerId === procedure.id) {
+        item.line = symbol.line;
+        item.local = true;
+        return;
+      }
+      if (!symbol.ownerId && !moduleLine) moduleLine = symbol.line;
+    }
+    if (moduleLine) {
+      item.line = moduleLine;
+      item.local = true;
+    }
   }
 
   function effectiveType(item, types) {
@@ -172,7 +198,7 @@
     if (item.kind === 'module' && item.moduleName) {
       const index = ctx.byName.get(id(item.moduleName));
       if (!index) return [];
-      return moduleSymbols(index, item.includePrivate, item.hostModule);
+      return moduleSymbols(index, item.includePrivate, item.hostModule, item.includePrivate && !item.hostModule);
     }
     const type = effectiveType(item, ctx.types);
     const record = recordOf(type, ctx.indexes);
@@ -273,21 +299,27 @@
     return { start: span.start, end: span.end, items: out };
   }
 
-  L.vbComplete = function (request) {
+  function onName(code, offset) {
+    const at = code[offset] || '';
+    const before = offset > 0 ? code[offset - 1] : '';
+    return /[A-Za-z_\u0080-\uffff0-9$%&!#@\]]/.test(at) || /[A-Za-z_\u0080-\uffff0-9$%&!#@\]]/.test(before);
+  }
+
+  function prepare(request) {
     const engine = request && (request.engine || window.VB6Engine);
     const code = String(request && request.code || '');
     const offset = Math.max(0, Math.min(code.length, request && request.offset || 0));
     const empty = { start: offset, end: offset, items: [] };
-    if (!engine || typeof engine.scanDeclarations !== 'function' || typeof engine.statementBefore !== 'function') return empty;
+    if (!engine || typeof engine.scanDeclarations !== 'function' || typeof engine.statementBefore !== 'function') return { result: empty };
     const statement = engine.statementBefore(code, offset);
-    if (statement.state !== 'code' || /^\s*(?:#|Rem\b)/i.test(statement.masked) || /^\s*\d+\s*$/.test(statement.masked)) return empty;
+    if (statement.state !== 'code' || /^\s*(?:#|Rem\b)/i.test(statement.masked) || /^\s*\d+\s*$/.test(statement.masked)) return { result: empty };
     const span = engine.completionSpan(code, offset);
     const matches = engine.completionMatches;
     const before = statement.masked.slice(0, Math.max(0, span.start - statement.start));
     const typeMatch = before.match(/\b(As(?:\s+New)?|New|Implements)\s+((?:[A-Za-z_][\w]*\s*\.\s*)*)$/i);
     if (typeMatch) {
-      if (/New|Implements/i.test(typeMatch[1]) || typeMatch[2]) return { start: span.start, end: span.end, items: [] };
-      return finish(SCALARS.map(function (name) { return { name: name, kind: 'type', type: name, params: '', host: false }; }), span, matches, span.prefix, null);
+      if (/New|Implements/i.test(typeMatch[1]) || typeMatch[2]) return { result: { start: span.start, end: span.end, items: [] } };
+      return { result: finish(SCALARS.map(function (name) { return { name: name, kind: 'type', type: name, params: '', host: false }; }), span, matches, span.prefix, null) };
     }
     const framed = !!(request && request.frame);
     const moduleName = request && request.moduleName || 'Module1';
@@ -307,7 +339,7 @@
     const roots = [];
     if (framed) roots.push(...frameSymbols(request.frame, byName.get(id(request.frame.module || moduleName)) || editedIndex));
     else roots.push(...procedureSymbols(editedIndex, procedure));
-    roots.push(...moduleSymbols(editedIndex, true, false));
+    roots.push(...moduleSymbols(editedIndex, true, false, true));
     const modules = [edited].concat(extras);
     for (let i = 0; i < modules.length; i++) {
       roots.push({
@@ -322,7 +354,7 @@
         accessor: '',
       });
     }
-    for (let i = 0; i < extras.length; i++) roots.push(...moduleSymbols(byName.get(id(extras[i].name)), false, !!extras[i].host));
+    for (let i = 0; i < extras.length; i++) roots.push(...moduleSymbols(byName.get(id(extras[i].name)), false, !!extras[i].host, false));
     const intrinsics = request && request.intrinsics || {};
     const files = !!(request && request.files);
     const lists = [intrinsics.procedures || [], intrinsics.constants || [], intrinsics.objects || []];
@@ -357,6 +389,44 @@
       const receiver = left ? resolve(left, ctx) : null;
       items = receiver ? membersOf(receiver, ctx) : [];
     }
-    return finish(items, span, matches, span.prefix, ctx.types);
+    return { engine: engine, code: code, offset: offset, span: span, matches: matches, ctx: ctx, items: items };
+  }
+
+  L.vbComplete = function (request) {
+    const code = String(request && request.code || '');
+    const offset = Math.max(0, Math.min(code.length, request && request.offset || 0));
+    const prepared = prepare(request);
+    if (!prepared || prepared.result) return prepared && prepared.result || { start: offset, end: offset, items: [] };
+    return finish(prepared.items, prepared.span, prepared.matches, prepared.span.prefix, prepared.ctx.types);
+  };
+
+  /* The name under offset: its signature or type, and whether this module defines it. */
+  L.vbInspect = function (request) {
+    const prepared = prepare(request);
+    if (!prepared || prepared.result) return null;
+    if (!onName(prepared.code, prepared.offset)) return null;
+    let end = prepared.span.end;
+    if (!prepared.span.prefix) {
+      const span = prepared.engine.completionSpan(prepared.code, prepared.offset + 1);
+      if (!span.prefix) return null;
+      end = span.end;
+    }
+    const word = prepared.engine.expressionBefore(prepared.code, end);
+    const expr = word && String(word.text || '').trim();
+    if (!expr) return null;
+    const tail = expr.split('.').pop().replace(/^\[|\]$/g, '').trim();
+    const item = resolve(expr, prepared.ctx);
+    if (!item || item.kind === 'keyword') {
+      return { name: item && item.name || tail, kind: item && item.kind || '', type: '', params: '', line: 0, local: false };
+    }
+    const type = effectiveType(item, prepared.ctx.types);
+    return {
+      name: item.name,
+      kind: item.kind,
+      type: type && type !== 'Void' ? type : '',
+      params: item.params || '',
+      line: item.local ? item.line : 0,
+      local: !!item.local && item.line > 0,
+    };
   };
 })();

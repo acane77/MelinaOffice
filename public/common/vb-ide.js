@@ -6,6 +6,7 @@
   const L = window.L;
   const MODULE = 'module1';
   const SESSION = 'vbIde';
+  const EDITOR_SHARE = 'vbIdeEditor';
   const BLANK_CODE = "Sub Main\n    ' Insert your code here\n    \nEnd Sub";
 
   let code = '';
@@ -65,7 +66,13 @@
   let listSpan = null;
   let listTarget = null;
   let listGen = 0;
-  let accepting = false;
+  let hoverTip = null;
+  let hoverTimer = null;
+  let hoverGen = 0;
+  let hoverKey = '';
+  let hoverPoint = null;
+  let linkMark = null;
+  let linkOff = null;
 
   function sameModule(name) {
     return String(name || '').toLowerCase() === MODULE;
@@ -192,12 +199,10 @@
       const line = Number(d.line) || 1;
       if (!Number.isInteger(line) || line < 1 || line > editor.lineCount()) continue;
       const text = editor.getLine(line - 1);
-      const title = d.message || '';
       if (!text.length) {
         const widget = document.createElement('span');
         widget.className = 'vb-ide-squiggle vb-ide-squiggle-empty';
         widget.textContent = ' ';
-        widget.title = title;
         squiggles.push(editor.setBookmark({ line: line - 1, ch: 0 }, { widget: widget }));
         continue;
       }
@@ -205,7 +210,6 @@
       if (ch >= text.length) ch = text.length - 1;
       squiggles.push(editor.markText({ line: line - 1, ch: ch }, { line: line - 1, ch: text.length }, {
         className: 'vb-ide-squiggle',
-        title: title,
       }));
     }
   }
@@ -864,6 +868,17 @@
     if (lowerPane) lowerPane.style.flexGrow = '1';
   }
 
+  function loadEditorShare() {
+    if (!L.store) return;
+    const n = Number(L.store.get(EDITOR_SHARE, NaN));
+    if (Number.isFinite(n) && n > 0) editorShare = n;
+  }
+
+  function saveEditorShare() {
+    if (!L.store || !(editorShare > 0)) return;
+    L.store.set(EDITOR_SHARE, editorShare);
+  }
+
   function grid(headers) {
     const body = L.h('tbody');
     const head = L.h('tr');
@@ -1045,6 +1060,7 @@
           applyEditorShare();
           if (editor) editor.refresh();
         },
+        up() { saveEditorShare(); },
       });
     });
     applyEditorShare();
@@ -1110,6 +1126,186 @@
       files: host.files === true,
       frame: frame,
     };
+  }
+
+  function clearLink() {
+    if (linkMark) {
+      try { linkMark.clear(); } catch (e) { /* the editor already dropped it */ }
+      linkMark = null;
+    }
+  }
+
+  function nameChars(ch) {
+    return /[A-Za-z_\u0080-\uffff0-9$%&!#@\[\]]/.test(ch || '');
+  }
+
+  function identifierRange(text, index) {
+    let start = index;
+    let end = index;
+    if (start < text.length && nameChars(text[start])) {
+      while (start > 0 && nameChars(text[start - 1])) start--;
+      end = start;
+      while (end < text.length && nameChars(text[end])) end++;
+    } else if (start > 0 && nameChars(text[start - 1])) {
+      end = start;
+      while (start > 0 && nameChars(text[start - 1])) start--;
+    } else return null;
+    if (!/[A-Za-z_\u0080-\uffff\[]/.test(text.slice(start, end))) return null;
+    return { start: start, end: end };
+  }
+
+  function paintLink(x, y) {
+    if (!editor) return;
+    const pos = editor.coordsChar({ left: x, top: y });
+    if (!pos || pos.outside) { clearLink(); return; }
+    const text = editor.getValue();
+    const range = identifierRange(text, editor.indexFromPos(pos));
+    if (!range) { clearLink(); return; }
+    const from = editor.posFromIndex(range.start);
+    const to = editor.posFromIndex(range.end);
+    const found = linkMark && linkMark.find();
+    if (found && found.from.line === from.line && found.from.ch === from.ch && found.to.line === to.line && found.to.ch === to.ch) return;
+    clearLink();
+    linkMark = editor.markText(from, to, { className: 'vb-ide-link' });
+  }
+
+  function hideHover() {
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+    if (hoverTip) hoverTip.hidden = true;
+  }
+
+  function tipBox(className) {
+    if (hoverTip && hoverTip.className !== className) {
+      hoverTip.remove();
+      hoverTip = null;
+    }
+    if (!hoverTip) {
+      hoverTip = L.h('div', { class: className, translate: 'no' });
+      document.body.appendChild(hoverTip);
+    }
+    return hoverTip;
+  }
+
+  function positionHover(x, y) {
+    hoverTip.hidden = false;
+    hoverTip.style.left = (x + 12) + 'px';
+    hoverTip.style.top = (y + 16) + 'px';
+  }
+
+  function placeHover(text, x, y) {
+    if (!text) { hideHover(); return; }
+    const tip = tipBox('tooltip vb-ide-tip');
+    tip.textContent = text;
+    positionHover(x, y);
+  }
+
+  function showSymbolTip(item, x, y) {
+    if (!item || !item.name || item.kind === 'keyword' || item.kind === 'module') { hideHover(); return; }
+    const tip = tipBox('vb-ide-complete-sig vb-ide-hover');
+    tip.replaceChildren();
+    const head = L.h('div', { class: 'vb-ide-complete-sig-name' });
+    const iconName = COMPLETE_ICONS[item.kind] || 'field';
+    const icon = L.icons && L.icons.get(iconName, 16);
+    if (icon) head.appendChild(L.h('span', { class: 'vb-ide-complete-ico', html: icon }));
+    head.appendChild(L.h('span', { translate: 'no', text: item.name }));
+    tip.appendChild(head);
+    let detail = '';
+    if (item.kind === 'procedure') detail = item.params ? '(' + item.params + ')' : '';
+    else if (item.type) detail = 'As ' + item.type;
+    if (detail) tip.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: detail }));
+    positionHover(x, y);
+  }
+
+  function diagnosticAt(line, ch) {
+    let best = null;
+    for (let i = 0; i < diagnostics.length; i++) {
+      const d = diagnostics[i];
+      if (String(d.source || '').toLowerCase() !== MODULE) continue;
+      if ((Number(d.line) || 1) !== line + 1) continue;
+      const start = Math.max(0, (Number(d.column) || 1) - 1);
+      if (ch < start) continue;
+      if (!best || start >= best.start) best = { start: start, message: d.message || '' };
+    }
+    return best ? best.message : '';
+  }
+
+  async function inspectAt(index) {
+    await ensureEngine();
+    if (!editor || !L.vbInspect) return null;
+    return L.vbInspect(completionRequest(editor.getValue(), index, completionFrame()));
+  }
+
+  function bindHover() {
+    const wrap = editor.getWrapperElement();
+    wrap.addEventListener('mousemove', (e) => {
+      hoverPoint = { x: e.clientX, y: e.clientY };
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && !e.buttons) paintLink(e.clientX, e.clientY);
+      else clearLink();
+      if (!editor || e.buttons) { hoverGen++; hideHover(); return; }
+      const pos = editor.coordsChar({ left: e.clientX, top: e.clientY });
+      if (pos.outside) { hoverGen++; hideHover(); return; }
+      const key = pos.line + ':' + pos.ch;
+      if (key === hoverKey && hoverTimer) return;
+      hoverKey = key;
+      if (hoverTimer) clearTimeout(hoverTimer);
+      const gen = ++hoverGen;
+      const point = { x: e.clientX, y: e.clientY, line: pos.line, ch: pos.ch };
+      hoverTimer = setTimeout(async () => {
+        hoverTimer = null;
+        if (gen !== hoverGen || !editor) return;
+        const message = diagnosticAt(point.line, point.ch);
+        if (message) {         placeHover(message, point.x, point.y); return; }
+        let item = null;
+        try { item = await inspectAt(editor.indexFromPos({ line: point.line, ch: point.ch })); }
+        catch (err) { item = null; }
+        if (gen !== hoverGen || !editor) return;
+        showSymbolTip(item, point.x, point.y);
+      }, 300);
+    });
+    wrap.addEventListener('mouseleave', () => { hoverGen++; hoverKey = ''; hoverPoint = null; clearLink(); hideHover(); });
+    editor.on('scroll', () => { hoverGen++; hoverKey = ''; clearLink(); hideHover(); });
+    editor.on('mousedown', (cm, e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || e.button !== 0) return;
+      const pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
+      if (!pos || pos.outside) return;
+      const index = cm.indexFromPos(pos);
+      const text = cm.getValue();
+      const at = text[index] || '';
+      const before = index > 0 ? text[index - 1] : '';
+      if (!/[A-Za-z_\u0080-\uffff0-9$%&!#@\]]/.test(at) && !/[A-Za-z_\u0080-\uffff0-9$%&!#@\]]/.test(before)) return;
+      e.preventDefault();
+      hoverGen++;
+      clearLink();
+      hideHover();
+      followName(index);
+    });
+    const onKey = (e) => {
+      if (!editor) return;
+      if (e.key !== 'Control' && e.key !== 'Meta') {
+        if (!e.ctrlKey && !e.metaKey) clearLink();
+        return;
+      }
+      if (e.type === 'keyup' || e.altKey || e.shiftKey || !hoverPoint) clearLink();
+      else paintLink(hoverPoint.x, hoverPoint.y);
+    };
+    window.addEventListener('keydown', onKey, true);
+    window.addEventListener('keyup', onKey, true);
+    window.addEventListener('blur', clearLink);
+    linkOff = () => {
+      window.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('keyup', onKey, true);
+      window.removeEventListener('blur', clearLink);
+      clearLink();
+      linkOff = null;
+    };
+  }
+
+  async function followName(index) {
+    let item = null;
+    try { item = await inspectAt(index); }
+    catch (e) { return; }
+    if (!item || !item.name || !editor) return;
+    if (item.local && item.line) jumpToLine(item.line);
   }
 
   function placeList(anchor) {
@@ -1318,6 +1514,7 @@
       return;
     }
     loadSaved();
+    loadEditorShare();
     const built = buildBody();
     L.ui.dialog({
       title: 'VibeOffice Visual Basic',
@@ -1326,6 +1523,8 @@
       buttons: [],
       modeless: true,
       resizeable: true,
+      windowName: 'vb_ide',
+      restoreWindowSizeAndPosition: 1,
       minWidth: 520,
       minHeight: 360,
       onResize: () => { if (editor) editor.refresh(); },
@@ -1374,6 +1573,8 @@
           openConditionPanel(n + 1, event ? event.clientX : 0, event ? event.clientY : 0);
         });
         editor.on('keydown', (cm, e) => {
+          hoverGen++;
+          hideHover();
           if (listEl && listTarget && listTarget.kind === 'editor' && handleListKey(e)) {
             e.preventDefault();
             e.stopPropagation();
@@ -1384,8 +1585,11 @@
           e.stopPropagation();
           openCompletion({ kind: 'editor' });
         });
+        bindHover();
         let paintQueued = false;
         editor.on('change', (cm, change) => {
+          hoverGen++;
+          hideHover();
           code = editor.getValue();
           const origin = change && change.origin;
           if (origin !== '+complete' && origin !== 'setValue') {
@@ -1413,11 +1617,17 @@
         setTimeout(() => { if (editor) editor.refresh(); }, 0);
       },
       onClose: () => {
+        saveEditorShare();
         closeList();
         closeConditionPanel();
         if (checkTimer) { clearTimeout(checkTimer); checkTimer = null; }
         checkGen++;
         clearSquiggles();
+        hoverGen++;
+        hideHover();
+        if (linkOff) linkOff();
+        else clearLink();
+        if (hoverTip) { hoverTip.remove(); hoverTip = null; }
         if (editor) code = editor.getValue();
         if (exprInput) expression = exprInput.value;
         if (exprOut) expressionResult = exprOut.value;

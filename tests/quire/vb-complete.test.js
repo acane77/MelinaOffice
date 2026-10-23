@@ -61,6 +61,22 @@ function complete(at, text) {
   });
 }
 
+function inspect(at, text) {
+  const source = text == null ? code : text;
+  return L.vbInspect({
+    engine: VB6Engine,
+    code: source,
+    offset: at,
+    moduleName: 'Module1',
+    modules: [{ name: 'QuireDOM', code: host, host: true }],
+    types: { ActiveDocument: 'Document' },
+    member: L.domIr.member,
+    domTypes: L.domIr.types,
+    intrinsics: VB6Engine.intrinsicCatalog(),
+    files: false,
+  });
+}
+
 test('completion follows the procedure and the virtual machine', async () => {
   await boot();
   const inside = complete(code.indexOf('Lef') + 3);
@@ -186,6 +202,21 @@ test('completion follows the procedure and the virtual machine', async () => {
   assert.equal(has(paused, 'temp'), true);
   assert.equal(has(paused, 'n'), true);
   assert.equal(has(paused, 'hiddenLocal'), false);
+
+  const atCount = code.indexOf('count');
+  const countInfo = inspect(atCount);
+  assert.equal(countInfo.name, 'count');
+  assert.equal(countInfo.type, 'Long');
+  assert.equal(countInfo.local, true);
+  assert.equal(countInfo.line, 5);
+  const shown = inspect(1, 'Shown');
+  assert.equal(shown.name, 'Shown');
+  assert.equal(shown.local, false);
+  const saveSrc = 'ActiveDocument.SaveAs';
+  const saveAs = inspect(saveSrc.length - 2, saveSrc);
+  assert.equal(saveAs.name, 'SaveAs');
+  assert.equal(saveAs.local, false);
+  assert.equal(saveAs.params.indexOf('FileName') >= 0, true);
 });
 
 test('intrinsic catalog is a subset of the virtual machine library', async () => {
