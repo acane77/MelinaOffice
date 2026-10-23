@@ -9981,7 +9981,7 @@
  },
  "Completions": {
   "where": [
-   "common/vb-ide.js:931"
+   "common/vb-ide.js:941"
   ]
  },
  "Complimentary closing:": {
@@ -16118,6 +16118,26 @@
    "quire/js/dialogs3.js:147"
   ]
  },
+ "Golden Gate": {
+  "where": [
+   "common/suite.js:480"
+  ]
+ },
+ "Golden Gate (Dark)": {
+  "where": [
+   "common/suite.js:481"
+  ]
+ },
+ "Golden Gate (Follow VS Code Color Theme)": {
+  "where": [
+   "common/suite.js:482"
+  ]
+ },
+ "Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.": {
+  "where": [
+   "common/suite.js:481"
+  ]
+ },
  "Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.": {
   "where": [
    "common/suite.js:482"
@@ -18182,7 +18202,7 @@
  },
  "Keyword": {
   "where": [
-   "common/vb-ide.js:912"
+   "common/vb-ide.js:925"
   ]
  },
  "Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter -4169, area 1, doughnut -4120. Any other type fails.": {
@@ -27030,21 +27050,6 @@
    "common/suite.js:479"
   ]
  },
- "Ribbon Golden Gate": {
-  "where": [
-   "common/suite.js:480"
-  ]
- },
- "Ribbon Golden Gate (Dark)": {
-  "where": [
-   "common/suite.js:481"
-  ]
- },
- "Ribbon Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.": {
-  "where": [
-   "common/suite.js:481"
-  ]
- },
  "Rice Paper": {
   "where": [
    "quire/js/dialogs.js:980"
@@ -32585,7 +32590,7 @@
  },
  "The script editor did not load.": {
   "where": [
-   "common/vb-ide.js:1059",
+   "common/vb-ide.js:1071",
    "lectern/js/dom-console.js:756",
    "ledger/js/dom-console.js:766",
    "quire/js/dom-console.js:760"
@@ -34750,11 +34755,6 @@
    "ledger/js/vb-host.js:22"
   ]
  },
- "VS Code Golden Gate": {
-  "where": [
-   "common/suite.js:482"
-  ]
- },
  "Va&lidation...": {
   "where": [
    "ledger/js/commands.js:218"
@@ -34934,7 +34934,7 @@
  },
  "VibeOffice Visual Basic": {
   "where": [
-   "common/vb-ide.js:1064",
+   "common/vb-ide.js:1076",
    "lectern/js/commands.js:152",
    "lectern/js/ribbon.js:69",
    "ledger/js/commands.js:205"

@@ -126,7 +126,7 @@ test('the pages pick the look before the first paint and load looks.css first', 
 });
 
 test('Ribbon Golden Gate copies its window motion and leaves Ribbon 2010 alone', () => {
-  assert.match(read('common/suite.js'), /id: 'goldengate', name: N\('Ribbon Golden Gate'\)/);
+  assert.match(read('common/suite.js'), /id: 'goldengate', name: N\('Golden Gate'\)/);
   assert.match(looks, /@keyframes goldengate-open[\s\S]*?scale\(0\.94\)/);
   assert.match(looks, /@keyframes goldengate-close[\s\S]*?scale\(0\.94\)/);
   assert.match(looks, /\[data-look="goldengate"\] \.dlg\.is-opening \{ animation: goldengate-open 250ms cubic-bezier\(0\.16, 1, 0\.3, 1\) both; \}/);
@@ -140,14 +140,14 @@ test('Ribbon Golden Gate copies its window motion and leaves Ribbon 2010 alone',
   assert.match(looks, /\[data-look="ribbon2010"\] \.rb-tab\.file \{/);
   assert.match(looks, /\[data-look="ribbon2010"\] \.dlg\.is-opening \{ animation: win7-open /);
   assert.doesNotMatch(looks, /\[data-look="goldengate"\][^{]*\.ico[^{]*filter:\s*grayscale/);
-  assert.match(read('common/suite.js'), /id: 'goldengatedark', name: N\('Ribbon Golden Gate \(Dark\)'\)/);
+  assert.match(read('common/suite.js'), /id: 'goldengatedark', name: N\('Golden Gate \(Dark\)'\)/);
   assert.match(looks, /\[data-look="goldengatedark"\] \{[^}]*color-scheme:\s*dark/);
   assert.match(looks, /@keyframes goldengatedark-open[\s\S]*?scale\(0\.94\)/);
   assert.match(looks, /\[data-look="goldengatedark"\] \.dlg\.is-opening \{ animation: goldengatedark-open 250ms cubic-bezier\(0\.16, 1, 0\.3, 1\) both; \}/);
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--gg-hover:\s*rgba\(255,255,255,\.08\)/);
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--page-canvas:\s*#141416/);
   assert.match(looks, /\[data-look="goldengatedark"\][\s\S]*?--hdr-a:\s*#ffffff/);
-  assert.match(read('common/suite.js'), /id: 'vscodegg', name: N\('VS Code Golden Gate'\)/);
+  assert.match(read('common/suite.js'), /id: 'vscodegg', name: N\('Golden Gate \(Follow VS Code Color Theme\)'\)/);
   assert.match(looks, /\[data-look="vscodegg"\][\s\S]*?--vsc-editor:\s*var\(--vscode-editor-background/);
   assert.match(looks, /--vsc-bar:\s*var\(--vscode-titleBar-activeBackground/);
   assert.match(looks, /@keyframes vscodegg-open[\s\S]*?scale\(0\.94\)/);
