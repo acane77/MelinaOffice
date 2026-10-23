@@ -100,6 +100,12 @@ test('completion follows the procedure and the virtual machine', async () => {
   const members = complete(documentDot.indexOf('ActiveDocument.') + 'ActiveDocument.'.length, documentDot);
   assert.equal(has(members, 'Name'), true);
   assert.equal(has(members, 'Paragraphs'), true);
+  const saveAs2 = members.items.find((item) => item.name === 'SaveAs2');
+  assert.equal(saveAs2.params, '[FileName], [FileFormat], [LockComments], [Password]');
+  const shapes = code.replace('  Lef', '  ActiveDocument.InlineShapes.');
+  const shapeMembers = complete(shapes.indexOf('ActiveDocument.InlineShapes.') + 'ActiveDocument.InlineShapes.'.length, shapes);
+  const addPicture = shapeMembers.items.find((item) => item.name === 'AddPicture');
+  assert.equal(addPicture.params, '[FileName], [LinkToFile], [SaveWithDocument], [Range]');
   assert.equal(has(members, 'Application'), true);
   assert.equal(has(members, 'Parent'), true);
   assert.equal(has(members, 'Range'), false);

@@ -54,6 +54,7 @@
   let conditionPanel = null;
   let panelCloser = null;
   let listEl = null;
+  let sigEl = null;
   let listItems = [];
   let listIndex = 0;
   let listSpan = null;
@@ -974,7 +975,9 @@
 
   function removeList() {
     if (listEl) listEl.remove();
+    if (sigEl) sigEl.remove();
     listEl = null;
+    sigEl = null;
     listItems = [];
     listTarget = null;
     listSpan = null;
@@ -1039,6 +1042,32 @@
     listEl.style.top = top + 'px';
   }
 
+  function placeSig() {
+    if (!sigEl || !listEl) return;
+    const rect = listEl.getBoundingClientRect();
+    const gap = 2;
+    sigEl.style.width = rect.width + 'px';
+    sigEl.style.top = rect.top + 'px';
+    let left = rect.right + gap;
+    if (left + rect.width > window.innerWidth) left = rect.left - gap - rect.width;
+    sigEl.style.left = left + 'px';
+  }
+
+  /* The selected procedure's name and arguments, beside the completion list. */
+  function paintSig() {
+    if (sigEl) { sigEl.remove(); sigEl = null; }
+    const item = listItems[listIndex];
+    if (!item || item.kind !== 'procedure') return;
+    sigEl = L.h('div', { class: 'vb-ide-complete-sig' });
+    const head = L.h('div', { class: 'vb-ide-complete-sig-name' });
+    const icon = L.icons && L.icons.get(COMPLETE_ICONS.procedure, 16);
+    if (icon) head.appendChild(L.h('span', { class: 'vb-ide-complete-ico', html: icon }));
+    head.appendChild(L.h('span', { translate: 'no', text: item.name }));
+    sigEl.appendChild(head);
+    if (item.params) sigEl.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: '(' + item.params + ')' }));
+    document.body.appendChild(sigEl);
+  }
+
   const COMPLETE_ICONS = {
     procedure: 'fx',
     member: 'properties',
@@ -1051,7 +1080,7 @@
 
   function hintsOf(item) {
     const hints = [];
-    if (item.params) hints.push('(' + item.params + ')');
+    if (item.kind !== 'procedure' && item.params) hints.push('(' + item.params + ')');
     if (item.kind !== 'type' && item.type && item.type !== 'Variant') hints.push('(As ' + item.type + ')');
     if (item.kind === 'keyword') hints.push('(' + L.t('Keyword') + ')');
     return hints.join(' ');
@@ -1093,6 +1122,8 @@
     }
     document.body.appendChild(listEl);
     placeList(anchor);
+    paintSig();
+    placeSig();
     const selected = listEl.querySelector('.on');
     if (selected) selected.scrollIntoView({ block: 'nearest' });
   }
@@ -1103,6 +1134,8 @@
     listIndex = delta === 'home' ? 0 : delta === 'end' ? count - 1 : Math.max(0, Math.min(count - 1, listIndex + delta));
     const rows = listEl.querySelectorAll('.vb-ide-complete-item');
     for (let i = 0; i < rows.length; i++) rows[i].classList.toggle('on', i === listIndex);
+    paintSig();
+    placeSig();
     if (rows[listIndex]) rows[listIndex].scrollIntoView({ block: 'nearest' });
   }
 
@@ -1314,7 +1347,7 @@
 
   if (typeof document !== 'undefined') {
     document.addEventListener('pointerdown', (e) => {
-      if (!listEl || listEl.contains(e.target)) return;
+      if (!listEl || listEl.contains(e.target) || (sigEl && sigEl.contains(e.target))) return;
       closeList();
     });
   }

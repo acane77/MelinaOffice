@@ -569,3 +569,6 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-complete-item.on { background: var(--sel); color: var(--sel-ink); }
 .vb-ide-complete-detail { flex: none; margin-left: auto; color: var(--muted); }
 .vb-ide-complete-item.on .vb-ide-complete-detail { color: var(--sel-ink); }
+.vb-ide-complete-sig { position: fixed; z-index: 8001; width: 360px; padding: 2px 6px 3px; background: var(--menu-face); color: var(--dlg-ink); border: 1px solid var(--menu-border); box-shadow: 2px 2px 3px var(--shadow-c); }
+.vb-ide-complete-sig-name { display: flex; align-items: center; gap: 4px; font-weight: bold; white-space: nowrap; overflow: hidden; }
+.vb-ide-complete-sig-params { white-space: normal; overflow-wrap: anywhere; }

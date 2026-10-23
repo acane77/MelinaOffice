@@ -137,7 +137,7 @@
         name: names[i],
         kind: call ? 'procedure' : 'member',
         type: domTypeName(desc),
-        params: '',
+        params: call ? paramText(desc.params) : '',
         host: false,
         accessor: '',
       });
