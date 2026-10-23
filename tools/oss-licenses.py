@@ -6,7 +6,8 @@ browser's credits page (About ▸ Open source licenses in the Start Center and e
   python3 tools/oss-licenses.py --check    only check: the page lists the crates that ship, none needs copyleft
 
 The site: VibeOffice itself (LICENSE), the fonts (public/fonts/LICENSES.txt), the proofing lists
-(public/common/dict/LICENSES.txt), the ECMA-376 data in public/common/opc-order.js, and the code and data derived from
+(public/common/dict/LICENSES.txt), the VB6 Studio Web engine (third_party/VB6; its license is kept in
+public/common/licenses/), the ECMA-376 data in public/common/opc-order.js, and the code and data derived from
 other projects (public/common/licenses/; each file says "Derived from <name> …"); their license files are read by the
 page when an entry is opened, or kept in it. The desktop app: every crate compiled into the app and its installer
 (the workspace's members and their normal dependencies, all the way down; not what only build scripts or procedural
@@ -170,6 +171,9 @@ def main():
         work('CodeMirror 5', 'MIT License', [('github.com/codemirror/CodeMirror', 'https://github.com/codemirror/CodeMirror')],
              'The editor in Run Visual Basic Script, version 5.65.16, kept as published. Copyright (C) 2017 by Marijn Haverbeke and others.',
              files='public/common/vendor/codemirror/codemirror.js, codemirror.css, vb.js', texts_=[notice('codemirror-LICENSE.txt')]),
+        work('VB6 Studio Web', 'MIT License', [('github.com/acane77/VB6', 'https://github.com/acane77/VB6')],
+             'The Visual Basic engine for scripts, macros and completion in Quire, Ledger and Lectern, built from this submodule (version 0.6.0) into vb6-engine.js. Copyright (c) 2026 VB6 Studio Web contributors.',
+             files='third_party/VB6, public/quire/vendor/vb6/vb6-engine.js, public/ledger/vendor/vb6/vb6-engine.js, public/lectern/vendor/vb6/vb6-engine.js', texts_=[notice('vb6-studio-web-LICENSE.txt')]),
         work('Carlito, Caladea, Gelasio and Google Sans Flex fonts', 'SIL Open Font License 1.1', [('github.com/google/fonts', 'https://github.com/google/fonts')],
              'Metric-compatible stand-ins for Calibri, Cambria and Georgia, for computers that do not have them (Carlito, Caladea, Gelasio). Google Sans Flex 9pt Regular draws the product names. Copyright 2013 The Carlito Project Authors; 2012 The Caladea Project Authors; 2022 The Gelasio Project Authors; 2015 Google LLC. Google Sans is a trademark of Google.',
              files='public/fonts/*.woff2, public/fonts/GoogleSansFlex_9pt-Regular.ttf', src='fonts/LICENSES.txt'),

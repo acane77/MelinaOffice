@@ -121,11 +121,31 @@ I personally found Apple Pages' equation editor is easier to use than Word's dur
 
 Start at the Start Center: open a file, pick one from Recent Files, or create a document, spreadsheet or presentation from a blank page or a template.
 
+## Build
+
+The pages are plain HTML and JavaScript. The VB6 engine is built from the `third_party/VB6` submodule, and that build has to exist before the extension is packed: the engine files are gitignored, and the VSIX copies `public/` as it is.
+
+**Dependencies:** Git, [Node.js](https://nodejs.org/) (`node` on your `PATH`), and `make`. Packing the extension also needs Python 3. Nothing is installed with npm; `package.json` is the extension manifest.
+
+```bash
+git submodule update --init --recursive
+make
+```
+
+**VS Code package.**
+
+```bash
+tools/package_vsix.sh
+# Output path is is `tmp/vibeoffice-v<version>-<commit>.vsix`.
+```
+
+Install that file in VS Code or code-server.
+
 ## Feedback and contributing
 
 Found a file that doesn't open or save the way it should? Please [open an issue](https://github.com/tcchen2026/VibeOffice/issues).
 
-VibeOffice is plain HTML and JavaScript with no build step. Read [AGENTS.md](AGENTS.md) for the design rules and [docs/testing.md](docs/testing.md) for running it locally and testing.
+Read [AGENTS.md](AGENTS.md) for the design rules and [docs/testing.md](docs/testing.md) for running it locally and testing. Building the extension is in [Build](#build) above.
 
 ## Legal
 
