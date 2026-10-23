@@ -1260,8 +1260,9 @@
         editor = window.CodeMirror.fromTextArea(built.area, {
           mode: 'text/x-vb',
           lineNumbers: true,
-          indentUnit: 2,
-          tabSize: 2,
+          indentUnit: 4,
+          tabSize: 4,
+          indentWithTabs: false,
           gutters: [{ className: 'vb-ide-bp-gutter', style: 'width: 14px' }, 'CodeMirror-linenumbers'],
         });
         editor.on('gutterClick', (cm, n, gutter, event) => {
