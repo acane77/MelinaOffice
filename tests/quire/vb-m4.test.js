@@ -122,6 +122,12 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(ActiveDocument.Tables(1).Rows.Count, 2);
     await host.eval('ActiveDocument.Tables(1).ConvertToText');
     assert.equal(ActiveDocument.Tables.Count, 0);
+    await host.eval('ActiveDocument.Tables.Add(NumColumns:=2, NumRows:=2, Range:=ActiveDocument.Paragraphs(1).Range)');
+    assert.equal(ActiveDocument.Tables.Count, 1);
+    assert.equal(ActiveDocument.Tables(1).Columns.Count, 2);
+    assert.equal(ActiveDocument.Tables(1).Rows.Count, 2);
+    await host.eval('ActiveDocument.Tables(1).Delete');
+    assert.equal(ActiveDocument.Tables.Count, 0);
 
     await host.eval('Selection.TypeParagraph');
     await host.eval('Selection.TypeText("field")');

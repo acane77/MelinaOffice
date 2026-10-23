@@ -171,3 +171,37 @@ test('gaps stay on the specification codes', () => {
   assert.equal(ir.exec({ op: 'get', handle: windows.handle, member: 'Count' }).code, 'G-HOST');
   assert.equal(ok(ir.exec({ op: 'get', handle: windows.handle, member: 'Application' })).type, 'Application');
 });
+
+test('implemented calls publish VBA parameter names', () => {
+  const bad = [];
+  for (const typeName in L.domIr.types) {
+    const t = L.domIr.types[typeName];
+    for (const member in t.members) {
+      const desc = t.members[member];
+      if (desc.kind === 'gap') {
+        if (desc.params) bad.push(typeName + '.' + member + ' gap');
+        continue;
+      }
+      if (!desc.params) continue;
+      const seen = new Set();
+      for (const p of desc.params) {
+        if (!/^[A-Za-z][A-Za-z0-9]*$/.test(p.name) || /^Arg\d+$/.test(p.name)) bad.push(typeName + '.' + member + ' ' + p.name);
+        const key = p.name.toLowerCase();
+        if (seen.has(key)) bad.push(typeName + '.' + member + ' duplicate ' + p.name);
+        seen.add(key);
+      }
+    }
+  }
+  assert.deepEqual(bad, []);
+  function names(type, member) {
+    return L.domIr.member(type, member).params.map((p) => p.name);
+  }
+  assert.deepEqual(names('Tables', 'Add'), ['Range', 'NumRows', 'NumColumns', 'DefaultTableBehavior', 'AutoFitBehavior']);
+  assert.equal(names('Tables', 'Add').length, 5);
+  assert.equal(names('Selection', 'ConvertToTable').length, 16);
+  assert.deepEqual(names('Paragraphs', 'Item'), ['Index']);
+  assert.deepEqual(names('BuiltinDialogs', 'Item'), ['Index']);
+  assert.deepEqual(names('Documents', 'Open'), ['FileName', 'ConfirmConversions', 'ReadOnly', 'AddToRecentFiles', 'PasswordDocument']);
+  assert.equal(L.domIr.member('Selection', 'TypeParagraph').params, undefined);
+  assert.ok(L.domIr.member('Tables', 'Add').params.every((p) => p.optional));
+});

@@ -36,15 +36,23 @@
     });
   }
 
+  function callParams(desc) {
+    if (desc && Array.isArray(desc.params)) {
+      return desc.params.map(function (p) { return { name: p.name, optional: p.optional !== false }; });
+    }
+    return CALL_PARAMS;
+  }
+
   function memberMeta(name, desc) {
+    const params = callParams(desc);
     if (desc.kind === 'gap') {
       const as = desc.as || 'any';
-      if (as === 'call') return { name: name, modes: [1], params: CALL_PARAMS };
+      if (as === 'call') return { name: name, modes: [1], params: params };
       if (as === 'get') return { name: name, modes: [2], params: [] };
       if (as === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
-      return { name: name, modes: [1, 2, 4, 8], params: CALL_PARAMS };
+      return { name: name, modes: [1, 2, 4, 8], params: params };
     }
-    if (desc.kind === 'call') return { name: name, modes: [1], params: CALL_PARAMS };
+    if (desc.kind === 'call' || desc.kind === 'both') return { name: name, modes: desc.kind === 'both' ? [1, 2] : [1], params: params };
     if (desc.kind === 'rw') return { name: name, modes: [2, 4, 8], params: [] };
     return { name: name, modes: [2], params: [] };
   }

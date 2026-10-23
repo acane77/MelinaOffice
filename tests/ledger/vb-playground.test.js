@@ -18,7 +18,7 @@ test('playground script writes the sheet', async () => {
   assert.equal(sh.Range('A1').Font.Bold, -1);
   assert.equal(sh.Range('B2').NumberFormat, '0.00');
   assert.equal(sh.Range('A6').Value, 20);
-  await host.eval('ActiveSheet.Range("C2:C3").Value = ActiveSheet.Range("B2:B3").Value');
+  await host.eval('ActiveSheet.Range(Cell1:="C2", Cell2:="C3").Value = ActiveSheet.Range(Cell1:="B2", Cell2:="B3").Value');
   assert.equal(sh.Range('C2').Value, 12.5);
   assert.equal(sh.Range('C3').Value, 7.5);
   assert.equal(L.dom.Application.ActiveWorkbook.Names.Item('Total').RefersTo, '=Sheet1!$B$4');

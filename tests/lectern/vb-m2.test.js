@@ -8,7 +8,7 @@ test('M2 slides and shapes are callable from VB', { timeout: 120000 }, async () 
   const host = await L.vb.open();
   try {
     assert.equal(await host.eval('?ActivePresentation.Slides.Count'), 1);
-    await host.eval('ActivePresentation.Slides.Add 2, ppLayoutBlank');
+    await host.eval('ActivePresentation.Slides.Add Layout:=ppLayoutBlank, Index:=2');
     assert.equal(ActivePresentation.Slides.Count, 2);
     assert.equal(ActivePresentation.Slides(2).Layout, ppLayoutBlank);
     await host.eval('ActivePresentation.Slides(2).Name = "Notes"');

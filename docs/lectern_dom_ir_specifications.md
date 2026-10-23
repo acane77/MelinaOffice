@@ -73,9 +73,11 @@ A catalog line `# TimeLine gap G-ENGINE` registers the name. `session.named('Tim
 # TypeName gap G-ENGINE
 Member get [ReturnType]
 Member rw
-Member call [ReturnType]
+Member call [ReturnType] [(Name, [Optional])]
 Member gap G-TEXT get|call|rw
 ```
+
+A parenthesised list is the VBA parameter names in the live function's positional order. `[Name]` is optional. The host publishes that list, so a named argument binds to its slot. A call with no list still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A gap member is not given a list.
 
 A collection gains `Count`, `First`, `Last` and `Item` when the catalog does not list them. `Item`'s return type is the collection's element type.
 

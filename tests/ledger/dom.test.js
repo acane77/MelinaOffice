@@ -74,3 +74,36 @@ test('gaps and a name that is not in the inventory', () => {
   s.release();
   assert.equal(s.exec({ op: 'get', handle: s.root.handle, member: 'ActiveSheet' }).code, 'released');
 });
+
+test('implemented calls publish VBA parameter names', () => {
+  const bad = [];
+  for (const typeName in L.domIr.types) {
+    const t = L.domIr.types[typeName];
+    for (const member in t.members) {
+      const desc = t.members[member];
+      if (desc.kind === 'gap') {
+        if (desc.params) bad.push(typeName + '.' + member + ' gap');
+        continue;
+      }
+      if (!desc.params) continue;
+      const seen = new Set();
+      for (const p of desc.params) {
+        if (!/^[A-Za-z][A-Za-z0-9]*$/.test(p.name) || /^Arg\d+$/.test(p.name)) bad.push(typeName + '.' + member + ' ' + p.name);
+        const key = p.name.toLowerCase();
+        if (seen.has(key)) bad.push(typeName + '.' + member + ' duplicate ' + p.name);
+        seen.add(key);
+      }
+    }
+  }
+  assert.deepEqual(bad, []);
+  function names(type, member) {
+    return L.domIr.member(type, member).params.map((p) => p.name);
+  }
+  assert.deepEqual(names('Range', 'Item'), ['RowIndex', 'ColumnIndex']);
+  assert.deepEqual(names('Worksheet', 'Range'), ['Cell1', 'Cell2']);
+  assert.deepEqual(names('Areas', 'Item'), ['Index']);
+  assert.deepEqual(names('Borders', 'Item'), ['Index']);
+  assert.deepEqual(names('Workbooks', 'Open'), ['Filename', 'UpdateLinks', 'ReadOnly', 'Format', 'Password']);
+  assert.equal(names('Shapes', 'AddPicture').length, 7);
+  assert.ok(L.domIr.member('Worksheet', 'Range').params.every((p) => p.optional));
+});

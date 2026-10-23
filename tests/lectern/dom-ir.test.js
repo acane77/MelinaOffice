@@ -45,3 +45,34 @@ test('the presentation IR reads and writes the open deck', () => {
   s.release();
   assert.equal(s.exec({ op: 'get', handle: pres.handle, member: 'Name' }).code, 'released');
 });
+
+test('implemented calls publish VBA parameter names', () => {
+  const bad = [];
+  for (const typeName in L.domIr.types) {
+    const t = L.domIr.types[typeName];
+    for (const member in t.members) {
+      const desc = t.members[member];
+      if (desc.kind === 'gap') {
+        if (desc.params) bad.push(typeName + '.' + member + ' gap');
+        continue;
+      }
+      if (!desc.params) continue;
+      const seen = new Set();
+      for (const p of desc.params) {
+        if (!/^[A-Za-z][A-Za-z0-9]*$/.test(p.name) || /^Arg\d+$/.test(p.name)) bad.push(typeName + '.' + member + ' ' + p.name);
+        const key = p.name.toLowerCase();
+        if (seen.has(key)) bad.push(typeName + '.' + member + ' duplicate ' + p.name);
+        seen.add(key);
+      }
+    }
+  }
+  assert.deepEqual(bad, []);
+  function names(type, member) {
+    return L.domIr.member(type, member).params.map((p) => p.name);
+  }
+  assert.deepEqual(names('Slides', 'Add'), ['Index', 'Layout']);
+  assert.deepEqual(names('Slides', 'Item'), ['Index']);
+  assert.deepEqual(names('Shapes', 'AddPicture'), ['FileName', 'LinkToFile', 'SaveWithDocument', 'Left', 'Top', 'Width', 'Height']);
+  assert.deepEqual(names('Presentations', 'Open'), ['FileName', 'ReadOnly', 'Untitled', 'WithWindow']);
+  assert.ok(L.domIr.member('Slides', 'Add').params.every((p) => p.optional));
+});

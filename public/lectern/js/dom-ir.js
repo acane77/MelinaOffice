@@ -14,18 +14,18 @@ ActivePresentation get Presentation
 Presentations get Presentations
 ActiveWindow get DocumentWindow
 SlideShowWindows get SlideShowWindows
-HasHostAbility call
-MsgBox call AlwaysAllow
-InputBox call AlwaysAllow
-HostShell call AlwaysDeny Shell
-HostDir call RequestApproval Dir
-FileDialog call BuiltinFileDialog
-GetOpenFilename call RequestApproval FileDialog dialog
+HasHostAbility call ([Ability])
+MsgBox call AlwaysAllow ([Prompt], [Buttons], [Title])
+InputBox call AlwaysAllow ([Prompt], [Title], [Default])
+HostShell call AlwaysDeny Shell ([PathName])
+HostDir call RequestApproval Dir ([PathName])
+FileDialog call BuiltinFileDialog ([Type])
+GetOpenFilename call RequestApproval FileDialog dialog ([FileFilter], [FilterIndex], [Title], [ButtonText], [MultiSelect])
 GetSaveAsFilename call RequestApproval FileDialog dialog
 # Presentations collection
 Item call Presentation
-Add call Presentation
-Open call RequestApproval Open
+Add call Presentation ([WithWindow])
+Open call RequestApproval Open ([FileName], [ReadOnly], [Untitled], [WithWindow])
 # Presentation
 Name get
 FullName get AlwaysAllow Path
@@ -39,16 +39,16 @@ Designs get Designs
 SlideMaster get SlideMaster
 BuiltInDocumentProperties get DocumentProperties
 CustomDocumentProperties get DocumentProperties
-Undo call
-Redo call
+Undo call ([Times])
+Redo call ([Times])
 Save call RequestApproval Save
 Close call
-SaveAs call RequestApproval SaveAs
-SaveAs2 call RequestApproval SaveAs
-Export call RequestApproval Export
-ExportAsFixedFormat call RequestApproval FixedFormat
+SaveAs call RequestApproval SaveAs ([FileName], [FileFormat], [EmbedTrueTypeFonts])
+SaveAs2 call RequestApproval SaveAs ([FileName], [FileFormat], [EmbedTrueTypeFonts])
+Export call RequestApproval Export ([Path], [FilterName], [ScaleWidth], [ScaleHeight])
+ExportAsFixedFormat call RequestApproval FixedFormat ([Path], [FixedFormatType])
 PrintOut call AlwaysAllow Print
-FollowHyperlink call AlwaysAllow Hyperlink
+FollowHyperlink call AlwaysAllow Hyperlink ([Address], [SubAddress], [NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
 NewWindow gap G-HOST call
 CreateVideo gap G-ENGINE call
 Merge gap G-ENGINE call
@@ -75,8 +75,8 @@ Paste call
 ChildShapeRange gap G-ENGINE get
 # Slides collection
 Item call Slide
-Add call Slide
-Range call SlideRange
+Add call Slide ([Index], [Layout])
+Range call SlideRange ([Index])
 # SlideRange collection
 Item call Slide
 # Slide
@@ -93,7 +93,7 @@ Hyperlinks get Hyperlinks
 Select call
 Delete call
 Duplicate call Slide
-MoveTo call
+MoveTo call ([ToPos])
 NotesPage gap G-ENGINE get
 Comments gap G-ENGINE get
 TimeLine gap G-ENGINE get
@@ -103,10 +103,10 @@ CustomerData gap G-ENGINE get
 Item call Shape
 Title get Shape
 Placeholders get Shapes
-AddShape call Shape
-AddTextbox call Shape
-AddTable call Shape
-AddPicture call RequestApproval Picture
+AddShape call Shape ([Type], [Left], [Top], [Width], [Height])
+AddTextbox call Shape ([Orientation], [Left], [Top], [Width], [Height])
+AddTable call Shape ([NumRows], [NumColumns], [Left], [Top], [Width], [Height])
+AddPicture call RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Left], [Top], [Width], [Height])
 AddChart gap G-ENGINE call
 AddSmartArt gap G-ENGINE call
 AddDiagram gap G-ENGINE call
@@ -140,7 +140,7 @@ GroupItems get Shapes
 Delete call
 Duplicate call Shape
 Select call
-ZOrder call
+ZOrder call ([ZOrderCmd])
 ZOrderPosition get
 Hyperlinks get Hyperlinks
 Chart gap G-ENGINE get
@@ -163,8 +163,8 @@ VerticalAnchor rw
 Orientation gap G-ENGINE get
 # TextRange
 Text rw
-InsertBefore call
-InsertAfter call
+InsertBefore call ([NewText])
+InsertAfter call ([NewText])
 Delete call
 Select call
 Font get Font
@@ -172,7 +172,7 @@ ParagraphFormat get ParagraphFormat
 IndentLevel rw
 Paragraphs get Paragraphs
 Characters get Characters
-InsertSymbol call
+InsertSymbol call ([CharacterNumber], [FontName], [Unicode])
 InsertDateTime call
 InsertSlideNumber call
 Hyperlinks get Hyperlinks
@@ -239,7 +239,7 @@ DashStyle gap G-ENGINE get
 Type get
 ContainedType get
 # Table
-Cell call Cell
+Cell call Cell ([Row], [Column])
 Rows get Rows
 Columns get Columns
 Delete call
@@ -247,7 +247,7 @@ Merge gap G-ENGINE call
 ApplyStyle gap G-ENGINE call
 # Rows collection
 Item call Row
-Add call Row
+Add call Row ([BeforeRow])
 # Row
 Height rw
 Cells get Cells
@@ -256,7 +256,7 @@ Delete call
 Item call Cell
 # Columns collection
 Item call Column
-Add call Column
+Add call Column ([BeforeColumn])
 # Column
 Width rw
 Delete call
@@ -264,7 +264,7 @@ Delete call
 Shape get Shape
 # Hyperlinks collection
 Item call Hyperlink
-Add call Hyperlink
+Add call Hyperlink ([Anchor], [Address], [SubAddress], [ScreenTip], [TextToDisplay])
 # Hyperlink
 Address rw
 SubAddress rw
@@ -297,7 +297,7 @@ Item call Design
 Name get
 # DocumentProperties collection
 Item call DocumentProperty
-Add call DocumentProperty
+Add call DocumentProperty ([Name], [LinkToContent], [Type], [Value])
 # DocumentProperty
 Name get
 Value rw
@@ -318,7 +318,7 @@ View get SlideShowView
 # SlideShowView
 Next call
 Previous call
-GotoSlide call
+GotoSlide call ([Index])
 Exit call
 CurrentShowPosition get
 State gap G-HOST get
@@ -389,6 +389,26 @@ SelectedItems get
     return { parts: out, audit: audit, ability: ability, fileDialog: fileDialog };
   }
 
+  function takeSignature(line) {
+    const open = line.indexOf('(');
+    if (open < 0) return { line: line, params: null };
+    const close = line.indexOf(')', open);
+    if (close < 0) throw new Error('Unclosed signature: ' + line);
+    const body = line.slice(open + 1, close).trim();
+    const params = [];
+    if (body) {
+      for (const bit of body.split(',')) {
+        const tok = bit.trim();
+        const opt = /^\[([A-Za-z][A-Za-z0-9]*)\]$/.exec(tok);
+        const bare = /^[A-Za-z][A-Za-z0-9]*$/.exec(tok);
+        const name = opt ? opt[1] : (bare ? bare[0] : '');
+        if (!name) throw new Error('Bad signature name: ' + line);
+        params.push({ name: name, optional: !!opt });
+      }
+    }
+    return { line: (line.slice(0, open) + line.slice(close + 1)).replace(/\s+/g, ' ').trim(), params: params };
+  }
+
   function parseCatalog(text) {
     const types = {};
     let cur = null;
@@ -403,9 +423,11 @@ SelectedItems get
         types[cur.name] = cur;
         continue;
       }
-      const taken = takeAudit(line.split(/\s+/));
+      const signed = takeSignature(line);
+      const taken = takeAudit(signed.line.split(/\s+/));
       const parts = taken.parts;
       const rec = { kind: parts[1], audit: taken.audit, ability: taken.ability, fileDialog: taken.fileDialog };
+      if (signed.params) rec.params = signed.params;
       if (parts[1] === 'gap') {
         rec.code = parts[2];
         rec.as = parts[3] || 'any';
@@ -425,6 +447,7 @@ SelectedItems get
       if (!t.members.First) t.members.First = { kind: 'get', ret: ret };
       if (!t.members.Last) t.members.Last = { kind: 'get', ret: ret };
       if (!t.members.Item) t.members.Item = { kind: 'call', ret: ret };
+      if (t.members.Item.kind === 'call' && !t.members.Item.params) t.members.Item.params = [{ name: 'Index', optional: true }];
     }
     return types;
   }

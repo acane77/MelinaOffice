@@ -65,6 +65,8 @@ A catalog member may end with `AlwaysAllow`, `RequestApproval`, or `AlwaysDeny`,
 
 ## Catalog
 
+A call line may end with a parameter list. `[Name]` is optional and a bare `Name` is required. The names are the VBA names in the live function's positional order, and the host publishes them, so `NumColumns:=2` binds to that slot. A call with no list still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A gap member is not given a list.
+
 Every collection in the catalog accepts `item` and exposes `Count`, `First` and `Last`. `First` and `Last` follow the inventory rule. Where `dom.js` does not provide them, the result is `missing-live`.
 
 One live spelling differs from the inventory name: `Comment.Initial` reads and writes the live property `Initials`.
