@@ -66,6 +66,7 @@
   let listSpan = null;
   let listTarget = null;
   let listGen = 0;
+  let accepting = false;
   let hoverTip = null;
   let hoverTimer = null;
   let hoverGen = 0;
