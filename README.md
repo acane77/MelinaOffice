@@ -94,12 +94,12 @@ With VB6 IDE, you can easily debug your code, make your development faster.
   <img src="docs/images/VB6_IDE.png" width="720" alt="VB6 IDE">
 </p>
 
-### VB6 Playground
+Implemented Visual Basic APIs with security auditing strategy. Supported APIs including document DOM APIs (Word, Excel and PowerPoint object models for text, cells, slides and shapes), dialog APIs (message boxes, input boxes, in-app Office dialogs and file dialogs), and host file APIs (open, save, print to PDF, export, pictures and directory listing, each audited as always allow, request approval or always deny). Host file APIs and file dialogs work only in a host such as the VS Code or code-server plugin. 
 
-Or you just want a place to run code snippets, use VB6 console or VB6 Playground
+More APIs will be implemented later.
 
 <p align="center">
-  <img src="docs/images/VB6_Playground.png" width="720" alt="VB6 Playground">
+  <img src="docs/images/VB6_IDE_2.png" width="720" alt="VB6 Playground">
 </p>
 
 ## Equations in LaTeX
