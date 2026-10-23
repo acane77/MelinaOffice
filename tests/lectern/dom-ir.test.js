@@ -52,10 +52,6 @@ test('implemented calls publish VBA parameter names', () => {
     const t = L.domIr.types[typeName];
     for (const member in t.members) {
       const desc = t.members[member];
-      if (desc.kind === 'gap') {
-        if (desc.params) bad.push(typeName + '.' + member + ' gap');
-        continue;
-      }
       if (!desc.params) continue;
       const seen = new Set();
       for (const p of desc.params) {
@@ -74,5 +70,10 @@ test('implemented calls publish VBA parameter names', () => {
   assert.deepEqual(names('Slides', 'Item'), ['Index']);
   assert.deepEqual(names('Shapes', 'AddPicture'), ['FileName', 'LinkToFile', 'SaveWithDocument', 'Left', 'Top', 'Width', 'Height']);
   assert.deepEqual(names('Presentations', 'Open'), ['FileName', 'ReadOnly', 'Untitled', 'WithWindow']);
+  assert.deepEqual(names('Characters', 'Item'), ['Start', 'Length']);
+  assert.deepEqual(names('TextRange', 'Find'), ['FindWhat', 'After', 'MatchCase', 'WholeWords']);
+  assert.equal(names('Presentation', 'PrintOut').length, 5);
+  assert.deepEqual(names('Application', 'GetSaveAsFilename'), ['InitialFilename', 'FileFilter', 'FilterIndex', 'Title', 'ButtonText']);
+  assert.equal(L.domIr.member('Presentation', 'NewWindow').params, undefined);
   assert.ok(L.domIr.member('Slides', 'Add').params.every((p) => p.optional));
 });

@@ -77,7 +77,7 @@ Member call [ReturnType] [(Name, [Optional])]
 Member gap G-TEXT get|call|rw
 ```
 
-A parenthesised list is the VBA parameter names in the live function's positional order. `[Name]` is optional. The host publishes that list, so a named argument binds to its slot. A call with no list still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A gap member is not given a list.
+A parenthesised list, on an implemented call or a gap call, is the VBA parameter names in positional order. `[Name]` is optional. The host publishes that list, so a named argument binds to its slot. A listed call with no parameters has no list and still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A type marked `gap` has no per-member list, so an unlisted member on that type still uses `ArgN`.
 
 A collection gains `Count`, `First`, `Last` and `Item` when the catalog does not list them. `Item`'s return type is the collection's element type.
 

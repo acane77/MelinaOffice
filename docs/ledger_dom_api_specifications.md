@@ -54,16 +54,16 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Calculate`, `Undo`, `Redo` | call | Recalculate, or one undo or redo step (`-1` if a step ran, else `0`) |
 | `Windows`, `AddIns`, `CommandBars` | get | `G-HOST` |
 | `Dialogs` | get | `Item(id).Show` opens the matching in-app window. Open and Save As use VS Code's dialog. An unmapped id is `G-HOST`. The bare name `Dialogs` stays a gap object |
-| `FileDialog`, `GetOpenFilename`, `GetSaveAsFilename` | call | VS Code's file dialog. Cancel returns `""`. The dialog is the approval |
+| `FileDialog`, `GetOpenFilename`, `GetSaveAsFilename` | call | VS Code's file dialog. Cancel returns `""`. The dialog is the approval. `GetSaveAsFilename(InitialFilename, FileFilter, FilterIndex, Title, ButtonText)` accepts the names and does not apply them |
 | `HasHostAbility`, `MsgBox`, `InputBox`, `HostDir`, `HostShell` | call | See [docs/dom_api_security.md](dom_api_security.md). `HostShell` is `E-DENIED` on the VS Code host |
-| `Run`, `SendKeys`, `Wait`, `OnTime` | call | `G-HOST` |
+| `Run`, `SendKeys`, `Wait`, `OnTime` | call | `G-HOST`. `Run(Macro, Arg1, Arg2, … Arg30)`, `SendKeys(Keys, Wait)`, `Wait(Time)`, `OnTime(EarliestTime, Procedure, LatestTime, Schedule)`. The names bind, then the call returns `G-HOST` |
 | `EnableEvents` | get | `G-ENGINE` |
 
 ## Workbooks, Workbook
 
 | Member | | |
 |---|---|---|
-| `Workbooks.Item`, `Add` | call | By name or index. `Add` opens a blank book |
+| `Workbooks.Item`, `Add` | call | By name or index. `Add(Template)` opens a blank book. `Template` is accepted and ignored |
 | `Workbooks.Open` | call | RequestApproval on the VS Code host. Opens that file in its own tab. Elsewhere `G-HOST` |
 | `Workbooks.Close` | call | `G-HOST` |
 | `Name` | get | The workbook name |
@@ -75,11 +75,11 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Save` | call | Writes when a destination exists. An agent script on the VS Code host is RequestApproval. Otherwise `G-HOST` |
 | `Close` | call | See the rules above |
 | `Protect`, `Unprotect` | call | Workbook structure. The password is hashed when the dialog helper is loaded |
-| `SaveAs`, `SaveAs2` | call | RequestApproval on the VS Code host. CSV, text, xlsx, or xlsm. A password is an error |
-| `PrintOut` | call | AlwaysAllow. A PDF of the visible sheets beside the file |
+| `SaveAs`, `SaveAs2` | call | `SaveAs(Filename, FileFormat, Password, WriteResPassword)` is RequestApproval on the VS Code host. CSV, text, xlsx, or xlsm. A password is an error. `SaveAs2` uses the same names and is `G-HOST` |
+| `PrintOut` | call | `PrintOut(From, To, Copies, Preview, ActivePrinter, PrintToFile, Collate, PrToFileName, IgnorePrintAreas)`. AlwaysAllow. A PDF of the visible sheets beside the file. Every argument is accepted and ignored |
 | `ExportAsFixedFormat` | call | RequestApproval. PDF to the given path. XPS errors before the confirmation |
 | `FollowHyperlink` | call | AlwaysAllow. `http`, `https`, or `mailto` |
-| `SendMail`, `Windows` | | `G-HOST` |
+| `SendMail`, `Windows` | | `SendMail(Recipients, Subject, ReturnReceipt)` and `Windows` are `G-HOST` |
 
 `DocumentProperties.Add` with `LinkToContent`, or a type other than a string, is `G-ENGINE`.
 
@@ -109,7 +109,7 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Activate`, `Select`, `Delete`, `Move`, `Calculate`, `Protect`, `Unprotect` | call | |
 | `Copy` | call | A shallow sheet copy |
 | `QueryTables`, `XmlMaps`, `OLEObjects`, `CommentsThreaded` | get | `G-ENGINE` |
-| `PrintOut` | call | AlwaysAllow. A PDF of this sheet |
+| `PrintOut` | call | `PrintOut(From, To, Copies, Preview, ActivePrinter, PrintToFile, Collate, PrToFileName, IgnorePrintAreas)`. AlwaysAllow. A PDF of this sheet. Every argument is accepted and ignored |
 | `ExportAsFixedFormat` | call | RequestApproval. A PDF of this sheet. XPS errors immediately |
 | `SaveAs` | call | RequestApproval (`SheetSaveAs`). This sheet as CSV, text, or a one-sheet workbook |
 
@@ -149,7 +149,7 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `Hyperlink.Address`, `SubAddress`, `Range`, `TextToDisplay`, `Delete` | | |
 | `Hyperlink.Follow` | call | `G-HOST` |
 | `Validation.Add`, `Delete` | call | |
-| `Validation.Modify` | call | `G-ENGINE` |
+| `Validation.Modify` | call | `Modify(Type, AlertStyle, Operator, Formula1, Formula2)` is `G-ENGINE` |
 | `FormatConditions.Item`, `Add`, `Delete` | | Classic cell-is and expression rules |
 | `FormatCondition.Type`, `Formula1`, `Delete` | | |
 
@@ -164,7 +164,7 @@ These names are registered. Any member is that object's gap. `Application` and `
 | `ChartObjects.Item`, `Add` | call | `Add` creates a column chart drawing |
 | `ChartObject.Name`, `Left`, `Top`, `Width`, `Height`, `Chart`, `Delete` | | Positions are points |
 | `Chart.ChartType`, `Name` | | Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter `-4169`, area 1, doughnut `-4120`. Any other type is `G-ENGINE` |
-| `Chart.SeriesCollection`, `Axes`, `SetSourceData` | | `G-ENGINE` |
+| `Chart.SeriesCollection`, `Axes`, `SetSourceData` | | `G-ENGINE`. `SetSourceData(Source, PlotBy)` |
 | `Shapes.Item`, `AddTextbox` | | `AddTextbox` ignores orientation |
 | `Shapes.AddPicture` | call | RequestApproval. Embeds the picture. `LinkToFile` True is an error |
 | `Shape.Name`, `Left`, `Top`, `Width`, `Height`, `TextFrame`, `Delete` | | |
@@ -175,14 +175,14 @@ These names are registered. Any member is that object's gap. `Application` and `
 
 | Member | | |
 |---|---|---|
-| `PageSetup` orientation, zoom, fit, margins, print area, centering | rw | Margins are inches. `PrintOut` is `G-HOST` |
+| `PageSetup` orientation, zoom, fit, margins, print area, centering | rw | Margins are inches. `PrintOut(From, To, Copies, Preview, ActivePrinter, PrintToFile, Collate, PrToFileName, IgnorePrintAreas)` writes this sheet's PDF when Print is available, and ignores those arguments. Without that ability it is `G-HOST` |
 | `HPageBreaks` / `VPageBreaks` `Item`, `Add` | | `Add` stores the 1-based row or column |
 | `PageBreak.Location`, `Delete` | | |
 | `Outline.SummaryRow`, `ShowLevels` | | |
 | `AutoFilter.Range`, `ShowAllData` | | |
 | `Scenarios.Item`, `Add` | | |
 | `Scenario.Name`, `Comment`, `Show`, `Delete` | | |
-| `Scenario.ChangeScenario` | call | `G-ENGINE` |
+| `Scenario.ChangeScenario` | call | `ChangeScenario(ChangingCells, Values)` is `G-ENGINE` |
 | `PivotTables.Item` | call | Existing tables only |
 | `PivotTable.Name` | get | |
 | `PivotTable.Refresh`, `PivotFields` | | `G-ENGINE` |

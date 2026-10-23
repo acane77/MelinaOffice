@@ -178,10 +178,6 @@ test('implemented calls publish VBA parameter names', () => {
     const t = L.domIr.types[typeName];
     for (const member in t.members) {
       const desc = t.members[member];
-      if (desc.kind === 'gap') {
-        if (desc.params) bad.push(typeName + '.' + member + ' gap');
-        continue;
-      }
       if (!desc.params) continue;
       const seen = new Set();
       for (const p of desc.params) {
@@ -203,5 +199,13 @@ test('implemented calls publish VBA parameter names', () => {
   assert.deepEqual(names('BuiltinDialogs', 'Item'), ['Index']);
   assert.deepEqual(names('Documents', 'Open'), ['FileName', 'ConfirmConversions', 'ReadOnly', 'AddToRecentFiles', 'PasswordDocument']);
   assert.equal(L.domIr.member('Selection', 'TypeParagraph').params, undefined);
+  assert.deepEqual(names('Selection', 'MoveLeft'), ['Unit', 'Count', 'Extend']);
+  assert.deepEqual(names('Characters', 'Item'), ['Index']);
+  assert.deepEqual(names('Application', 'GetSaveAsFilename'), ['InitialFilename', 'FileFilter', 'FilterIndex', 'Title', 'ButtonText']);
+  assert.equal(names('Document', 'PrintOut').length, 19);
+  assert.deepEqual(names('Comments', 'AddReply'), ['Comment', 'Text']);
+  assert.deepEqual(names('List', 'CountNumberedItems'), ['NumberType', 'Level']);
+  assert.equal(L.domIr.member('Document', 'UndoClear').params, undefined);
   assert.ok(L.domIr.member('Tables', 'Add').params.every((p) => p.optional));
+  assert.ok(L.domIr.member('Selection', 'MoveLeft').params.every((p) => p.optional));
 });

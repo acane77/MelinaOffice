@@ -62,7 +62,7 @@ The grammar matches Lectern, plus `both` and `array`.
 Member get|rw|call|both|gap [return type] [G-ENGINE|G-HOST] [AlwaysAllow|RequestApproval|AlwaysDeny ability] [(Name, [Optional])]
 ```
 
-A parenthesised list is the VBA parameter names in the live function's positional order. `[Name]` is optional. The host publishes that list, so a named argument binds to its slot. A call with no list still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A gap member is not given a list.
+A parenthesised list, on an implemented call or a gap call, is the VBA parameter names in positional order. `[Name]` is optional. The host publishes that list, so a named argument binds to its slot. A listed call with no parameters has no list and still accepts sixteen optional `ArgN` parameters. A collection `Item` with no list is `Index`. A type marked `gap` has no per-member list, so an unlisted member on that type still uses `ArgN`. `Application.Run` uses Excel's names `Macro`, `Arg1` through `Arg30`.
 
 `both` is a function: a get with no arguments calls it, and a call passes the arguments. `Cells` is `both`. `Range` is `call`. Collections receive `Count`, `Item`, `First` and `Last` when the line does not list them. `Range` and the collections use `Item` as the default member. `WorksheetFunction` and the gap types accept any member name at the host.
 

@@ -121,6 +121,7 @@ test('M2 Selection, Range, paragraphs, sentences, words and characters', { timeo
     for (const statement of [
       '?Selection.Start', '?Selection.End', 'Selection.MoveLeft', 'Selection.MoveRight', 'Selection.MoveUp', 'Selection.MoveDown',
       'Selection.HomeKey', 'Selection.EndKey', 'Selection.GoTo', 'Selection.GoToNext', 'Selection.GoToPrevious', 'Selection.Information(1)',
+      'Selection.MoveLeft(Extend:=True, Count:=1, Unit:=1)',
       '?ActiveDocument.Paragraphs(1).Range.Start', '?ActiveDocument.Paragraphs(1).Range.End',
       'ActiveDocument.Paragraphs(1).Range.Move(1, 1)', 'ActiveDocument.Paragraphs(1).Range.Expand(1)',
       'ActiveDocument.Paragraphs(1).Range.GoTo', 'ActiveDocument.Paragraphs(1).Range.Information(1)',

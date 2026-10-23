@@ -26,6 +26,7 @@ test('M3 text, font and paragraph format are callable from VB', { timeout: 12000
     assert.equal(ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.ParagraphFormat.Bullet.Type, ppBulletUnnumbered);
     assert.equal(await host.eval('?ActivePresentation.Slides(1).Shapes.Title.PlaceholderFormat.Type'), ppPlaceholderCenterTitle);
     await expectGap(host, range + '.Characters(1)', 'G-TEXT');
+    await expectGap(host, range + '.Characters(Length:=2, Start:=1)', 'G-TEXT');
     await expectGap(host, '?' + range + '.Start', 'G-TEXT');
     await expectGap(host, '?' + range + '.Length', 'G-TEXT');
     await expectGap(host, range + '.Find "H"', 'G-TEXT');

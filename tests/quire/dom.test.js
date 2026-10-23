@@ -248,6 +248,14 @@ test('Tables.Add inserts a grid and cell text keeps the paragraph', () => {
   assert.equal(paras.length, 1);
   assert.equal(D.ptext(paras[0]), 'Name');
   assert.throws(() => ActiveDocument.Tables.Add(Selection.Range, 2, 2, 1), (e) => e.code === 'G-ENGINE');
+  const fromSelection = Selection.Tables.Add(undefined, 2, 4);
+  assert.equal(fromSelection.Rows.Count, 2);
+  assert.equal(fromSelection.Columns.Count, 4);
+  assert.equal(ActiveDocument.Tables.Count, 2);
+  assert.equal(Selection.Document, ActiveDocument);
+  Selection.Bold = -1;
+  assert.equal(Selection.Bold, -1);
+  assert.throws(() => Selection.Range.Tables.Add(Selection.Range, 1, 1, 1), (e) => e.code === 'G-ENGINE');
 });
 
 test('a bookmark keeps the paragraph text', () => {

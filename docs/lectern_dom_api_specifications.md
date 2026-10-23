@@ -15,7 +15,7 @@ A row is implemented when `dom.js` performs it. A gap is callable and rejects wi
 - The task-pane reference is `public/lectern/js/vb-dom-ref.js`. A change to a member or a gap updates that file in the same change. That page is what a script sees. A member listed only here, or only there, is out of date.
 - `Creator` is `G-ENGINE` on every object. Lectern is not PowerPoint.
 - Shape `Left`, `Top`, `Width` and `Height` are points.
-- A text range is an anchor `{p, o}` inside one shape. `Text` joins paragraphs with a carriage return. `Characters.Count` counts stored characters and does not include that carriage return. `Characters(index)`, `Words`, `Sentences`, `Lines`, `Runs`, `Find`, `Replace`, `Start`, `Length` and the `Bound*` members are `G-TEXT`.
+- A text range is an anchor `{p, o}` inside one shape. `Text` joins paragraphs with a carriage return. `Characters.Count` counts stored characters and does not include that carriage return. `Characters(Start, Length)`, `Words`, `Sentences`, `Lines`, `Runs`, `Find`, `Replace`, `Start`, `Length` and the `Bound*` members are `G-TEXT`.
 - Document macros are VB6 source in the custom XML part `urn:vibeoffice:macros`. `vbaProject.bin` is not listed and is not run. The object model does not expose either store.
 
 ## Status and gaps
@@ -91,11 +91,11 @@ Closing the last presentation opens a blank one. The editor always has a present
 | `SaveAs`, `SaveAs2` | call | RequestApproval on the VS Code host. The deck's presentation format, or PDF |
 | `Export` | call | RequestApproval. PNG or JPEG of every slide, including hidden slides, as `Slide1.png` in the folder |
 | `ExportAsFixedFormat` | call | RequestApproval. PDF. XPS errors before the confirmation. The path is the first argument |
-| `PrintOut` | call | AlwaysAllow. A PDF of the slides beside the file |
+| `PrintOut` | call | `PrintOut(From, To, PrintToFile, Copies, Collate)`. AlwaysAllow. A PDF of the slides beside the file. Every argument is accepted and ignored |
 | `FollowHyperlink` | call | AlwaysAllow. `http`, `https`, or `mailto` |
 | `NewWindow` | call | `G-HOST` |
-| `HasHostAbility`, `MsgBox`, `InputBox`, `FileDialog`, `HostDir`, `HostShell` | call | See [docs/dom_api_security.md](dom_api_security.md). Lectern has no `Dialogs` index |
-| `CreateVideo`, `Merge`, `PublishSlides` | call | `G-ENGINE` |
+| `HasHostAbility`, `MsgBox`, `InputBox`, `FileDialog`, `HostDir`, `HostShell`, `GetOpenFilename`, `GetSaveAsFilename` | call | See [docs/dom_api_security.md](dom_api_security.md). Lectern has no `Dialogs` index. `GetSaveAsFilename(InitialFilename, FileFilter, FilterIndex, Title, ButtonText)` accepts the names and does not apply them |
+| `CreateVideo`, `Merge`, `PublishSlides` | call | `G-ENGINE`. `CreateVideo(FileName, UseTimingsAndNarrations, DefaultSlideDuration, VertResolution, FramesPerSecond, Quality)`, `Merge(Path)`, `PublishSlides(SlideLibraryUrl, Overwrite, UseSlideOrder)` |
 
 ## DocumentWindow and Selection
 
@@ -140,7 +140,7 @@ Closing the last presentation opens a blank one. The editor always has a present
 | `AddTextbox(orientation, left, top, width, height)` | call | Horizontal only |
 | `AddTable(rows, cols, left, top, width)` | call | |
 | `AddPicture` | call | RequestApproval on the VS Code host. Embeds the picture. `LinkToFile` True is an error |
-| `AddChart`, `AddSmartArt`, `AddDiagram`, `AddMediaObject`, `AddOLEObject`, `AddTextEffect` | call | `G-ENGINE` |
+| `AddChart`, `AddSmartArt`, `AddDiagram`, `AddMediaObject`, `AddOLEObject`, `AddTextEffect` | call | `G-ENGINE`. `AddChart(Type, Left, Top, Width, Height)`, `AddSmartArt(Layout, Left, Top, Width, Height)`, `AddDiagram(Type, Left, Top, Width, Height)`, `AddMediaObject(FileName, Left, Top, Width, Height)`, `AddOLEObject(Left, Top, Width, Height, ClassName, FileName, DisplayAsIcon, IconFileName, IconIndex, IconLabel, Link)`, `AddTextEffect(PresetTextEffect, Text, FontName, FontSize, FontBold, FontItalic, Left, Top)` |
 | `Left`, `Top`, `Width`, `Height`, `Rotation` | read/write | Points. `Rotation` is degrees |
 | `Name` | read/write | |
 | `Id`, `Type`, `HasTextFrame`, `HasTable`, `ZOrderPosition` | get | `Type` is `msoAutoShape`, `msoTextBox`, `msoTable`, `msoPicture`, `msoPlaceholder`, `msoGroup`, `msoChart`, `msoTextEffect` or `msoLine` |
@@ -172,7 +172,7 @@ Closing the last presentation opens a blank one. The editor always has a present
 | `Characters` | get | `Count` only |
 | `InsertSymbol`, `InsertDateTime`, `InsertSlideNumber` | call | The date uses the `datetime1` format when the page has it |
 | `Start`, `Length`, `BoundLeft`, `BoundTop`, `BoundWidth`, `BoundHeight` | get | `G-TEXT` |
-| `Find`, `Replace` | call | `G-TEXT` |
+| `Find`, `Replace` | call | `G-TEXT`. `Find(FindWhat, After, MatchCase, WholeWords)`, `Replace(FindWhat, ReplaceWhat, After, MatchCase, WholeWords)` |
 | `Words`, `Sentences`, `Lines`, `Runs` | get | `G-TEXT` |
 | `Paragraph.Alignment` | read/write | `ppAlignLeft` 1 through `ppAlignDistribute` 5 |
 | `Font.Name`, `NameFarEast`, `Size`, `Bold`, `Italic`, `Underline` | read/write | `Name` writes the Latin face. Underline `msoTrue` is a single line. `NameAscii`, `NameComplexScript`, `SizeBi`, `BoldBi` and `ItalicBi` are `G-ENGINE` |
@@ -186,7 +186,7 @@ Closing the last presentation opens a blank one. The editor always has a present
 |---|---|---|
 | `Table.Cell(row, column)`, `Rows`, `Columns` | | `Rows.Add` and `Columns.Add` append or insert |
 | `Row.Height`, `Column.Width`, `Cell.Shape` | | |
-| `Table.Merge`, `Table.ApplyStyle` | call | `G-ENGINE` |
+| `Table.Merge`, `Table.ApplyStyle` | call | `G-ENGINE`. `Merge(MergeTo)`, `ApplyStyle(StyleID, SaveFormatting)` |
 | `Fill.Type` | read/write | 0 none, 1 solid. A gradient reads 3. Writing another type is `G-ENGINE` |
 | `Fill.ForeColor`, `Fill.Transparency`, `Fill.Visible` | | Transparency is `1 - alpha` |
 | `Line.Weight`, `Line.ForeColor`, `Line.Visible` | | `Visible` false sets the line to none |
@@ -250,4 +250,4 @@ ActivePresentation.Slides.Add 2, ppLayoutText
 ActiveWindow.Selection.ShapeRange.Left = 72
 ```
 
-`TextRange.Characters(1, 5)` is `G-TEXT`. `Characters.Count` on `"Hello"` is 5.
+`TextRange.Characters(Start:=1, Length:=5)` is `G-TEXT`. `Characters.Count` on `"Hello"` is 5.

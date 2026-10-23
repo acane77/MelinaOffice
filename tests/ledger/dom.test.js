@@ -81,14 +81,10 @@ test('implemented calls publish VBA parameter names', () => {
     const t = L.domIr.types[typeName];
     for (const member in t.members) {
       const desc = t.members[member];
-      if (desc.kind === 'gap') {
-        if (desc.params) bad.push(typeName + '.' + member + ' gap');
-        continue;
-      }
       if (!desc.params) continue;
       const seen = new Set();
       for (const p of desc.params) {
-        if (!/^[A-Za-z][A-Za-z0-9]*$/.test(p.name) || /^Arg\d+$/.test(p.name)) bad.push(typeName + '.' + member + ' ' + p.name);
+        if (!/^[A-Za-z][A-Za-z0-9]*$/.test(p.name) || (/^Arg\d+$/.test(p.name) && member !== 'Run')) bad.push(typeName + '.' + member + ' ' + p.name);
         const key = p.name.toLowerCase();
         if (seen.has(key)) bad.push(typeName + '.' + member + ' duplicate ' + p.name);
         seen.add(key);
@@ -105,5 +101,11 @@ test('implemented calls publish VBA parameter names', () => {
   assert.deepEqual(names('Borders', 'Item'), ['Index']);
   assert.deepEqual(names('Workbooks', 'Open'), ['Filename', 'UpdateLinks', 'ReadOnly', 'Format', 'Password']);
   assert.equal(names('Shapes', 'AddPicture').length, 7);
+  assert.equal(names('Application', 'Run').length, 31);
+  assert.equal(names('Application', 'Run')[0], 'Macro');
+  assert.deepEqual(names('Workbooks', 'Add'), ['Template']);
+  assert.equal(names('Workbook', 'PrintOut').length, 9);
+  assert.deepEqual(names('Application', 'GetSaveAsFilename'), ['InitialFilename', 'FileFilter', 'FilterIndex', 'Title', 'ButtonText']);
+  assert.equal(L.domIr.member('Workbooks', 'Close').params, undefined);
   assert.ok(L.domIr.member('Worksheet', 'Range').params.every((p) => p.optional));
 });

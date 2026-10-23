@@ -32,12 +32,12 @@ AddIns gap G-HOST get
 Dialogs get BuiltinDialogs
 FileDialog call BuiltinFileDialog ([Type])
 CommandBars gap G-HOST get
-Run gap G-HOST call
-SendKeys gap G-HOST call
-Wait gap G-HOST call
-OnTime gap G-HOST call
+Run gap G-HOST call ([Macro], [Arg1], [Arg2], [Arg3], [Arg4], [Arg5], [Arg6], [Arg7], [Arg8], [Arg9], [Arg10], [Arg11], [Arg12], [Arg13], [Arg14], [Arg15], [Arg16], [Arg17], [Arg18], [Arg19], [Arg20], [Arg21], [Arg22], [Arg23], [Arg24], [Arg25], [Arg26], [Arg27], [Arg28], [Arg29], [Arg30])
+SendKeys gap G-HOST call ([Keys], [Wait])
+Wait gap G-HOST call ([Time])
+OnTime gap G-HOST call ([EarliestTime], [Procedure], [LatestTime], [Schedule])
 GetOpenFilename call RequestApproval FileDialog dialog ([FileFilter], [FilterIndex], [Title], [ButtonText], [MultiSelect])
-GetSaveAsFilename call RequestApproval FileDialog dialog
+GetSaveAsFilename call RequestApproval FileDialog dialog ([InitialFilename], [FileFilter], [FilterIndex], [Title], [ButtonText])
 HasHostAbility call ([Ability])
 MsgBox call AlwaysAllow ([Prompt], [Buttons], [Title])
 InputBox call AlwaysAllow ([Prompt], [Title], [Default])
@@ -46,7 +46,7 @@ HostDir call RequestApproval Dir ([PathName])
 EnableEvents gap G-ENGINE get
 # Workbooks collection
 Item call Workbook
-Add call Workbook
+Add call Workbook ([Template])
 Open call RequestApproval Open ([Filename], [UpdateLinks], [ReadOnly], [Format], [Password])
 Close gap G-HOST call
 # Workbook
@@ -68,11 +68,11 @@ Close call ([SaveChanges], [Filename], [RouteWorkbook])
 Protect call ([Password])
 Unprotect call ([Password])
 SaveAs call RequestApproval SaveAs ([Filename], [FileFormat], [Password], [WriteResPassword])
-SaveAs2 gap G-HOST call
-PrintOut call AlwaysAllow Print
+SaveAs2 gap G-HOST call ([Filename], [FileFormat], [Password], [WriteResPassword])
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
 ExportAsFixedFormat call RequestApproval FixedFormat ([Type], [Filename])
 FollowHyperlink call AlwaysAllow Hyperlink ([Address], [SubAddress], [NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
-SendMail gap G-HOST call
+SendMail gap G-HOST call ([Recipients], [Subject], [ReturnReceipt])
 Windows gap G-HOST get
 # DocumentProperties collection
 Item call DocumentProperty
@@ -133,7 +133,7 @@ QueryTables gap G-ENGINE get
 XmlMaps gap G-ENGINE get
 OLEObjects gap G-ENGINE get
 CommentsThreaded gap G-ENGINE get
-PrintOut call AlwaysAllow Print
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
 ExportAsFixedFormat call RequestApproval FixedFormat ([Type], [Filename])
 SaveAs call RequestApproval SheetSaveAs ([Filename], [FileFormat], [Password], [WriteResPassword], [ReadOnlyRecommended], [CreateBackup])
 # Range
@@ -236,7 +236,7 @@ Follow gap G-HOST call
 # Validation
 Add call ([Type], [AlertStyle], [Operator], [Formula1])
 Delete call
-Modify gap G-ENGINE call
+Modify gap G-ENGINE call ([Type], [AlertStyle], [Operator], [Formula1], [Formula2])
 # FormatConditions collection
 Item call FormatCondition
 Add call FormatCondition ([Type], [Operator], [Formula1], [Formula2])
@@ -275,7 +275,7 @@ ChartType rw
 Name get
 SeriesCollection gap G-ENGINE get
 Axes gap G-ENGINE get
-SetSourceData gap G-ENGINE call
+SetSourceData gap G-ENGINE call ([Source], [PlotBy])
 # Shapes collection
 Item call Shape
 AddTextbox call Shape ([Orientation], [Left], [Top], [Width], [Height])
@@ -311,7 +311,7 @@ BottomMargin rw
 PrintArea rw
 CenterHorizontally rw
 CenterVertically rw
-PrintOut call AlwaysAllow Print
+PrintOut call AlwaysAllow Print ([From], [To], [Copies], [Preview], [ActivePrinter], [PrintToFile], [Collate], [PrToFileName], [IgnorePrintAreas])
 # PageBreaks collection
 Item call PageBreak
 Add call ([Before])
@@ -332,7 +332,7 @@ Name rw
 Comment rw
 Show call
 Delete call
-ChangeScenario gap G-ENGINE call
+ChangeScenario gap G-ENGINE call ([ChangingCells], [Values])
 # WorksheetFunction
 # QueryTables gap G-ENGINE
 # QueryTable gap G-ENGINE

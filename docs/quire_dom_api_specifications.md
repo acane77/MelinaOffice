@@ -97,7 +97,7 @@ Entry points only. Other `Application` members are in the host list above.
 | InputBox | `InputBox(Prompt, Title, Default)` | Implemented | An in-app prompt. Cancel returns an empty string. AlwaysAllow. |
 | Dialogs | Property `Dialogs` | Implemented | `Dialogs.Item(id).Show` opens the matching in-app window, or a VS Code file dialog for open and save. An unmapped id is `G-HOST`. The bare name `Dialogs` remains a `G-HOST` gap object. |
 | FileDialog | `FileDialog(Type)` | Implemented | VS Code's file or folder dialog. `Show` returns `-1` when a path was chosen. The bare name `FileDialog` remains a `G-HOST` gap object. |
-| GetOpenFilename, GetSaveAsFilename | | Implemented | The same dialogs. Cancel returns `""`. `MultiSelect` returns a string array. |
+| GetOpenFilename, GetSaveAsFilename | `GetOpenFilename(FileFilter, FilterIndex, Title, ButtonText, MultiSelect)`, `GetSaveAsFilename(InitialFilename, FileFilter, FilterIndex, Title, ButtonText)` | Implemented | The same dialogs. Cancel returns `""`. `MultiSelect` returns a string array. `GetSaveAsFilename` accepts the names and does not apply them to the dialog. |
 | HostDir | `HostDir(PathName)` | Implemented | `Dir` in a script. Virtual files first, then the real folder (`RequestApproval`). |
 | HostShell | `HostShell(PathName)` | Implemented | `Shell` in a script. AlwaysDeny (`E-DENIED`) on the VS Code host. `G-HOST` elsewhere. |
 
@@ -149,10 +149,10 @@ Entry points only. Other `Application` members are in the host list above.
 | Save | `Save()` | Implemented | Writes the current file when it already has a destination. On the VS Code host an agent script is RequestApproval. A file that has never been saved stays `G-HOST`. |
 | SaveAs, SaveAs2 | `SaveAs(FileName, FileFormat, ...)` | Implemented on the VS Code host | RequestApproval. Writes that path and opens it in another tab. A password or an unsupported `FileFormat` is an error and does not write. Elsewhere `G-HOST`. |
 | ComputeStatistics | `ComputeStatistics(Statistic, IncludeFootnotesAndEndnotes)` | Implemented | `wdStatisticWords`, `wdStatisticCharacters`, `wdStatisticCharactersWithSpaces`, `wdStatisticParagraphs`, `wdStatisticPages`. `wdStatisticLines` and `wdStatisticLines` of a non-laid-out story are G-ENGINE. Pages use the layout already computed for the open document. |
-| PrintOut | `PrintOut(...)` | Implemented on the VS Code host | AlwaysAllow. A PDF of the whole document beside the file, named by dropping the extension and adding `.pdf`. Copies, the printer, and a page range are ignored. |
+| PrintOut | `PrintOut(Background, Append, Range, OutputFileName, From, To, Item, Copies, Pages, PageType, PrintToFile, Collate, FileName, ActivePrinterMacGX, ManualDuplexPrint, PrintZoomColumn, PrintZoomRow, PrintZoomPaperWidth, PrintZoomPaperHeight)` | Implemented on the VS Code host | AlwaysAllow. A PDF of the whole document beside the file, named by dropping the extension and adding `.pdf`. Every argument is accepted and ignored. |
 | PrintPreview | | Not implemented | G-HOST. |
 | Protect, Unprotect | `Protect(Type, NoReset, Password, UseIRM, EnforceStyleLock)`, `Unprotect(Password)` | Not implemented | G-ENGINE. Permission in the UI is not the Word protection types. |
-| Compare | `Compare(Name, ...)` | Not implemented | G-HOST. Compare-with is a file picker. |
+| Compare | `Compare(Name, AuthorName, CompareTarget, DetectFormatChanges, IgnoreAllComparisonWarnings, AddToRecentFiles, RemovePersonalInformation, RemoveDateAndTime)` | Not implemented | G-HOST. Compare-with is a file picker. The names bind, then the call returns G-HOST. |
 | FollowHyperlink | `FollowHyperlink(Address, ...)` | Implemented on the VS Code host | AlwaysAllow. `http`, `https`, and `mailto` only. Any later argument is an error. VS Code asks before an external link. |
 | GoTo | `GoTo(What, Which, Count, Name)` | Not implemented | G-STORY when `What` is a character, line, or page offset. Bookmark and comment by name are on those collections. |
 | ExportAsFixedFormat | `ExportAsFixedFormat(OutputFileFormat, OutputFileName, ...)` | Implemented on the VS Code host | RequestApproval. PDF, or an omitted format, to that path. XPS (`wdExportFormatXPS`) errors before the confirmation and before any write. |
@@ -173,10 +173,17 @@ The caret or the highlighted span in the active document.
 | ParagraphFormat | Property | Implemented | |
 | Style | Property | Implemented | Paragraph style on the selected paragraphs. A character style is G-ENGINE on this property (use `Font` / run formatting). |
 | Range | Property `Range` | Implemented | Anchor. No `Start` / `End`. |
+| Document | Property | Implemented | The active document. |
+| Bold, Italic, Underline | Properties | Implemented | The same shortcuts as `Range`. |
+| Paragraphs, Sentences, Words, Tables | Properties | Implemented | The same collections as `Range`. `Tables.Add` inserts at the given range, or at the selection when `Range` is omitted. |
+| Bookmarks, Fields, Comments, Hyperlinks, InlineShapes | Properties | Implemented | The same collections as `Range`, including `Add` and `AddPicture`. |
+| ListFormat, Case, LanguageID, LanguageIDFarEast | | Implemented | The same members as `Range`. |
+| FormattedText | Property | Not implemented | G-ENGINE, the same as `Range`. |
+| InsertParagraph, InsertParagraphBefore, InsertParagraphAfter | methods | Implemented | The same calls as `Range`. |
 | Collapse | `Collapse(Direction)` | Implemented | `wdCollapseStart` or `wdCollapseEnd`. Moves the anchor to a caret. |
 | Select | `Select()` | Implemented | |
 | WholeStory | `WholeStory()` | Implemented | |
-| Copy, Cut, Paste | `Copy()`, `Cut()`, `Paste()` | Implemented | Quire's own clipboard. `PasteAndFormat`, `PasteSpecial`, and `PasteExcelTable` are G-ENGINE. |
+| Copy, Cut, Paste | `Copy()`, `Cut()`, `Paste()` | Implemented | Quire's own clipboard. `PasteAndFormat(Type)`, `PasteSpecial(IconIndex, Link, Placement, DisplayAsIcon, DataType, IconFileName, IconLabel)`, and `PasteExcelTable(LinkedToExcel, WordFormatting, RTF)` are G-ENGINE. |
 | Find | Property `Find` | Implemented | |
 | Type | Property, read | Implemented | `wdSelectionNormal`, `wdSelectionIP`, `wdNoSelection`. Other selection types (frame, shape row) are reported as `wdSelectionNormal` when an object is selected (gap: no separate shape-selection type). |
 | MoveLeft, MoveRight, MoveUp, MoveDown, HomeKey, EndKey, Start, End, GoTo | | Not implemented | G-STORY. |
@@ -185,7 +192,7 @@ The caret or the highlighted span in the active document.
 | InsertFile | `InsertFile(FileName, Range, ConfirmConversions, Link, Attachment)` | Implemented on the VS Code host | AlwaysAllow for `.txt`, `.htm`, `.html`, `.docx`, `.docm`, and `.dotx`. A path outside the workspace asks first. `Range`, `ConfirmConversions`, `Link`, and `Attachment` are errors. |
 | InsertSymbol | `InsertSymbol(CharacterNumber, Font, Unicode, Bias)` | Implemented | Inserts one character in the given font, the same way Insert Symbol does. |
 | InsertDateTime | `InsertDateTime(DateTimeFormat, InsertAsField, InsertAsFullWidth, DateLanguage, CalendarType)` | Implemented | `InsertAsField` True inserts a date field. Calendar and full-width flags are G-ENGINE. |
-| InsertCaption | `InsertCaption(...)` | Not implemented | G-ENGINE as this signature. Captions are inserted by the caption dialog, which is not positional VBA. |
+| InsertCaption | `InsertCaption(Label, Title, TitleAutoText, Position, ExcludeLabel)` | Not implemented | G-ENGINE. The caption dialog is separate from this call. |
 | InsertCells, InsertRows, InsertColumns, and the matching Delete methods | the VBA signatures | Implemented | Forward to the table operations below when the selection is in a table. Outside a table they throw. |
 | ConvertToTable | `ConvertToTable(Separator, NumRows, NumColumns, InitialColumnWidth, Format, ApplyBorders, ApplyShading, ApplyFont, ApplyColor, ApplyHeadingRows, ApplyLastRow, ApplyFirstColumn, ApplyLastColumn, AutoFit, AutoFitBehavior, DefaultTableBehavior)` | Implemented | Separator and the resulting table. The `Apply*` autoformat flags and `Format` are G-ENGINE. |
 
@@ -212,7 +219,7 @@ Anchored span. Story-index members are in the story-index section.
 | Bold, Italic, Underline | Properties | Implemented | Shortcuts to `Font`. Underline uses `WdUnderline`. |
 | Paragraphs | Property | Implemented | Paragraphs this anchor touches. |
 | Sentences, Words | Property | Implemented | Inside this anchor, using Quire's breaks. |
-| Tables | Property | Implemented | Tables this anchor touches. |
+| Tables | Property | Implemented | Tables this anchor touches. `Add` inserts at the given range, or at this anchor when `Range` is omitted. |
 | Find | Property | Implemented | Limited to this anchor's story. |
 | Characters | `Count` only | Implemented | `Characters(Index)` is G-STORY. |
 | Case | `Case` property (`WdCharacterCase`) | Implemented | The case changes `O.changeCase` already applies. |
@@ -358,7 +365,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | ListFormat.ListIndent, ListOutdent | methods | Implemented | |
 | ListFormat.CanContinuePreviousList | | Not implemented | G-ENGINE. |
 | Lists.Count, Item | | Implemented | Lists `D.computeLists` already distinguishes. |
-| List.Range, List.ListParagraphs, List.CountNumberedItems | | Implemented | |
+| List.Range, List.ListParagraphs, List.CountNumberedItems | `CountNumberedItems(NumberType, Level)` | Implemented | `CountNumberedItems` is not on the live list object, so the call is `missing-live`. |
 | ListTemplates, ListTemplate, ListLevels, ListLevel | | Not implemented | G-ENGINE as a gallery. Level format is stored inside numbering definitions and is not this object. |
 
 ## Find and Replacement
@@ -373,7 +380,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Replacement.Text | Property | Implemented | |
 | Replacement.Font, Replacement.ParagraphFormat | | Not implemented | G-ENGINE. Replace-with formatting is only the format criteria `js/find.js` already applies, not a full Font object on Replacement. |
 | ClearFormatting | `ClearFormatting()` | Implemented | |
-| HitHighlight, ClearHitHighlight | | Not implemented | G-ENGINE. Highlight-all is a view decoration, not these methods. |
+| HitHighlight, ClearHitHighlight | `HitHighlight(FindText, HighlightColor, TextColor, MatchCase, MatchWholeWord, MatchWildcards, MatchSoundsLike, MatchAllWordForms, Forward, Wrap, Format, MatchKashida, MatchDiacritics, MatchAlefHamza, MatchControl, IgnoreSpace, IgnorePunct, HighlightColorIndex)`, `ClearHitHighlight()` | Not implemented | G-ENGINE. Highlight-all is a view decoration, not these methods. |
 | MatchPrefix, MatchSuffix, MatchPhrase, MatchByte, IgnoreSpace, IgnorePunct | | Not implemented | G-ENGINE. |
 
 ## Bookmarks
@@ -417,7 +424,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Hyperlink.Address, SubAddress, TextToDisplay, ScreenTip | Properties | Implemented | |
 | Hyperlink.Range | Property | Implemented | The linked text. No story `Long`. |
 | Hyperlink.Delete | `Delete()` | Implemented | Removes the link, keeps the text. |
-| Hyperlink.Follow | `Follow(...)` | Not implemented | G-HOST. |
+| Hyperlink.Follow | `Follow(NewWindow, AddHistory, ExtraInfo, Method, HeaderInfo)` | Not implemented | G-HOST. |
 | Hyperlink.Type, Hyperlink.Target | | Not implemented | G-ENGINE. |
 
 ## Comments
@@ -431,7 +438,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Comment.Author, Comment.Initial | Properties | Implemented | |
 | Comment.Delete | `Delete()` | Implemented | |
 | Comment.Edit | | Not implemented | G-HOST. Editing the body is `Comment.Range.Text`. There is no comment pane object. |
-| Comments.AddReply and reply threads beyond the reply Quire stores | | Implemented | `reply` uses the existing reply operation. Deeper Word comment-thread properties are G-ENGINE. |
+| Comments.AddReply and reply threads beyond the reply Quire stores | `AddReply(Comment, Text)` | Implemented | The call is `missing-live`. Deeper Word comment-thread properties are G-ENGINE. |
 
 ## Footnotes and endnotes
 
@@ -466,7 +473,7 @@ Insert and the properties Quire already edits on a picture or a shape. The Excel
 | Shape.Select, Delete | | Implemented | |
 | Shape.Fill.ForeColor, Shape.Line.ForeColor, Shape.Line.Weight | | Implemented | When the shape stores a solid fill and a line. Gradients, patterns, and arrows are G-ENGINE. |
 | Shapes.AddShape, AddTextbox | `AddShape(Type, Left, Top, Width, Height, Anchor)`, `AddTextbox(Orientation, Left, Top, Width, Height, Anchor)` | Implemented | Types `DR.newShape` can build. Other auto-shape type codes are G-ENGINE. |
-| Shapes.AddChart | | Not implemented | G-ENGINE. `A.insertChart` opens the chart inserter; it is not this signature. |
+| Shapes.AddChart | `AddChart(Type, Left, Top, Width, Height, Anchor)` | Not implemented | G-ENGINE. `A.insertChart` opens the chart inserter; it is not this call. |
 | Shape.OLEFormat, Shape.Chart, Shape.GroupItems, Shape.Nodes | | Not implemented | G-ENGINE. |
 
 ## Revisions

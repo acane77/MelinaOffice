@@ -1248,6 +1248,12 @@
       if (!t) missing();
       return makeTable(activeDocument(), t);
     };
+    col.Add = function (range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
+      const at = range && range._anchor ? range : makeRange(parent, anchor);
+      return addTables(at, numRows, numColumns, defaultTableBehavior, autoFitBehavior);
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1270,6 +1276,14 @@
       if (!b) missing();
       return makeBookmark(activeDocument(), b);
     };
+    col.Exists = function (name) {
+      return list().some((b) => b.name.toLowerCase() === String(name).toLowerCase());
+    };
+    col.Add = function (name, range) {
+      return bookmarksOf(activeDocument()).Add(name, range && range._anchor ? range : makeRange(parent, anchor));
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1296,6 +1310,11 @@
       if (id == null) missing();
       return makeComment(activeDocument(), id);
     };
+    col.Add = function (range, text) {
+      return commentsOf(activeDocument()).Add(range && range._anchor ? range : makeRange(parent, anchor), text);
+    };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1312,6 +1331,12 @@
       if (!hit) missing();
       return makeShape(activeDocument(), hit.p, hit.it);
     };
+    col.AddPicture = function () {
+      return shapesOf(activeDocument(), false).AddPicture.apply(null, arguments);
+    };
+    col.AddChart = function () { gap('G-ENGINE', 'AddChart'); };
+    Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
+    Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
     return col;
   }
 
@@ -1478,8 +1503,7 @@
         };
         col.Add = function (range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
           requireActive(doc);
-          if (defaultTableBehavior !== undefined || autoFitBehavior !== undefined) gap('G-ENGINE', 'Tables.Add');
-          return addTable(doc, range, numRows, numColumns);
+          return addTables(range, numRows, numColumns, defaultTableBehavior, autoFitBehavior);
         };
         Object.defineProperty(col, 'First', { enumerable: true, get() { return col.Count ? col.Item(1) : null; } });
         Object.defineProperty(col, 'Last', { enumerable: true, get() { return col.Count ? col.Item(col.Count) : null; } });
@@ -3437,6 +3461,11 @@
     return find;
   }
 
+  function addTables(range, numRows, numColumns, defaultTableBehavior, autoFitBehavior) {
+    if (defaultTableBehavior !== undefined || autoFitBehavior !== undefined) gap('G-ENGINE', 'Tables.Add');
+    return addTable(activeDocument(), range, numRows, numColumns);
+  }
+
   function addTable(doc, range, numRows, numColumns) {
     const nr = numRows | 0;
     const nc = numColumns | 0;
@@ -3591,6 +3620,26 @@
       });
     };
     denyFn(sel, ['InsertCaption', 'PasteAndFormat', 'PasteSpecial', 'PasteExcelTable'], 'G-ENGINE');
+    for (const name of ['Paragraphs', 'Sentences', 'Words', 'Tables', 'ListFormat', 'Hyperlinks', 'Bookmarks', 'Fields', 'Comments', 'InlineShapes', 'FormattedText']) {
+      Object.defineProperty(sel, name, {
+        enumerable: true, configurable: true,
+        get() { return sel.Range[name]; },
+      });
+    }
+    for (const name of ['Bold', 'Italic', 'Underline', 'Case', 'LanguageID', 'LanguageIDFarEast']) {
+      Object.defineProperty(sel, name, {
+        enumerable: true, configurable: true,
+        get() { return sel.Range[name]; },
+        set(v) { sel.Range[name] = v; },
+      });
+    }
+    for (const name of ['InsertParagraph', 'InsertParagraphBefore', 'InsertParagraphAfter']) {
+      sel[name] = function () { return sel.Range[name].apply(sel.Range, arguments); };
+    }
+    Object.defineProperty(sel, 'Document', {
+      enumerable: true, configurable: true,
+      get() { return activeDocument(); },
+    });
     sel._find = makeFind(sel, selAnchor);
     Object.defineProperty(sel, 'Find', { enumerable: true, configurable: true, get() { return sel._find; } });
     return sel;

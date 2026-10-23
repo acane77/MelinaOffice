@@ -22,6 +22,7 @@ test('playground script writes the sheet', async () => {
   assert.equal(sh.Range('C2').Value, 12.5);
   assert.equal(sh.Range('C3').Value, 7.5);
   assert.equal(L.dom.Application.ActiveWorkbook.Names.Item('Total').RefersTo, '=Sheet1!$B$4');
+  await expectGap(host, 'Application.Run Macro:="Nope"', 'G-HOST');
   await expectGap(host, '?ActiveWorkbook.FullName', 'G-HOST');
   await expectGap(host, '?ActiveWorkbook.Creator', 'G-ENGINE');
   host.close();

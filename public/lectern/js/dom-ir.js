@@ -21,7 +21,7 @@ HostShell call AlwaysDeny Shell ([PathName])
 HostDir call RequestApproval Dir ([PathName])
 FileDialog call BuiltinFileDialog ([Type])
 GetOpenFilename call RequestApproval FileDialog dialog ([FileFilter], [FilterIndex], [Title], [ButtonText], [MultiSelect])
-GetSaveAsFilename call RequestApproval FileDialog dialog
+GetSaveAsFilename call RequestApproval FileDialog dialog ([InitialFilename], [FileFilter], [FilterIndex], [Title], [ButtonText])
 # Presentations collection
 Item call Presentation
 Add call Presentation ([WithWindow])
@@ -47,12 +47,12 @@ SaveAs call RequestApproval SaveAs ([FileName], [FileFormat], [EmbedTrueTypeFont
 SaveAs2 call RequestApproval SaveAs ([FileName], [FileFormat], [EmbedTrueTypeFonts])
 Export call RequestApproval Export ([Path], [FilterName], [ScaleWidth], [ScaleHeight])
 ExportAsFixedFormat call RequestApproval FixedFormat ([Path], [FixedFormatType])
-PrintOut call AlwaysAllow Print
+PrintOut call AlwaysAllow Print ([From], [To], [PrintToFile], [Copies], [Collate])
 FollowHyperlink call AlwaysAllow Hyperlink ([Address], [SubAddress], [NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
 NewWindow gap G-HOST call
-CreateVideo gap G-ENGINE call
-Merge gap G-ENGINE call
-PublishSlides gap G-ENGINE call
+CreateVideo gap G-ENGINE call ([FileName], [UseTimingsAndNarrations], [DefaultSlideDuration], [VertResolution], [FramesPerSecond], [Quality])
+Merge gap G-ENGINE call ([Path])
+PublishSlides gap G-ENGINE call ([SlideLibraryUrl], [Overwrite], [UseSlideOrder])
 # DocumentWindow
 Selection get Selection
 Presentation get Presentation
@@ -107,12 +107,12 @@ AddShape call Shape ([Type], [Left], [Top], [Width], [Height])
 AddTextbox call Shape ([Orientation], [Left], [Top], [Width], [Height])
 AddTable call Shape ([NumRows], [NumColumns], [Left], [Top], [Width], [Height])
 AddPicture call RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Left], [Top], [Width], [Height])
-AddChart gap G-ENGINE call
-AddSmartArt gap G-ENGINE call
-AddDiagram gap G-ENGINE call
-AddMediaObject gap G-ENGINE call
-AddOLEObject gap G-ENGINE call
-AddTextEffect gap G-ENGINE call
+AddChart gap G-ENGINE call ([Type], [Left], [Top], [Width], [Height])
+AddSmartArt gap G-ENGINE call ([Layout], [Left], [Top], [Width], [Height])
+AddDiagram gap G-ENGINE call ([Type], [Left], [Top], [Width], [Height])
+AddMediaObject gap G-ENGINE call ([FileName], [Left], [Top], [Width], [Height])
+AddOLEObject gap G-ENGINE call ([Left], [Top], [Width], [Height], [ClassName], [FileName], [DisplayAsIcon], [IconFileName], [IconIndex], [IconLabel], [Link])
+AddTextEffect gap G-ENGINE call ([PresetTextEffect], [Text], [FontName], [FontSize], [FontBold], [FontItalic], [Left], [Top])
 # ShapeRange collection
 Item call Shape
 Left rw
@@ -182,8 +182,8 @@ BoundLeft gap G-TEXT get
 BoundTop gap G-TEXT get
 BoundWidth gap G-TEXT get
 BoundHeight gap G-TEXT get
-Find gap G-TEXT call
-Replace gap G-TEXT call
+Find gap G-TEXT call ([FindWhat], [After], [MatchCase], [WholeWords])
+Replace gap G-TEXT call ([FindWhat], [ReplaceWhat], [After], [MatchCase], [WholeWords])
 Words gap G-TEXT get
 Sentences gap G-TEXT get
 Lines gap G-TEXT get
@@ -243,8 +243,8 @@ Cell call Cell ([Row], [Column])
 Rows get Rows
 Columns get Columns
 Delete call
-Merge gap G-ENGINE call
-ApplyStyle gap G-ENGINE call
+Merge gap G-ENGINE call ([MergeTo])
+ApplyStyle gap G-ENGINE call ([StyleID], [SaveFormatting])
 # Rows collection
 Item call Row
 Add call Row ([BeforeRow])
@@ -341,7 +341,7 @@ CustomLayouts gap G-ENGINE get
 Design gap G-ENGINE get
 Background gap G-ENGINE get
 # Characters collection
-Item gap G-TEXT call
+Item gap G-TEXT call ([Start], [Length])
 Count get
 # TimeLine gap G-ENGINE
 # Sequence gap G-ENGINE
