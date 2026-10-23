@@ -165,7 +165,7 @@
 
   function paintDots() {
     if (!editor) return;
-    editor.eachLine((handle) => editor.setGutterMarker(handle, 'vb-ide-bp-gutter', null));
+    editor.clearGutter('vb-ide-bp-gutter');
     for (let i = 0; i < breakpoints.length; i++) {
       const bp = breakpoints[i];
       if (bp.line < 1 || bp.line > editor.lineCount()) continue;
@@ -274,11 +274,14 @@
     closeConditionPanel();
     const input = L.h('input', { type: 'text', translate: 'no' });
     input.value = bp.condition || '';
+    const enabledBox = L.h('input', { type: 'checkbox' });
+    enabledBox.checked = bp.enabled !== false;
     const ok = L.h('button', { class: 'btn', type: 'button', text: 'OK' });
     const cancel = L.h('button', { class: 'btn', type: 'button', text: 'Cancel' });
     const panel = L.h('div', { class: 'vb-ide-cond-panel' },
       L.h('div', { class: 'vb-ide-cond-row' }, L.h('span', { text: 'Line Number:' }), L.h('span', { translate: 'no', text: String(line) })),
       L.h('div', { class: 'vb-ide-cond-row' }, L.h('label', { text: 'Condition:' }), input),
+      L.h('label', { class: 'vb-ide-cond-enable' }, enabledBox, 'Enable this breakpoint'),
       L.h('div', { class: 'vb-ide-cond-buttons' }, ok, cancel));
     panel.style.left = Math.max(8, x) + 'px';
     panel.style.top = Math.max(8, y) + 'px';
@@ -289,6 +292,7 @@
     conditionPanel = panel;
     const commit = () => {
       bp.condition = input.value.trim();
+      bp.enabled = enabledBox.checked;
       syncBreakpoint(bp);
       paintDots();
       paintBpList();
@@ -846,7 +850,16 @@
         editor.on('gutterClick', (cm, n, gutter, event) => {
           if (event && event.button === 2) return;
           if (gutter !== 'vb-ide-bp-gutter' && gutter !== 'CodeMirror-linenumbers') return;
-          toggleBreakpoint(n + 1);
+          const line = n + 1;
+          /* the second press of a double-click: keep the breakpoint and open its condition */
+          if (event && event.detail > 1) {
+            if (event.detail === 2) {
+              if (!bpAt(line)) toggleBreakpoint(line);
+              if (bpAt(line)) openConditionPanel(line, event.clientX, event.clientY);
+            }
+            return;
+          }
+          toggleBreakpoint(line);
         });
         editor.on('gutterContextMenu', (cm, n, gutter, event) => {
           if (gutter !== 'vb-ide-bp-gutter' || !bpAt(n + 1)) return;

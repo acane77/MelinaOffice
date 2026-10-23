@@ -786,7 +786,7 @@
  "&Continue": {
   "where": [
    "common/ui.js:1304",
-   "common/vb-ide.js:679"
+   "common/vb-ide.js:683"
   ]
  },
  "&Continue Numbering": {
@@ -1309,7 +1309,7 @@
  },
  "&Exit": {
   "where": [
-   "common/vb-ide.js:671"
+   "common/vb-ide.js:675"
   ]
  },
  "&F, Page &P": {
@@ -2552,12 +2552,12 @@
  },
  "&Open Project...": {
   "where": [
-   "common/vb-ide.js:666"
+   "common/vb-ide.js:670"
   ]
  },
  "&Open Visual Basic File...": {
   "where": [
-   "common/vb-ide.js:669"
+   "common/vb-ide.js:673"
   ]
  },
  "&Open...": {
@@ -3188,7 +3188,7 @@
  },
  "&Save Project...": {
   "where": [
-   "common/vb-ide.js:667"
+   "common/vb-ide.js:671"
   ]
  },
  "&Scout": {
@@ -3503,7 +3503,7 @@
  },
  "&Stop Debugging": {
   "where": [
-   "common/vb-ide.js:680"
+   "common/vb-ide.js:684"
   ]
  },
  "&Structure": {
@@ -4250,7 +4250,7 @@
  },
  "(VB bool expression. Leave empty to set unconditional breakpoint)": {
   "where": [
-   "common/vb-ide.js:720"
+   "common/vb-ide.js:724"
   ]
  },
  "(blank)": {
@@ -5383,8 +5383,8 @@
  },
  "Add": {
   "where": [
-   "common/vb-ide.js:721",
-   "common/vb-ide.js:744"
+   "common/vb-ide.js:725",
+   "common/vb-ide.js:748"
   ]
  },
  "Add &Watch": {
@@ -8134,7 +8134,7 @@
  },
  "Call Stack": {
   "where": [
-   "common/vb-ide.js:782"
+   "common/vb-ide.js:786"
   ]
  },
  "Callouts": {
@@ -9510,7 +9510,7 @@
  },
  "Code at Line": {
   "where": [
-   "common/vb-ide.js:723"
+   "common/vb-ide.js:727"
   ]
  },
  "Col #:": {
@@ -10031,8 +10031,8 @@
  },
  "Condition Expression": {
   "where": [
-   "common/vb-ide.js:723",
-   "common/vb-ide.js:735"
+   "common/vb-ide.js:727",
+   "common/vb-ide.js:739"
   ]
  },
  "Condition {0}": {
@@ -10043,7 +10043,7 @@
  },
  "Condition:": {
   "where": [
-   "common/vb-ide.js:281"
+   "common/vb-ide.js:283"
   ]
  },
  "Conditional Formatting": {
@@ -10171,7 +10171,7 @@
  },
  "Continue": {
   "where": [
-   "common/vb-ide.js:685"
+   "common/vb-ide.js:689"
   ]
  },
  "Continue Numbering": {
@@ -13429,6 +13429,11 @@
    "ledger/js/dialogs.js:796"
   ]
  },
+ "Enable this breakpoint": {
+  "where": [
+   "common/vb-ide.js:284"
+  ]
+ },
  "Enclosures:": {
   "where": [
    "quire/js/dialogs3.js:486"
@@ -13892,7 +13897,7 @@
  },
  "Evaluate": {
   "where": [
-   "common/vb-ide.js:708"
+   "common/vb-ide.js:712"
   ]
  },
  "Evaluate &Formula": {
@@ -14078,8 +14083,8 @@
  },
  "Expression": {
   "where": [
-   "common/vb-ide.js:714",
-   "common/vb-ide.js:754",
+   "common/vb-ide.js:718",
+   "common/vb-ide.js:758",
    "quire/js/find.js:391"
   ]
  },
@@ -18315,7 +18320,7 @@
  },
  "Last Value": {
   "where": [
-   "common/vb-ide.js:746"
+   "common/vb-ide.js:750"
   ]
  },
  "Last co&lumn": {
@@ -19041,13 +19046,13 @@
  },
  "Line Number": {
   "where": [
-   "common/vb-ide.js:723",
-   "common/vb-ide.js:731"
+   "common/vb-ide.js:727",
+   "common/vb-ide.js:735"
   ]
  },
  "Line Number:": {
   "where": [
-   "common/vb-ide.js:280"
+   "common/vb-ide.js:282"
   ]
  },
  "Line Numbers": {
@@ -21653,7 +21658,7 @@
  },
  "Object Values": {
   "where": [
-   "common/vb-ide.js:783"
+   "common/vb-ide.js:787"
   ]
  },
  "Object positioning": {
@@ -24906,7 +24911,7 @@
  },
  "Remove": {
   "where": [
-   "common/vb-ide.js:748",
+   "common/vb-ide.js:752",
    "lectern/js/panes.js:799"
   ]
  },
@@ -24927,12 +24932,12 @@
  },
  "Remove All": {
   "where": [
-   "common/vb-ide.js:749"
+   "common/vb-ide.js:753"
   ]
  },
  "Remove All Breakpoints": {
   "where": [
-   "common/vb-ide.js:726"
+   "common/vb-ide.js:730"
   ]
  },
  "Remove Borders": {
@@ -24942,7 +24947,7 @@
  },
  "Remove Breakpoint": {
   "where": [
-   "common/vb-ide.js:725"
+   "common/vb-ide.js:729"
   ]
  },
  "Remove Effect": {
@@ -30212,12 +30217,12 @@
  },
  "Start &Debug": {
   "where": [
-   "common/vb-ide.js:674"
+   "common/vb-ide.js:678"
   ]
  },
  "Start &Run": {
   "where": [
-   "common/vb-ide.js:675"
+   "common/vb-ide.js:679"
   ]
  },
  "Start &With Previous": {
@@ -30233,7 +30238,7 @@
  },
  "Start Debug (F5)": {
   "where": [
-   "common/vb-ide.js:683"
+   "common/vb-ide.js:687"
   ]
  },
  "Start Enforcing Protection": {
@@ -30253,7 +30258,7 @@
  },
  "Start Run": {
   "where": [
-   "common/vb-ide.js:684"
+   "common/vb-ide.js:688"
   ]
  },
  "Start Slide Show": {
@@ -30438,22 +30443,22 @@
  },
  "Step &Into": {
   "where": [
-   "common/vb-ide.js:678"
+   "common/vb-ide.js:682"
   ]
  },
  "Step &Over": {
   "where": [
-   "common/vb-ide.js:677"
+   "common/vb-ide.js:681"
   ]
  },
  "Step Into": {
   "where": [
-   "common/vb-ide.js:686"
+   "common/vb-ide.js:690"
   ]
  },
  "Step Over": {
   "where": [
-   "common/vb-ide.js:687"
+   "common/vb-ide.js:691"
   ]
  },
  "Step Up Process": {
@@ -30498,7 +30503,7 @@
  },
  "Stop Debugging": {
   "where": [
-   "common/vb-ide.js:688"
+   "common/vb-ide.js:692"
   ]
  },
  "Stop Protection": {
@@ -31725,7 +31730,7 @@
  },
  "The VB runtime is not running": {
   "where": [
-   "common/vb-ide.js:452",
+   "common/vb-ide.js:456",
    "lectern/js/macros.js:260",
    "lectern/js/macros.js:280",
    "lectern/js/macros.js:285"
@@ -32477,7 +32482,7 @@
  },
  "The program is not paused.": {
   "where": [
-   "common/vb-ide.js:486"
+   "common/vb-ide.js:490"
   ]
  },
  "The pronoun \"I\" is always capitalized.": {
@@ -32565,7 +32570,7 @@
  },
  "The script editor did not load.": {
   "where": [
-   "common/vb-ide.js:814",
+   "common/vb-ide.js:818",
    "lectern/js/dom-console.js:756",
    "ledger/js/dom-console.js:766",
    "quire/js/dom-console.js:760"
@@ -33211,8 +33216,8 @@
  },
  "This file is not a Visual Basic project.": {
   "where": [
-   "common/vb-ide.js:545",
-   "common/vb-ide.js:549"
+   "common/vb-ide.js:549",
+   "common/vb-ide.js:553"
   ]
  },
  "This file is not an Excel workbook.": {
@@ -34914,7 +34919,7 @@
  },
  "VibeOffice Visual Basic": {
   "where": [
-   "common/vb-ide.js:819",
+   "common/vb-ide.js:823",
    "lectern/js/commands.js:152",
    "lectern/js/ribbon.js:69",
    "ledger/js/commands.js:205"
