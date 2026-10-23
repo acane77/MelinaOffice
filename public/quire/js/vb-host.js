@@ -553,6 +553,21 @@
     this.auto = null;
   };
 
+  function completionHost() {
+    return {
+      name: 'QuireDOM',
+      code: moduleCode(),
+      files: false,
+      types: {
+        Quire: 'Application',
+        Application: 'Application',
+        ActiveDocument: 'Document',
+        Documents: 'Documents',
+        Selection: 'Selection',
+      },
+    };
+  }
+
   let shared = null;
   let starting = null;
 
@@ -622,6 +637,8 @@
     open: open,
     session: session,
     current: current,
+    engine: loadEngine,
+    completionHost: completionHost,
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,

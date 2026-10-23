@@ -18,7 +18,7 @@ function writeBundle(dir, code) {
 }
 
 export function buildEngine() {
-  const entry = path.join(root, 'third_party/VB6/src/runtime/engine-entry.js');
+  const entry = path.join(root, 'tools/vb6/engine-entry.mjs');
   const code = '/* Headless VB6 engine. Built by tools/vb6/build-engine.mjs. Not ApplicationHost. */\n'
     + bundle(entry, 'VB6Engine');
   writeBundle(path.join(root, 'public/lectern/vendor/vb6'), code);

@@ -40,7 +40,7 @@ Open https://vibeoffice.work/lectern/ (to run it locally, see [testing.md](testi
 | `js/dom.js` | PowerPoint object model on the open presentation (Help ▸ Lectern DOM Console) |
 | `js/dom-ir.js` | Handle protocol the VB host calls |
 | `js/vb-host.js` | Immediate VB (`evalVB6`), Run Script (`runVB6`), the document-macro VM, and `debugBegin` / `debugEnd` for View ▸ VibeOffice Visual Basic |
-| `../common/vb-ide.js` | View ▸ VibeOffice Visual Basic: one Module1, conditional breakpoints, watches, stepping, call stack, object values, expression |
+| `../common/vb-ide.js`, `../common/vb-complete.js` | View ▸ VibeOffice Visual Basic: one Module1, conditional breakpoints, watches, stepping, call stack, object values, expression. Completion lists the names the caret's procedure can see, and the procedures and modules this virtual machine actually runs. Keywords are listed anywhere except after a dot. A string, a comment or a date literal does not |
 | `js/macros.js` | Macros in the presentation (`urn:vibeoffice:macros`) and in this browser |
 | `js/dom-console.js`, `js/vb-dom-ref.js`, `../common/vb-dom-ref.js` | The DOM Console window, and the Visual Basic DOM API Reference task pane |
 | `js/app.js` | Application wiring, keyboard shortcuts, clipboard, sample deck (Harbor & Pine Coffee, 16:9 on the Evergreen design: a title picture drawn with shapes, figure cards, a chart, a table, a shape timeline, a Funnel, builds) |

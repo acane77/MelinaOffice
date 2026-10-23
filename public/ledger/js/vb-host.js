@@ -596,6 +596,25 @@
     this.auto = null;
   };
 
+  function completionHost() {
+    return {
+      name: 'LedgerDOM',
+      code: moduleCode(),
+      files: false,
+      types: {
+        Ledger: 'Application',
+        Application: 'Application',
+        ActiveWorkbook: 'Workbook',
+        ThisWorkbook: 'Workbook',
+        Workbooks: 'Workbooks',
+        ActiveSheet: 'Worksheet',
+        ActiveCell: 'Range',
+        Selection: 'Range',
+        WorksheetFunction: 'WorksheetFunction',
+      },
+    };
+  }
+
   let shared = null;
   let starting = null;
 
@@ -662,6 +681,8 @@
     open: open,
     session: session,
     current: function () { return alive(shared) ? shared : null; },
+    engine: loadEngine,
+    completionHost: completionHost,
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,

@@ -557,6 +557,21 @@
     this.auto = null;
   };
 
+  function completionHost() {
+    return {
+      name: 'LecternDOM',
+      code: moduleCode(),
+      files: false,
+      types: {
+        Lectern: 'Application',
+        Application: 'Application',
+        ActivePresentation: 'Presentation',
+        Presentations: 'Presentations',
+        ActiveWindow: 'DocumentWindow',
+      },
+    };
+  }
+
   let shared = null;
   let starting = null;
 
@@ -625,6 +640,8 @@
     open: open,
     session: session,
     current: current,
+    engine: loadEngine,
+    completionHost: completionHost,
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,

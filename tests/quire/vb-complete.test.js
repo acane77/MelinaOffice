@@ -1,0 +1,211 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+
+async function boot() {
+  global.window = global;
+  require('../../public/common/core.js');
+  require('../../public/quire/js/dmodel.js');
+  require('../../public/quire/js/ops.js');
+  require('../../public/quire/js/dom.js');
+  require('../../public/quire/js/dom-ir.js');
+  const { buildEngine } = await import('../../tools/vb6/build-engine.mjs');
+  const out = buildEngine();
+  vm.runInThisContext(fs.readFileSync(out, 'utf8'), { filename: out });
+  require('../../public/common/vb-complete.js');
+}
+
+function names(result) {
+  return result.items.map((item) => item.name);
+}
+
+function has(result, name) {
+  return names(result).some((item) => item.toLowerCase() === name.toLowerCase());
+}
+
+const host = [
+  'Public Property Get ActiveDocument() As Object',
+  'End Property',
+  'Public Sub Shown()',
+  'End Sub',
+  'Private Sub HostOnly()',
+  'End Sub',
+].join('\n');
+
+const code = [
+  'Private Sub LocalOnly()',
+  '  Dim hiddenLocal As Long',
+  'End Sub',
+  'Public Sub Main(n As Long)',
+  '  Dim count As Long',
+  '  Lef',
+  'End Sub',
+  'Dim shared As Long',
+  'cou',
+].join('\n');
+
+function complete(at, text) {
+  const source = text == null ? code : text;
+  return L.vbComplete({
+    engine: VB6Engine,
+    code: source,
+    offset: at,
+    moduleName: 'Module1',
+    modules: [{ name: 'QuireDOM', code: host, host: true }],
+    types: { ActiveDocument: 'Document' },
+    member: L.domIr.member,
+    domTypes: L.domIr.types,
+    intrinsics: VB6Engine.intrinsicCatalog(),
+    files: false,
+  });
+}
+
+test('completion follows the procedure and the virtual machine', async () => {
+  await boot();
+  const inside = complete(code.indexOf('Lef') + 3);
+  assert.equal(has(inside, 'Left'), true);
+  assert.equal(has(inside, 'Left$'), true);
+  assert.equal(has(inside, 'count'), false);
+
+  const inMain = code.indexOf('  Lef');
+  const locals = complete(inMain);
+  assert.equal(has(locals, 'count'), true);
+  assert.equal(has(locals, 'n'), true);
+  assert.equal(has(locals, 'hiddenLocal'), false);
+  assert.equal(has(locals, 'shared'), true);
+  assert.equal(has(locals, 'Shown'), true);
+  assert.equal(has(locals, 'HostOnly'), false);
+  assert.equal(has(locals, 'MsgBox'), true);
+  assert.equal(has(locals, 'Shell'), false);
+  assert.equal(has(locals, 'OpenDatabase'), false);
+  assert.equal(has(locals, 'App'), false);
+  assert.equal(has(locals, 'Dir'), false);
+
+  const outside = complete(code.indexOf('\ncou') + 1);
+  assert.equal(has(outside, 'count'), false);
+  assert.equal(has(outside, 'hiddenLocal'), false);
+  assert.equal(has(outside, 'shared'), true);
+
+  const moduleDot = complete(code.indexOf('Lef'));
+  const quoted = code.replace('  Lef', '  QuireDOM.');
+  const onModule = complete(quoted.indexOf('QuireDOM.') + 'QuireDOM.'.length, quoted);
+  assert.equal(has(onModule, 'ActiveDocument'), true);
+  assert.equal(has(onModule, 'Shown'), true);
+  assert.equal(has(onModule, 'HostOnly'), false);
+  assert.equal(has(onModule, 'LocalOnly'), false);
+  assert.equal(moduleDot.start >= 0, true);
+
+  const documentDot = code.replace('  Lef', '  ActiveDocument.');
+  const members = complete(documentDot.indexOf('ActiveDocument.') + 'ActiveDocument.'.length, documentDot);
+  assert.equal(has(members, 'Name'), true);
+  assert.equal(has(members, 'Paragraphs'), true);
+  assert.equal(has(members, 'Application'), true);
+  assert.equal(has(members, 'Parent'), true);
+  assert.equal(has(members, 'Range'), false);
+  assert.equal(has(members, 'Characters'), false);
+  assert.equal(has(members, 'Creator'), false);
+
+  const typed = 'Sub Main()\n  Dim x As Lon\nEnd Sub\n';
+  const types = complete(typed.indexOf('Lon') + 3, typed);
+  assert.deepEqual(names(types), ['Long']);
+
+  const comment = "Sub Main()\n  ' Lef\nEnd Sub\n";
+  assert.equal(complete(comment.indexOf('Lef') + 3, comment).items.length, 0);
+  assert.equal(complete('#D'.length, '#D').items.length, 0);
+  assert.equal(complete('Print "D'.length, 'Print "D').items.length, 0);
+  assert.equal(complete('Print "say ""D'.length, 'Print "say ""D').items.length, 0);
+  assert.equal(complete('Print "Documents.'.length, 'Print "Documents.').items.length, 0);
+
+  const docHost = host + '\nPublic Property Get Documents() As Object\nEnd Property\n';
+  const docRequest = {
+    engine: VB6Engine,
+    moduleName: 'Module1',
+    modules: [{ name: 'QuireDOM', code: docHost, host: true }],
+    types: { ActiveDocument: 'Document', Documents: 'Documents' },
+    member: L.domIr.member,
+    domTypes: L.domIr.types,
+    intrinsics: VB6Engine.intrinsicCatalog(),
+    files: false,
+  };
+  const first = L.vbComplete(Object.assign({ code: 'D', offset: 1 }, docRequest));
+  const dim = first.items.find((item) => item.name === 'Dim');
+  assert.equal(!!dim, true);
+  assert.equal(dim.kind, 'keyword');
+  assert.equal(has(first, 'Documents'), true);
+  assert.equal(has(first, 'Do'), true);
+  const afterQuote = L.vbComplete(Object.assign({ code: 'Print "ok" D', offset: 'Print "ok" D'.length }, docRequest));
+  assert.equal(afterQuote.items.find((item) => item.name === 'Dim').kind, 'keyword');
+  assert.equal(has(afterQuote, 'Debug'), true);
+  const endIf = L.vbComplete(Object.assign({ code: 'End I', offset: 'End I'.length }, docRequest));
+  assert.equal(endIf.items.find((item) => item.name === 'If').kind, 'keyword');
+  const chain = L.vbComplete(Object.assign({ code: 'Documents.', offset: 'Documents.'.length }, docRequest));
+  assert.equal(has(chain, 'Count'), true);
+  assert.equal(has(chain, 'Dim'), false);
+  assert.equal(has(chain, 'If'), false);
+
+  const framed = L.vbComplete({
+    engine: VB6Engine,
+    code: 'coun',
+    offset: 4,
+    moduleName: 'Module1',
+    source: code,
+    modules: [{ name: 'QuireDOM', code: host, host: true }],
+    types: { ActiveDocument: 'Document' },
+    member: L.domIr.member,
+    domTypes: L.domIr.types,
+    intrinsics: VB6Engine.intrinsicCatalog(),
+    files: false,
+    frame: { procedure: 'Main', module: 'Module1', locals: [{ name: 'count', type: 'Long' }, { name: 'temp', type: 'Long' }] },
+  });
+  assert.equal(has(framed, 'count'), true);
+  assert.equal(has(framed, 'temp'), false);
+  assert.equal(has(framed, 'hiddenLocal'), false);
+  assert.equal(framed.items.find((item) => item.name === 'count').type, 'Long');
+  const paused = L.vbComplete({
+    engine: VB6Engine,
+    code: '',
+    offset: 0,
+    moduleName: 'Module1',
+    source: code,
+    modules: [{ name: 'QuireDOM', code: host, host: true }],
+    types: { ActiveDocument: 'Document' },
+    member: L.domIr.member,
+    domTypes: L.domIr.types,
+    intrinsics: VB6Engine.intrinsicCatalog(),
+    files: false,
+    frame: { procedure: 'Main', module: 'Module1', locals: [{ name: 'count', type: 'Long' }, { name: 'temp', type: 'Long' }] },
+  });
+  assert.equal(has(paused, 'count'), true);
+  assert.equal(has(paused, 'temp'), true);
+  assert.equal(has(paused, 'n'), true);
+  assert.equal(has(paused, 'hiddenLocal'), false);
+});
+
+test('intrinsic catalog is a subset of the virtual machine library', async () => {
+  await boot();
+  const catalog = VB6Engine.intrinsicCatalog();
+  const program = VB6Engine.compileProject({
+    schema: 1,
+    id: 't',
+    name: 'T',
+    startup: '',
+    modules: [{ id: 'm', name: 'Module1', kind: 'module', code: 'Sub Main()\nEnd Sub\n' }],
+    settings: {},
+    references: [],
+    assets: {},
+  });
+  assert.equal(program.valid, true, JSON.stringify(program.diagnostics));
+  const machine = new VB6Engine.VirtualMachine(program, { print() {}, error() {} });
+  try {
+    for (const proc of catalog.procedures) {
+      assert.equal(machine.library.has(proc.name.toLowerCase()), true, proc.name);
+    }
+    assert.equal(catalog.procedures.some((proc) => proc.name.toLowerCase() === 'opendatabase'), false);
+    assert.equal(catalog.procedures.some((proc) => proc.name === 'Left$'), true);
+    assert.equal(machine.library.has('debug'), true);
+    assert.equal(machine.library.has('err'), true);
+  } finally {
+    machine.stop();
+  }
+});

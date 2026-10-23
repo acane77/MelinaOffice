@@ -559,3 +559,11 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-cond-row input { flex: 1; min-width: 0; background: var(--surface); color: var(--dlg-ink); border: 1px solid var(--field-border); }
 .vb-ide-cond-enable { display: flex; align-items: center; gap: 4px; }
 .vb-ide-dot.off { background: transparent; box-shadow: inset 0 0 0 1px var(--error-ink); }
+.vb-ide-complete { position: fixed; z-index: 8000; width: 360px; max-height: 180px; overflow: auto; background: var(--menu-face); color: var(--dlg-ink); border: 1px solid var(--menu-border); box-shadow: 2px 2px 3px var(--shadow-c); }
+.vb-ide-complete-item { display: flex; align-items: center; gap: 4px; padding: 1px 4px; white-space: nowrap; cursor: default; }
+.vb-ide-complete-ico { display: flex; flex: none; }
+.vb-ide-complete-ico .ico { display: block; }
+.vb-ide-complete-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vb-ide-complete-item.on { background: var(--sel); color: var(--sel-ink); }
+.vb-ide-complete-detail { flex: none; margin-left: auto; color: var(--muted); }
+.vb-ide-complete-item.on .vb-ide-complete-detail { color: var(--sel-ink); }

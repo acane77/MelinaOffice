@@ -14,7 +14,7 @@ SCRIPTS = ['common/core', 'common/i18n', 'common/locales', 'common/xml', 'common
            'pivots', 'threads', 'objects', 'slicers', 'extensions', 'tables', 'preserve', 'xlsx-read', 'xlsx-write', 'csv', 'xmlss', 'styles', 'cf', 'layout', 'render', 'ops', 'clipboard',
            'fninfo', 'grid', 'editor', 'common/spell', 'spell', 'filter', 'drawing', 'commands', 'dialogs', 'common/host-audit',
            'dialogs2', 'dialogs3', 'print', 'panes', 'common/vb-dom-ref', 'vb-dom-ref', 'common/scout/scout', 'common/scout/spritepet', 'common/scout/assistant', 'common/search', 'common/ribbon', 'ribbon', 'app',
-           'dom', 'dom-ir', 'vb-host', 'macros', 'common/vendor/xterm/xterm', 'common/vendor/codemirror/codemirror', 'common/vendor/codemirror/vb', 'common/vb-ide', 'dom-console']
+           'dom', 'dom-ir', 'vb-host', 'macros', 'common/vendor/xterm/xterm', 'common/vendor/codemirror/codemirror', 'common/vendor/codemirror/vb', 'common/vb-complete', 'common/vb-ide', 'dom-console']
 tpl = open(os.path.join(D, 'template.html')).read()
 css = open(os.path.join(D, 'ledger.css')).read()   # after public/common/ui.css, linked by the template
 def src(s):
