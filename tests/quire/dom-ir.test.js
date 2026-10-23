@@ -159,7 +159,8 @@ test('gaps stay on the specification codes', () => {
   Documents.Add();
   const ir = L.domIr.open();
   const doc = ok(ir.exec({ op: 'get', handle: ir.root.handle, member: 'ActiveDocument' }));
-  assert.equal(ir.exec({ op: 'call', handle: doc.handle, member: 'Range', args: [0, 5] }).code, 'G-STORY');
+  const range = ok(ir.exec({ op: 'call', handle: doc.handle, member: 'Range', args: [0, 5] }));
+  assert.equal(range.type, 'Range');
   assert.equal(ir.exec({ op: 'get', handle: doc.handle, member: 'Creator' }).code, 'G-ENGINE');
   assert.equal(ir.exec({ op: 'get', handle: doc.handle, member: 'FullName' }).code, 'G-HOST');
   assert.equal(ir.exec({ op: 'get', handle: doc.handle, member: 'NotAMember' }).code, 'absent');

@@ -26,39 +26,29 @@ Shared members `Application` and `Parent` exist on every object below and are **
 
 | Code | Why it is not wrapped |
 |---|---|
-| G-STORY | The member takes or returns a Word story character index (`Long`). Word's index counts a paragraph mark, and inside a table it also counts a cell mark and an end-of-row mark. Quire stores paragraphs and tables as blocks. `js/find.js` builds a search string (each paragraph's text plus a CR, table cells in reading order) and maps it back to Quire positions. That string is not Word's index, so a `Long` copied from VBA addresses different content as soon as a table, a cell mark, or a drawing is involved. |
+| G-STORY | The member needs a laid-out line, screen, or page, or a Word cell-mark index Quire does not store. Quire's own story index is paragraph order: each paragraph's text plus its paragraph mark. A table range ends at the paragraph after the table. A `Long` copied from Word can still address different content. |
 | G-ENGINE | The document has no operation that does this. A wrapper would have nothing to call. |
 | G-HOST | This session does not have that host ability. On the VS Code host the same member may run. The tiers are in [docs/dom_api_security.md](dom_api_security.md). |
 
 **Update rule.** Any later change that adds a member, or that closes a gap, updates this table in the same change. A row that still says Not implemented is not a working member. A new member that is not listed here is not added in code; add the row first, with its status and gap. The same change updates the task-pane reference in `public/quire/js/vb-dom-ref.js`. That page is what a script sees. A member listed only here, or only there, is out of date.
 
-## Story index (not implemented)
+## Story index
 
-These members are **Not implemented**, gap **G-STORY**. They are listed once. Objects below point here instead of repeating them.
+Quire numbers a story in paragraph order. Each paragraph contributes its text and then one paragraph mark. Tables are walked in reading order. `Table.Range.End` is the start of the paragraph after the table, so `End + 1` steps into that paragraph and does not fall back into the last cell. The numbers are not Word's cell-mark count.
+
+These members use that index and are **Implemented**: `Document.Range`, `Range` and `Selection` `Start`, `End`, and `SetRange`, `Move`, `MoveStart`, `MoveEnd`, `StartOf`, `EndOf`, and `Expand`, and `Selection.MoveLeft` and `MoveRight`. The units are character, word, sentence, paragraph, and story. `Characters(Index)` returns that character. `Bookmark.Start` and `End`, `Field.Code.Start` and `End`, `Hyperlink.Range.Start`, and `Footnote.Reference` and `Endnote.Reference` use the same index.
+
+These stay **Not implemented**, gap **G-STORY**: line, screen, and page movement (`MoveUp`, `MoveDown`, and `HomeKey` or `EndKey` with no unit), `MoveWhile` and `MoveUntil`, `GoTo`, `Information`, `Range.Next` and `Previous` by unit, and `Delete(Unit, Count)`.
 
 | Member | VBA signature |
 |---|---|
-| Document.Range | `Range(Start, End)` |
-| Range.Start, Range.End | properties, `Long` |
-| Range.Move | `Move(Unit, Count)` |
-| Range.MoveStart, Range.MoveEnd | `MoveStart(Unit, Count)`, `MoveEnd(Unit, Count)` |
 | Range.MoveWhile, Range.MoveUntil | `MoveWhile(Cset, Count)`, `MoveUntil(Cset, Count)` |
-| Range.MoveStartWhile, Range.MoveStartUntil, Range.MoveEndWhile, Range.MoveEndUntil | same parameter names as VBA |
-| Range.StartOf, Range.EndOf | `StartOf(Unit, Extend)`, `EndOf(Unit, Extend)` |
-| Range.Expand | `Expand(Unit)` |
 | Range.Information | `Information(Type)` |
 | Range.GoTo, Range.GoToNext, Range.GoToPrevious | `GoTo(What, Which, Count, Name)`, `GoToNext(What)`, `GoToPrevious(What)` |
-| Range.Next, Range.Previous | `Next(Unit, Count)`, `Previous(Unit, Count)` |
-| Selection.Start, Selection.End | properties, `Long` |
-| Selection.MoveLeft, Selection.MoveRight, Selection.MoveUp, Selection.MoveDown | `MoveLeft(Unit, Count, Extend)` and the same shape for Right, Up, Down |
-| Selection.HomeKey, Selection.EndKey | `HomeKey(Unit, Extend)`, `EndKey(Unit, Extend)` |
+| Selection.MoveUp, Selection.MoveDown | Default unit is a line |
+| Selection.HomeKey, Selection.EndKey | Default unit is a line. A character, word, sentence, paragraph, or story unit runs |
 | Selection.GoTo, Selection.GoToNext, Selection.GoToPrevious | same signatures as Range |
-| Characters | `Characters(Index)`, `Characters.Item(Index)` |
-| Bookmark.Start, Bookmark.End, Field.Code as a story range, Comment.Scope as a story range, Hyperlink.Range.Start, Footnote.Reference.Start | any `Long` story offset on these objects |
-
-`Document.Content`, `Paragraph.Range`, `Cell.Range`, `Selection.Range`, and the other anchored ranges below do not grow a `Start` or `End`.
-
-`Characters.Count` is separate and is **Implemented** (it counts text Quire already measures). `Characters(Index)` is not.
+| Selection.Information | `Information(Type)` |
 
 ## Objects with no document operation
 
@@ -120,11 +110,11 @@ Entry points only. Other `Application` members are in the host list above.
 | FullName | Property, read | Implemented on the VS Code host | AlwaysAllow. The open file's path. Elsewhere `G-HOST`. |
 | Path | Property, read | Implemented on the VS Code host | AlwaysAllow. The folder that contains it. Elsewhere `G-HOST`. |
 | Saved | Property | Implemented | `False` when the document is dirty. Assigning `True` clears the dirty flag and does not write the file. |
-| Content | Property `Range` | Implemented | Anchor over the main story. No `Start` / `End` (G-STORY). |
+| Content | Property `Range` | Implemented | Anchor over the main story, with `Start` and `End` on Quire's paragraph-order index. |
 | Paragraphs | Property | Implemented | |
 | Sentences | Property | Implemented | Sentence breaks follow `O.sentenceExtent`. No story `Long`. |
 | Words | Property | Implemented | Word breaks follow `O.wordExtent`. No story `Long`. |
-| Characters | Property | Not implemented | G-STORY, except `Characters.Count` under Range. |
+| Characters | Property | Implemented | `Characters(Index)` is one character on the story index. `Count` is the text length and does not add a paragraph mark. |
 | Tables | Property | Implemented | |
 | Sections | Property | Implemented | |
 | StoryRanges | `StoryRanges(Index)` | Implemented | `Index` is a `WdStoryType` for a story Quire stores: main, footnotes, endnotes, comments, text boxes, and the header and footer stories that exist on the document. The result is an anchor range. Odd/even/first headers that the document does not have are absent, not empty Word stories. |
@@ -142,7 +132,7 @@ Entry points only. Other `Application` members are in the host list above.
 | Undo | `Undo(Times)` | Implemented | |
 | Redo | `Redo(Times)` | Implemented | |
 | UndoClear | `UndoClear()` | Not implemented | G-ENGINE. There is no operation that drops the undo stack alone. |
-| Range | `Range(Start, End)` | Not implemented | G-STORY. |
+| Range | `Range(Start, End)` | Implemented | Start and end on the paragraph-order index. |
 | Select | `Select()` | Implemented | Selects the main story (same as select-all). |
 | Activate | `Activate()` | Implemented | Switches the session to this document. |
 | Close | `Close(SaveChanges, OriginalFormat, RouteDocument)` | Implemented | `SaveChanges` accepts `wdDoNotSaveChanges`, `wdSaveChanges`, and `wdPromptToSaveChanges`. `OriginalFormat` and `RouteDocument` are G-HOST. |
@@ -152,7 +142,7 @@ Entry points only. Other `Application` members are in the host list above.
 | PrintOut | `PrintOut(Background, Append, Range, OutputFileName, From, To, Item, Copies, Pages, PageType, PrintToFile, Collate, FileName, ActivePrinterMacGX, ManualDuplexPrint, PrintZoomColumn, PrintZoomRow, PrintZoomPaperWidth, PrintZoomPaperHeight)` | Implemented on the VS Code host | AlwaysAllow. A PDF of the whole document beside the file, named by dropping the extension and adding `.pdf`. Every argument is accepted and ignored. |
 | PrintPreview | | Not implemented | G-HOST. |
 | Protect, Unprotect | `Protect(Type, NoReset, Password, UseIRM, EnforceStyleLock)`, `Unprotect(Password)` | Not implemented | G-ENGINE. Permission in the UI is not the Word protection types. |
-| Compare | `Compare(Name, AuthorName, CompareTarget, DetectFormatChanges, IgnoreAllComparisonWarnings, AddToRecentFiles, RemovePersonalInformation, RemoveDateAndTime)` | Not implemented | G-HOST. Compare-with is a file picker. The names bind, then the call returns G-HOST. |
+| Compare | `Compare(Name, AuthorName, CompareTarget, DetectFormatChanges, IgnoreAllComparisonWarnings, AddToRecentFiles, RemovePersonalInformation, RemoveDateAndTime)` | Implemented when a file can be read | RequestApproval, ability Open. Reads that file and runs the existing compare. Without a host the call is G-HOST. |
 | FollowHyperlink | `FollowHyperlink(Address, ...)` | Implemented on the VS Code host | AlwaysAllow. `http`, `https`, and `mailto` only. Any later argument is an error. VS Code asks before an external link. |
 | GoTo | `GoTo(What, Which, Count, Name)` | Not implemented | G-STORY when `What` is a character, line, or page offset. Bookmark and comment by name are on those collections. |
 | ExportAsFixedFormat | `ExportAsFixedFormat(OutputFileFormat, OutputFileName, ...)` | Implemented on the VS Code host | RequestApproval. PDF, or an omitted format, to that path. XPS (`wdExportFormatXPS`) errors before the confirmation and before any write. |
@@ -186,7 +176,7 @@ The caret or the highlighted span in the active document.
 | Copy, Cut, Paste | `Copy()`, `Cut()`, `Paste()` | Implemented | Quire's own clipboard. `PasteAndFormat(Type)`, `PasteSpecial(IconIndex, Link, Placement, DisplayAsIcon, DataType, IconFileName, IconLabel)`, and `PasteExcelTable(LinkedToExcel, WordFormatting, RTF)` are G-ENGINE. |
 | Find | Property `Find` | Implemented | |
 | Type | Property, read | Implemented | `wdSelectionNormal`, `wdSelectionIP`, `wdNoSelection`. Other selection types (frame, shape row) are reported as `wdSelectionNormal` when an object is selected (gap: no separate shape-selection type). |
-| MoveLeft, MoveRight, MoveUp, MoveDown, HomeKey, EndKey, Start, End, GoTo | | Not implemented | G-STORY. |
+| MoveLeft, MoveRight | `MoveLeft(Unit, Count, Extend)`, `MoveRight(Unit, Count, Extend)` | Implemented | Default unit is a character. Word, sentence, paragraph, and story units move on the story index. |
 | Information | `Information(Type)` | Not implemented | G-STORY. |
 | InsertBreak | `InsertBreak(Type)` | Implemented | Page, column, and text-wrapping breaks that the break dialog already inserts. Section-break types the model can store are included. Types it cannot store are G-ENGINE. |
 | InsertFile | `InsertFile(FileName, Range, ConfirmConversions, Link, Attachment)` | Implemented on the VS Code host | AlwaysAllow for `.txt`, `.htm`, `.html`, `.docx`, `.docm`, and `.dotx`. A path outside the workspace asks first. `Range`, `ConfirmConversions`, `Link`, and `Attachment` are errors. |
@@ -221,7 +211,7 @@ Anchored span. Story-index members are in the story-index section.
 | Sentences, Words | Property | Implemented | Inside this anchor, using Quire's breaks. |
 | Tables | Property | Implemented | Tables this anchor touches. `Add` inserts at the given range, or at this anchor when `Range` is omitted. |
 | Find | Property | Implemented | Limited to this anchor's story. |
-| Characters | `Count` only | Implemented | `Characters(Index)` is G-STORY. |
+| Characters | `Characters(Index)` | Implemented | `Count` is the text length. `Item` is one character inside the span. |
 | Case | `Case` property (`WdCharacterCase`) | Implemented | The case changes `O.changeCase` already applies. |
 | ListFormat | Property | Implemented | |
 | Hyperlinks, Bookmarks, Fields, Comments, InlineShapes | Properties | Implemented | Those that lie in the anchor. |
@@ -245,7 +235,7 @@ Anchored span. Story-index members are in the story-index section.
 | Paragraph.Next, Paragraph.Previous | `Next(Count)`, `Previous(Count)` | Implemented | Neighbouring paragraphs in reading order. Not story units. |
 | Paragraph.IndentCharWidth, Space1, Space15, Space2 | methods | Implemented | Same effects as the indent and line-spacing commands. |
 | Paragraph.OutlineDemote, OutlinePromote, OutlineDemoteToBody | | Not implemented | G-ENGINE. Outline view's promote/demote is not a separate stored operation from list level. List level is `ListFormat`. |
-| Paragraph.DropCap | | Not implemented | G-ENGINE as an object. Drop-cap data is stored; there is no DropCap object to wrap. |
+| Paragraph.DropCap | Property | Implemented | Position, lines, and distance from the stored drop cap. |
 
 ## Sentences and Words
 
@@ -275,12 +265,12 @@ Wrapped from `js/tables.js`. A `Cell.Range` is the cell's paragraphs, not a stor
 | Cell.Range, Cell.RowIndex, Cell.ColumnIndex | | Implemented | |
 | Cell.Width, Cell.Height | Properties, points | Implemented | |
 | Shading.BackgroundPatternColor, Shading.ForegroundPatternColor, Shading.Texture | | Implemented | Values Quire's cell and paragraph shading already store. |
-| Borders | `Borders(Index)` for the edges the border command sets | Implemented | Line style, width, and color for edges Quire stores. `Borders.Apply` page-border modes are G-ENGINE. |
+| Borders | `Borders(Index)`, `Borders.Enable` | Implemented | One borders object for a table, cell, paragraph, run, or page. Line style, width (eighths of a point), and color. `Enable` writes the six table edges and clears direct cell borders. Page-only art and surround settings are G-ENGINE. |
 | Table.AutoFitBehavior | `AutoFitBehavior(Behavior)` | Implemented | The autofit modes `T.autofit` already has. |
 | Table.Sort | `Sort(...)` | Implemented | The sort keys `T.sortTable` already takes. Extra VBA sort flags with no table-sort option are G-ENGINE. |
 | Table.ConvertToText | `ConvertToText(Separator, NestedTables)` | Implemented | Nested-table handling is G-ENGINE. |
 | Table.ApplyStyleHeadingRows and the other look flags | Properties | Implemented | The look flags stored on the table. |
-| Table.Uniform, Table.Spacing | | Not implemented | G-ENGINE. |
+| Table.Spacing, Table.Uniform, Table.AllowAutoFit, PreferredWidth | Properties | Implemented | Spacing is `cellSpacing`. Uniform is true when the column widths match. AllowAutoFit is the table layout. |
 
 ## Sections, page setup, headers, footers
 
@@ -291,12 +281,12 @@ Wrapped from `js/tables.js`. A `Cell.Range` is the cell's paragraphs, not a stor
 | PageSetup.PageWidth, PageHeight, Orientation | Properties | Implemented | Points. Orientation is `wdOrientPortrait` or `wdOrientLandscape`. |
 | PageSetup.TopMargin, BottomMargin, LeftMargin, RightMargin, Gutter, HeaderDistance, FooterDistance | Properties, points | Implemented | |
 | PageSetup.TextColumns | Property | Implemented | Count, spacing, and equal-width. Preset line-between is included when stored. |
-| PageSetup.PaperSize | Property | Not implemented | G-ENGINE as a `WdPaperSize` code. Width and height are set directly. |
+| PageSetup.PaperSize | Property | Implemented | `WdPaperSize` for a size Quire already lists. An unmatched size is custom (41). An unknown code is G-ENGINE. |
 | Headers, Footers | `Headers(Index)`, `Footers(Index)` | Implemented | `Index` is `wdHeaderFooterPrimary`, `wdHeaderFooterFirstPage`, or `wdHeaderFooterEvenPages`, when that story exists. |
 | HeaderFooter.Range | Property | Implemented | Text of that header or footer story. |
 | HeaderFooter.Exists | Property, read | Implemented | |
 | HeaderFooter.LinkToPrevious | Property | Not implemented | G-ENGINE. No link-to-previous flag is edited. |
-| Section.ProtectedForForms | | Not implemented | G-ENGINE. |
+| Section.ProtectedForForms | Property | Implemented | The section's stored form protection. |
 
 ## Styles and Style
 
@@ -348,7 +338,9 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | TabStops | Property | Implemented | |
 | Borders, Shading | Properties | Implemented | Paragraph borders and shading already stored. |
 | ReadingOrder | Property | Implemented | The bidi flag. |
-| MirrorIndents, AutoAdjustRightIndent, DisableLineHeightGrid, FarEastLineBreakControl, WordWrap, HangingPunctuation, HalfWidthPunctuationOnTopOfLine, AddSpaceBetweenFarEastAndAlpha, AddSpaceBetweenFarEastAndDigit | | Not implemented | G-ENGINE unless the flag is the one already stored (`noSnap` is `DisableLineHeightGrid` and is Implemented). |
+| DisableLineHeightGrid | Property | Implemented | The stored `noSnap` flag. |
+| MirrorIndents | Property | Implemented | The stored `mirrorInd` flag. |
+| AutoAdjustRightIndent, FarEastLineBreakControl, WordWrap, HangingPunctuation, HalfWidthPunctuationOnTopOfLine, AddSpaceBetweenFarEastAndAlpha, AddSpaceBetweenFarEastAndDigit | | Not implemented | G-ENGINE. Those switches are not stored. |
 | TabStops.Add | `Add(Position, Alignment, Leader)` | Implemented | Position in points. Alignment and leader values Quire stores. |
 | TabStops.Item, Count, ClearAll | `Item(Index)`, `ClearAll()` | Implemented | |
 | TabStop.Position, Alignment, Leader, Clear | | Implemented | |
@@ -394,7 +386,8 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Bookmark.Delete | `Delete()` | Implemented | |
 | Bookmark.Select | `Select()` | Implemented | |
 | Bookmark.Empty | Property, read | Implemented | |
-| Bookmark.Start, Bookmark.End, Bookmark.Copy | | Not implemented | G-STORY for the offsets. `Copy(Name)` is G-ENGINE. |
+| Bookmark.Start, Bookmark.End | Properties | Implemented | Offsets on the paragraph-order index. |
+| Bookmark.Copy | `Copy(Name)` | Not implemented | G-ENGINE. |
 
 ## Fields
 
@@ -424,7 +417,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Hyperlink.Address, SubAddress, TextToDisplay, ScreenTip | Properties | Implemented | |
 | Hyperlink.Range | Property | Implemented | The linked text. No story `Long`. |
 | Hyperlink.Delete | `Delete()` | Implemented | Removes the link, keeps the text. |
-| Hyperlink.Follow | `Follow(NewWindow, AddHistory, ExtraInfo, Method, HeaderInfo)` | Not implemented | G-HOST. |
+| Hyperlink.Follow | `Follow(NewWindow, AddHistory, ExtraInfo, Method, HeaderInfo)` | Implemented when Hyperlink is available | Same host path as `Document.FollowHyperlink`. Without that ability the call is G-HOST. |
 | Hyperlink.Type, Hyperlink.Target | | Not implemented | G-ENGINE. |
 
 ## Comments
@@ -448,7 +441,7 @@ Properties Quire stores on a run. Assignment formats the anchor.
 | Footnotes.Add, Endnotes.Add | `Add(Range, Reference, Text)` | Implemented | |
 | Footnote.Range, Endnote.Range | Property | Implemented | The note story. |
 | Footnote.Index | Property, read | Implemented | |
-| Footnote.Reference | Property | Not implemented | G-STORY. The reference mark's story offset is not published. The note is still reachable through `Item`. |
+| Footnote.Reference, Endnote.Reference | Property `Range` | Implemented | The reference mark on the story index. |
 | Footnotes.Convert, Endnotes.Convert | | Implemented | The conversion `N.convertAll` already performs. |
 
 ## InlineShapes and Shapes
@@ -458,7 +451,10 @@ Insert and the properties Quire already edits on a picture or a shape. The Excel
 | Member | VBA signature | Status | Gap |
 |---|---|---|---|
 | InlineShapes.Count, Item | | Implemented | Inline pictures and inline shapes. |
-| InlineShapes.AddPicture | `AddPicture(FileName, LinkToFile, SaveWithDocument, Range)` | Implemented on the VS Code host | RequestApproval. Embeds PNG, JPEG, EMF, or WMF. `LinkToFile` True is an error, and so is a range. |
+| InlineShapes.AddPicture | `AddPicture(FileName, LinkToFile, SaveWithDocument, Range)` | Implemented on the VS Code host | RequestApproval, ability Picture. Embeds the file at `Range`, or at the selection when `Range` is omitted. The same call is `Selection.InlineShapes.AddPicture` and `Range.InlineShapes.AddPicture`; a range object inserts in that range, including a header, footer, or text box. PNG, JPEG, GIF, BMP, and WEBP stay as they are. EMF and WMF are stored as PNG. `LinkToFile` True is an error. `SaveWithDocument` False is an error. Both would store an external picture link, and that link is not kept. |
+| Shapes.AddPicture, Shapes.AddPicture2 | `AddPicture(FileName, LinkToFile, SaveWithDocument, Left, Top, Width, Height, Anchor)`, `AddPicture2(..., Compress)` | Implemented on the VS Code host | The same Picture read as `InlineShapes.AddPicture`, then a floating picture. `Left` and `Top` are points from the column and the anchor paragraph. Omitted width and height keep the size the picture inserter already computes. `Anchor` is the range whose paragraph holds the picture; omitted, it is the selection. `Compress` is accepted and ignored. `LinkToFile` True and `SaveWithDocument` False are the same errors as on the inline call. `Selection.Shapes.AddPicture` and `Range.Shapes.AddPicture` use this call. |
+| InlineShape.ConvertToShape | `ConvertToShape()` | Implemented | Makes the picture float with square wrapping. The editor already sets that wrap. |
+| Shape.ConvertToInlineShape | `ConvertToInlineShape()` | Implemented | Removes the float so the picture sits in the line. |
 | InlineShape.Width, Height, ScaleWidth, ScaleHeight | Properties | Implemented | Points and percent, as stored. |
 | InlineShape.Type | Property, read | Implemented | Picture, shape, chart, or text box, mapped to the nearest `WdInlineShapeType`. |
 | InlineShape.Select, Delete | | Implemented | |
@@ -468,7 +464,7 @@ Insert and the properties Quire already edits on a picture or a shape. The Excel
 | InlineShape.PictureFormat | crop and brightness/contrast only when those values are stored | Implemented | The rest of `PictureFormat` is G-ENGINE. |
 | Shapes.Count, Item | | Implemented | Floating shapes. |
 | Shape.Left, Top, Width, Height | Properties | Implemented | |
-| Shape.WrapFormat.Type | Property | Implemented | Wrap modes `DR.setWrap` already sets. |
+| Shape.WrapFormat.Type | Property | Implemented | `wdWrapSquare` 0, `wdWrapTight` 1, `wdWrapThrough` 2, `wdWrapNone` 3, `wdWrapTopBottom` 4, `wdWrapInline` 7. These are the wraps `DR.setWrap` already sets. |
 | Shape.TextFrame.TextRange | Property | Implemented | Text of a text box, as an anchor range. |
 | Shape.Select, Delete | | Implemented | |
 | Shape.Fill.ForeColor, Shape.Line.ForeColor, Shape.Line.Weight | | Implemented | When the shape stores a solid fill and a line. Gradients, patterns, and arrows are G-ENGINE. |
@@ -506,6 +502,7 @@ Defined as numeric constants with Word's values. Only constants named by an **Im
 | Statistics | `wdStatisticWords` 0, `wdStatisticLines` 1, `wdStatisticPages` 2, `wdStatisticCharacters` 3, `wdStatisticParagraphs` 4, `wdStatisticCharactersWithSpaces` 5 |
 | Selection type | `wdNoSelection` 0, `wdSelectionIP` 1, `wdSelectionNormal` 2 |
 | Color | `wdColorAutomatic` -16777216, and the named `wdColor*` values of the palette Quire's color control already lists, as Word BGR longs |
+| Picture wrap | `wdWrapSquare` 0, `wdWrapTight` 1, `wdWrapThrough` 2, `wdWrapNone` 3, `wdWrapTopBottom` 4, `wdWrapInline` 7 |
 
 `WdFieldType` values are Word's numbers for the field types `js/fields.js` evaluates. Types it only stores still use Word's number on `Field.Type` when the instruction was read from a file; `Fields.Add` rejects a type it cannot store.
 
@@ -524,4 +521,4 @@ ActiveDocument.Bookmarks.Add("Here", Selection.Range)
 Selection.Find.Execute("Hello", true, false, false, false, false, true, wdFindContinue, false, "Hi", wdReplaceOne)
 ```
 
-`ActiveDocument.Range(0, 5)` is not in this set. It stays **Not implemented** (G-STORY).
+`ActiveDocument.Range(0, 5)` returns the span on Quire's paragraph-order index.

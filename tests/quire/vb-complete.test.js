@@ -124,8 +124,8 @@ test('completion follows the procedure and the virtual machine', async () => {
   assert.equal(addPicture.params, '[FileName], [LinkToFile], [SaveWithDocument], [Range]');
   assert.equal(has(members, 'Application'), true);
   assert.equal(has(members, 'Parent'), true);
-  assert.equal(has(members, 'Range'), false);
-  assert.equal(has(members, 'Characters'), false);
+  assert.equal(has(members, 'Range'), true);
+  assert.equal(has(members, 'Characters'), true);
   assert.equal(has(members, 'Creator'), false);
 
   const typed = 'Sub Main()\n  Dim x As Lon\nEnd Sub\n';

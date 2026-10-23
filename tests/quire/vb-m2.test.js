@@ -44,9 +44,9 @@ test('M2 Selection, Range, paragraphs, sentences, words and characters', { timeo
     assert.equal(await host.eval('?ActiveDocument.Sentences.Count'), ActiveDocument.Sentences.Count);
     assert.equal(await host.eval('?ActiveDocument.Paragraphs(1).Range.Words(1).Text'), ActiveDocument.Paragraphs(1).Range.Words(1).Text);
     assert.equal(await host.eval('?ActiveDocument.Paragraphs(1).Range.Characters.Count'), ActiveDocument.Paragraphs(1).Range.Characters.Count);
-    await expectGap(host, 'ActiveDocument.Paragraphs(1).Range.Characters(1)', 'G-STORY');
-    await expectGap(host, 'ActiveDocument.Sentences.First', 'missing-live');
-    await expectGap(host, 'ActiveDocument.Words.Last', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).Range.Characters(1)'), 'object');
+    assert.equal(typeof await host.eval('?ActiveDocument.Sentences.First'), 'object');
+    assert.equal(typeof await host.eval('?ActiveDocument.Words.Last'), 'object');
 
     await host.eval('ActiveDocument.Paragraphs(1).Alignment = wdAlignParagraphCenter');
     assert.equal(ActiveDocument.Paragraphs(1).Alignment, wdAlignParagraphCenter);
@@ -70,8 +70,8 @@ test('M2 Selection, Range, paragraphs, sentences, words and characters', { timeo
     await expectGap(host, 'ActiveDocument.Paragraphs(1).OutlineDemote', 'G-ENGINE');
     await expectGap(host, 'ActiveDocument.Paragraphs(1).OutlinePromote', 'G-ENGINE');
     await expectGap(host, 'ActiveDocument.Paragraphs(1).OutlineDemoteToBody', 'G-ENGINE');
-    await expectGap(host, '?ActiveDocument.Paragraphs(1).DropCap', 'G-ENGINE');
-    await expectGap(host, 'ActiveDocument.Paragraphs(1).Next(2)', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).DropCap'), 'object');
+    assert.equal((await host.eval('?ActiveDocument.Paragraphs(1).Next(2)')).__nothing, true);
 
     for (const member of ['Font', 'ParagraphFormat', 'Find', 'Characters', 'Paragraphs', 'Sentences', 'Words', 'Tables', 'ListFormat', 'Hyperlinks', 'Bookmarks', 'Fields', 'Comments', 'InlineShapes']) {
       assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).Range.' + member), 'object', member);
@@ -119,14 +119,20 @@ test('M2 Selection, Range, paragraphs, sentences, words and characters', { timeo
     await host.eval('Selection.Paste');
 
     for (const statement of [
-      '?Selection.Start', '?Selection.End', 'Selection.MoveLeft', 'Selection.MoveRight', 'Selection.MoveUp', 'Selection.MoveDown',
+      'Selection.MoveUp', 'Selection.MoveDown',
       'Selection.HomeKey', 'Selection.EndKey', 'Selection.GoTo', 'Selection.GoToNext', 'Selection.GoToPrevious', 'Selection.Information(1)',
-      'Selection.MoveLeft(Extend:=True, Count:=1, Unit:=1)',
-      '?ActiveDocument.Paragraphs(1).Range.Start', '?ActiveDocument.Paragraphs(1).Range.End',
-      'ActiveDocument.Paragraphs(1).Range.Move(1, 1)', 'ActiveDocument.Paragraphs(1).Range.Expand(1)',
       'ActiveDocument.Paragraphs(1).Range.GoTo', 'ActiveDocument.Paragraphs(1).Range.Information(1)',
       'Selection.Delete(1, 1)',
     ]) await expectGap(host, statement, 'G-STORY');
+    assert.equal(typeof await host.eval('?Selection.Start'), 'number');
+    assert.equal(typeof await host.eval('?Selection.End'), 'number');
+    await host.eval('Selection.MoveLeft');
+    await host.eval('Selection.MoveRight');
+    await host.eval('Selection.MoveLeft(Extend:=True, Count:=1, Unit:=1)');
+    assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).Range.Start'), 'number');
+    assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).Range.End'), 'number');
+    await host.eval('ActiveDocument.Paragraphs(1).Range.Move(1, 1)');
+    await host.eval('ActiveDocument.Paragraphs(1).Range.Expand(1)');
     await expectGap(host, 'Selection.InsertFile("x")', 'G-HOST');
     for (const statement of [
       'Selection.InsertCaption', 'Selection.PasteAndFormat', 'Selection.PasteSpecial', 'Selection.PasteExcelTable',

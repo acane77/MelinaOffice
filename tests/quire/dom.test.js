@@ -21,18 +21,23 @@ test('Documents.Add starts with one paragraph', () => {
   assert.equal(ActiveDocument.Paragraphs(1)._block, ActiveDocument.Paragraphs.Item(1)._block);
 });
 
-test('Document.Range throws G-STORY', () => {
+test('Document.Range uses the story index', () => {
   fresh();
   Documents.Add();
-  assert.throws(() => ActiveDocument.Range(0, 5), (e) => e.code === 'G-STORY');
+  ActiveDocument.Paragraphs(1).Range.Text = 'Hello';
+  const range = ActiveDocument.Range(0, 5);
+  assert.equal(range.Text, 'Hello');
+  assert.equal(range.Start, 0);
+  assert.equal(range.End, 5);
 });
 
-test('Selection.Start throws G-STORY', () => {
+test('Selection.Start is the story offset', () => {
   fresh();
   Documents.Add();
-  assert.throws(() => Selection.Start, (e) => e.code === 'G-STORY');
-  assert.throws(() => Selection.End, (e) => e.code === 'G-STORY');
-  assert.throws(() => ActiveDocument.Paragraphs(1).Range.Start, (e) => e.code === 'G-STORY');
+  assert.equal(typeof Selection.Start, 'number');
+  assert.equal(typeof Selection.End, 'number');
+  assert.equal(ActiveDocument.Paragraphs(1).Range.Start, 0);
+  assert.equal(ActiveDocument.Paragraphs(1).Range.End, 0);
 });
 
 test('Creator throws G-ENGINE', () => {
@@ -247,7 +252,7 @@ test('Tables.Add inserts a grid and cell text keeps the paragraph', () => {
   const paras = t.Cell(1, 1)._cell.blocks.filter((b) => b.t === 'p');
   assert.equal(paras.length, 1);
   assert.equal(D.ptext(paras[0]), 'Name');
-  assert.throws(() => ActiveDocument.Tables.Add(Selection.Range, 2, 2, 1), (e) => e.code === 'G-ENGINE');
+  assert.throws(() => ActiveDocument.Tables.Add(Selection.Range, 2, 2, 9), (e) => e.code === 'G-ENGINE');
   const fromSelection = Selection.Tables.Add(undefined, 2, 4);
   assert.equal(fromSelection.Rows.Count, 2);
   assert.equal(fromSelection.Columns.Count, 4);
@@ -255,7 +260,7 @@ test('Tables.Add inserts a grid and cell text keeps the paragraph', () => {
   assert.equal(Selection.Document, ActiveDocument);
   Selection.Bold = -1;
   assert.equal(Selection.Bold, -1);
-  assert.throws(() => Selection.Range.Tables.Add(Selection.Range, 1, 1, 1), (e) => e.code === 'G-ENGINE');
+  assert.throws(() => Selection.Range.Tables.Add(Selection.Range, 1, 1, 9), (e) => e.code === 'G-ENGINE');
 });
 
 test('a bookmark keeps the paragraph text', () => {
@@ -267,7 +272,7 @@ test('a bookmark keeps the paragraph text', () => {
   assert.equal(ActiveDocument.Bookmarks('Here').Range.Text.includes('Hello'), true);
   assert.equal(ActiveDocument.Bookmarks.Item('Here').Name, 'Here');
   assert.equal(ActiveDocument.Paragraphs(1).Range.Bookmarks.Count, 1);
-  assert.throws(() => ActiveDocument.Bookmarks('Here').Start, (e) => e.code === 'G-STORY');
+  assert.equal(typeof ActiveDocument.Bookmarks('Here').Start, 'number');
 });
 
 test('Find.Execute replaces one literal match', () => {
@@ -387,7 +392,7 @@ test('case, language, break, copy and fields', () => {
   const field = ActiveDocument.Fields.Add(Selection.Range, -1, 'DATE');
   assert.equal(ActiveDocument.Fields.Count, 1);
   assert.equal(field.Code.Text.includes('DATE'), true);
-  assert.throws(() => field.DoClick(), (e) => e.code === 'G-HOST');
+  assert.throws(() => field.DoClick(), (e) => e.code === 'G-ENGINE');
 });
 
 test('hyperlinks, comments, footnotes and tables', () => {
@@ -401,11 +406,11 @@ test('hyperlinks, comments, footnotes and tables', () => {
   const note = ActiveDocument.Comments.Add(ActiveDocument.Paragraphs(1).Range, 'Note');
   assert.equal(ActiveDocument.Comments.Count, 1);
   assert.equal(note.Range.Text.includes('Note'), true);
-  assert.throws(() => note.Edit(), (e) => e.code === 'G-HOST');
+  assert.throws(() => note.Edit(), (e) => e.code === 'G-ENGINE');
   const fn = ActiveDocument.Footnotes.Add(ActiveDocument.Paragraphs(1).Range, '', 'A note');
   assert.equal(ActiveDocument.Footnotes.Count, 1);
   assert.equal(fn.Range.Text.includes('A note'), true);
-  assert.throws(() => fn.Reference, (e) => e.code === 'G-STORY');
+  assert.equal(typeof fn.Reference.Start, 'number');
   const t = ActiveDocument.Tables.Add(Selection.Range, 2, 2);
   t.Cell(1, 1).Range.Text = 'B';
   t.Cell(2, 1).Range.Text = 'A';
@@ -421,7 +426,7 @@ test('hyperlinks, comments, footnotes and tables', () => {
   assert.equal(t.Cell(1, 1).Range.Text.startsWith('A') || t.Cell(2, 1).Range.Text.startsWith('A'), true);
   t.AutoFitBehavior(wdAutoFitWindow);
   assert.equal(t._table.tblPr.layout, 'autofit');
-  assert.throws(() => t.Uniform, (e) => e.code === 'G-ENGINE');
+  assert.equal(typeof t.Uniform, 'number');
 });
 
 test('a document that is not active allows Name and Activate only', () => {
@@ -434,4 +439,59 @@ test('a document that is not active allows Name and Activate only', () => {
   first.Activate();
   assert.equal(ActiveDocument, first);
   assert.equal(first.Paragraphs.Count, 1);
+});
+
+test('AddPicture embeds at a range and floats from Shapes', async () => {
+  fresh();
+  Documents.Add();
+  ActiveDocument.Paragraphs(1).Range.Text = 'AAA';
+  ActiveDocument.Paragraphs(1).Range.InsertParagraphAfter();
+  ActiveDocument.Paragraphs(2).Range.Text = 'BBB';
+  const prevAudit = L.hostAudit;
+  const prevApp = L.app;
+  L.hostAudit = {
+    has(name) { return name === 'Picture'; },
+    readBytes() { return Promise.resolve(new Uint8Array([1, 2, 3])); },
+  };
+  L.app = {
+    insertPictureFiles(files, opts) {
+      const it = D.item('img', { media: 'm', w: 10, h: 8, name: files[0].name, alt: '' });
+      if (opts && opts.prepare) opts.prepare(it);
+      D.tx('Insert Picture', () => L.O.insertItem(opts.pos, it));
+      return [it];
+    },
+  };
+  try {
+    assert.throws(() => ActiveDocument.InlineShapes.AddPicture('a.png', true), (e) => /LinkToFile/.test(e.message));
+    assert.throws(() => ActiveDocument.InlineShapes.AddPicture('a.png', false, 0), (e) => /SaveWithDocument/.test(e.message));
+    const inline = await ActiveDocument.Paragraphs(2).Range.InlineShapes.AddPicture('pic.png');
+    assert.equal(inline.Type, 3);
+    assert.equal(inline.WrapFormat.Type, 7);
+    assert.equal(ActiveDocument.InlineShapes.Count, 1);
+    assert.equal(ActiveDocument.Shapes.Count, 0);
+    assert.equal(ActiveDocument.Paragraphs(2)._block.runs.some((it) => it.t === 'img'), true);
+    assert.equal(ActiveDocument.Paragraphs(1)._block.runs.some((it) => it.t === 'img'), false);
+    inline.ConvertToShape();
+    assert.equal(inline.WrapFormat.Type, 0);
+    assert.equal(ActiveDocument.Shapes.Count, 1);
+    assert.equal(ActiveDocument.InlineShapes.Count, 0);
+    inline.ConvertToInlineShape();
+    assert.equal(ActiveDocument.InlineShapes.Count, 1);
+    const floated = await ActiveDocument.Shapes.AddPicture('float.png', false, true, 72, 36, 40, 20);
+    assert.equal(floated.Left, 72);
+    assert.equal(floated.Top, 36);
+    assert.equal(floated.Width, 40);
+    assert.equal(floated.Height, 20);
+    assert.equal(floated.WrapFormat.Type, 0);
+    const again = await ActiveDocument.Paragraphs(1).Range.Shapes.AddPicture2('c.png', false, true, 12, 4, 30, 15);
+    assert.equal(again.Left, 12);
+    assert.equal(again.Width, 30);
+    assert.equal(ActiveDocument.Paragraphs(1)._block.runs.some((it) => it.t === 'img' && it.float), true);
+    Selection.SetRange(ActiveDocument.Paragraphs(2).Range.Start, ActiveDocument.Paragraphs(2).Range.Start);
+    await Selection.InlineShapes.AddPicture('sel.png');
+    assert.equal(ActiveDocument.Paragraphs(2)._block.runs.filter((it) => it.t === 'img' && !it.float).length, 2);
+  } finally {
+    L.hostAudit = prevAudit;
+    L.app = prevApp;
+  }
 });

@@ -51,7 +51,7 @@ Constants stay the `wd*` numbers defined by `dom.js`. The IR does not re-encode 
 | `handle` | The handle is unknown or the session was released. |
 | `released` | `exec` after `release`. |
 
-`ActiveDocument.Range(0, 5)` is `call` on `Range` and returns `G-STORY`. `Creator` returns `G-ENGINE` on every object.
+`ActiveDocument.Range(0, 5)` is `call` on `Range` and returns that span. `Creator` returns `G-ENGINE` on every object.
 
 ## Objects with no members of their own
 
@@ -71,9 +71,9 @@ Every collection in the catalog accepts `item` and exposes `Count`, `First` and 
 
 One live spelling differs from the inventory name: `Comment.Initial` reads and writes the live property `Initials`.
 
-`Font.Borders` and `Font.Shading` are Implemented in the inventory. The live getters still throw `G-ENGINE`. The IR calls them and returns that error. It does not supply a border model of its own.
+`Font.Borders` and `Font.Shading` read and write the run border and shading. `Table.Borders.Enable` writes the six stored edges. A border edge is `Border.LineStyle`, `LineWidth`, and `Color`. `PictureFormat` stores crop, brightness, and contrast. `InlineShapes.AddPicture` and `Shapes.AddPicture` are RequestApproval on the Picture ability. `Range`, `Left`, `Top`, `Width`, `Height`, and `Anchor` reach the live call. `LinkToFile` True and `SaveWithDocument` False fail before the file is read. `Shapes.AddPicture2` is that same call, and `Compress` is ignored.
 
-`Table.ApplyStyleHeadingRows and the other look flags` uses the flag names `dom.js` already stores: `ApplyStyleLastRow`, `ApplyStyleFirstColumn`, `ApplyStyleLastColumn`, `ApplyStyleRowBands`, `ApplyStyleColumnBands`. A border edge is `Border.LineStyle`, the property the live edge stores. `PictureFormat` is the object the inventory names; crop and brightness are not given member names there, so they are not catalog entries.
+The story index is paragraph order. A table range ends at the paragraph after the table. It is not Word's cell-mark count. Line, screen, page, `GoTo`, and `Information` stay `G-STORY`.
 
 ## Worked calls
 

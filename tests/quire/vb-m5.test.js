@@ -50,8 +50,8 @@ test('M5 shapes, revisions and gap-only objects', { timeout: 120000 }, async () 
       await host.eval('ActiveDocument.Shapes(1).Fill.ForeColor.RGB = 255');
       assert.equal(ActiveDocument.Shapes(1).Fill.ForeColor.RGB, 255);
       await host.eval('ActiveDocument.Shapes(1).Line.Weight = 2');
-      await expectGap(host, '?ActiveDocument.Shapes(1).Left', 'missing-live');
-      await expectGap(host, '?ActiveDocument.Shapes(1).WrapFormat', 'missing-live');
+      assert.equal(typeof await host.eval('?ActiveDocument.Shapes(1).Left'), 'number');
+      assert.equal(typeof await host.eval('?ActiveDocument.Shapes(1).WrapFormat'), 'object');
       await expectGap(host, '?ActiveDocument.Shapes(1).OLEFormat', 'G-ENGINE');
       await host.eval('ActiveDocument.Shapes(1).Delete');
     }

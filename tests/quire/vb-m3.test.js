@@ -52,9 +52,11 @@ test('M3 font, paragraph format, styles, lists and sections', { timeout: 120000 
     assert.equal(ActiveDocument.Paragraphs(1).Range.Font.Superscript, -1);
     assert.equal(await host.eval('?' + font + '.Application Is Application'), -1);
     await expectGap(host, '?' + font + '.Creator', 'G-ENGINE');
-    for (const member of ['Animation', 'Borders', 'Shading', 'DiacriticColor', 'StylisticSet', 'NumberSpacing', 'NumberForm', 'Ligatures', 'ContextualAlternates']) {
+    for (const member of ['Animation', 'DiacriticColor', 'StylisticSet', 'NumberSpacing', 'NumberForm', 'Ligatures', 'ContextualAlternates']) {
       await expectGap(host, '?' + font + '.' + member, 'G-ENGINE');
     }
+    assert.equal(typeof await host.eval('?' + font + '.Borders'), 'object');
+    assert.equal(typeof await host.eval('?' + font + '.Shading'), 'object');
 
     const fmt = 'ActiveDocument.Paragraphs(1).Format';
     await host.eval(fmt + '.Alignment = wdAlignParagraphRight');
@@ -79,11 +81,13 @@ test('M3 font, paragraph format, styles, lists and sections', { timeout: 120000 
     assert.equal(ActiveDocument.Paragraphs(1).Format.OutlineLevel, 1);
     assert.equal(ActiveDocument.Paragraphs(1).Format.ReadingOrder, wdReadingOrderRtl);
     assert.equal(ActiveDocument.Paragraphs(1).Format.DisableLineHeightGrid, -1);
-    for (const member of ['CharacterUnitLeftIndent', 'CharacterUnitRightIndent', 'CharacterUnitFirstLineIndent', 'MirrorIndents', 'AutoAdjustRightIndent', 'FarEastLineBreakControl', 'WordWrap', 'HangingPunctuation', 'HalfWidthPunctuationOnTopOfLine', 'AddSpaceBetweenFarEastAndAlpha', 'AddSpaceBetweenFarEastAndDigit']) {
+    for (const member of ['CharacterUnitLeftIndent', 'CharacterUnitRightIndent', 'CharacterUnitFirstLineIndent', 'AutoAdjustRightIndent', 'FarEastLineBreakControl', 'WordWrap', 'HangingPunctuation', 'HalfWidthPunctuationOnTopOfLine', 'AddSpaceBetweenFarEastAndAlpha', 'AddSpaceBetweenFarEastAndDigit']) {
       await expectGap(host, '?' + fmt + '.' + member, 'G-ENGINE');
     }
-    await expectGap(host, '?' + fmt + '.Borders', 'missing-live');
-    await expectGap(host, '?' + fmt + '.Shading', 'missing-live');
+    assert.equal(typeof await host.eval('?' + fmt + '.Borders'), 'object');
+    assert.equal(typeof await host.eval('?' + fmt + '.Shading'), 'object');
+    await host.eval(fmt + '.MirrorIndents = True');
+    assert.equal(await host.eval('?' + fmt + '.MirrorIndents'), -1);
 
     await host.eval(fmt + '.TabStops.Add(72, 1, 1)');
     assert.equal(ActiveDocument.Paragraphs(1).Format.TabStops.Count, 1);
@@ -109,9 +113,11 @@ test('M3 font, paragraph format, styles, lists and sections', { timeout: 120000 
     assert.equal(ActiveDocument.Styles('M3Renamed').NameLocal, 'M3Renamed');
     await host.eval('ActiveDocument.Styles("M3Renamed").Delete');
     await expectGap(host, 'ActiveDocument.Styles(1).Delete', 'G-ENGINE');
-    for (const member of ['LinkStyle', 'Visibility', 'UnhideWhenUsed', 'QuickStyle', 'Priority', 'Locked']) {
+    for (const member of ['UnhideWhenUsed', 'Locked']) {
       await expectGap(host, '?ActiveDocument.Styles(1).' + member, 'G-ENGINE');
     }
+    assert.equal(typeof await host.eval('?ActiveDocument.Styles(1).LinkStyle'), 'string');
+    assert.equal(typeof await host.eval('?ActiveDocument.Styles(1).Priority'), 'number');
 
     await host.eval('ActiveDocument.Paragraphs(1).Range.ListFormat.ApplyNumberDefault');
     assert.equal(await host.eval('?ActiveDocument.Paragraphs(1).Range.ListFormat.ListLevelNumber'), ActiveDocument.Paragraphs(1).Range.ListFormat.ListLevelNumber);
@@ -123,15 +129,15 @@ test('M3 font, paragraph format, styles, lists and sections', { timeout: 120000 
     assert.equal(await host.eval('?ActiveDocument.Lists.Count'), ActiveDocument.Lists.Count);
     assert.equal(typeof await host.eval('?ActiveDocument.Lists(1).ListParagraphs'), 'object');
     assert.ok(ActiveDocument.Lists(1).ListParagraphs.Count >= 1);
-    await expectGap(host, '?ActiveDocument.Paragraphs(1).Range.ListFormat.ListType', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Paragraphs(1).Range.ListFormat.ListType'), 'number');
     await expectGap(host, 'ActiveDocument.Paragraphs(1).Range.ListFormat.ApplyListTemplate', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.Paragraphs(1).Range.ListFormat.CanContinuePreviousList', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.Lists.ListTemplates', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.Lists.ListTemplate', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.Lists.ListLevels', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.Lists.ListLevel', 'G-ENGINE');
-    await expectGap(host, '?ActiveDocument.Lists(1).Range', 'missing-live');
-    await expectGap(host, 'ActiveDocument.Lists(1).CountNumberedItems', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Lists(1).Range'), 'object');
+    assert.equal(typeof await host.eval('?ActiveDocument.Lists(1).CountNumberedItems'), 'number');
     await host.eval('ActiveDocument.Paragraphs(1).Range.ListFormat.RemoveNumbers');
 
     assert.equal(await host.eval('?ActiveDocument.Sections.Count'), ActiveDocument.Sections.Count);
@@ -159,9 +165,9 @@ test('M3 font, paragraph format, styles, lists and sections', { timeout: 120000 
     assert.equal(await host.eval('?ActiveDocument.Sections(1).Footers(wdHeaderFooterPrimary).Range.Text'), ActiveDocument.Sections(1).Footers(wdHeaderFooterPrimary).Range.Text);
     assert.equal(await host.eval('?ActiveDocument.Sections(1).Application Is Application'), -1);
     await expectGap(host, '?ActiveDocument.Sections(1).Creator', 'G-ENGINE');
-    await expectGap(host, '?ActiveDocument.Sections(1).PageSetup.PaperSize', 'G-ENGINE');
+    assert.equal(typeof await host.eval('?ActiveDocument.Sections(1).PageSetup.PaperSize'), 'number');
     await expectGap(host, '?ActiveDocument.Sections(1).Headers(wdHeaderFooterPrimary).LinkToPrevious', 'G-ENGINE');
-    await expectGap(host, '?ActiveDocument.Sections(1).ProtectedForForms', 'G-ENGINE');
+    assert.equal(await host.eval('?ActiveDocument.Sections(1).ProtectedForForms'), 0);
   } finally {
     host.close();
   }

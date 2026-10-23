@@ -37,7 +37,7 @@ Content get Range
 Paragraphs get Paragraphs
 Sentences get Sentences
 Words get Words
-Characters gap G-STORY get
+Characters get Characters
 Tables get Tables
 Sections get Sections
 StoryRanges get StoryRanges
@@ -58,7 +58,7 @@ CustomDocumentProperties get DocumentProperties
 Undo call ([Times])
 Redo call ([Times])
 UndoClear gap G-ENGINE call
-Range gap G-STORY call ([Start], [End])
+Range call Range ([Start], [End])
 Select call
 Activate call
 Close call ([SaveChanges], [OriginalFormat], [RouteDocument])
@@ -70,7 +70,7 @@ PrintOut call AlwaysAllow Print ([Background], [Append], [Range], [OutputFileNam
 PrintPreview gap G-HOST call
 Protect gap G-ENGINE call ([Type], [NoReset], [Password], [UseIRM], [EnforceStyleLock])
 Unprotect gap G-ENGINE call ([Password])
-Compare gap G-HOST call ([Name], [AuthorName], [CompareTarget], [DetectFormatChanges], [IgnoreAllComparisonWarnings], [AddToRecentFiles], [RemovePersonalInformation], [RemoveDateAndTime])
+Compare call RequestApproval Open ([Name], [AuthorName], [CompareTarget], [DetectFormatChanges], [IgnoreAllComparisonWarnings], [AddToRecentFiles], [RemovePersonalInformation], [RemoveDateAndTime])
 FollowHyperlink call AlwaysAllow Hyperlink ([Address], [SubAddress], [NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
 GoTo gap G-STORY call ([What], [Which], [Count], [Name])
 ExportAsFixedFormat call RequestApproval FixedFormat ([OutputFileFormat], [OutputFileName])
@@ -116,14 +116,90 @@ InsertParagraph call
 InsertParagraphBefore call
 InsertParagraphAfter call
 Type get
-Start gap G-STORY get
-End gap G-STORY get
-MoveLeft gap G-STORY call ([Unit], [Count], [Extend])
-MoveRight gap G-STORY call ([Unit], [Count], [Extend])
-MoveUp gap G-STORY call ([Unit], [Count], [Extend])
-MoveDown gap G-STORY call ([Unit], [Count], [Extend])
-HomeKey gap G-STORY call ([Unit], [Extend])
-EndKey gap G-STORY call ([Unit], [Extend])
+Start rw
+End rw
+SetRange call ([Start], [End])
+Move call ([Unit], [Count])
+MoveStart call ([Unit], [Count])
+MoveEnd call ([Unit], [Count])
+MoveLeft call ([Unit], [Count], [Extend])
+MoveRight call ([Unit], [Count], [Extend])
+MoveUp call ([Unit], [Count], [Extend])
+MoveDown call ([Unit], [Count], [Extend])
+HomeKey call ([Unit], [Extend])
+EndKey call ([Unit], [Extend])
+StartOf call ([Unit], [Extend])
+EndOf call ([Unit], [Extend])
+Expand call ([Unit])
+Borders get Borders
+Shading get Shading
+Shapes get Shapes
+ShapeRange get Shapes
+Cells get Cells
+Rows get Rows
+Columns get Columns
+Sections get Sections
+PageSetup get PageSetup
+StoryType get
+StoryLength get
+InRange call ([Range])
+InStory call ([Range])
+BookmarkID get
+StartIsActive get
+NoProofing rw
+SelectCell call
+SelectRow call
+SelectColumn call
+InsertRowsAbove call ([NumRows])
+InsertRowsBelow call ([NumRows])
+InsertColumnsRight call ([NumColumns])
+MoveWhile gap G-STORY call ([Cset], [Count])
+MoveUntil gap G-STORY call ([Cset], [Count])
+IPAtEndOfLine gap G-STORY get
+IsEndOfRowMark gap G-STORY get
+ChildShapeRange gap G-ENGINE get
+HasChildShapeRange gap G-ENGINE get
+Editors gap G-ENGINE get
+FormFields gap G-ENGINE get
+Frames gap G-ENGINE get
+HTMLDivisions gap G-ENGINE get
+WordOpenXML gap G-ENGINE get
+XML gap G-ENGINE get
+EndnoteOptions gap G-ENGINE get
+FootnoteOptions gap G-ENGINE get
+FitTextWidth gap G-ENGINE get
+Flags gap G-ENGINE get
+ExtendMode gap G-ENGINE get
+ColumnSelectMode gap G-ENGINE get
+EnhMetaFileBits gap G-ENGINE get
+HeaderFooter gap G-ENGINE get
+TopLevelTables gap G-ENGINE get
+LanguageIDOther gap G-ENGINE get
+InsertFormula gap G-ENGINE call
+InsertCrossReference gap G-ENGINE call ([ReferenceType], [ReferenceKind], [ReferenceItem], [InsertAsHyperlink], [IncludePosition], [SeparateNumbers], [SeparatorString])
+InsertXML gap G-ENGINE call
+InsertStyleSeparator gap G-ENGINE call
+PasteAsNestedTable gap G-ENGINE call
+PasteAppendTable gap G-ENGINE call
+PasteFormat gap G-ENGINE call
+CopyAsPicture gap G-ENGINE call
+ToggleCharacterCode gap G-ENGINE call
+DetectLanguage gap G-ENGINE call
+Calculate gap G-ENGINE call
+Shrink gap G-ENGINE call
+EscapeKey gap G-ENGINE call
+CreateAutoTextEntry gap G-ENGINE call
+NextRevision gap G-ENGINE call
+NextField gap G-ENGINE call
+PreviousField gap G-ENGINE call
+InsertNewPage gap G-ENGINE call
+SortAscending gap G-ENGINE call
+SortDescending gap G-ENGINE call
+SplitTable gap G-ENGINE call
+BoldRun gap G-ENGINE call
+ItalicRun gap G-ENGINE call
+ClearFormatting gap G-ENGINE call
+CreateTextbox gap G-ENGINE call
 GoTo gap G-STORY call ([What], [Which], [Count], [Name])
 GoToNext gap G-STORY call ([What])
 GoToPrevious gap G-STORY call ([What])
@@ -175,23 +251,27 @@ Bookmarks get Bookmarks
 Fields get Fields
 Comments get Comments
 InlineShapes get InlineShapes
+Shapes get Shapes
 FormattedText gap G-ENGINE get
 LanguageID rw
 LanguageIDFarEast rw
-Start gap G-STORY get
-End gap G-STORY get
-Move gap G-STORY call ([Unit], [Count])
-MoveStart gap G-STORY call ([Unit], [Count])
-MoveEnd gap G-STORY call ([Unit], [Count])
+Start rw
+End rw
+SetRange call ([Start], [End])
+Borders get Borders
+Shading get Shading
+Move call ([Unit], [Count])
+MoveStart call ([Unit], [Count])
+MoveEnd call ([Unit], [Count])
 MoveWhile gap G-STORY call ([Cset], [Count])
 MoveUntil gap G-STORY call ([Cset], [Count])
 MoveStartWhile gap G-STORY call ([Cset], [Count])
 MoveStartUntil gap G-STORY call ([Cset], [Count])
 MoveEndWhile gap G-STORY call ([Cset], [Count])
 MoveEndUntil gap G-STORY call ([Cset], [Count])
-StartOf gap G-STORY call ([Unit], [Extend])
-EndOf gap G-STORY call ([Unit], [Extend])
-Expand gap G-STORY call ([Unit])
+StartOf call ([Unit], [Extend])
+EndOf call ([Unit], [Extend])
+Expand call ([Unit])
 Information gap G-STORY call ([Type])
 GoTo gap G-STORY call ([What], [Which], [Count], [Name])
 GoToNext gap G-STORY call ([What])
@@ -226,7 +306,11 @@ Space2 call
 OutlineDemote gap G-ENGINE call
 OutlinePromote gap G-ENGINE call
 OutlineDemoteToBody gap G-ENGINE call
-DropCap gap G-ENGINE get
+DropCap get DropCap
+# DropCap
+Position rw
+Lines rw
+DistanceFromText rw
 # Sentences collection
 Item call Range
 # Words collection
@@ -252,8 +336,23 @@ ApplyStyleFirstColumn rw
 ApplyStyleLastColumn rw
 ApplyStyleRowBands rw
 ApplyStyleColumnBands rw
-Uniform gap G-ENGINE get
-Spacing gap G-ENGINE get
+Borders get Borders
+Shading get Shading
+Uniform get
+Spacing rw
+AllowAutoFit rw
+PreferredWidth rw
+PreferredWidthType rw
+TopPadding rw
+BottomPadding rw
+LeftPadding rw
+RightPadding rw
+Alignment rw
+TableDirection rw
+Title rw
+Descr rw
+NestingLevel get
+Indent get
 # Rows collection
 Item call Row
 Add call Row ([BeforeRow])
@@ -264,6 +363,10 @@ Select call
 Range get Range
 Cells get Cells
 HeadingFormat rw
+Height rw
+HeightRule rw
+AllowBreakAcrossPages rw
+Alignment rw
 # Columns collection
 Item call Column
 Add call Column ([BeforeColumn])
@@ -286,13 +389,52 @@ Width rw
 Height rw
 Borders get Borders
 Shading get Shading
+VerticalAlignment rw
+TopPadding rw
+BottomPadding rw
+LeftPadding rw
+RightPadding rw
+FitText rw
+WordWrap rw
 # Borders collection
 Item call Border
+Enable rw
+OutsideLineStyle rw
+OutsideLineWidth rw
+OutsideColor rw
+InsideLineStyle rw
+InsideLineWidth rw
+InsideColor rw
+Shadow rw
+DistanceFromTop rw
+DistanceFromLeft rw
+DistanceFromBottom rw
+DistanceFromRight rw
+DistanceFrom rw
+AlwaysInFront rw
+EnableFirstPageInSection rw
+EnableOtherPagesInSection rw
+HasHorizontal get
+HasVertical get
+Count get
+ApplyPageBordersToAllSections gap G-ENGINE call
+JoinBorders gap G-ENGINE get
+SurroundHeader gap G-ENGINE get
+SurroundFooter gap G-ENGINE get
+ArtStyle gap G-ENGINE get
+ArtWidth gap G-ENGINE get
 # Border
 LineStyle rw
+LineWidth rw
+Color rw
+ColorIndex rw
+Visible rw
+Inside get
 # Shading
 BackgroundPatternColor rw
 ForegroundPatternColor rw
+BackgroundPatternColorIndex rw
+ForegroundPatternColorIndex rw
 Texture rw
 # Sections collection
 Item call Section
@@ -301,7 +443,8 @@ Range get Range
 PageSetup get PageSetup
 Headers call HeaderFooter ([Index])
 Footers call HeaderFooter ([Index])
-ProtectedForForms gap G-ENGINE get
+Borders get Borders
+ProtectedForForms rw
 # PageSetup
 PageWidth rw
 PageHeight rw
@@ -314,7 +457,8 @@ Gutter rw
 HeaderDistance rw
 FooterDistance rw
 TextColumns get TextColumns
-PaperSize gap G-ENGINE get
+PaperSize rw
+VerticalAlignment rw
 # TextColumns
 Count rw
 Spacing rw
@@ -337,11 +481,11 @@ Delete call
 InUse get
 BaseStyle rw
 NextParagraphStyle rw
-LinkStyle gap G-ENGINE get
-Visibility gap G-ENGINE get
+LinkStyle rw
+Visibility rw
 UnhideWhenUsed gap G-ENGINE get
-QuickStyle gap G-ENGINE get
-Priority gap G-ENGINE get
+QuickStyle rw
+Priority rw
 Locked gap G-ENGINE get
 # Font
 Name rw
@@ -408,7 +552,7 @@ Borders get Borders
 Shading get Shading
 ReadingOrder rw
 DisableLineHeightGrid rw
-MirrorIndents gap G-ENGINE get
+MirrorIndents rw
 AutoAdjustRightIndent gap G-ENGINE get
 FarEastLineBreakControl gap G-ENGINE get
 WordWrap gap G-ENGINE get
@@ -483,8 +627,8 @@ Range get Range
 Delete call
 Select call
 Empty get
-Start gap G-STORY get
-End gap G-STORY get
+Start rw
+End rw
 Copy gap G-ENGINE call ([Name])
 # Fields collection
 Item call Field
@@ -501,7 +645,7 @@ Locked rw
 Type get
 Select call
 Copy gap G-ENGINE call
-DoClick gap G-HOST call
+DoClick call AlwaysAllow Hyperlink
 # Hyperlinks collection
 Item call Hyperlink
 Add call Hyperlink ([Anchor], [Address], [SubAddress], [ScreenTip], [TextToDisplay], [Target])
@@ -512,7 +656,7 @@ TextToDisplay rw
 ScreenTip rw
 Range get Range
 Delete call
-Follow gap G-HOST call ([NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
+Follow call AlwaysAllow Hyperlink ([NewWindow], [AddHistory], [ExtraInfo], [Method], [HeaderInfo])
 Type gap G-ENGINE get
 Target gap G-ENGINE get
 # Comments collection
@@ -525,7 +669,7 @@ Scope get Range
 Author rw
 Initial rw live Initials
 Delete call
-Edit gap G-HOST call
+Edit gap G-ENGINE call
 # Footnotes collection
 Item call Footnote
 Add call Footnote ([Range], [Reference], [Text])
@@ -537,14 +681,14 @@ Convert call
 # Footnote
 Range get Range
 Index get
-Reference gap G-STORY get
+Reference get Range
 # Endnote
 Range get Range
 Index get
-Reference gap G-STORY get
+Reference get Range
 # InlineShapes collection
 Item call InlineShape
-AddPicture call RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Range])
+AddPicture call InlineShape RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Range])
 # InlineShape
 Width rw
 Height rw
@@ -556,11 +700,17 @@ Delete call
 Range get Range
 AlternativeText rw
 Title rw
+Left rw
+Top rw
+WrapFormat get WrapFormat
+ConvertToShape call Shape
 Hyperlink get Hyperlink
 PictureFormat get PictureFormat
 # Shapes collection
 Item call Shape
 AddShape call Shape ([Type], [Left], [Top], [Width], [Height], [Anchor])
+AddPicture call Shape RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Left], [Top], [Width], [Height], [Anchor])
+AddPicture2 call Shape RequestApproval Picture ([FileName], [LinkToFile], [SaveWithDocument], [Left], [Top], [Width], [Height], [Anchor], [Compress])
 AddTextbox call Shape ([Orientation], [Left], [Top], [Width], [Height], [Anchor])
 AddChart gap G-ENGINE call ([Type], [Left], [Top], [Width], [Height], [Anchor])
 # Shape
@@ -569,6 +719,7 @@ Top rw
 Width rw
 Height rw
 WrapFormat get WrapFormat
+ConvertToInlineShape call InlineShape
 TextFrame get TextFrame
 Select call
 Delete call
@@ -590,6 +741,12 @@ Weight rw
 # ColorFormat
 RGB rw
 # PictureFormat
+CropLeft rw
+CropTop rw
+CropRight rw
+CropBottom rw
+Brightness rw
+Contrast rw
 # Revisions collection
 Item call Revision
 AcceptAll call
@@ -608,7 +765,7 @@ Add call DocumentProperty ([Name], [LinkToContent], [Type], [Value])
 Name get
 Value rw
 # Characters collection
-Item gap G-STORY call ([Index])
+Item call Range ([Index])
 # ListTemplates gap G-ENGINE
 # ListTemplate gap G-ENGINE
 # ListLevels gap G-ENGINE

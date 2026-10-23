@@ -36,7 +36,7 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.ok(String(ActiveDocument.Paragraphs(1).Range.Text).indexOf('Hi') >= 0, ActiveDocument.Paragraphs(1).Range.Text);
     await host.eval('Selection.Find.Text = "Hi"');
     await host.eval('Selection.Find.MatchCase = False');
-    await expectGap(host, 'Selection.Find.ClearFormatting', 'missing-live');
+    await host.eval('Selection.Find.ClearFormatting');
     assert.equal(await host.eval('?Selection.Find.Text'), 'Hi');
     await expectGap(host, 'Selection.Find.Execute("Hi", False, False, False, False, False, True, 2)', 'G-HOST');
     await expectGap(host, 'Selection.Find.Execute("Hi", False, False, False, False, False, True, wdFindContinue, False, "", wdReplaceNone, True)', 'G-ENGINE');
@@ -51,8 +51,8 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Bookmarks("Here").Empty'), ActiveDocument.Bookmarks('Here').Empty);
     assert.ok(String(await host.eval('?ActiveDocument.Bookmarks("Here").Range.Text')).indexOf('Hi') >= 0);
     await host.eval('ActiveDocument.Bookmarks("Here").Select');
-    await expectGap(host, '?ActiveDocument.Bookmarks("Here").Start', 'G-STORY');
-    await expectGap(host, '?ActiveDocument.Bookmarks("Here").End', 'G-STORY');
+    assert.equal(typeof await host.eval('?ActiveDocument.Bookmarks("Here").Start'), 'number');
+    assert.equal(typeof await host.eval('?ActiveDocument.Bookmarks("Here").End'), 'number');
     await expectGap(host, 'ActiveDocument.Bookmarks("Here").Copy("There")', 'G-ENGINE');
 
     await host.eval('Selection.TypeParagraph');
@@ -63,7 +63,7 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Hyperlinks(1).TextToDisplay'), ActiveDocument.Hyperlinks(1).TextToDisplay);
     await host.eval('ActiveDocument.Hyperlinks(1).ScreenTip = "home"');
     assert.equal(ActiveDocument.Hyperlinks(1).ScreenTip, 'home');
-    await expectGap(host, '?ActiveDocument.Hyperlinks(1).Range.Start', 'G-STORY');
+    assert.equal(typeof await host.eval('?ActiveDocument.Hyperlinks(1).Range.Start'), 'number');
     await expectGap(host, 'ActiveDocument.Hyperlinks(1).Follow', 'G-HOST');
     await expectGap(host, '?ActiveDocument.Hyperlinks(1).Type', 'G-ENGINE');
     await expectGap(host, 'ActiveDocument.Hyperlinks.Add(Selection.Range, "https://vibeoffice.work", "", "", "x", "frame")', 'G-ENGINE');
@@ -74,9 +74,9 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Comments(1).Author'), ActiveDocument.Comments(1).Author);
     assert.equal(await host.eval('?ActiveDocument.Comments(1).Initial'), ActiveDocument.Comments(1).Initials);
     assert.ok(String(await host.eval('?ActiveDocument.Comments(1).Range.Text')).indexOf('A note') >= 0);
-    await expectGap(host, '?ActiveDocument.Comments(1).Scope', 'missing-live');
-    await expectGap(host, 'ActiveDocument.Comments(1).Edit', 'G-HOST');
-    await expectGap(host, 'ActiveDocument.Comments.AddReply(ActiveDocument.Comments(1), "reply")', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Comments(1).Scope'), 'object');
+    await expectGap(host, 'ActiveDocument.Comments(1).Edit', 'G-ENGINE');
+    await host.eval('ActiveDocument.Comments.AddReply(ActiveDocument.Comments(1), "reply")');
     await host.eval('ActiveDocument.Comments(1).Delete');
     assert.equal(ActiveDocument.Comments.Count, 0);
 
@@ -84,11 +84,12 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Footnotes.Count'), ActiveDocument.Footnotes.Count);
     assert.equal(await host.eval('?ActiveDocument.Footnotes(1).Index'), ActiveDocument.Footnotes(1).Index);
     assert.ok(String(await host.eval('?ActiveDocument.Footnotes(1).Range.Text')).indexOf('Foot') >= 0);
-    await expectGap(host, '?ActiveDocument.Footnotes(1).Reference', 'G-STORY');
-    await expectGap(host, 'ActiveDocument.Footnotes.Convert', 'missing-live');
+    assert.equal(typeof await host.eval('?ActiveDocument.Footnotes(1).Reference'), 'object');
+    await host.eval('ActiveDocument.Footnotes.Convert');
+    assert.equal(ActiveDocument.Footnotes.Count, 0);
     await host.eval('ActiveDocument.Endnotes.Add(ActiveDocument.Paragraphs(1).Range, "End")');
-    assert.equal(await host.eval('?ActiveDocument.Endnotes.Count'), 1);
-    await expectGap(host, '?ActiveDocument.Endnotes(1).Reference', 'G-STORY');
+    assert.equal(await host.eval('?ActiveDocument.Endnotes.Count') >= 1, true);
+    assert.equal(typeof await host.eval('?ActiveDocument.Endnotes(1).Reference'), 'object');
 
     await host.eval('ActiveDocument.Tables.Add(ActiveDocument.Paragraphs(1).Range, 2, 2)');
     assert.equal(await host.eval('?ActiveDocument.Tables.Count'), 1);
@@ -110,14 +111,14 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Tables(1).ApplyStyleHeadingRows'), ActiveDocument.Tables(1).ApplyStyleHeadingRows);
     await host.eval('ActiveDocument.Tables(1).AutoFitBehavior(1)');
     await host.eval('ActiveDocument.Tables(1).Rows(1).Cells.DistributeWidth');
-    await expectGap(host, '?ActiveDocument.Tables(1).Uniform', 'G-ENGINE');
-    await expectGap(host, '?ActiveDocument.Tables(1).Spacing', 'G-ENGINE');
-    await expectGap(host, 'ActiveDocument.Tables.Add(ActiveDocument.Paragraphs(1).Range, 2, 2, 1)', 'G-ENGINE');
+    await host.eval('ActiveDocument.Tables(1).Spacing = 6');
+    assert.equal(await host.eval('?ActiveDocument.Tables(1).Spacing'), 6);
+    assert.equal(typeof await host.eval('?ActiveDocument.Tables(1).Uniform'), 'number');
+    await expectGap(host, 'ActiveDocument.Tables.Add(ActiveDocument.Paragraphs(1).Range, 2, 2, 9)', 'G-ENGINE');
     await host.eval('ActiveDocument.Tables(1).Rows.Add');
     assert.equal(ActiveDocument.Tables(1).Rows.Count, 3);
     await host.eval('ActiveDocument.Tables(1).Columns.Add');
     assert.equal(ActiveDocument.Tables(1).Columns.Count, 3);
-    await expectGap(host, 'ActiveDocument.Tables(1).Rows.Delete', 'missing-live');
     await host.eval('ActiveDocument.Tables(1).Rows(3).Delete');
     assert.equal(ActiveDocument.Tables(1).Rows.Count, 2);
     await host.eval('ActiveDocument.Tables(1).ConvertToText');
@@ -141,18 +142,51 @@ test('M4 tables, find, bookmarks, fields, links and notes', { timeout: 120000 },
     assert.equal(await host.eval('?ActiveDocument.Fields.Count'), ActiveDocument.Fields.Count);
     assert.equal(await host.eval('?ActiveDocument.Fields(1).Type'), ActiveDocument.Fields(1).Type);
     assert.ok(String(await host.eval('?ActiveDocument.Fields(1).Code.Text')).indexOf('QUOTE') >= 0);
-    await expectGap(host, '?ActiveDocument.Fields(1).Code.Start', 'G-STORY');
+    assert.equal(typeof await host.eval('?ActiveDocument.Fields(1).Code.Start'), 'number');
     await host.eval('ActiveDocument.Fields.Update');
     await host.eval('ActiveDocument.Fields(1).Update');
-    await expectGap(host, '?ActiveDocument.Fields(1).Locked', 'missing-live');
-    await expectGap(host, 'ActiveDocument.Fields(1).Unlink', 'missing-live');
-    await expectGap(host, 'ActiveDocument.Fields(1).Select', 'missing-live');
+    await host.eval('ActiveDocument.Fields(1).Locked = True');
+    assert.equal(await host.eval('?ActiveDocument.Fields(1).Locked'), -1);
+    await host.eval('ActiveDocument.Fields(1).Select');
     await expectGap(host, 'ActiveDocument.Fields.ToggleShowCodes', 'G-ENGINE');
     await expectGap(host, 'ActiveDocument.Fields(1).Copy', 'G-ENGINE');
-    await expectGap(host, 'ActiveDocument.Fields(1).DoClick', 'G-HOST');
-    await host.eval('ActiveDocument.Fields(1).Delete');
+    await expectGap(host, 'ActiveDocument.Fields(1).DoClick', 'G-ENGINE');
+    await host.eval('ActiveDocument.Fields(1).Unlink');
     await host.eval('ActiveDocument.Bookmarks("Here").Delete');
     assert.equal(ActiveDocument.Bookmarks.Exists('Here'), false);
+
+    await host.eval('Selection.Tables.Add Range:=Selection.Range, NumRows:=2, NumColumns:=4');
+    const added = ActiveDocument.Tables(ActiveDocument.Tables.Count);
+    await host.eval('ActiveDocument.Tables(ActiveDocument.Tables.Count).Borders.Enable = True');
+    assert.equal(added.Borders.Enable, -1);
+    for (const edge of ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']) {
+      assert.equal(added._table.tblPr.borders[edge].val, 'single');
+    }
+    added.Borders(-1).LineWidth = 8;
+    added.Borders(-1).Color = 255;
+    assert.equal(added.Borders(-1).LineWidth, 8);
+    assert.equal(added.Borders(-1).Color, 255);
+    added.Cell(1, 1).Borders(-1).LineStyle = 1;
+    assert.equal(added.Cell(1, 1).Borders(-1).LineStyle, 1);
+    await host.eval('ActiveDocument.Tables(ActiveDocument.Tables.Count).Borders.Enable = False');
+    assert.equal(added.Borders.Enable, 0);
+    assert.equal(added._table.tblPr.borders.top.val, 'nil');
+    const tableEnd = added.Range.End;
+    Selection.SetRange(tableEnd + 1, tableEnd + 1);
+    let seen = 0;
+    let caretPara = null;
+    D.walk(D.doc.main, (block) => {
+      if (caretPara || block.t !== 'p') return;
+      const mark = D.ptext(block).length + 1;
+      if (Selection.Start < seen + mark) caretPara = block;
+      seen += mark;
+    });
+    assert.ok(caretPara);
+    assert.equal(D.cellOf(D.doc, caretPara), null);
+    added.Rows.Delete();
+    assert.equal(ActiveDocument.Tables.Count, 0);
+    ActiveDocument.Sections(1).PageSetup.PaperSize = 7;
+    assert.equal(ActiveDocument.Sections(1).PageSetup.PaperSize, 7);
   } finally {
     host.close();
   }

@@ -87,8 +87,8 @@ test('M1 Application, Documents and Document are callable from VB', { timeout: 1
     await expectGap(host, '?Documents.Creator', 'G-ENGINE');
     await expectGap(host, '?ActiveDocument.FullName', 'G-HOST');
     await expectGap(host, '?ActiveDocument.Path', 'G-HOST');
-    await expectGap(host, '?ActiveDocument.Characters', 'G-STORY');
-    await expectGap(host, 'ActiveDocument.Range(0, 5)', 'G-STORY');
+    assert.equal(typeof await host.eval('?ActiveDocument.Characters'), 'object');
+    assert.equal(typeof await host.eval('?ActiveDocument.Range(0, 5)'), 'object');
     await expectGap(host, 'ActiveDocument.GoTo', 'G-STORY');
     await expectGap(host, 'ActiveDocument.UndoClear', 'G-ENGINE');
     await expectGap(host, 'ActiveDocument.Protect', 'G-ENGINE');
