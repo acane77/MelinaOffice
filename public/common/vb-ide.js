@@ -5,8 +5,11 @@
   'use strict';
   const L = window.L;
   const MODULE = 'module1';
+  const SESSION = 'vbIde';
+  const BLANK_CODE = "Sub Main\n    ' Insert your code here\n    \nEnd Sub";
 
   let code = '';
+  let outputText = '';
   let breakpoints = [];
   let watches = [];
   let expression = '';
@@ -34,6 +37,8 @@
   let overBtn = null;
   let stopBtn = null;
   let phase = 'idle';
+  let pauseReason = '';
+  let statusEl = null;
   let generation = 0;
   let watchGen = 0;
   let suppressOutput = false;
@@ -72,10 +77,27 @@
     if (!line) return;
     output.value = output.value ? output.value + '\n' + line : line;
     output.scrollTop = output.scrollHeight;
+    outputText = output.value;
+  }
+
+  function statusText() {
+    if (phase === 'running') return L.t('Running');
+    if (phase === 'paused') {
+      if (pauseReason === 'breakpoint' || pauseReason === 'breakpoint-condition' || pauseReason === 'run-to-cursor') return L.t('Triggered Breakpoint');
+      if (pauseReason === 'error') return L.t('Triggered Error Interrupt');
+      if (pauseReason.indexOf('watch:') === 0) return L.t('Triggered Watch');
+      return L.t('Break');
+    }
+    return L.t('Ready');
+  }
+
+  function paintStatus() {
+    if (statusEl) statusEl.textContent = statusText();
   }
 
   function setPhase(next) {
     phase = next;
+    if (next !== 'paused') pauseReason = '';
     const idle = next === 'idle';
     const paused = next === 'paused';
     if (startBtn) startBtn.disabled = !idle;
@@ -85,6 +107,7 @@
     if (overBtn) overBtn.disabled = !paused;
     if (stopBtn) stopBtn.disabled = idle;
     if (next !== 'paused' && listTarget && listTarget.kind === 'input') closeList();
+    paintStatus();
   }
 
   function sourceLine(moduleName, line) {
@@ -529,6 +552,7 @@
   }
 
   function onPause(e) {
+    pauseReason = e && e.reason || '';
     setPhase('paused');
     const ins = e.instruction || {};
     selectedFrame = null;
@@ -581,6 +605,7 @@
     clearCurrent();
     clearRuntimeLists();
     if (output) output.value = '';
+    outputText = '';
     const token = ++generation;
     let host = null;
     let begun = null;
@@ -671,6 +696,57 @@
     paintWatches();
   }
 
+  function sessionData() {
+    return {
+      schema: 1,
+      kind: 'vibeoffice.vb6.ide',
+      code: editor ? editor.getValue() : code,
+      breakpoints: breakpoints.map((bp) => ({ line: bp.line, condition: bp.condition || '', enabled: bp.enabled !== false })),
+      output: output ? output.value : outputText,
+    };
+  }
+
+  function loadSaved() {
+    const data = L.store ? L.store.get(SESSION, null) : null;
+    if (!data || data.kind !== 'vibeoffice.vb6.ide' || data.schema !== 1) {
+      code = BLANK_CODE;
+      breakpoints = [];
+      outputText = '';
+      return;
+    }
+    code = typeof data.code === 'string' ? data.code : BLANK_CODE;
+    breakpoints = (Array.isArray(data.breakpoints) ? data.breakpoints : []).map(breakpointRecord).filter(Boolean);
+    outputText = data.output == null ? '' : String(data.output);
+  }
+
+  function saveProject() {
+    if (!L.store) return;
+    const data = sessionData();
+    code = data.code;
+    outputText = data.output;
+    L.store.set(SESSION, data);
+  }
+
+  function newBlankProject() {
+    if (phase !== 'idle') return;
+    code = BLANK_CODE;
+    breakpoints = [];
+    outputText = '';
+    watches = [];
+    expression = '';
+    expressionResult = '';
+    selectedLine = 0;
+    selectedWatch = -1;
+    projectName = 'Project.json';
+    if (editor) editor.setValue(code);
+    if (output) output.value = '';
+    if (exprInput) exprInput.value = '';
+    if (exprOut) exprOut.value = '';
+    paintDots();
+    paintBpList();
+    paintWatches();
+  }
+
   async function openProject() {
     if (phase !== 'idle') return;
     const files = await L.pickFiles('.json,application/json', false);
@@ -689,7 +765,7 @@
     applyProject(data);
   }
 
-  async function saveProject() {
+  async function saveProjectAs() {
     const name = projectName || 'Project.json';
     const blob = new Blob([JSON.stringify(projectData(), null, 2)], { type: 'application/json' });
     await L.saveFile(name, blob);
@@ -799,8 +875,10 @@
   function buildBody() {
     const menu = L.h('div', { class: 'vb-ide-menu' },
       menuButton('File', () => [
+        { label: '&New Blank Project', enabled: () => phase === 'idle', run: newBlankProject },
         { label: '&Open Project...', enabled: () => phase === 'idle', run: openProject },
-        { label: '&Save Project...', run: saveProject },
+        { label: '&Save Project', key: 'Ctrl+S', run: saveProject },
+        { label: 'Save Project &As...', run: saveProjectAs },
         '-',
         { label: '&Open Visual Basic File...', run: openVisualBasicFile },
         '-',
@@ -834,6 +912,7 @@
     const area = L.h('textarea', { translate: 'no' });
 
     output = L.h('textarea', { class: 'vb-ide-output', readonly: true, translate: 'no' });
+    output.value = outputText;
     const outputPage = L.h('div', { class: 'vb-ide-page' }, output);
 
     const errorGrid = grid([L.t('Line#'), L.t('Column#'), L.t('Error Number'), L.t('Source'), L.t('Error Message')]);
@@ -970,7 +1049,10 @@
     });
     applyEditorShare();
 
-    return { root: L.h('div', { class: 'vb-ide' }, menu, bar, editorHost, split, lowerPane), editorHost: editorHost, area: area };
+    statusEl = L.h('div', { class: 'vb-ide-status', text: 'Ready' });
+    paintStatus();
+
+    return { root: L.h('div', { class: 'vb-ide' }, menu, bar, editorHost, split, lowerPane, statusEl), editorHost: editorHost, area: area };
   }
 
   function removeList() {
@@ -1235,6 +1317,7 @@
       L.ui.msg('The script editor did not load.');
       return;
     }
+    loadSaved();
     const built = buildBody();
     L.ui.dialog({
       title: 'VibeOffice Visual Basic',
@@ -1250,6 +1333,12 @@
         el.classList.add('vb-ide-dlg');
         el.style.height = Math.min(560, window.innerHeight - 24) + 'px';
         el.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            e.stopPropagation();
+            saveProject();
+            return;
+          }
           if (e.key !== 'F5' || e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
           e.preventDefault();
           e.stopPropagation();
@@ -1335,6 +1424,7 @@
         editor = null;
         openDlg = null;
         output = null;
+        statusEl = null;
         editorHost = null;
         lowerPane = null;
         bpBody = null;
