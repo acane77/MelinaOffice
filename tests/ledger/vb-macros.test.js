@@ -40,4 +40,19 @@ test('workbook macros and the browser-wide list stay separate', { timeout: 12000
   assert.equal(back[0].name, 'A&B');
   assert.equal(back[0].source, 'x < y & z\n');
   try { localStorage.removeItem('vibeoffice.ledger.allMacros'); } catch (e) { /* the list is already gone */ }
+  assert.equal(await evalVB6('scratch = 7'), undefined);
+  const host = L.vb.current();
+  const bad = 'Sub Main(\nEnd Sub';
+  const good = 'Sub Main()\nEnd Sub\n';
+  for (const compiled of [host.compileIde(bad), host.compileScript(bad), host.compileDraft([{ name: 'Hello', source: bad }])]) {
+    assert.equal(compiled.valid, false);
+    assert.ok(compiled.diagnostics.length);
+    assert.ok(compiled.diagnostics[0].line >= 1);
+    assert.ok(compiled.diagnostics[0].message);
+    assert.equal(host.script || null, null);
+  }
+  assert.equal(host.compileIde(good).valid, true);
+  assert.equal(host.compileScript(good).valid, true);
+  assert.equal(host.script || null, null);
+  assert.equal(await evalVB6('?scratch'), 7);
 });

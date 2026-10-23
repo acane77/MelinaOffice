@@ -30,6 +30,19 @@ test('an Immediate statement writes the presentation through the IR', { timeout:
     assert.equal(await host.eval('?ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text'), 'Hello');
     await host.eval('scratch = ppAlignCenter');
     assert.equal(await host.eval('?scratch'), 2);
+    const bad = 'Sub Main(\nEnd Sub';
+    const good = 'Sub Main()\nEnd Sub\n';
+    for (const compiled of [host.compileIde(bad), host.compileScript(bad), host.compileDraft([{ name: 'Hello', source: bad }])]) {
+      assert.equal(compiled.valid, false);
+      assert.ok(compiled.diagnostics.length);
+      assert.ok(compiled.diagnostics[0].line >= 1);
+      assert.ok(compiled.diagnostics[0].message);
+      assert.equal(host.script || null, null);
+    }
+    assert.equal(host.compileIde(good).valid, true);
+    assert.equal(host.compileScript(good).valid, true);
+    assert.equal(host.script || null, null);
+    assert.equal(await host.eval('?scratch'), 2);
   } finally {
     host.close();
   }

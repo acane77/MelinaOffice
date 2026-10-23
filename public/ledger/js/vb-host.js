@@ -500,6 +500,33 @@
     }
   };
 
+  function compileResult(engine, project) {
+    const program = engine.compileProject(project);
+    return { valid: !!program.valid, diagnostics: program.diagnostics || [] };
+  }
+
+  /* Syntax only. Same projects as debugBegin, run and runDraft. No machine is started. */
+  LedgerVbHost.prototype.compileIde = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-ide', [
+      domModule(),
+      { id: 'module1', name: 'Module1', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  LedgerVbHost.prototype.compileScript = function (source) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-script', [
+      domModule(),
+      { id: 'script', name: 'Script', kind: 'module', code: String(source) },
+    ]));
+  };
+
+  LedgerVbHost.prototype.compileDraft = function (macros) {
+    if (!this.engine) throw new Error('The VB runtime is not running');
+    return compileResult(this.engine, projectOf('ledger-vb-draft', macroModules(macros)));
+  };
+
   /* Debug VM for the Visual Basic IDE. The Immediate VM stays. Maps stay swapped until debugEnd. */
   LedgerVbHost.prototype.debugBegin = async function (source) {
     if (this.script) throw new Error('A VB script is running');
@@ -666,6 +693,21 @@
     return host.runDraft(macros, entry);
   }
 
+  async function compileIde(source) {
+    const host = await session();
+    return host.compileIde(source);
+  }
+
+  async function compileScript(source) {
+    const host = await session();
+    return host.compileScript(source);
+  }
+
+  async function compileDraft(macros) {
+    const host = await session();
+    return host.compileDraft(macros);
+  }
+
   async function open() {
     const host = new LedgerVbHost();
     await host.start();
@@ -686,5 +728,8 @@
     loadMacros: loadMacros,
     runSaved: runSaved,
     runDraft: runDraft,
+    compileIde: compileIde,
+    compileScript: compileScript,
+    compileDraft: compileDraft,
   };
 })();

@@ -38,6 +38,14 @@
   let watchGen = 0;
   let suppressOutput = false;
   let stopRequested = false;
+  let errorBody = null;
+  let showErrors = null;
+  let diagnostics = [];
+  let selectedError = -1;
+  let squiggles = [];
+  let checkTimer = null;
+  let checkGen = 0;
+  let starting = false;
   let run = null;
   let selectedLine = 0;
   let selectedWatch = -1;
@@ -135,12 +143,106 @@
     return null;
   }
 
-  function jumpToLine(line) {
+  function jumpToLine(line, column) {
     if (!editor) return;
     if (!Number.isInteger(line) || line < 1 || line > editor.lineCount()) return;
-    editor.setCursor({ line: line - 1, ch: 0 });
-    editor.scrollIntoView({ line: line - 1, ch: 0 }, 80);
+    const ch = Math.max(0, (Number(column) || 1) - 1);
+    editor.setCursor({ line: line - 1, ch: ch });
+    editor.scrollIntoView({ line: line - 1, ch: ch }, 80);
     editor.focus();
+  }
+
+  function clearSquiggles() {
+    for (let i = 0; i < squiggles.length; i++) {
+      try { squiggles[i].clear(); } catch (e) { /* the editor already dropped it */ }
+    }
+    squiggles = [];
+  }
+
+  function paintSquiggles() {
+    clearSquiggles();
+    if (!editor) return;
+    for (let i = 0; i < diagnostics.length; i++) {
+      const d = diagnostics[i];
+      if (String(d.source || '').toLowerCase() !== MODULE) continue;
+      const line = Number(d.line) || 1;
+      if (!Number.isInteger(line) || line < 1 || line > editor.lineCount()) continue;
+      const text = editor.getLine(line - 1);
+      const title = d.message || '';
+      if (!text.length) {
+        const widget = document.createElement('span');
+        widget.className = 'vb-ide-squiggle vb-ide-squiggle-empty';
+        widget.textContent = ' ';
+        widget.title = title;
+        squiggles.push(editor.setBookmark({ line: line - 1, ch: 0 }, { widget: widget }));
+        continue;
+      }
+      let ch = Math.max(0, (Number(d.column) || 1) - 1);
+      if (ch >= text.length) ch = text.length - 1;
+      squiggles.push(editor.markText({ line: line - 1, ch: ch }, { line: line - 1, ch: text.length }, {
+        className: 'vb-ide-squiggle',
+        title: title,
+      }));
+    }
+  }
+
+  function paintErrors() {
+    if (!errorBody) return;
+    errorBody.replaceChildren();
+    for (let i = 0; i < diagnostics.length; i++) {
+      const d = diagnostics[i];
+      const tr = L.h('tr', { class: i === selectedError ? 'on' : '' });
+      tr.appendChild(cell(d.line || '', true));
+      tr.appendChild(cell(d.column || '', true));
+      tr.appendChild(cell(d.number || '', true));
+      tr.appendChild(cell(d.source || '', true));
+      tr.appendChild(cell(d.message || '', true));
+      tr.addEventListener('click', () => {
+        selectedError = i;
+        paintErrors();
+        if (String(d.source || '').toLowerCase() === MODULE) jumpToLine(Number(d.line) || 1, d.column);
+      });
+      errorBody.appendChild(tr);
+    }
+  }
+
+  function applyDiagnostics(list) {
+    diagnostics = Array.isArray(list) ? list : [];
+    selectedError = -1;
+    paintSquiggles();
+    paintErrors();
+  }
+
+  function diagnosticText(list) {
+    const lines = [];
+    for (let i = 0; i < list.length; i++) {
+      const d = list[i];
+      lines.push(L.t('{0}: line {1}, column {2}: {3} ({4})', d.source || 'Module1', d.line || 1, d.column || 1, d.message || '', d.number == null ? '' : d.number));
+    }
+    return lines.length ? lines.join('\n') : L.t('The code could not be compiled.');
+  }
+
+  async function reportDiagnostics(list, title) {
+    if (L.ui && L.ui.msg) await L.ui.msg(diagnosticText(list), { icon: 'error', title: title || 'VibeOffice Visual Basic', width: 520 });
+  }
+
+  function scheduleCheck() {
+    if (checkTimer) clearTimeout(checkTimer);
+    const gen = ++checkGen;
+    checkTimer = setTimeout(() => {
+      checkTimer = null;
+      runCheck(gen);
+    }, 300);
+  }
+
+  async function runCheck(gen) {
+    if (!editor || !L.vb || !L.vb.compileIde) return;
+    const source = editor.getValue();
+    let compiled;
+    try { compiled = await L.vb.compileIde(source); }
+    catch (e) { return; }
+    if (gen !== checkGen || !editor || editor.getValue() !== source) return;
+    applyDiagnostics(compiled.diagnostics);
   }
 
   function clearCurrent() {
@@ -451,7 +553,28 @@
   }
 
   async function start(ignoreBreakpoints) {
-    if (phase !== 'idle' || !editor) return;
+    if (phase !== 'idle' || !editor || starting) return;
+    const source = editor.getValue();
+    starting = true;
+    try {
+      let compiled = null;
+      try {
+        if (!L.vb || !L.vb.compileIde) throw new Error(L.t('The VB runtime is not running'));
+        compiled = await L.vb.compileIde(source);
+      } catch (e) {
+        appendOutput(e && e.message ? e.message : String(e));
+        return;
+      }
+      if (phase !== 'idle' || !editor || editor.getValue() !== source) return;
+      if (!compiled.valid) {
+        applyDiagnostics(compiled.diagnostics);
+        if (showErrors) showErrors();
+        await reportDiagnostics(compiled.diagnostics);
+        return;
+      }
+    } finally {
+      starting = false;
+    }
     setPhase('running');
     stopRequested = false;
     clearCurrent();
@@ -712,6 +835,10 @@
     output = L.h('textarea', { class: 'vb-ide-output', readonly: true, translate: 'no' });
     const outputPage = L.h('div', { class: 'vb-ide-page' }, output);
 
+    const errorGrid = grid([L.t('Line#'), L.t('Column#'), L.t('Error Number'), L.t('Source'), L.t('Error Message')]);
+    errorBody = errorGrid.body;
+    const errorsPage = L.h('div', { class: 'vb-ide-page', hidden: true }, errorGrid.wrap);
+
     exprInput = L.h('input', { class: 'vb-ide-expr', type: 'text', translate: 'no' });
     exprInput.value = expression;
     exprInput.addEventListener('keydown', (e) => {
@@ -797,26 +924,30 @@
 
     const pages = [
       { name: 'output', el: outputPage },
+      { name: 'errors', el: errorsPage },
       { name: 'expression', el: expressionPage },
       { name: 'breakpoints', el: breakPage },
       { name: 'watch', el: watchPage },
     ];
     const tabButtons = [
       ['Output', 'output'],
+      ['Errors', 'errors'],
       ['Expression', 'expression'],
       ['Breakpoints', 'breakpoints'],
       ['Watch', 'watch'],
     ].map((pair) => {
-      const button = L.h('button', { class: 'vb-ide-tab', type: 'button', text: pair[0], dataset: { page: pair[1] } });
+      const button = L.h('button', { class: 'vb-ide-tab', type: 'button', text: pair[1] === 'errors' ? L.t('Errors') : pair[0], dataset: { page: pair[1] } });
       button.addEventListener('click', () => showPage(pages, tabButtons, pair[1]));
       return button;
     });
     showPage(pages, tabButtons, 'output');
+    showErrors = () => showPage(pages, tabButtons, 'errors');
+    paintErrors();
 
     stackList = L.h('ul', { class: 'vb-ide-list' });
     localList = L.h('ul', { class: 'vb-ide-list' });
     lowerPane = L.h('div', { class: 'vb-ide-lower' },
-      L.h('div', { class: 'vb-ide-tabs' }, L.h('div', { class: 'vb-ide-tabbar' }, tabButtons), outputPage, expressionPage, breakPage, watchPage),
+      L.h('div', { class: 'vb-ide-tabs' }, L.h('div', { class: 'vb-ide-tabbar' }, tabButtons), outputPage, errorsPage, expressionPage, breakPage, watchPage),
       L.h('div', { class: 'vb-ide-col' }, L.h('div', { class: 'vb-ide-cap', text: 'Call Stack' }), stackList),
       L.h('div', { class: 'vb-ide-col' }, L.h('div', { class: 'vb-ide-cap', text: 'Object Values' }), localList));
 
@@ -1148,8 +1279,10 @@
             paintDots();
             paintBpList();
           }, 0);
+          scheduleCheck();
         });
         editor.setValue(code);
+        scheduleCheck();
         setPhase(phase);
         paintDots();
         paintBpList();
@@ -1159,6 +1292,9 @@
       onClose: () => {
         closeList();
         closeConditionPanel();
+        if (checkTimer) { clearTimeout(checkTimer); checkTimer = null; }
+        checkGen++;
+        clearSquiggles();
         if (editor) code = editor.getValue();
         if (exprInput) expression = exprInput.value;
         if (exprOut) expressionResult = exprOut.value;
@@ -1169,6 +1305,8 @@
         lowerPane = null;
         bpBody = null;
         watchBody = null;
+        errorBody = null;
+        showErrors = null;
         stopDebugging();
       },
     });
@@ -1181,5 +1319,5 @@
     });
   }
 
-  L.vbIde = { open: open };
+  L.vbIde = { open: open, reportDiagnostics: reportDiagnostics };
 })();

@@ -527,6 +527,8 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .vb-ide-editor { flex: 1.15 1 0; min-height: 80px; overflow: hidden; }
 .vb-ide-split { flex: none; }
 .vb-ide-editor .CodeMirror { height: 100%; font-family: monospace; font-size: 13px; }
+.vb-ide-squiggle { text-decoration: underline wavy var(--error-ink); text-decoration-thickness: 1px; }
+.vb-ide-squiggle-empty { display: inline-block; min-width: 1em; text-decoration: underline wavy var(--error-ink); }
 .vb-ide-editor .CodeMirror-gutters { background: var(--surface); border-right: 1px solid var(--field-border); }
 .vb-ide-dot { display: inline-block; width: 9px; height: 9px; margin: 3px 0 0 2px; border-radius: 50%; background: var(--error-ink); }
 .vb-ide-current { background: var(--hot-a); }

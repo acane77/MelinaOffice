@@ -786,7 +786,7 @@
  "&Continue": {
   "where": [
    "common/ui.js:1304",
-   "common/vb-ide.js:691"
+   "common/vb-ide.js:814"
   ]
  },
  "&Continue Numbering": {
@@ -1309,7 +1309,7 @@
  },
  "&Exit": {
   "where": [
-   "common/vb-ide.js:683"
+   "common/vb-ide.js:806"
   ]
  },
  "&F, Page &P": {
@@ -2552,12 +2552,12 @@
  },
  "&Open Project...": {
   "where": [
-   "common/vb-ide.js:678"
+   "common/vb-ide.js:801"
   ]
  },
  "&Open Visual Basic File...": {
   "where": [
-   "common/vb-ide.js:681"
+   "common/vb-ide.js:804"
   ]
  },
  "&Open...": {
@@ -3188,7 +3188,7 @@
  },
  "&Save Project...": {
   "where": [
-   "common/vb-ide.js:679"
+   "common/vb-ide.js:802"
   ]
  },
  "&Scout": {
@@ -3503,7 +3503,7 @@
  },
  "&Stop Debugging": {
   "where": [
-   "common/vb-ide.js:692"
+   "common/vb-ide.js:815"
   ]
  },
  "&Structure": {
@@ -4250,7 +4250,7 @@
  },
  "(VB bool expression. Leave empty to set unconditional breakpoint)": {
   "where": [
-   "common/vb-ide.js:745"
+   "common/vb-ide.js:872"
   ]
  },
  "(blank)": {
@@ -5383,8 +5383,8 @@
  },
  "Add": {
   "where": [
-   "common/vb-ide.js:746",
-   "common/vb-ide.js:782"
+   "common/vb-ide.js:873",
+   "common/vb-ide.js:909"
   ]
  },
  "Add &Watch": {
@@ -5603,7 +5603,7 @@
  },
  "Additionally, macros created in Ledger cannot be loaded or executed by Microsoft Excel, nor can macros created in Excel be loaded or executed by Ledger.": {
   "where": [
-   "ledger/js/macros.js:329"
+   "ledger/js/macros.js:332"
   ]
  },
  "Additionally, macros created in Quire cannot be loaded or executed by Microsoft Word, nor can macros created in Word be loaded or executed by Quire.": {
@@ -8134,7 +8134,7 @@
  },
  "Call Stack": {
   "where": [
-   "common/vb-ide.js:820"
+   "common/vb-ide.js:951"
   ]
  },
  "Callouts": {
@@ -9510,7 +9510,7 @@
  },
  "Code at Line": {
   "where": [
-   "common/vb-ide.js:748"
+   "common/vb-ide.js:875"
   ]
  },
  "Col #:": {
@@ -9743,6 +9743,11 @@
  "Column {0}:": {
   "where": [
    "quire/js/dialogs2.js:731"
+  ]
+ },
+ "Column#": {
+  "where": [
+   "common/vb-ide.js:838"
   ]
  },
  "ColumnWidth, RowHeight, Hidden": {
@@ -9981,7 +9986,7 @@
  },
  "Completions": {
   "where": [
-   "common/vb-ide.js:941"
+   "common/vb-ide.js:1072"
   ]
  },
  "Complimentary closing:": {
@@ -10036,8 +10041,8 @@
  },
  "Condition Expression": {
   "where": [
-   "common/vb-ide.js:748",
-   "common/vb-ide.js:760"
+   "common/vb-ide.js:875",
+   "common/vb-ide.js:887"
   ]
  },
  "Condition {0}": {
@@ -10048,7 +10053,7 @@
  },
  "Condition:": {
   "where": [
-   "common/vb-ide.js:291"
+   "common/vb-ide.js:393"
   ]
  },
  "Conditional Formatting": {
@@ -10176,7 +10181,7 @@
  },
  "Continue": {
   "where": [
-   "common/vb-ide.js:697"
+   "common/vb-ide.js:820"
   ]
  },
  "Continue Numbering": {
@@ -13441,7 +13446,7 @@
  },
  "Enable this breakpoint": {
   "where": [
-   "common/vb-ide.js:292"
+   "common/vb-ide.js:394"
   ]
  },
  "Enclosures:": {
@@ -13814,6 +13819,16 @@
    "ledger/js/dialogs3.js:362"
   ]
  },
+ "Error Message": {
+  "where": [
+   "common/vb-ide.js:838"
+  ]
+ },
+ "Error Number": {
+  "where": [
+   "common/vb-ide.js:838"
+  ]
+ },
  "Error in Value": {
   "where": [
    "ledger/js/dialogs3.js:328"
@@ -13860,6 +13875,7 @@
  },
  "Errors": {
   "where": [
+   "common/vb-ide.js:939",
    "ledger/js/dialogs.js:564"
   ]
  },
@@ -13907,7 +13923,7 @@
  },
  "Evaluate": {
   "where": [
-   "common/vb-ide.js:733"
+   "common/vb-ide.js:860"
   ]
  },
  "Evaluate &Formula": {
@@ -14093,8 +14109,8 @@
  },
  "Expression": {
   "where": [
-   "common/vb-ide.js:739",
-   "common/vb-ide.js:792",
+   "common/vb-ide.js:866",
+   "common/vb-ide.js:919",
    "quire/js/find.js:391"
   ]
  },
@@ -18202,7 +18218,7 @@
  },
  "Keyword": {
   "where": [
-   "common/vb-ide.js:925"
+   "common/vb-ide.js:1056"
   ]
  },
  "Known types: column clustered 51, bar clustered 57, line 4, pie 5, scatter -4169, area 1, doughnut -4120. Any other type fails.": {
@@ -18355,7 +18371,7 @@
  },
  "Last Value": {
   "where": [
-   "common/vb-ide.js:784"
+   "common/vb-ide.js:911"
   ]
  },
  "Last co&lumn": {
@@ -18499,7 +18515,7 @@
  },
  "Lectern DOM Console": {
   "where": [
-   "lectern/js/dom-console.js:941"
+   "lectern/js/dom-console.js:969"
   ]
  },
  "Lectern Help": {
@@ -18540,7 +18556,7 @@
  },
  "Ledger DOM Console": {
   "where": [
-   "ledger/js/dom-console.js:951"
+   "ledger/js/dom-console.js:979"
   ]
  },
  "Ledger Help": {
@@ -19081,13 +19097,13 @@
  },
  "Line Number": {
   "where": [
-   "common/vb-ide.js:748",
-   "common/vb-ide.js:756"
+   "common/vb-ide.js:875",
+   "common/vb-ide.js:883"
   ]
  },
  "Line Number:": {
   "where": [
-   "common/vb-ide.js:290"
+   "common/vb-ide.js:392"
   ]
  },
  "Line Numbers": {
@@ -19155,12 +19171,17 @@
  },
  "Line {0}: {1}": {
   "where": [
-   "common/vb-ide.js:170"
+   "common/vb-ide.js:272"
   ]
  },
  "Line {0}| {1}": {
   "where": [
-   "common/vb-ide.js:94"
+   "common/vb-ide.js:102"
+  ]
+ },
+ "Line#": {
+  "where": [
+   "common/vb-ide.js:838"
   ]
  },
  "Linear Venn": {
@@ -19638,7 +19659,7 @@
  },
  "Macros created by Microsoft Excel are not executed in Ledger. A VBA project in a .xlsm file is kept in the package and is not run.": {
   "where": [
-   "ledger/js/macros.js:328"
+   "ledger/js/macros.js:331"
   ]
  },
  "Macros created by Microsoft PowerPoint are not executed in Lectern. A VBA project in a .pptm file is kept in the package and is not run.": {
@@ -20686,7 +20707,7 @@
  "Never show this message again": {
   "where": [
    "lectern/js/dialogs.js:1154",
-   "ledger/js/macros.js:322",
+   "ledger/js/macros.js:325",
    "quire/js/dialogs3.js:517"
   ]
  },
@@ -21421,7 +21442,7 @@
  },
  "Notice on Macros in Ledger": {
   "where": [
-   "ledger/js/macros.js:325"
+   "ledger/js/macros.js:328"
   ]
  },
  "Notice on Macros in Quire": {
@@ -21693,7 +21714,7 @@
  },
  "Object Values": {
   "where": [
-   "common/vb-ide.js:821"
+   "common/vb-ide.js:952"
   ]
  },
  "Object positioning": {
@@ -22383,9 +22404,9 @@
  },
  "Output": {
   "where": [
-   "lectern/js/dom-console.js:890",
-   "ledger/js/dom-console.js:900",
-   "quire/js/dom-console.js:898"
+   "lectern/js/dom-console.js:918",
+   "ledger/js/dom-console.js:928",
+   "quire/js/dom-console.js:926"
   ]
  },
  "Outset": {
@@ -24315,7 +24336,7 @@
  },
  "Quire DOM Console": {
   "where": [
-   "quire/js/dom-console.js:949"
+   "quire/js/dom-console.js:977"
   ]
  },
  "Quire Help": {
@@ -24946,7 +24967,7 @@
  },
  "Remove": {
   "where": [
-   "common/vb-ide.js:786",
+   "common/vb-ide.js:913",
    "lectern/js/panes.js:799"
   ]
  },
@@ -24967,12 +24988,12 @@
  },
  "Remove All": {
   "where": [
-   "common/vb-ide.js:787"
+   "common/vb-ide.js:914"
   ]
  },
  "Remove All Breakpoints": {
   "where": [
-   "common/vb-ide.js:751"
+   "common/vb-ide.js:878"
   ]
  },
  "Remove Borders": {
@@ -24982,7 +25003,7 @@
  },
  "Remove Breakpoint": {
   "where": [
-   "common/vb-ide.js:750"
+   "common/vb-ide.js:877"
   ]
  },
  "Remove Effect": {
@@ -27414,9 +27435,9 @@
  },
  "Run": {
   "where": [
-   "lectern/js/dom-console.js:895",
-   "ledger/js/dom-console.js:905",
-   "quire/js/dom-console.js:903"
+   "lectern/js/dom-console.js:923",
+   "ledger/js/dom-console.js:933",
+   "quire/js/dom-console.js:931"
   ]
  },
  "Run Script": {
@@ -27441,7 +27462,7 @@
    "lectern/js/dom-console.js:822",
    "lectern/js/dom-console.js:834",
    "lectern/js/dom-console.js:851",
-   "lectern/js/dom-console.js:886"
+   "lectern/js/dom-console.js:874"
   ]
  },
  "Run, SendKeys, Wait, OnTime": {
@@ -27598,7 +27619,7 @@
    "lectern/js/commands.js:26",
    "lectern/js/dom-console.js:822",
    "lectern/js/dom-console.js:851",
-   "lectern/js/dom-console.js:894"
+   "lectern/js/dom-console.js:922"
   ]
  },
  "Save &As...": {
@@ -29801,6 +29822,7 @@
  },
  "Source": {
   "where": [
+   "common/vb-ide.js:838",
    "ledger/js/dialogs.js:982"
   ]
  },
@@ -30237,12 +30259,12 @@
  },
  "Start &Debug": {
   "where": [
-   "common/vb-ide.js:686"
+   "common/vb-ide.js:809"
   ]
  },
  "Start &Run": {
   "where": [
-   "common/vb-ide.js:687"
+   "common/vb-ide.js:810"
   ]
  },
  "Start &With Previous": {
@@ -30258,7 +30280,7 @@
  },
  "Start Debug (F5)": {
   "where": [
-   "common/vb-ide.js:695"
+   "common/vb-ide.js:818"
   ]
  },
  "Start Enforcing Protection": {
@@ -30278,7 +30300,7 @@
  },
  "Start Run": {
   "where": [
-   "common/vb-ide.js:696"
+   "common/vb-ide.js:819"
   ]
  },
  "Start Slide Show": {
@@ -30463,22 +30485,22 @@
  },
  "Step &Into": {
   "where": [
-   "common/vb-ide.js:690"
+   "common/vb-ide.js:813"
   ]
  },
  "Step &Over": {
   "where": [
-   "common/vb-ide.js:689"
+   "common/vb-ide.js:812"
   ]
  },
  "Step Into": {
   "where": [
-   "common/vb-ide.js:698"
+   "common/vb-ide.js:821"
   ]
  },
  "Step Over": {
   "where": [
-   "common/vb-ide.js:699"
+   "common/vb-ide.js:822"
   ]
  },
  "Step Up Process": {
@@ -30523,7 +30545,7 @@
  },
  "Stop Debugging": {
   "where": [
-   "common/vb-ide.js:700"
+   "common/vb-ide.js:823"
   ]
  },
  "Stop Protection": {
@@ -31750,10 +31772,10 @@
  },
  "The VB runtime is not running": {
   "where": [
-   "common/vb-ide.js:464",
-   "common/vb-ide.js:860",
-   "lectern/js/macros.js:260",
-   "lectern/js/macros.js:280"
+   "common/vb-ide.js:562",
+   "common/vb-ide.js:587",
+   "common/vb-ide.js:991",
+   "lectern/js/dom-console.js:865"
   ]
  },
  "The active cell does not contain a formula that refers to a valid reference.": {
@@ -31839,6 +31861,11 @@
  "The classic blue toolbars and menus.": {
   "where": [
    "common/suite.js:476"
+  ]
+ },
+ "The code could not be compiled.": {
+  "where": [
+   "common/vb-ide.js:222"
   ]
  },
  "The comment body.": {
@@ -32502,7 +32529,7 @@
  },
  "The program is not paused.": {
   "where": [
-   "common/vb-ide.js:498"
+   "common/vb-ide.js:621"
   ]
  },
  "The pronoun \"I\" is always capitalized.": {
@@ -32517,7 +32544,7 @@
  },
  "The purpose of introducing Visual Basic-based macros in Ledger is to automate workbook editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Excel's .xlsm format or VBA projects.": {
   "where": [
-   "ledger/js/macros.js:330"
+   "ledger/js/macros.js:333"
   ]
  },
  "The purpose of introducing Visual Basic-based macros in Quire is to automate document editing using existing VB6 code and to provide MCP (Model Context Protocol) capabilities for AI agents, rather than to achieve compatibility with Microsoft Word's .docm format or VBA projects.": {
@@ -32590,7 +32617,7 @@
  },
  "The script editor did not load.": {
   "where": [
-   "common/vb-ide.js:1071",
+   "common/vb-ide.js:1202",
    "lectern/js/dom-console.js:756",
    "ledger/js/dom-console.js:766",
    "quire/js/dom-console.js:760"
@@ -32711,9 +32738,9 @@
  },
  "The terminal library did not load.": {
   "where": [
-   "lectern/js/dom-console.js:929",
-   "ledger/js/dom-console.js:939",
-   "quire/js/dom-console.js:937"
+   "lectern/js/dom-console.js:957",
+   "ledger/js/dom-console.js:967",
+   "quire/js/dom-console.js:965"
   ]
  },
  "The text is not marked as English, so it was not checked. Use Tools ▸ Language ▸ Set Language to mark it.": {
@@ -33236,8 +33263,8 @@
  },
  "This file is not a Visual Basic project.": {
   "where": [
-   "common/vb-ide.js:557",
-   "common/vb-ide.js:561"
+   "common/vb-ide.js:680",
+   "common/vb-ide.js:684"
   ]
  },
  "This file is not an Excel workbook.": {
@@ -34934,10 +34961,10 @@
  },
  "VibeOffice Visual Basic": {
   "where": [
-   "common/vb-ide.js:1076",
+   "common/vb-ide.js:226",
+   "common/vb-ide.js:1207",
    "lectern/js/commands.js:152",
-   "lectern/js/ribbon.js:69",
-   "ledger/js/commands.js:205"
+   "lectern/js/ribbon.js:69"
   ]
  },
  "VibeOffice.work can't open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).": {
@@ -35932,7 +35959,7 @@
  },
  "[Object]": {
   "where": [
-   "common/vb-ide.js:99"
+   "common/vb-ide.js:107"
   ]
  },
  "[Text]": {
@@ -36769,6 +36796,11 @@
  "{0}% normal size": {
   "where": [
    "ledger/js/dialogs3.js:381"
+  ]
+ },
+ "{0}: line {1}, column {2}: {3} ({4})": {
+  "where": [
+   "common/vb-ide.js:220"
   ]
  },
  "{none}": {
