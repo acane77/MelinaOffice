@@ -144,11 +144,19 @@
     return ret;
   }
 
-  function domMembers(typeName, member) {
+  /* A catalog ability is a host member. The code says why this session cannot run it. */
+  function hostWhy(desc) {
+    const ability = desc && desc.ability;
+    if (!ability) return '';
+    if (L.hostAudit && typeof L.hostAudit.has === 'function' && L.hostAudit.has(ability)) return '';
+    if (L.hostAudit && typeof L.hostAudit.why === 'function') return L.hostAudit.why(ability) || 'platform';
+    return 'platform';
+  }
+
+  function domMembers(typeName, member, spec, purpose) {
     if (!typeName || typeof member !== 'function') return [];
     const names = ['Application', 'Parent', 'Creator'];
     const seen = new Set(names.map(id));
-    const spec = arguments[2];
     if (spec && spec.members) {
       for (const name in spec.members) {
         if (!seen.has(id(name))) { names.push(name); seen.add(id(name)); }
@@ -159,14 +167,19 @@
       const desc = member(typeName, names[i]);
       if (!desc || desc.kind === 'gap') continue;
       const call = desc.kind === 'call' || desc.kind === 'both';
-      items.push({
+      const item = {
         name: names[i],
         kind: call ? 'procedure' : 'member',
         type: domTypeName(desc),
         params: call ? paramText(desc.params) : '',
         host: false,
         accessor: '',
-      });
+      };
+      const note = typeof purpose === 'function' ? purpose(typeName, names[i]) : '';
+      if (note) item.purpose = note;
+      const why = hostWhy(desc);
+      if (why) { item.unavailable = true; item.why = why; }
+      items.push(item);
     }
     return items;
   }
@@ -208,7 +221,7 @@
         return fromSymbol(member, false);
       });
     }
-    if (type && ctx.domTypes && ctx.domTypes[type]) return domMembers(type, ctx.member, ctx.domTypes[type]);
+    if (type && ctx.domTypes && ctx.domTypes[type]) return domMembers(type, ctx.member, ctx.domTypes[type], ctx.purpose);
     return [];
   }
 
@@ -279,6 +292,9 @@
     const out = { name: item.name, kind: item.kind };
     if (type && type !== 'Void') out.type = type;
     if (item.params) out.params = item.params;
+    if (item.purpose) out.purpose = item.purpose;
+    if (item.unavailable) out.unavailable = true;
+    if (item.why) out.why = item.why;
     return out;
   }
 
@@ -379,7 +395,7 @@
         roots.push({ name: KEYWORDS[i], kind: 'keyword', type: '', params: '', host: false, accessor: '' });
       }
     }
-    const ctx = { roots: roots, indexes: indexes, byName: byName, types: request && request.types || {}, member: request && request.member, domTypes: request && request.domTypes || null };
+    const ctx = { roots: roots, indexes: indexes, byName: byName, types: request && request.types || {}, member: request && request.member, domTypes: request && request.domTypes || null, purpose: request && request.purpose };
     let items = roots;
     if (memberAccess) {
       let left = '';
@@ -420,7 +436,7 @@
       return { name: item && item.name || tail, kind: item && item.kind || '', type: '', params: '', line: 0, local: false };
     }
     const type = effectiveType(item, prepared.ctx.types);
-    return {
+    const out = {
       name: item.name,
       kind: item.kind,
       type: type && type !== 'Void' ? type : '',
@@ -428,5 +444,7 @@
       line: item.local ? item.line : 0,
       local: !!item.local && item.line > 0,
     };
+    if (item.purpose) out.purpose = item.purpose;
+    return out;
   };
 })();

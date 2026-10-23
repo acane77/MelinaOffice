@@ -1123,6 +1123,7 @@
       types: host.types || {},
       member: L.domIr && L.domIr.member,
       domTypes: L.domIr && L.domIr.types,
+      purpose: L.vbDomRef && L.vbDomRef.purpose,
       intrinsics: window.VB6Engine.intrinsicCatalog(),
       files: host.files === true,
       frame: frame,
@@ -1200,20 +1201,54 @@
     positionHover(x, y);
   }
 
+  /* Purpose stays in the reference's own words. Signature, Returns and Type are chrome. */
+  function appendPurpose(parent, item) {
+    if (item.purpose) parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-purpose', translate: 'no', text: item.purpose }));
+  }
+
+  function appendProcedureDetail(parent, item) {
+    if (item.params) {
+      parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-label', text: 'Signature' }));
+      parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: '(' + item.params + ')' }));
+    }
+    if (item.type && item.type !== 'Variant') {
+      parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-label', text: 'Returns' }));
+      parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: item.type }));
+    }
+  }
+
+  function appendWhy(parent, item) {
+    let text = '';
+    if (item.why === 'path') text = 'Not available on this platform because the open file has no path.';
+    else if (item.why === 'app') text = 'Not available on this platform because this application does not implement it.';
+    else if (item.why === 'platform') text = 'Not available on this platform because this session has no file host.';
+    if (text) parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-why', text: text }));
+  }
+
+  function appendType(parent, item) {
+    if (item.kind === 'procedure' || item.kind === 'keyword' || item.kind === 'module' || item.kind === 'type') return;
+    if (!item.type || item.type === 'Variant') return;
+    parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-label', text: 'Type' }));
+    parent.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: item.type }));
+  }
+
+  function fillSig(parent, item) {
+    const head = L.h('div', { class: 'vb-ide-complete-sig-name' });
+    const icon = L.icons && L.icons.get(COMPLETE_ICONS[item.kind] || 'field', 16);
+    if (icon) head.appendChild(L.h('span', { class: 'vb-ide-complete-ico', html: icon }));
+    head.appendChild(L.h('span', { translate: 'no', text: item.name }));
+    parent.appendChild(head);
+    appendPurpose(parent, item);
+    if (item.kind === 'procedure') appendProcedureDetail(parent, item);
+    else appendType(parent, item);
+    appendWhy(parent, item);
+  }
+
   function showSymbolTip(item, x, y) {
     if (!item || !item.name || item.kind === 'keyword' || item.kind === 'module') { hideHover(); return; }
     const tip = tipBox('vb-ide-complete-sig vb-ide-hover');
     tip.replaceChildren();
-    const head = L.h('div', { class: 'vb-ide-complete-sig-name' });
-    const iconName = COMPLETE_ICONS[item.kind] || 'field';
-    const icon = L.icons && L.icons.get(iconName, 16);
-    if (icon) head.appendChild(L.h('span', { class: 'vb-ide-complete-ico', html: icon }));
-    head.appendChild(L.h('span', { translate: 'no', text: item.name }));
-    tip.appendChild(head);
-    let detail = '';
-    if (item.kind === 'procedure') detail = item.params ? '(' + item.params + ')' : '';
-    else if (item.type) detail = 'As ' + item.type;
-    if (detail) tip.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: detail }));
+    fillSig(tip, item);
     positionHover(x, y);
   }
 
@@ -1332,18 +1367,13 @@
     sigEl.style.left = left + 'px';
   }
 
-  /* The selected procedure's name and arguments, beside the completion list. */
+  /* Beside the list: every name, with its own icon. A note when the reference has one, Type for a variable or member, and why a gray member cannot run. */
   function paintSig() {
     if (sigEl) { sigEl.remove(); sigEl = null; }
     const item = listItems[listIndex];
-    if (!item || item.kind !== 'procedure') return;
+    if (!item) return;
     sigEl = L.h('div', { class: 'vb-ide-complete-sig' });
-    const head = L.h('div', { class: 'vb-ide-complete-sig-name' });
-    const icon = L.icons && L.icons.get(COMPLETE_ICONS.procedure, 16);
-    if (icon) head.appendChild(L.h('span', { class: 'vb-ide-complete-ico', html: icon }));
-    head.appendChild(L.h('span', { translate: 'no', text: item.name }));
-    sigEl.appendChild(head);
-    if (item.params) sigEl.appendChild(L.h('div', { class: 'vb-ide-complete-sig-params', translate: 'no', text: '(' + item.params + ')' }));
+    fillSig(sigEl, item);
     document.body.appendChild(sigEl);
   }
 
@@ -1381,7 +1411,7 @@
     for (let i = 0; i < listItems.length; i++) {
       const item = listItems[i];
       const row = L.h('div', {
-        class: 'vb-ide-complete-item' + (i === 0 ? ' on' : ''),
+        class: 'vb-ide-complete-item' + (i === 0 ? ' on' : '') + (item.unavailable ? ' dis' : ''),
         role: 'option',
         translate: 'no',
       });

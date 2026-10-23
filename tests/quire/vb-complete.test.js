@@ -14,6 +14,9 @@ async function boot() {
   const out = buildEngine();
   vm.runInThisContext(fs.readFileSync(out, 'utf8'), { filename: out });
   require('../../public/common/vb-complete.js');
+  L.N = (s) => s;
+  require('../../public/common/vb-dom-ref.js');
+  require('../../public/quire/js/vb-dom-ref.js');
 }
 
 function names(result) {
@@ -58,6 +61,7 @@ function complete(at, text) {
     domTypes: L.domIr.types,
     intrinsics: VB6Engine.intrinsicCatalog(),
     files: false,
+    purpose: L.vbDomRef && L.vbDomRef.purpose,
   });
 }
 
@@ -74,6 +78,7 @@ function inspect(at, text) {
     domTypes: L.domIr.types,
     intrinsics: VB6Engine.intrinsicCatalog(),
     files: false,
+    purpose: L.vbDomRef && L.vbDomRef.purpose,
   });
 }
 
@@ -149,6 +154,7 @@ test('completion follows the procedure and the virtual machine', async () => {
     domTypes: L.domIr.types,
     intrinsics: VB6Engine.intrinsicCatalog(),
     files: false,
+    purpose: L.vbDomRef && L.vbDomRef.purpose,
   };
   const first = L.vbComplete(Object.assign({ code: 'D', offset: 1 }, docRequest));
   const dim = first.items.find((item) => item.name === 'Dim');
@@ -178,6 +184,7 @@ test('completion follows the procedure and the virtual machine', async () => {
     domTypes: L.domIr.types,
     intrinsics: VB6Engine.intrinsicCatalog(),
     files: false,
+    purpose: L.vbDomRef && L.vbDomRef.purpose,
     frame: { procedure: 'Main', module: 'Module1', locals: [{ name: 'count', type: 'Long' }, { name: 'temp', type: 'Long' }] },
   });
   assert.equal(has(framed, 'count'), true);
@@ -196,6 +203,7 @@ test('completion follows the procedure and the virtual machine', async () => {
     domTypes: L.domIr.types,
     intrinsics: VB6Engine.intrinsicCatalog(),
     files: false,
+    purpose: L.vbDomRef && L.vbDomRef.purpose,
     frame: { procedure: 'Main', module: 'Module1', locals: [{ name: 'count', type: 'Long' }, { name: 'temp', type: 'Long' }] },
   });
   assert.equal(has(paused, 'count'), true);
@@ -217,6 +225,41 @@ test('completion follows the procedure and the virtual machine', async () => {
   assert.equal(saveAs.name, 'SaveAs');
   assert.equal(saveAs.local, false);
   assert.equal(saveAs.params.indexOf('FileName') >= 0, true);
+  assert.equal(saveAs.purpose, 'On the VS Code host, writes that path and opens it. Elsewhere G-HOST.');
+});
+
+test('a procedure carries the reference note, and a local function its return type', async () => {
+  await boot();
+  const src = 'ActiveDocument.\n';
+  const members = complete(src.indexOf('ActiveDocument.') + 'ActiveDocument.'.length, src);
+  const activate = members.items.find((item) => item.name === 'Activate');
+  assert.equal(activate.purpose, 'Switches the session to this document.');
+  assert.equal(activate.params, undefined);
+  const saveAs = members.items.find((item) => item.name === 'SaveAs');
+  assert.equal(saveAs.purpose, 'On the VS Code host, writes that path and opens it. Elsewhere G-HOST.');
+  assert.equal(saveAs.params.indexOf('FileName') >= 0, true);
+  assert.equal(saveAs.type, undefined);
+  assert.equal(saveAs.unavailable, true);
+  assert.equal(saveAs.why, 'platform');
+  assert.equal(activate.unavailable, undefined);
+  const select = members.items.find((item) => item.name === 'Select');
+  assert.equal(select.unavailable, undefined);
+  L.hostAudit = { has: (name) => String(name).toLowerCase() === 'saveas' };
+  try {
+    const onHost = complete(src.indexOf('ActiveDocument.') + 'ActiveDocument.'.length, src);
+    assert.equal(onHost.items.find((item) => item.name === 'SaveAs').unavailable, undefined);
+    assert.equal(onHost.items.find((item) => item.name === 'Save').why, 'platform');
+    assert.equal(onHost.items.find((item) => item.name === 'SaveAs').why, undefined);
+    assert.equal(onHost.items.find((item) => item.name === 'FullName').unavailable, true);
+    assert.equal(onHost.items.find((item) => item.name === 'Activate').unavailable, undefined);
+  } finally {
+    delete L.hostAudit;
+  }
+  const fn = 'Function Foo(n As Long) As Integer\n  Fo\nEnd Function\n';
+  const foo = complete(fn.indexOf('Fo') + 2, fn).items.find((item) => item.name === 'Foo');
+  assert.equal(foo.type, 'Integer');
+  assert.equal(foo.params, 'n');
+  assert.equal(foo.purpose, undefined);
 });
 
 test('intrinsic catalog is a subset of the virtual machine library', async () => {

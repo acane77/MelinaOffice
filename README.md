@@ -98,9 +98,18 @@ Implemented Visual Basic APIs with security auditing strategy. Supported APIs in
 
 More APIs will be implemented later.
 
+* **Host API Support on VSCode and Desktop Platforms**
+
 <p align="center">
   <img src="docs/images/VB6_IDE_2.png" width="720" alt="VB6 Playground">
 </p>
+
+* **User friendly code completion and debug tools**: The VB6 IDE introduces context-aware code completions and documentations.
+
+<p align="center">
+  <img src="docs/images/VB6_IDE_CC.png" width="720" alt="VB6 Playground">
+</p>
+
 
 ## Equations in LaTeX
 

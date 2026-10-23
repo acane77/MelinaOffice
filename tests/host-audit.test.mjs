@@ -13,13 +13,17 @@ const { L, VO } = context;
 test('an unknown ability and a browser host are false', () => {
   VO.host = { kind: 'web' };
   assert.equal(L.hostAudit.has('Path'), false);
+  assert.equal(L.hostAudit.why('Path'), 'platform');
   assert.equal(L.hostAudit.has('NotAThing'), false);
   L.APP_ID = 'quire';
   VO.host = { kind: 'vscode', documentPath: () => '' };
   assert.equal(L.hostAudit.has('Path'), false);
+  assert.equal(L.hostAudit.why('Path'), 'path');
   assert.equal(L.hostAudit.has('SaveAs'), true);
+  assert.equal(L.hostAudit.why('SaveAs'), '');
   assert.equal(L.hostAudit.has('InsertFile'), true);
   assert.equal(L.hostAudit.has('Export'), false);
+  assert.equal(L.hostAudit.why('Export'), 'app');
   assert.equal(L.hostAudit.has('SheetSaveAs'), false);
   L.APP_ID = 'lectern';
   assert.equal(L.hostAudit.has('Export'), true);
