@@ -9,6 +9,16 @@
   <a href="https://acane77.github.io/vibeoffice"><b>▶&nbsp;&nbsp;Try it now!</b></a>
 </p>
 
+<p align="center">
+  <a href="https://acane77.github.io/vibeoffice/">
+    <img src="docs/images/StartupPage.png" width="720" alt="MCP Support in VS Code">
+  </a>
+</p>
+
+## Components
+
+* This fork implements a vscode/code-server plugin, it works in VSCode! It runs in both browsers and VS Code.
+
 <table>
   <tr>
     <td align="center" width="33%">
@@ -25,10 +35,6 @@
     </td>
   </tr>
 </table>
-
-## VSCode and Code Server Plugin
-
-This fork implements a vscode/code-server plugin, it works in VSCode!
 
 <table>
   <tr>
