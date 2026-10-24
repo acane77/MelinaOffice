@@ -86,7 +86,9 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   a run of spaces is half a fullwidth em each, which is what makes an underlined blank on an East
   Asian cover the length Word draws. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
   document keeps that face at 10.5pt). The page follows the UI's language: A4, Office's margins, and
-  Japanese or Chinese line grids (i18n.md, Defaults).
+  Japanese or Chinese line grids (i18n.md, Defaults). A new document is laid out as if created in
+  Microsoft Word 2013 and later (Tools ▸ Options ▸ Compatibility). An opened file keeps the compatibility
+  it was saved with.
 - Each line is as tall as what it holds, as Word sizes lines (`js/portions.js`, after Apache OpenOffice
   Writer's line portions): a line with text by its text, a picture alone in its line exactly the
   picture's height (Quire added the text's descent below it, 3 to 7pt), a large first word no longer
