@@ -1,6 +1,6 @@
 # VibeOffice
 
-A static web office suite in the style of Office 2003 that opens and saves real Office Open XML files, installable as a PWA. `public/` is the site root: one folder per app, and `public/index.html`, the Start Center (as in LibreOffice: Open File, Recent Files with thumbnails, Create File from Blank or a template, Apps: Quire, Ledger, Lectern). Its About text stays general, never naming another company's product.
+A static web office suite in the style of Office 2003 that opens and saves real Office Open XML files, installable as a PWA. `public/` is the site root: one folder per app, and `public/index.html`, the Start Center (its own colours: Open, Recent Files, New File from Template, Quire, Ledger and Lectern). Its About text stays general, never naming another company's product.
 
 | App | Folder | Kind | Files |
 |---|---|---|---|

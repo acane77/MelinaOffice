@@ -21,7 +21,8 @@ async function boot(page, { query = '', stored = 'auto', languages = ['en-US'], 
   };
   c.window = c;
   vm.createContext(c);
-  const head = html.slice(0, html.indexOf('common/looks.css'));
+  const sheet = html.indexOf('common/looks.css');
+  const head = html.slice(0, sheet >= 0 ? sheet : html.indexOf('</head>'));
   for (const m of head.matchAll(/<script(?:\s+src="([^"]+)")?>([\s\S]*?)<\/script>/g)) {
     vm.runInContext(m[1] ? await read(m[1].replace(/^\.\.\//, '')) : m[2], c);
   }

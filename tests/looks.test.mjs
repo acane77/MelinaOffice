@@ -77,7 +77,7 @@ test('Ribbon 2010 is the stored default, and the Windows 7 default button keeps 
   const suite = read('common/suite.js');
   assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'ribbon2010'/);
   assert.match(suite, /id: 'ribbon2010', name: N\('Ribbon 2010'\)/);
-  for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
+  for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
     assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'ribbon2010'/);
   }
   /* the reference defined the default-button colours and a pulse, then applied neither:
@@ -113,8 +113,8 @@ test('disabled and read-only text fields use the dialog control colour', () => {
   assert.match(looks, /\[data-look="xp"\] \.dlg input\[type=text\]:not\(:read-only\)[\s\S]*?background:\s*#fff/);
 });
 
-test('the pages pick the look before the first paint and load looks.css first', () => {
-  for (const page of ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
+test('the app pages pick the look before the first paint and load looks.css first', () => {
+  for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
     const html = read(page);
     const script = html.indexOf("localStorage.getItem('vibeoffice.look')");
     const sheet = html.indexOf('common/looks.css');

@@ -81,7 +81,7 @@ File ▸ Save As asks for a file name, a folder and a type. Location starts as t
 
 File ▸ Exit closes the editor tab. Links to a web page or a mail address open outside the editor. The service worker is not registered.
 
-Help ▸ Language chooses the UI language (Auto, English, 日本語, 한국어, Français, Deutsch, 简体中文, 繁體中文), the same list as the Start Center's Settings. The extension remembers it (`vibeoffice.lang` in its global state) and loads the page again with that choice, which is what makes the editor show it: assigning the same HTML does not. If the file has unsaved changes, the choice is kept and used the next time an editor opens. With the ribbon, the list is at the end of File, beside Theme. It is not on the menu in the browser or the desktop app.
+Help ▸ Language chooses the UI language (Auto, English, 日本語, 한국어, Français, Deutsch, 简体中文, 繁體中文), the same list as the Start Center's language menu. The extension remembers it (`vibeoffice.lang` in its global state) and loads the page again with that choice, which is what makes the editor show it: assigning the same HTML does not. If the file has unsaved changes, the choice is kept and used the next time an editor opens. With the ribbon, the list is at the end of File, beside Theme. It is not on the menu in the browser or the desktop app.
 
 After you change a page under `public/`, close the editor tab and open the file again. The extension reads `index.html` when the tab opens.
 

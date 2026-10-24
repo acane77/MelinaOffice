@@ -144,16 +144,6 @@ test('the service worker caches the published site, a version per page', { timeo
 
   assert.ok(first.some((d) => d.state === 'progress' && d.total > 0 && d.received === d.total), 'progress tells the bytes');
 
-  /* the Start Center's bar, and its reload button after an update (none after a first visit) */
-  const bar = `['caching', 'cachingtext', 'cachingsize', 'cachingbar', 'cachingreload'].map((id) => {
-    const e = document.getElementById(id); return id === 'cachingbar' ? e.value : id === 'caching' || id === 'cachingreload' ? e.hidden : e.textContent; }).join('|')`;
-  const say = (detail) => a.js(`(dispatchEvent(new CustomEvent('vo-cache', { detail: ${JSON.stringify(detail)} })), ${bar})`);
-  assert.equal(await say({ state: 'progress', update: true, progress: 0.5, received: 2097152, total: 4194304 }), 'false|Updating cached resources|2.0 of 4.0 MB|0.5|true');
-  assert.equal(await say({ state: 'progress', update: false, progress: 0.1, received: 524288, total: 0 }), 'false|Caching resources for offline use|0.5 MB|0.1|true');
-  assert.match(await say({ state: 'done', update: false }), /^true\|.*\|true$/, 'a first visit: nothing to reload');
-  assert.match(await say({ state: 'done', update: true }), /^true\|.*\|false$/, 'an update: the reload button');
-  assert.match(await say({ state: 'failed', update: true }), /^true\|.*\|true$/, 'failed: neither');
-
   /* offline: the Start Center and an app still open, from the cache */
   site.offline = true;
   await a.go(site.origin + '/');
@@ -174,7 +164,6 @@ test('the service worker caches the published site, a version per page', { timeo
   await a.until(`caches.keys().then((k) => k.includes('vibeoffice-${V2}') && !!navigator.serviceWorker.controller) && __voCache.some((d) => d.state === 'done' && d.update)`, 'the update');
   await a.until(`navigator.serviceWorker.getRegistration().then((r) => r.active && !r.waiting && !r.installing)`, 'the new worker to take over');
   assert.ok((await a.js('__voCache')).some((d) => d.state === 'progress' && d.update === true), 'progress says update');
-  assert.equal(await a.js("document.getElementById('cachingreload').hidden"), false, 'the Just updated notice');
   const fetched = site.log.filter((p) => p !== '/sw.js' && p !== '/common/zip.js');   // the worker's own scripts, compared for the update
   assert.deepEqual(fetched, [`/updater/web-${V2}.zip`]);
   assert.equal(await a.js(cssOf), 'v1', 'the open page keeps its version');
@@ -189,8 +178,8 @@ test('the service worker caches the published site, a version per page', { timeo
   assert.equal(await b.js('VO.VERSION'), V2);
   assert.equal(await b.js(cssOf), 'v2');
   assert.equal(await a.js(cssOf), 'v1');
-  /* Just updated, Click here to reload: the open page reloads in the new version */
-  await a.js("document.getElementById('cachingreload').click()");
+  /* a reload gets the new version */
+  await a.js('location.reload()');
   await a.until(`window.VO && VO.VERSION === '${V2}' && document.readyState === 'complete'`, 'the reload in v2');
   assert.equal(await a.js(cssOf), 'v2');
   await a.close();
