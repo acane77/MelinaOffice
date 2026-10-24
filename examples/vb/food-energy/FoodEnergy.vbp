@@ -1,0 +1,3 @@
+Type=Exe
+Startup="FoodEnergy"
+Form=FoodEnergy.frm

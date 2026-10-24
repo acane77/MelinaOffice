@@ -22,9 +22,10 @@ test('an Immediate statement writes the presentation through the IR', { timeout:
     assert.equal(host.vm.immediateContext, true);
     assert.equal(host.vm.state, 'idle');
     assert.equal(host.vm.formInstances.size, 0);
-    for (const name of ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile', 'loadProject']) {
+    for (const name of ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile']) {
       assert.equal(host[name], null, name);
     }
+    assert.equal(typeof host.loadProject, 'function');
     await host.eval('ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text = "Hello"');
     assert.equal(ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text, 'Hello');
     assert.equal(await host.eval('?ActivePresentation.Slides(1).Shapes.Title.TextFrame.TextRange.Text'), 'Hello');

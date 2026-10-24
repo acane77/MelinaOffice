@@ -116,6 +116,15 @@ More APIs will be implemented later.
   <img src="docs/images/VB6_IDE_CC.png" width="720" alt="VB6 Playground">
 </p>
 
+* **VB6 Form Application Support**: Run VB6 Form Application in Vibe Office.
+
+<p align="center">
+  <img src="docs/images/VB6_Form_Example.png" width="720" alt="VB6 Form Example">
+</p>
+
+Sample code: [examples/vb/food-energy/](examples/vb/food-energy/)
+
+Open VibeOffice, navigate to "View" -> "Road Form", select all files inside [examples/vb/food-energy/](examples/vb/food-energy/), then a VB6 Form (Food Energy Calculator, shown above) will show, then you can enter the food data, then insert the calculated calorie values ​​into the document.
 
 ## Equations in LaTeX
 

@@ -37,9 +37,10 @@ test('an Immediate statement writes the document through the IR', { timeout: 120
     assert.equal(host.vm.immediateContext, true);
     assert.equal(host.vm.state, 'idle');
     assert.equal(host.vm.formInstances.size, 0);
-    for (const name of ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile', 'loadProject']) {
+    for (const name of ['createForm', 'beginModal', 'msgBox', 'inputBox', 'openFile', 'saveFile']) {
       assert.equal(host[name], null, name);
     }
+    assert.equal(typeof host.loadProject, 'function');
     await host.eval('ActiveDocument.Paragraphs(1).Range.Text = "Hello"');
     assert.equal(ActiveDocument.Paragraphs(1).Range.Text, 'Hello\r');
     assert.equal(await host.eval('?ActiveDocument.Paragraphs(1).Range.Text'), 'Hello\r');

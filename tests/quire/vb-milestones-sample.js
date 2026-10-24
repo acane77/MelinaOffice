@@ -210,7 +210,7 @@ async function runVbMilestones() {
     }
     await gap('Windows.Item(1)', 'G-HOST');
     await gap('ContentControls.Add', 'G-ENGINE');
-    if (host.createForm !== null || host.loadProject !== null) fail('form slots are set');
+    if (host.createForm !== null) fail('form slots are set');
     await present();
   } finally {
     host.close();

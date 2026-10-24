@@ -1,6 +1,6 @@
 # Quire VB support schedule
 
-**Status:** P1, P2, P3 M1–M5, P4M1, P4M2 and P5 are implemented. P6 has not been started. P1 is `public/quire/js/dom-ir.js` and [quire_dom_ir_specifications.md](quire_dom_ir_specifications.md). P2 is `public/quire/js/vb-host.js`, the headless entry `third_party/VB6/src/runtime/engine-entry.js`, and `make`. P3 is [quire_dom_ir_porting_milestones.md](quire_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is the DOM Console.
+**Status:** P1, P2, P3 M1–M5, P4M1, P4M2, P5 and P6 are implemented. P1 is `public/quire/js/dom-ir.js` and [quire_dom_ir_specifications.md](quire_dom_ir_specifications.md). P2 is `public/quire/js/vb-host.js`, the headless entry `third_party/VB6/src/runtime/engine-entry.js`, and `make`. P3 is [quire_dom_ir_porting_milestones.md](quire_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is the DOM Console. P6 is [quire_vbs_form.md](quire_vbs_form.md): `public/common/vb-forms.js` on the same host, drawn with `ui.dialog`.
 
 **Goal.** Run VB6 source against the open Quire document. Document calls go through a JavaScript DOM IR into the object model in `public/quire/js/dom.js`. A later VBS Form uses the same VB6 engine; its window is a host slot left empty until the last phase.
 
@@ -24,7 +24,7 @@ DOM Console / evalVB6 / a form event
         → VirtualMachine (third_party/VB6)
         → QuireVbHost
               automation  → DOM IR handles → public/quire/js/dom.js → document operations
-              createForm  → empty until P6; then a Quire pane and VB controls
+              createForm  → public/common/vb-forms.js, drawn with ui.dialog
 ```
 
 `Application`, `ActiveDocument`, `Documents`, `Selection` and the `wd*` constants from the specification are injected as a standard module on every Quire VB project, including a later form project. The properties read the current document through one Automation object. They are not frame locals and they are not VB controls.
@@ -37,10 +37,10 @@ The host object is created in P2 and kept. P6 fills the form slots on that same 
 |---|---|---|
 | `automation` | Document factory. `invoke` only emits IR. | Same factory. A button and the console edit one document. |
 | `print`, `error` | Console and `evalVB6`. | Same sink. `Debug.Print` uses it. |
-| `createForm` | Absent. `attachForm` then does nothing. | A Quire pane. Returned controls become form fields. |
-| `beginModal` | Absent. | Modal forms use Quire's modal relationship. |
-| `msgBox`, `inputBox` | Absent. | Quire dialogs. |
-| `openFile`, `saveFile` | Absent. | Only an explicit user choice. |
+| `createForm` | Absent. `attachForm` then does nothing. | A VibeOffice dialog. Returned controls become form fields. |
+| `beginModal` | Absent. | Other VB forms are marked inert. |
+| `msgBox`, `inputBox` | Absent. | Suite dialogs (`ui.msg`, `ui.prompt`). |
+| `openFile`, `saveFile` | Absent. | Still null. |
 | Virtual filesystem, Win32 registry | The engine's private in-memory storage. | Still private. Document bytes are not stored there. |
 | `loadProject` | Reserved, not implemented. | Compiles the form project, builds a running VM on this host, and calls `start()`. |
 
@@ -133,18 +133,7 @@ In Visual Basic 6 the bar also has Run Script. It opens a modeless window titled
 
 ### P6. VBS Form
 
-**Deliverable first.** A form plan, `docs/quire_vbs_form.md`, for acceptance. Implementation follows that plan and does not start in the same step as this schedule.
-
-The plan has to stay inside these bounds, which P2 already reserved:
-
-- Same `QuireVbHost`. Implement `loadProject`, `createForm` and `beginModal`. Add `msgBox` and `inputBox` only as Quire dialogs. Add `openFile` and `saveFile` only as an explicit user choice.
-- Load the forms bundle (`BrowserForm` and the controls it needs) when a form project is opened. Do not fold that bundle into the P2 engine script.
-- `loadProject` builds a running VM and calls `start()`. The console then uses that VM's `vm.immediate` when the stack is empty or the VM is paused.
-- A control event that edits the document calls the injected module, which emits IR. The form does not draw the document, and document handles are not control identities.
-- The engine virtual filesystem and Win32 registry stay off the document file.
-- Update [quire.md](quire.md) when the form can be opened.
-
-**Done when.** The form plan is accepted, and an accepted form project shows in a Quire pane, runs its events on the engine, and changes the open document only through the IR.
+Implemented. [quire_vbs_form.md](quire_vbs_form.md). The same `QuireVbHost`. `loadProject` compiles the project, starts a running VM and keeps the Immediate VM. `createForm`, `beginModal`, `msgBox` and `inputBox` are installed for that run. `openFile` and `saveFile` stay null. The window is `ui.dialog` in `public/common/vb-forms.js`. `BrowserForm` is not loaded and is not folded into the engine script. Ledger and Lectern use that same file. A control event that edits the document calls the injected module, which emits IR. The form does not draw the document. View ▸ Run Form opens a `.frm`.
 
 ## Files this plan expects to add or touch
 
@@ -153,7 +142,8 @@ The plan has to stay inside these bounds, which P2 already reserved:
 | IR specification | `docs/quire_dom_ir_specifications.md` | P1 |
 | IR API | Quire script beside `public/quire/js/dom.js` | P1 |
 | Engine entry | `third_party/VB6/src/runtime/engine-entry.js` | P2 |
-| Engine bundle | `public/quire/vendor/vb6/vb6-engine.js`, gitignored | P2, forms bundle in P6 |
+| Engine bundle | `public/quire/vendor/vb6/vb6-engine.js`, gitignored | P2 |
+| Form runtime | `public/common/vb-forms.js`, [quire_vbs_form.md](quire_vbs_form.md) | P6 |
 | Rebuild tool | `Makefile`, `tools/vb6/build-engine.sh` | P2 |
 | Host and injected module | `public/quire/js/vb-host.js` | P2 |
 | Porting milestones | `docs/quire_dom_ir_porting_milestones.md` | P3 |
@@ -161,7 +151,7 @@ The plan has to stay inside these bounds, which P2 already reserved:
 | `evalVB6` | page global on the P2 Immediate session | P4M1 |
 | `runVB6` | page global on the same host, second VM | P4M2 |
 | Console | `public/quire/js/dom-console.js`, `docs/quire.md`, console tests | P5 |
-| Form plan and host slots | `docs/quire_vbs_form.md`, then the reserved host slots | P6 |
+| Form plan and host slots | `docs/quire_vbs_form.md`, `public/common/vb-forms.js` | P6 |
 
 `docs/quire.md` is updated when the console or the form changes what a person can do. The DOM specification stays the inventory: an IR or VB member that the specification does not list is not added, and a gap closed in `dom.js` updates that specification in the same change.
 

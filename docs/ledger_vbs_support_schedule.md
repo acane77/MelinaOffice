@@ -1,6 +1,6 @@
 # Ledger VB support schedule
 
-**Status:** P1, P2, P3 M1–M5, P4M1, P4M2, P5 and document macros are implemented. P6 has not been started. P1 is `public/ledger/js/dom-ir.js` and [ledger_dom_ir_specifications.md](ledger_dom_ir_specifications.md). P2 is `public/ledger/js/vb-host.js` and the headless entry `third_party/VB6/src/runtime/engine-entry.js`. P3 is [ledger_dom_ir_porting_milestones.md](ledger_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is Help ▸ Ledger DOM Console.
+**Status:** P1, P2, P3 M1–M5, P4M1, P4M2, P5, document macros and P6 are implemented. P1 is `public/ledger/js/dom-ir.js` and [ledger_dom_ir_specifications.md](ledger_dom_ir_specifications.md). P2 is `public/ledger/js/vb-host.js` and the headless entry `third_party/VB6/src/runtime/engine-entry.js`. P3 is [ledger_dom_ir_porting_milestones.md](ledger_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is Help ▸ Ledger DOM Console. P6 is [quire_vbs_form.md](quire_vbs_form.md): `public/common/vb-forms.js`, drawn with `ui.dialog`.
 
 **Goal.** Run VB6 source against the open workbook. Document calls go through a JavaScript DOM IR into the object model in `public/ledger/js/dom.js`. A later VBS Form uses the same VB6 engine; its window is a host slot left empty.
 
@@ -16,7 +16,7 @@ The language is the VB6 engine in `third_party/VB6` (MIT). Call shape matches th
 - **One host, two VMs.** `evalVB6` and the DOM Console share one Immediate VM. `runVB6` compiles one standard module onto a second VM on that host and the same IR, then stops that VM. The Immediate VM and its locals stay. The two VMs do not run at once. Nested `eval` or `run` while a script is inside an IR call rejects with "A VB script is running".
 - **Visual Basic IDE.** View ▸ Visual Basic IDE (`public/common/vb-ide.js`) debugs one standard module, Module1, on a VM created by `debugBegin`. Start Run does not install breakpoints. The window calls the virtual machine; it does not mount VB6 Studio, and it is not P6. Step Into in Macros stays disabled. Completion (`public/common/vb-complete.js`) lists names the caret's procedure can see, and the procedures and modules this virtual machine actually runs. Keywords are listed anywhere except after a dot. A string, a comment or a date literal does not.
 - **Document macros.** A third VM on that host, separate from Immediate and from `runVB6`. Tools ▸ Macros reads and writes VB6 source. Current Document is the custom XML part `urn:vibeoffice:macros` on the workbook. All templates and documents is `vibeoffice.ledger.allMacros` in this browser, not in the file. The modules stay loaded so they can call each other. Run Script from the console is still `runVB6` and does not see them. `vbaProject.bin` is not listed or run. `Application.Run` is `G-HOST`.
-- **Two surfaces.** Document objects are Automation adapters whose `invoke` emits IR. Form controls would be the engine's `__control` objects. Controls are not IR handles. No form is created.
+- **Two surfaces.** Document objects are Automation adapters whose `invoke` emits IR. Form controls are the engine's `__control` objects, created by `host.createForm` when a form project is loaded. Controls are not IR handles.
 
 ## Layers
 
@@ -25,7 +25,7 @@ DOM Console / evalVB6
         → VirtualMachine (third_party/VB6)
         → LedgerVbHost
               automation  → DOM IR handles → public/ledger/js/dom.js → workbook operations
-              createForm  → empty until P6
+              createForm  → public/common/vb-forms.js, drawn with ui.dialog
 ```
 
 `Application`, `ActiveWorkbook`, `ThisWorkbook`, `Workbooks`, `ActiveSheet`, `ActiveCell`, `Selection`, `WorksheetFunction` and the `xl*` / `mso*` constants are injected as the standard module `LedgerDOM` on every Ledger VB project. In the console, `ThisWorkbook` is the active workbook.
@@ -36,9 +36,10 @@ DOM Console / evalVB6
 |---|---|---|
 | `automation` | Workbook factory. `invoke` only emits IR | Same factory |
 | `print`, `error` | Console and `evalVB6`. `Debug.Print` uses the print sink | Same sink |
-| `createForm` | Absent | A Ledger pane |
-| `beginModal`, `msgBox`, `inputBox`, `openFile`, `saveFile` | Absent | Ledger dialogs, and only an explicit user choice for files |
-| `loadProject` | Absent | Compiles a form project |
+| `createForm` | Absent until `loadProject` | A VibeOffice dialog (`public/common/vb-forms.js`) |
+| `beginModal`, `msgBox`, `inputBox` | Absent until `loadProject` | Suite dialogs. Other VB forms are marked inert |
+| `openFile`, `saveFile` | Absent | Still null |
+| `loadProject` | A method on the host. Slots stay null until it runs | Compiles a form project and calls `start()` |
 
 The engine `Clipboard` is not connected. Copy and paste of cells stay on `Range` through the IR. The VM's own `Err`, `Debug` and `Clipboard` stay in place.
 
@@ -75,7 +76,7 @@ Help ▸ Ledger DOM Console, and the same command on the Paper 2016 ribbon File 
 
 ### P6. Forms
 
-Not started. `docs/ledger_vbs_form.md` is not written. No form window, no controls, no `MsgBox`.
+Implemented, shared with Quire and Lectern. [quire_vbs_form.md](quire_vbs_form.md). View ▸ Run Form opens a `.frm`. The window is `ui.dialog`. `MsgBox` and `InputBox` use the suite dialogs. `BrowserForm` is not loaded. `openFile` and `saveFile` stay null.
 
 ## Files
 

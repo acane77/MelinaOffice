@@ -217,7 +217,7 @@ async function runEvalVb6Milestones() {
     await gap('Windows.Item(1)', 'G-HOST');
     await gap('ContentControls.Add', 'G-ENGINE');
     const host = await L.vb.session();
-    if (host.createForm !== null || host.loadProject !== null) fail('form slots are set');
+    if (host.createForm !== null) fail('form slots are set');
     await present();
   } catch (err) {
     fail(err && (err.stack || err.message) || err);

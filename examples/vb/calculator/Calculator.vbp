@@ -1,0 +1,3 @@
+Type=Exe
+Startup="Calculator"
+Form=Calculator.frm

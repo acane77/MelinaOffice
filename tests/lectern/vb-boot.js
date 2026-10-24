@@ -16,6 +16,7 @@ async function boot() {
   const { buildEngine } = await import('../../tools/vb6/build-engine.mjs');
   const out = buildEngine();
   vm.runInThisContext(fs.readFileSync(out, 'utf8'), { filename: out });
+  require('../../public/common/vb-forms.js');
   require('../../public/lectern/js/vb-host.js');
   return out;
 }

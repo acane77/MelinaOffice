@@ -37,7 +37,7 @@ test('runVB6 compiles a module without disturbing Immediate locals', { timeout: 
     assert.equal(host.vm.formInstances.size, 0);
     assert.equal(host.script, null);
     assert.equal(host.createForm, null);
-    assert.equal(host.loadProject, null);
+    assert.equal(typeof host.loadProject, 'function');
 
     await assert.rejects(() => runVB6('Sub Other()\nEnd Sub'), (err) => {
       assert.equal(err && err.number, 35);

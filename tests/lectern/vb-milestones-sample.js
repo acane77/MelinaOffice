@@ -118,7 +118,7 @@ async function runVbMilestones() {
       same(typeName + '.Parent', await host.eval('?' + typeName + '.Parent Is Application'), -1);
       await gap('?' + typeName + '.Creator', 'G-ENGINE');
     }
-    if (host.createForm !== null || host.loadProject !== null) fail('form slots are set');
+    if (host.createForm !== null) fail('form slots are set');
     await present();
   } finally {
     host.close();

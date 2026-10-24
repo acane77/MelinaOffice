@@ -20,7 +20,7 @@ test('evalVB6 edits the presentation on one Immediate session', { timeout: 12000
     assert.equal(host.vm.state, 'idle');
     assert.equal(host.vm.formInstances.size, 0);
     assert.equal(host.createForm, null);
-    assert.equal(host.loadProject, null);
+    assert.equal(typeof host.loadProject, 'function');
     assert.equal(await evalVB6('?scratch'), 2);
 
     await assert.rejects(() => evalVB6('?ActivePresentation.FullName'), (err) => {

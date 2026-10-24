@@ -1,6 +1,6 @@
 # Lectern VB support schedule
 
-**Status:** P1, P2, P3 M1–M5, P4M1, P4M2 and P5 are implemented. Document macros are implemented. P6 has not been started. P1 is `public/lectern/js/dom-ir.js` and [lectern_dom_ir_specifications.md](lectern_dom_ir_specifications.md). P2 is `public/lectern/js/vb-host.js` and the headless bundle from `node tools/vb6/build-engine.mjs`. P3 is [lectern_dom_ir_porting_milestones.md](lectern_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is the DOM Console.
+**Status:** P1, P2, P3 M1–M5, P4M1, P4M2, P5, document macros and P6 are implemented. P1 is `public/lectern/js/dom-ir.js` and [lectern_dom_ir_specifications.md](lectern_dom_ir_specifications.md). P2 is `public/lectern/js/vb-host.js` and the headless bundle from `node tools/vb6/build-engine.mjs`. P3 is [lectern_dom_ir_porting_milestones.md](lectern_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is the DOM Console. P6 is [quire_vbs_form.md](quire_vbs_form.md): `public/common/vb-forms.js`, drawn with `ui.dialog`.
 
 **Goal.** Run VB6 source against the open Lectern presentation. Calls go through a JavaScript DOM IR into `public/lectern/js/dom.js`. A later form would use the same VB6 engine. Its window is a host slot left empty. This schedule does not add a form document.
 
@@ -15,7 +15,7 @@ The language is the VB6 engine in `third_party/VB6` (the same engine Quire uses)
 - **One host, three VMs.** `evalVB6` and the DOM Console share one Immediate-mode VM. `runVB6` compiles one standard module onto a second VM on that host and the same IR, then stops that VM. The Immediate VM and its locals stay.
 - **Visual Basic IDE.** View ▸ Visual Basic IDE (`public/common/vb-ide.js`) debugs one standard module, Module1, on a VM created by `debugBegin`. Start Run does not install breakpoints. The window calls the virtual machine; it does not mount `ApplicationHost`, and it is not P6. Step Into in Macros stays disabled. Completion (`public/common/vb-complete.js`) lists names the caret's procedure can see, and the procedures and modules this virtual machine actually runs. Keywords are listed anywhere except after a dot. A string, a comment or a date literal does not.
 - **Document macros.** A third VM on that host. Tools ▸ Macro ▸ Macros, and View ▸ Macros on the Paper 2016 ribbon, read and write VB6 source. Current Document is the custom XML part `urn:vibeoffice:macros` on `ppt/presentation.xml`. All templates and documents is `vibeoffice.lectern.allMacros` in this browser. The project gives each macro module another name: this engine treats a module's name as an object, and that object would hide a procedure of the same name, so the other macros call the Sub by the macro's name. The modules stay loaded so they can call each other. Run Script from the console is still `runVB6` and does not see them. Opened from Macros, that window shows the macro name read-only and can save the source; its Run compiles the buffer with the other saved macros on a machine that is then stopped. A notice titled “Notice on Macros in Lectern” comes first; OK opens the window, and the title's close button does not. “Never show this message again” is `lectern.macroNotice`. Step Into stays disabled. Office `vbaProject.bin` is not listed or run. A presentation with no macros does not load the engine. A macro that fails to compile does not stop the presentation opening. Saving as HTML, PNG, PDF or text warns that the macros cannot be stored.
-- **Two surfaces.** Presentation objects are Automation adapters whose `invoke` emits IR. Form controls would be the engine's `__control` objects, created only by `host.createForm`. That slot stays null.
+- **Two surfaces.** Presentation objects are Automation adapters whose `invoke` emits IR. Form controls are the engine's `__control` objects, created by `host.createForm` when a form project is loaded. Controls are not IR handles.
 
 ## Layers
 
@@ -24,7 +24,7 @@ DOM Console / evalVB6 / document macros
         → VirtualMachine (third_party/VB6)
         → LecternVbHost
               automation  → DOM IR handles → public/lectern/js/dom.js → presentation operations
-              createForm  → empty until a form plan; not started
+              createForm  → public/common/vb-forms.js, drawn with ui.dialog
 ```
 
 `Application`, `ActivePresentation`, `Presentations`, `ActiveWindow` and the `pp*` / `mso*` constants are injected as the standard module `LecternDOM` on every Lectern VB project. The properties read the current presentation through one Automation object.
@@ -35,10 +35,10 @@ DOM Console / evalVB6 / document macros
 |---|---|---|
 | `automation` | Presentation factory. `invoke` only emits IR | Same factory |
 | `print`, `error` | Console and `evalVB6`. `Debug.Print` uses `print` | Same sink |
-| `createForm` | Null | Not started |
-| `beginModal`, `msgBox`, `inputBox` | Null | Not started |
-| `openFile`, `saveFile` | Null | Not started |
-| `loadProject` | Null | Not started |
+| `createForm` | Null until `loadProject` | A VibeOffice dialog (`public/common/vb-forms.js`) |
+| `beginModal`, `msgBox`, `inputBox` | Null until `loadProject` | Suite dialogs. Other VB forms are marked inert |
+| `openFile`, `saveFile` | Null | Still null |
+| `loadProject` | A method on the host. The other form slots stay null until it runs | Compiles a form project and calls `start()` |
 
 P2 does not connect the engine clipboard to Lectern's clipboard. Copy and paste of shapes and text stay on `Selection` through the IR.
 
@@ -84,7 +84,7 @@ Implemented. `public/lectern/js/macros.js` stores Current Document in `urn:vibeo
 
 ### P6. VBS Form
 
-Not started. No `docs/lectern_vbs_form.md`. The form slots stay null. Do not fill them from this schedule.
+Implemented, shared with Quire and Ledger. [quire_vbs_form.md](quire_vbs_form.md). View ▸ Run Form opens a `.frm`. The window is `ui.dialog`. `BrowserForm` is not loaded. `openFile` and `saveFile` stay null. A change to the presentation still goes through the DOM IR.
 
 ## Files
 
