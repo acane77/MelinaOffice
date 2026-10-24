@@ -1453,6 +1453,8 @@
   --gg-spin-glyph: rgba(0,0,0,.85); --gg-spin-glyph-off: rgba(0,0,0,.25);
   --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
   --gg-spin-focus: 0 0 0 1px rgba(0,136,255,.5), 0 0 0 4.5px rgba(0,136,255,.35);
+  --gg-group: rgba(0,0,0,.03); --gg-group-line: rgba(0,0,0,.05); --gg-group-title: rgba(0,0,0,.85);
+  --gg-switch-off: rgba(0,0,0,.085); --gg-switch-off-dis: rgba(0,0,0,.05); --gg-switch-knob: #fff;
   --dlg: #fff;
 }
 
@@ -2391,6 +2393,8 @@
   --gg-spin-glyph: rgba(255,255,255,.85); --gg-spin-glyph-off: rgba(255,255,255,.25);
   --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
   --gg-spin-focus: 0 0 0 1px rgba(0,145,255,.5), 0 0 0 4.5px rgba(0,145,255,.35);
+  --gg-group: rgba(255,255,255,.03); --gg-group-line: rgba(255,255,255,.05); --gg-group-title: rgba(255,255,255,.85);
+  --gg-switch-off: rgba(255,255,255,.085); --gg-switch-off-dis: rgba(255,255,255,.055); --gg-switch-knob: #fff;
   --dlg: #1E1E1E;
 }
 
@@ -3638,6 +3642,8 @@
   --gg-spin-glyph: var(--vsc-fg); --gg-spin-glyph-off: var(--vsc-disabled);
   --gg-spin-div: rgba(0,0,0,.12); --gg-spin-div-off: rgba(0,0,0,.06);
   --gg-spin-focus: 0 0 0 1px var(--vsc-accent), 0 0 0 4.5px color-mix(in srgb, var(--vsc-accent) 35%, transparent);
+  --gg-group: rgba(0,0,0,.03); --gg-group-line: rgba(0,0,0,.05); --gg-group-title: var(--vsc-fg);
+  --gg-switch-off: rgba(0,0,0,.085); --gg-switch-off-dis: rgba(0,0,0,.05); --gg-switch-knob: #fff;
   --gg-accent: var(--vsc-button);
   --gg-menu: var(--vsc-menu-sel);
   --gg-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M3.1 8.3 6.4 11.7 13 4.2'/%3E%3C/svg%3E");
@@ -4146,6 +4152,8 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
   --gg-hover: rgba(255,255,255,.08);
   --gg-on: rgba(255,255,255,.12);
   --gg-down: rgba(255,255,255,.18);
+  --gg-group: rgba(255,255,255,.03); --gg-group-line: rgba(255,255,255,.05);
+  --gg-switch-off: rgba(255,255,255,.085); --gg-switch-off-dis: rgba(255,255,255,.055);
   --gg-plate: rgba(255,255,255,.08);
   --gg-plate-hot: rgba(255,255,255,.12);
   --gg-plate-down: rgba(255,255,255,.18);
@@ -4230,4 +4238,106 @@ body:is(.vscode-dark, .vscode-high-contrast) [data-look="vscodegg"] {
 }
 :is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .spin-b:disabled::before {
   background: var(--gg-spin-glyph-off);
+}
+
+/* Grouped settings. A fieldset is a card and its legend is the section title
+   on its own line above the card. A tab that has no fieldset is the same card
+   with no title. Columns stack. A labelled row keeps the caption on the left
+   and the stepper, field, menu or switch on the right. The switch follows
+   Puppertino's desktop switch (dist/css/forms.css .p-switch, MIT): a 36×16
+   track and a lozenge knob. The body grows inside the window's cap, so the
+   title and the buttons stay put. */
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-title,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-foot { flex: 0 0 auto; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body {
+  flex: 1 1 auto; padding: 16px;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .grp {
+  position: relative; border: 0; box-shadow: none; border-radius: 12px;
+  background: var(--gg-group); padding: 0 10px; margin: 28px 0 12px;
+  min-inline-size: 0; overflow: visible;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .grp > legend {
+  position: absolute; top: 0; left: 0; right: auto; width: max-content; max-width: 100%;
+  margin: 0; padding: 0 2px; float: none; display: block;
+  transform: translateY(calc(-100% - 6px));
+  background: transparent; color: var(--gg-group-title);
+  font-weight: 700; font-size: 13px; line-height: 16px;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .tab-pane:not(:has(.grp)):is(:has(.field), :has(.ck), :has(.row)),
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body > .col:not(:has(.grp)):is(:has(.field), :has(.ck), :has(.row)) {
+  background: var(--gg-group); border-radius: 12px; padding: 0 10px; margin: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .grp :is(.row, .col, .grid2, .grid3),
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .tab-pane:not(:has(.grp)) :is(.row, .col, .grid2, .grid3),
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body > .col:not(:has(.grp)) :is(.row, .col, .grid2, .grid3) {
+  display: block; width: 100%;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck:has(> input[type="checkbox"]) {
+  display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start;
+  gap: 12px; min-height: 42px; margin: 0; width: 100%; box-sizing: border-box;
+  box-shadow: inset 0 -1px 0 var(--gg-group-line);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .row:has(> .ck):not(:has(> .ck ~ .ck)) {
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 12px;
+  min-height: 42px; margin: 0; width: 100%; box-sizing: border-box;
+  box-shadow: inset 0 -1px 0 var(--gg-group-line);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field > label[for] {
+  flex: 1 1 auto; min-width: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field > label[for] > span { display: block; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field > :is(.spin, input[type="text"], input[type="number"], input[type="password"], select, .combo) {
+  flex: 0 0 auto; margin-left: auto; max-width: 46%;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field:has(textarea) {
+  flex-wrap: wrap; align-items: stretch; min-height: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field:has(textarea) > label[for] { flex: 1 0 100%; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .field:has(textarea) > textarea {
+  width: 100%; max-width: none; margin: 0 0 8px;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck:has(> input[type="checkbox"]) > span {
+  flex: 1 1 auto; min-width: 0; order: 0;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .row:has(> .ck):not(:has(> .ck ~ .ck)) > .ck {
+  display: contents; min-height: 0; box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; order: 1; flex: 0 0 auto; margin: 0 0 0 auto;
+  position: relative; width: 36px; height: 16px; border: 0; border-radius: 999px;
+  background: var(--gg-switch-off); background-image: none; box-shadow: none;
+  transition: background 0.25s ease-out;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"]::after {
+  content: ""; position: absolute; top: 1.5px; bottom: 1.5px; left: 1.5px; width: 21px;
+  border-radius: 999px; background: var(--gg-switch-knob);
+  box-shadow: 0 3px 8px rgba(0,0,0,.12);
+  transition: left 0.35s cubic-bezier(0.3, 1.25, 0.5, 1);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"]:checked {
+  background: var(--gg-accent); background-image: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"]:checked::after {
+  left: 13.5px;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"]:disabled {
+  background: var(--gg-switch-off-dis); background-image: none; opacity: 1;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck > input[type="checkbox"]:disabled:checked {
+  background: color-mix(in srgb, var(--gg-accent) 50%, transparent); background-image: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .ck:has(> input[type="checkbox"])::after { content: none; }
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body :is(.field, .ck, .row):last-child {
+  box-shadow: none;
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .col:not(:last-child) > :is(.field, .ck, .row):last-child,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .row:not(:last-child) :is(.field, .ck):last-child,
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body :is(.grid2, .grid3):not(:last-child) > .ck:last-child {
+  box-shadow: inset 0 -1px 0 var(--gg-group-line);
+}
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg .grp > :not(legend):not(.row):not(.col):not(.field):not(.ck):not(.grid2):not(.grid3),
+:is([data-look="goldengate"], [data-look="goldengatedark"], [data-look="vscodegg"]) .dlg-body .tp-note {
+  margin: 8px 0;
 }

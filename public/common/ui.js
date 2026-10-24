@@ -1002,7 +1002,7 @@
     const minW = Number(opts.minWidth) > 0 ? Number(opts.minWidth) : 160;
     const minH = Number(opts.minHeight) > 0 ? Number(opts.minHeight) : 80;
     const maxW = Math.max(minW, window.innerWidth - edge * 2);
-    const maxH = Math.max(minH, window.innerHeight - edge * 2);
+    const maxH = Math.min(700, Math.max(minH, window.innerHeight - edge * 2));
     const width = L.clamp(place.width, Math.min(minW, maxW), maxW);
     const height = L.clamp(place.height, Math.min(minH, maxH), maxH);
     dlg.style.width = width + 'px';
@@ -1035,7 +1035,7 @@
         const move = (ev) => {
           const edgeX = 4, edgeY = 4;
           const limitW = Math.max(120, window.innerWidth - edgeX * 2);
-          const limitH = Math.max(64, window.innerHeight - edgeY * 2);
+          const limitH = Math.min(700, Math.max(64, window.innerHeight - edgeY * 2));
           const floorW = Math.min(minW, limitW), floorH = Math.min(minH, limitH);
           const right = left0 + w0, bottom = top0 + h0;
           let w = w0, h = h0;
@@ -1084,6 +1084,37 @@
    * brand sets data-brand to the app, so the body and foot use that app's --brand-bg. The frame is not restyled.
    * isToolBoxWindow defaults to 0. 1 is a modeless window whose close button is square; the frame is otherwise the same window, inactive the same way.
    */
+  function goldenGateLook() {
+    const look = document.documentElement.dataset.look;
+    return look === 'goldengate' || look === 'goldengatedark' || look === 'vscodegg';
+  }
+
+  /* Grouped settings windows in the three Golden Gate looks open at the
+     Puppertino title-bar width (480) and stay inside the viewport. The cap is
+     in pixels: a percentage max-height loses the viewport once the window is
+     positioned. Toolboxes and remembered resizable windows keep their own clamp. */
+  function groupedSettingsDialog(opts, body) {
+    if (!goldenGateLook() || opts.isToolBoxWindow) return false;
+    if (opts.resizeable && dialogPlaceOn(opts)) return false;
+    return !!(body && body.querySelector('.grp'));
+  }
+
+  /* A window is never taller than 700px, and never taller than the viewport. */
+  function dialogMaxHeight(edge) {
+    return Math.min(700, Math.max(160, window.innerHeight - edge * 2));
+  }
+
+  function fitGroupedDialog(dlg) {
+    const edge = 16;
+    dlg.style.maxHeight = dialogMaxHeight(edge) + 'px';
+    const maxW = Math.max(160, window.innerWidth - edge * 2);
+    if (dlg.offsetWidth > maxW) dlg.style.width = maxW + 'px';
+    const w = dlg.offsetWidth;
+    const h = dlg.offsetHeight;
+    if (dlg.offsetLeft + w > window.innerWidth - edge) dlg.style.left = Math.max(edge, window.innerWidth - edge - w) + 'px';
+    if (dlg.offsetTop + h > window.innerHeight - edge) dlg.style.top = Math.max(edge, window.innerHeight - edge - h) + 'px';
+  }
+
   ui.dialog = function (opts) {
     opts.isToolBoxWindow = opts.isToolBoxWindow ? 1 : 0;
     if (opts.isToolBoxWindow) opts.modeless = true;
@@ -1095,12 +1126,18 @@
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
     const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') });
     const dlg = h('div', { class: 'dlg' + (opts.brand ? ' brand' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') + (opts.resizeable ? ' dlg-resizeable' : ''), role: 'dialog', tabindex: '-1', 'aria-modal': opts.modeless ? 'false' : 'true', 'aria-label': opts.title, dataset: opts.brand && L.APP_ID ? { brand: L.APP_ID } : null });
-    dlg.style.width = (opts.isToolBoxWindow ? Math.min(opts.width || 420, window.innerWidth - 16) : Math.min(opts.width || 380, window.innerWidth - 16)) + 'px';
     const titleBar = h('div', { class: 'dlg-title' }, h('span', { class: 'dlg-ttl', text: opts.title }),
       opts.help ? h('button', { class: 'dlg-x dlg-help', type: 'button', 'aria-label': 'Help', text: '?', onclick: opts.help }) : null,
       opts.canClose === false ? null : h('button', { class: 'dlg-x', type: 'button', 'aria-label': 'Close', html: '<svg width="9" height="9" viewBox="0 0 9 9"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.5"/></svg>', onclick: () => close(null) }));
     const body = h('div', { class: 'dlg-body' });
     if (opts.body) body.appendChild(opts.body);
+    const grouped = groupedSettingsDialog(opts, body);
+    const edge = 16;
+    if (grouped) {
+      const want = Math.max(Number(opts.width) || 0, 480);
+      dlg.style.width = Math.min(want, Math.max(160, window.innerWidth - edge * 2)) + 'px';
+      dlg.style.maxHeight = dialogMaxHeight(edge) + 'px';
+    } else dlg.style.width = (opts.isToolBoxWindow ? Math.min(opts.width || 420, window.innerWidth - 16) : Math.min(opts.width || 380, window.innerWidth - 16)) + 'px';
     const foot = h('div', { class: 'dlg-foot' });
     let result;
     const done = new Promise((res) => { result = res; });
@@ -1121,7 +1158,9 @@
     const r = dlg.getBoundingClientRect();
     const step = Math.min(winStack.length, 8) * 28;
     dlg.style.left = L.clamp((window.innerWidth - r.width) / 2 + step, 4, Math.max(4, window.innerWidth - r.width - 4)) + 'px';
-    dlg.style.top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40)) + 'px';
+    let top = L.clamp((window.innerHeight - r.height) / 2.4 + step, 4, Math.max(4, window.innerHeight - 40));
+    if (grouped && top + r.height > window.innerHeight - edge) top = Math.max(edge, window.innerHeight - edge - r.height);
+    dlg.style.top = top + 'px';
     /* measured before the class, so the opening scale does not shift the centred box */
     if (win7WindowMotion()) {
       dlg.classList.add('is-opening');
@@ -1147,6 +1186,11 @@
       titleBar.addEventListener('pointerup', up);
     });
     if (opts.resizeable) attachDialogResize(dlg, opts);
+    let refitGrouped = null;
+    if (grouped) {
+      refitGrouped = () => { if (!entry.closed) fitGroupedDialog(dlg); };
+      window.addEventListener('resize', refitGrouped);
+    }
     let rememberPlace = null;
     if (dialogPlaceOn(opts)) {
       rememberPlace = () => saveDialogPlace(dialogPlaceName(opts), dlg);
@@ -1185,6 +1229,10 @@
         rememberPlace();
         window.removeEventListener('beforeunload', rememberPlace);
         rememberPlace = null;
+      }
+      if (refitGrouped) {
+        window.removeEventListener('resize', refitGrouped);
+        refitGrouped = null;
       }
       entry.closed = true;
       const k = dlgStack.indexOf(entry);
@@ -1446,8 +1494,8 @@
     return el;
   };
   ui.field = (label, ctl, o) => {
-    const id = ctl.id || (ctl.input && ctl.input.id) || (ctl.querySelector && ctl.querySelector('input,select') && ctl.querySelector('input,select').id);
-    return h('div', { class: 'field' + (o && o.cls ? ' ' + o.cls : '') }, h('label', { for: id || null, html: ampHTML(label) }), ctl);
+    const id = ctl.id || (ctl.input && ctl.input.id) || (ctl.querySelector && ctl.querySelector('input,select,textarea') && ctl.querySelector('input,select,textarea').id);
+    return h('div', { class: 'field' + (o && o.cls ? ' ' + o.cls : '') }, h('label', { for: id || null }, h('span', { html: ampHTML(label) })), ctl);
   };
   /** File ▸ Save As in the VS Code editor: a Location row under the file name. It starts as the open file's
    *  folder; Browse opens the editor's folder dialog. null in the browser and the desktop app, which keep
