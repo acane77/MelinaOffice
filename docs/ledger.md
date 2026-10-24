@@ -5,7 +5,7 @@ no libraries, no frameworks, no build step at run time. It opens and saves Offic
 (`.xlsx`, `.xlsm`, `.xltx`, `.xltm`, password-protected ones included), CSV and text files, and XML Spreadsheet
 2003, and it exports web pages and PDF.
 
-The look is Office 2003 (or the suite's Paper look, or Paper 2016, whose ribbon has Excel 2016's tabs
+The look is Office 2003 (or a ribbon look, Golden Gate by default, whose ribbon has Excel 2016's tabs
 in place of the menus and toolbars; Tools ▸ Options ▸ General ▸ Theme): menus with their access keys, the Standard and
 Formatting toolbars, the Name Box and formula bar, sheet tabs with the four scroll arrows, the task
 pane, the status bar with AutoCalculate, and the dialogs where you expect them (Format Cells, Page

@@ -73,13 +73,23 @@ test('opening and about content uses each app colour and does not restyle the fr
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
 });
 
-test('Ribbon 2010 is the stored default, and the Windows 7 default button keeps the blue highlight', () => {
+test('Golden Gate is the stored default, and the Windows 7 default button keeps the blue highlight', () => {
   const suite = read('common/suite.js');
-  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'ribbon2010'/);
-  assert.match(suite, /id: 'ribbon2010', name: N\('Ribbon 2010'\)/);
+  assert.match(suite, /const LOOKS = \[\{ id: 'goldengate', name: N\('Golden Gate'\),[\s\S]*?\n    \{ id: 'goldengatedark', name: N\('Golden Gate \(Dark\)'\),[\s\S]*?\n    \{ id: 'vscodegg', name: N\('Golden Gate \(Follow VS Code Color Theme\)'\),[\s\S]*?\n    \{ id: 'ribbon2010', name: N\('Ribbon 2010'\),[\s\S]*?\n    \{ id: 'win7', name: N\('Classic 7'\), sep: true,[\s\S]*?\n    \{ id: 'xp', name: N\('Classic XP'\),[\s\S]*?\n    \{ id: 'classic', name: N\('Classic'\),/);
+  assert.match(suite, /id === 'paper' \|\| id === 'paper2016'/);
+  assert.doesNotMatch(suite, /\{ id: 'paper'/);
+  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'goldengate'/);
+  assert.match(suite, /return 'goldengate'/);
+  assert.match(suite, /id: 'goldengate', name: N\('Golden Gate'\)/);
   for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
-    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'ribbon2010'/);
+    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'goldengate'/);
+    assert.match(read(page), /l==='paper'\|\|l==='paper2016'/);
+    assert.match(read(page), /\)l='goldengate'/);
   }
+  assert.match(read('../tools/ledger/build/template.html'), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'goldengate'/);
+  assert.match(read('../tools/ledger/build/template.html'), /l==='paper'\|\|l==='paper2016'/);
+  assert.match(read('common/ui.js'), /if \(l\.sep\) items\.push\('-'\)/);
+  assert.match(read('../desktop/src/host.rs'), /localStorage\.setItem\('vibeoffice\.look', 'goldengate'\)/);
   /* the reference defined the default-button colours and a pulse, then applied neither:
      the keyframes rule was not valid, and nothing selected the default button */
   assert.match(looks, /--w7-btn-default-line:\s*#5586a3/);
@@ -95,7 +105,7 @@ test('Ribbon 2010 is the stored default, and the Windows 7 default button keeps 
 });
 
 test('Windows XP keeps the reference images and the transparent veil', () => {
-  assert.match(read('common/suite.js'), /id: 'xp', name: N\('Windows XP'\)/);
+  assert.match(read('common/suite.js'), /id: 'xp', name: N\('Classic XP'\)/);
   assert.match(looks, /--xp-close:\s*url\("data:image\/svg\+xml/);
   assert.match(looks, /--xp-dd:\s*url\("data:image\/svg\+xml/);
   assert.match(looks, /--xp-sb-up:\s*url\("data:image\/svg\+xml/);
@@ -120,7 +130,7 @@ test('the app pages pick the look before the first paint and load looks.css firs
     const sheet = html.indexOf('common/looks.css');
     assert.ok(script > 0 && script < sheet, `${page}: the look is picked before looks.css loads`);
     assert.ok(sheet > 0 && (html.indexOf('common/ui.css') < 0 || sheet < html.indexOf('common/ui.css')), `${page}: looks.css before ui.css`);
-    assert.match(html, /l==='paper2016'\|\|l==='ribbon2010'\|\|l==='goldengate'\|\|l==='goldengatedark'\|\|l==='vscodegg'/);
+    assert.match(html, /l==='ribbon2010'\|\|l==='goldengate'\|\|l==='goldengatedark'\|\|l==='vscodegg'/);
     assert.match(html, /l==='vscodegg'&&!\(window\.__VO_HOST__&&window\.__VO_HOST__\.kind==='vscode'\)/);
   }
 });

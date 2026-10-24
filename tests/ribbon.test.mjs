@@ -1,4 +1,4 @@
-// The Paper 2016 ribbon of each app (public/<app>/js/ribbon.js, drawn by common/ribbon.js), checked in the page:
+// The ribbon of each app (public/<app>/js/ribbon.js, drawn by common/ribbon.js), checked in the Ribbon 2010 look:
 // every command id in a tab, the Quick Access Toolbar, File or a drop-down menu exists; every button
 // drawn has an icon; every icon name exists; and every command of the classic menus is reachable
 // from the ribbon, apart from the listed exceptions.
@@ -35,7 +35,7 @@ const EXCEPTIONS = {
 };
 
 const CHECK = `
-VO.look.set('paper2016');
+VO.look.set('ribbon2010');
 await new Promise((r) => setTimeout(r, 300));
 const ui = L.ui, s = L.ribbonSpec();
 const tabs = s.tabs.concat(...(s.contextual || []).map((c) => c.tabs));

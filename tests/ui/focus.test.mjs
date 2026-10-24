@@ -86,7 +86,7 @@ const APPS = {
 
 const CHROME = ['.cmdbars', '#statusbar', '#drawrow', '#viewbar', '#fbar', '.rb-tabs', '.tb-grip'];
 
-for (const [app, A] of Object.entries(APPS)) for (const look of ['classic', 'paper2016']) {
+for (const [app, A] of Object.entries(APPS)) for (const look of ['classic', 'ribbon2010']) {
   test(`${app}, ${look}: the keyboard stays with the document`, async (s) => {
     const t = await open(app, { look });
     try {

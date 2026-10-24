@@ -50,7 +50,7 @@ Line grids: Quire's line height on a document line grid (`R.gridLine` in `quire/
 
 Classic must not change when only the theme machinery changes: compare screenshots of the same scenes before and after, pixel for pixel.
 
-`node --test tests/ribbon.test.mjs` loads each app in the Paper 2016 look (through `tools/shot.mjs`, so Chromium must be running) and checks its ribbon: every command id exists, every button has an icon, and every menu command is reachable from the ribbon or File, apart from the exceptions listed in the test. Run it after adding or renaming a command. A ribbon change is also looked at in a narrow window (`--w 900`, where groups fold) and with KeyTips shown (`L.app.menuBar.openIndex(0)`).
+`node --test tests/ribbon.test.mjs` loads each app in the Ribbon 2010 look (through `tools/shot.mjs`, so Chromium must be running) and checks its ribbon: every command id exists, every button has an icon, and every menu command is reachable from the ribbon or File, apart from the exceptions listed in the test. Run it after adding or renaming a command. A ribbon change is also looked at in a narrow window (`--w 900`, where groups fold) and with KeyTips shown (`L.app.menuBar.openIndex(0)`).
 
 `node --test tests/search.test.mjs` checks Search commands the same way: in each app and both layouts, a table of everyday queries ("image", "margins", "hyperlnk") must find the intended command first, with its location. Add a line there when a query finds the wrong thing.
 
@@ -98,7 +98,7 @@ another tab and back. Two runs at once each need a Chromium of their own: `CDP=h
   Lectern). After any of them no drag is left and no cursor held; the release made one undo step that brings back
   exactly what was there, any other ending changed and recorded nothing. A new drag adds its `matrix(…)` there, and a
   new mode goes into the lists of both files: what broke in review broke only in a mode no test had on.
-- `focus.test.mjs`: the keyboard back to the document, in each app and in the Classic and Paper 2016 looks: dialogs
+- `focus.test.mjs`: the keyboard back to the document, in each app and in the Classic and Ribbon 2010 looks: dialogs
   from a shortcut, a toolbar or ribbon button and the context menu, closed with Esc, Cancel and OK; menu-bar commands;
   the ribbon's tabs; presses on chrome without a control (toolbars, grips, the status bar, the ribbon's tab strip).
   After each, the element that had the keyboard has it again, with the same selection. Then the same in each app's

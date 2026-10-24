@@ -132,12 +132,12 @@ impl Host {
 }
 
 /// The script that runs before each page's own: what the pages see as the host, and the desktop app's
-/// default look (Ribbon 2010) until the user picks one (the pages' head scripts read it). `edition`: 'appstore' for the
+/// default look (Golden Gate) until the user picks one (the pages' head scripts read it). `edition`: 'appstore' for the
 /// Mac App Store's, which the store updates (the pages never check), else 'direct'.
 pub fn init_script() -> String {
     format!(
         "window.__VO_HOST__ = Object.freeze({{ platform: '{}', version: {VERSION}, appVersion: '{}', edition: '{}' }});\n\
-         try {{ if (!localStorage.getItem('vibeoffice.look')) localStorage.setItem('vibeoffice.look', 'ribbon2010'); }} catch (e) {{}}",
+         try {{ if (!localStorage.getItem('vibeoffice.look')) localStorage.setItem('vibeoffice.look', 'goldengate'); }} catch (e) {{}}",
         std::env::consts::OS, // windows, linux, macos
         option_env!("VO_VERSION").unwrap_or("dev"), // tools/current-tree-version.sh, from build.sh
         if app_store() { "appstore" } else { "direct" }

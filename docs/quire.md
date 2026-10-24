@@ -2,7 +2,7 @@
 
 A Word 2003–style word processor written in plain HTML and vanilla JavaScript (no build step, no
 libraries). It reads and writes Office Open XML (`.docx`, `.docm`, `.dotx`, `.dotm`) files.
-In the suite's Paper 2016 look (Help ▸ Theme, or Tools ▸ Options ▸ General ▸ Theme) a
+In a ribbon look (Golden Gate, the default, or Ribbon 2010; Help ▸ Theme, or Tools ▸ Options ▸ General ▸ Theme) a
 ribbon with Word 2016's tabs (Home, Insert, Design, Layout, References, Mailings, Review, View and
 the tool tabs) takes the place of the menus and toolbars.
 

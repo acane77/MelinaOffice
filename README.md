@@ -67,7 +67,7 @@ This demostrates writing document with Copilot in VS Code with VibeOffice.
 
 ## Why VibeOffice
 
-- **Familiar.** The Office 2010 ribbon (the default look).
+- **Familiar.** Golden Gate, a macOS ribbon (the default look).
 - **Lossless editing.** Open what colleagues send you, and save files built to open in Microsoft Office and LibreOffice, without losing what you didn't touch (below).
 - **Private.** Everything runs on your machine. There is no server behind it, no upload and no sign-in.
 - **Installable.** In Chrome or Edge, install it with the browser's own install control. It then opens .docx, .xlsx and .pptx files from your file manager. The same pages run inside VS Code and code-server: [docs/vscode.md](docs/vscode.md).

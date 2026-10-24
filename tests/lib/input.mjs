@@ -56,7 +56,7 @@ function keyInfo(k) {
 }
 
 /** a new tab on app ('quire', 'ledger', 'lectern') with real input; opts: { width, height, look ('classic',
-    'paper', 'paper2016'), lang (the UI's language, English by default) } */
+    'ribbon2010', 'goldengate'), lang (the UI's language, English by default) } */
 export async function open(app, opts = {}) {
   await ensureChromium();
   const stopServer = await ensureServer();
