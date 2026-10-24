@@ -65,7 +65,9 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   count (113), and none moves away from it; for issue 20, of the 57 Word 2007/2010 files with a page
   break and a section break or a break at their end, 4 more show it (42 in all), one more comes closer,
   and none moves away. A centred table wider than its column overhangs both margins evenly, a
-  right-aligned one the left margin.
+  right-aligned one the left margin. A top-and-bottom wrapped object clears its vertical span in every
+  column it crosses, the way LibreOffice widens that obstacle to the column's print area; an object that
+  stays inside one column leaves the others where they are.
 - East Asian text is drawn with the run's East Asian font (`w:eastAsia`, or the theme's for the
   document's East Asian language) and marked with its East Asian language, and takes that font's line
   height where it is the taller ([i18n.md](i18n.md), Fonts). Format ▸ Font sets the two separately:
