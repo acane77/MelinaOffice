@@ -78,15 +78,18 @@ test('Golden Gate is the stored default, and the Windows 7 default button keeps 
   assert.match(suite, /const LOOKS = \[\{ id: 'goldengate', name: N\('Golden Gate'\),[\s\S]*?\n    \{ id: 'goldengatedark', name: N\('Golden Gate \(Dark\)'\),[\s\S]*?\n    \{ id: 'vscodegg', name: N\('Golden Gate \(Follow VS Code Color Theme\)'\),[\s\S]*?\n    \{ id: 'ribbon2010', name: N\('Ribbon 2010'\),[\s\S]*?\n    \{ id: 'win7', name: N\('Classic 7'\), sep: true,[\s\S]*?\n    \{ id: 'xp', name: N\('Classic XP'\),[\s\S]*?\n    \{ id: 'classic', name: N\('Classic'\),/);
   assert.match(suite, /id === 'paper' \|\| id === 'paper2016'/);
   assert.doesNotMatch(suite, /\{ id: 'paper'/);
-  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| 'goldengate'/);
-  assert.match(suite, /return 'goldengate'/);
+  assert.match(suite, /const defaultLook = \(\) => \(vscodeHost\(\) \? 'vscodegg' : 'goldengate'\)/);
+  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| defaultLook\(\)/);
+  assert.match(suite, /if \(id === 'vscodegg' && !vscodeHost\(\)\) return 'goldengate'/);
+  assert.match(suite, /return defaultLook\(\)/);
   assert.match(suite, /id: 'goldengate', name: N\('Golden Gate'\)/);
   for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
-    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'goldengate'/);
+    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
     assert.match(read(page), /l==='paper'\|\|l==='paper2016'/);
-    assert.match(read(page), /\)l='goldengate'/);
+    assert.match(read(page), /\{l=v\?'vscodegg':'goldengate'/);
+    assert.match(read(page), /if\(l==='vscodegg'&&!v\)l='goldengate'/);
   }
-  assert.match(read('../tools/ledger/build/template.html'), /localStorage\.getItem\('vibeoffice\.look'\)\|\|'goldengate'/);
+  assert.match(read('../tools/ledger/build/template.html'), /localStorage\.getItem\('vibeoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
   assert.match(read('../tools/ledger/build/template.html'), /l==='paper'\|\|l==='paper2016'/);
   assert.match(read('common/ui.js'), /if \(l\.sep\) items\.push\('-'\)/);
   assert.match(read('../desktop/src/host.rs'), /localStorage\.setItem\('vibeoffice\.look', 'goldengate'\)/);
@@ -131,7 +134,9 @@ test('the app pages pick the look before the first paint and load looks.css firs
     assert.ok(script > 0 && script < sheet, `${page}: the look is picked before looks.css loads`);
     assert.ok(sheet > 0 && (html.indexOf('common/ui.css') < 0 || sheet < html.indexOf('common/ui.css')), `${page}: looks.css before ui.css`);
     assert.match(html, /l==='ribbon2010'\|\|l==='goldengate'\|\|l==='goldengatedark'\|\|l==='vscodegg'/);
-    assert.match(html, /l==='vscodegg'&&!\(window\.__VO_HOST__&&window\.__VO_HOST__\.kind==='vscode'\)/);
+    assert.match(html, /v=window\.__VO_HOST__&&window\.__VO_HOST__\.kind==='vscode'/);
+    assert.match(html, /l==='vscodegg'&&!v/);
+    assert.match(html, /\|\|\(v\?'vscodegg':'goldengate'\)/);
   }
 });
 
