@@ -53,4 +53,26 @@ test('balanced spaces expand a Latin space to half an em and leave a CJK space a
   assert.equal(R.balanceSBCS({ settings: { compatXML: '' } }), false);
   assert.ok(0.5 - R.spaceEm('Times New Roman') > 0.2);
   assert.equal(R.spaceEm('SimSun'), 0.5);
+  // 15pt Times: the space glyph is a quarter em, so letter-spacing supplies the other quarter (5px).
+  assert.equal(R.halfEmSpace('Times New Roman', 15), 5);
+  assert.equal(R.halfEmSpace('SimSun', 15), 0);
+  assert.equal(R.halfEmSpace('DengXian', 15), 0);
+});
+
+test('heading numbers keep two ASCII spaces at half an em each', () => {
+  const show = (text, cjk) => JSON.parse(JSON.stringify(R.balancedSpaceParts(text, cjk))).map((p) => p.half ? '[' + p.text + ']' : p.text);
+  assert.deepEqual(show('1.3  '), ['1.3', '[  ]']);
+  assert.deepEqual(show('.1  '), ['.1', '[  ]']);
+  assert.deepEqual(show('1.3.1  '), ['1.3.1', '[  ]']);
+  assert.deepEqual(show('1.1  '), ['1.1', '[  ]']);
+  // a single space between Latin words is not widened; two spaces are
+  assert.deepEqual(show('hello world'), ['hello world']);
+  assert.deepEqual(show('hello  world'), ['hello', '[  ]', 'world']);
+  // a space-only run, and a space at either end of the portion, still qualifies
+  assert.deepEqual(show(' '), ['[ ]']);
+  assert.deepEqual(show('   '), ['[   ]']);
+  assert.deepEqual(show('a '), ['a', '[ ]']);
+  // inside a CJK portion every ASCII space qualifies; an ideographic space does not
+  assert.deepEqual(show('中 文', true), ['中', '[ ]', '文']);
+  assert.deepEqual(show('中　文', false), ['中　文']);
 });
