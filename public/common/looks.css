@@ -1,4 +1,4 @@
-/* VibeOffice looks: every colour, font and shadow of the suite's chrome (menus, toolbars, task panes,
+/* Melina Office looks: every colour, font and shadow of the suite's chrome (menus, toolbars, task panes,
  * dialogs, status bar, rulers, headers) as named settings; ui.css and each app's CSS use only these.
  * Document content (pages, cells, slides, comments, revisions), icons and colour swatches are never
  * themed. A look is one block keyed by data-look="…" (on <html>, set before first paint by VO.look; on any
@@ -60,7 +60,7 @@
   --tab-line-2: #7a96c6; --tab2-a: #fdfdfd; --tab2-b: #e8eef9; --ol-ico-bar: #cfdcf3; --dd-line: #556; --sel-ink-2: #dfe8ff;
   --thumb-line: #a3a3a3; --thumb-on: #3d6ec9; --thumb-sel: #8fb0e6; --page-shadow: #59657c; --preview-canvas-3: #8b96a8;
   --card-line-2: #c9c9c9; --sample-line-2: #9a9a9a; --ink-7: #777;
-  /* Ledger's row and column headers and cell selection (drawn on a canvas) */
+  /* Matheuse's row and column headers and cell selection (drawn on a canvas) */
   --hdr-a: #FFFFFF; --hdr-b: #E4ECF7; --hdr-line: #9EB6CE; --hdr-ink: #000000;
   --hdr-sel-a: #FFE7A2; --hdr-sel-b: #F8C55E; --hdr-sel-line: #D7A43C; --hdr-all-a: #FFD58D; --hdr-all-b: #F5B54A;
   --cell-sel: rgba(128, 128, 128, 0.28); --cell-sel-border: #8a8a8a;
@@ -78,11 +78,11 @@
   --ruler-tick: #444; --ruler-ink: #222; --ruler-deftab: #777; --ruler-row: #7f95bd; --indent-fill: #e8eef9; --indent-line: #3b5a8c;
   --ruler-off-2: #c5d6f3; --ruler-tick-2: #4b5d7e; --ruler-ink-2: #334;
   /* opening and about content: each app's colour, the same in every look */
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
-/* Paper (and Paper 2016, the same with the ribbon): VibeOffice's own light look — warm paper chrome, one ink-teal accent, soft rounded shapes.
+/* Paper (and Paper 2016, the same with the ribbon): Melina Office's own light look — warm paper chrome, one ink-teal accent, soft rounded shapes.
    Values first; then the few shape rules a colour cannot express, all scoped to Paper. */
 [data-look="paper"], [data-look="paper2016"] {
   --theme-color: #FAF8F4;
@@ -148,8 +148,8 @@
   --ruler-mark-bg: var(--p-paper-2); --ruler-mark-line: var(--p-line-strong);
   --ruler-tick: #8C857A; --ruler-ink: #4A463F; --ruler-deftab: #B0A99D; --ruler-row: var(--p-line-strong); --indent-fill: #fff; --indent-line: #7A7368;
   --ruler-off-2: var(--p-paper-2); --ruler-tick-2: #8C857A; --ruler-ink-2: #4A463F;
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 /* Paper's shapes */
 :is([data-look="paper"], [data-look="paper2016"]) .menubar::before, :is([data-look="paper"], [data-look="paper2016"]) .tb-grip { display: none; }
@@ -344,8 +344,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -706,8 +706,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -1115,8 +1115,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -2053,8 +2053,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%231E1E1E' stroke='%231E1E1E'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23A1A1A6'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%232C2C2E' stroke='%233A3A3C'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23A1A1A6'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */
@@ -2995,8 +2995,8 @@
   --xp-blt: 18px;
   --xp-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --xp-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 [data-look="xp"] .menurow { height: 20px; min-height: 20px; background: #e8e6d6; overflow-y: hidden; }
@@ -3278,8 +3278,8 @@
   --w7-blt: 18px;
   --w7-blt-up: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23fff' stroke='%23fff'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
   --w7-blt-down: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 1.5V19.5H18.5L0.5 1.5Z' fill='%23ebebeb' stroke='%23ddd'/%3E%3Cpath d='M1 19.5H0.5V1.5L18.5 19.5H18' stroke='%23939393'/%3E%3C/svg%3E");
-  --brand-quire: #2D5999; --brand-ledger: #137E43; --brand-lectern: #B8492B;
-  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-quire);
+  --brand-ecrivaine: #2D5999; --brand-matheuse: #137E43; --brand-oratrice: #B8492B;
+  --brand-ink: #eee; --brand-credits: #bbb; --brand-bg: var(--brand-ecrivaine);
 }
 
 /* toolbars stay the gray window face; the menu bar is the 7.css gradient, same height as before */

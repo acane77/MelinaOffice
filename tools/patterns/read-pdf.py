@@ -2,7 +2,7 @@
 DrawingML presets) or, with --cells, Excel's of tmp/patterns/cellpatterns.xlsx (tools/patterns/sheet.mjs, the 17
 SpreadsheetML cell patterns). Each fill is a PDF tiling pattern painting an image of 8×8 blocks (64×64 pixels from
 PowerPoint, 8×8 from Excel); the patterns are used in the order the shapes or rows were placed. Prints {name: 8 rows,
-high bit left} as JSON, the form of common/geometry.js's PATTERNS and tests/patterns.powerpoint.json, and of Ledger's
+high bit left} as JSON, the form of common/geometry.js's PATTERNS and tests/patterns.powerpoint.json, and of Matheuse's
 cell patterns and tests/patterns.excel.json:
   python3 tools/patterns/read-pdf.py patterns.pdf > tests/patterns.powerpoint.json
   python3 tools/patterns/read-pdf.py --cells cellpatterns.pdf > tests/patterns.excel.json"""

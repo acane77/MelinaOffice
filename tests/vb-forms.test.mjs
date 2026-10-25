@@ -76,32 +76,32 @@ function loadForms() {
   return globalThis.VO.vbForms;
 }
 
-async function bootQuire() {
+async function bootEcrivaine() {
   globalThis.window = globalThis;
   require('../public/common/host-audit.js');
   require('../public/common/core.js');
-  require('../public/quire/js/dmodel.js');
-  require('../public/quire/js/ops.js');
-  require('../public/quire/js/dom.js');
-  require('../public/quire/js/dom-ir.js');
+  require('../public/ecrivaine/js/dmodel.js');
+  require('../public/ecrivaine/js/ops.js');
+  require('../public/ecrivaine/js/dom.js');
+  require('../public/ecrivaine/js/dom-ir.js');
   const { buildEngine } = await import('../tools/vb6/build-engine.mjs');
   const out = buildEngine();
   vm.runInThisContext(fs.readFileSync(out, 'utf8'), { filename: out });
   require('../public/common/vb-forms.js');
-  require('../public/quire/js/vb-host.js');
+  require('../public/ecrivaine/js/vb-host.js');
   const { D } = globalThis.L;
   D.doc = D.newDoc();
   D.resetHistory();
 }
 
 async function runHost(name) {
-  if (name === 'quire') await bootQuire();
-  else if (name === 'ledger') {
-    const boot = require('./ledger/vb-boot.js');
+  if (name === 'ecrivaine') await bootEcrivaine();
+  else if (name === 'matheuse') {
+    const boot = require('./matheuse/vb-boot.js');
     await boot.boot();
     boot.fresh();
-  } else if (name === 'lectern') {
-    const boot = require('./lectern/vb-boot.js');
+  } else if (name === 'oratrice') {
+    const boot = require('./oratrice/vb-boot.js');
     await boot.boot();
     boot.fresh();
   } else throw new Error('Unknown host ' + name);
@@ -240,7 +240,7 @@ if (hostName) {
   });
 
   test('each host runs a form only after loadProject', { timeout: 180000 }, async () => {
-    for (const name of ['quire', 'ledger', 'lectern']) {
+    for (const name of ['ecrivaine', 'matheuse', 'oratrice']) {
       await new Promise((resolve, reject) => {
         const child = spawn(process.execPath, [file, '--host', name], { stdio: ['ignore', 'inherit', 'inherit'] });
         child.on('exit', (code) => code === 0 ? resolve() : reject(new Error(name + ' form host failed: ' + code)));

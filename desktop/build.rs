@@ -5,7 +5,7 @@ fn main() {
         // Document icons for the file types the installer registers (src/installation.rs), numbered
         // above the app icon (32512): the exe's first icon is its own
         let dir = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-        for (id, app) in [(40101, "quire"), (40102, "ledger"), (40103, "lectern")] {
+        for (id, app) in [(40101, "ecrivaine"), (40102, "matheuse"), (40103, "oratrice")] {
             let icon = dir.join("icons").join(format!("{app}.ico"));
             println!("cargo:rerun-if-changed={}", icon.display());
             windows = windows.append_rc_content(format!(

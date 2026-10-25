@@ -1,4 +1,4 @@
-/* VibeOffice — toolbar & menu icons for Quire, Ledger and Lectern (original 16×16 artwork, Luna palette). */
+/* Melina Office — toolbar & menu icons for Ecrivaine, Matheuse and Oratrice (original 16×16 artwork, Luna palette). */
 (function (root) {
   'use strict';
   const L = root.L || (root.L = {});
@@ -191,7 +191,7 @@
     ct_table: '', ct_chart: '', ct_clipart: '', ct_picture: '', ct_diagram: '', ct_media: '',
   };
 
-  /* document artwork (Quire, and some in Ledger) */
+  /* document artwork (Ecrivaine, and some in Matheuse) */
   const pg = (extra) => page(2, 1, 12, 14) + (extra || '');
   const tl = (x, y, w, n, gap) => lines(x, y, w, n, gap, '#7a8aa6');
   Object.assign(I, {

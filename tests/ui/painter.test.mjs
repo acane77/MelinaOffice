@@ -1,4 +1,4 @@
-// The Format Painter in Quire, Ledger and Lectern with real mouse input (tests/lib/input.mjs): it paints what the
+// The Format Painter in Ecrivaine, Matheuse and Oratrice with real mouse input (tests/lib/input.mjs): it paints what the
 // user marks, once, when the mouse is let go (never while a selection is still being dragged out); a click on its
 // button arms it for one use, a double-click keeps it on until Esc; starting it keeps the selection or the text being
 // edited (common/ui.js, ui.brush; docs/suite.md, Brushes).
@@ -8,8 +8,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { open } from '../lib/input.mjs';
 
-test('Quire: paints the dragged text, a clicked word; locks on a double-click; keeps links', async () => {
-  const q = await open('quire');
+test('Ecrivaine: paints the dragged text, a clicked word; locks on a double-click; keeps links', async () => {
+  const q = await open('ecrivaine');
   try {
     /** screen point just inside the character at offset o of block b */
     const at = (b, o) => q.evaluate(`(() => { const p = L.D.doc.main.blocks[${b}], m = L.layout.posToDom(L.D.pos(p, ${o})), r = document.createRange();
@@ -64,8 +64,8 @@ test('Quire: paints the dragged text, a clicked word; locks on a double-click; k
   } finally { await q.close(); }
 });
 
-test('Ledger: paints the dragged cells; locks on a double-click; Esc ends it', async () => {
-  const g = await open('ledger');
+test('Matheuse: paints the dragged cells; locks on a double-click; Esc ends it', async () => {
+  const g = await open('matheuse');
   try {
     const cell = (r, c) => g.evaluate(`(() => { const w = document.querySelector('#gridwrap').getBoundingClientRect(), b = L.grid.cellRect(${r}, ${c}); return { x: w.left + b.x + b.w / 2, y: w.top + b.y + b.h / 2 }; })()`);
     /** B where a cell has A1's (bold) style, rows 0-5 by columns 0-4 */
@@ -90,8 +90,8 @@ test('Ledger: paints the dragged cells; locks on a double-click; Esc ends it', a
   } finally { await g.close(); }
 });
 
-test('Lectern: keeps text editing; paints dragged text, a clicked word, another box\'s text, a whole shape', async () => {
-  const s = await open('lectern');
+test('Oratrice: keeps text editing; paints dragged text, a clicked word, another box\'s text, a whole shape', async () => {
+  const s = await open('oratrice');
   try {
     await s.evaluate(`(async () => {
       const E = L.ed, M = L.model, slide = L.pres.slides[E.idx];
@@ -152,8 +152,8 @@ test('Lectern: keeps text editing; paints dragged text, a clicked word, another 
   } finally { await s.close(); }
 });
 
-test('Esc in the middle of a painting drag cancels it and puts the painter down (Ledger, Lectern)', async () => {
-  const g = await open('ledger');
+test('Esc in the middle of a painting drag cancels it and puts the painter down (Matheuse, Oratrice)', async () => {
+  const g = await open('matheuse');
   try {
     const cell = (r, c) => g.evaluate(`(() => { const w = document.querySelector('#gridwrap').getBoundingClientRect(), b = L.grid.cellRect(${r}, ${c}); return { x: w.left + b.x + b.w / 2, y: w.top + b.y + b.h / 2 }; })()`);
     const painted = () => g.evaluate(`(() => { const sh = L.grid.sheet(), s = sh.get(0, 0).s; let n = 0; for (let r = 1; r < 12; r++) for (let c = 0; c < 6; c++) { const cl = sh.get(r, c); if (cl && cl.s === s) n++; } return n; })()`);
@@ -161,12 +161,12 @@ test('Esc in the middle of a painting drag cancels it and puts the painter down 
     await g.click(await g.button('formatPainter'));
     const a = await cell(3, 3), b = await cell(6, 5);
     await g.press(a); await g.glide(a, b, 5); await g.esc(); await g.release(b);
-    assert.equal(await g.painting(), false, 'Ledger: the painter is down');
+    assert.equal(await g.painting(), false, 'Matheuse: the painter is down');
     await g.click(await cell(9, 1));
-    assert.equal(await painted(), 0, 'Ledger: nothing painted, not even by the next click');
+    assert.equal(await painted(), 0, 'Matheuse: nothing painted, not even by the next click');
     g.clean();
   } finally { await g.close(); }
-  const s = await open('lectern');
+  const s = await open('oratrice');
   try {
     await s.evaluate(`(async () => {
       const E = L.ed, M = L.model, slide = L.pres.slides[E.idx];
@@ -179,8 +179,8 @@ test('Esc in the middle of a painting drag cancels it and puts the painter down 
     await s.click(await s.button('painter'));
     const c = await centre('blue'), to = { x: c.x + 30, y: c.y + 20 };
     await s.press(c); await s.glide(c, to, 5); await s.esc(); await s.release(to);
-    assert.equal(await s.painting(), false, 'Lectern: the painter is down');
-    assert.equal(await s.evaluate(`L.ed.shape('blue').fill.c`), '#0000FF', 'Lectern: the shape is not painted');
+    assert.equal(await s.painting(), false, 'Oratrice: the painter is down');
+    assert.equal(await s.evaluate(`L.ed.shape('blue').fill.c`), '#0000FF', 'Oratrice: the shape is not painted');
     s.clean();
   } finally { await s.close(); }
 });

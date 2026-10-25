@@ -5,7 +5,7 @@ Status: planned 2026-10-11, not started. Read docs/desktop.md (Host interface) f
 Downloads), 2 saving to real files, 3 folder access in sandboxed builds. Mark each task when it is done and verified.
 
 The macOS port came first (2026-10-15; docs/desktop.md, macOS): both Mac editions already run in the App Sandbox, so
-Phase 3's Allow Access… applies to them, and on a Mac `~/.vibeoffice` (Phase 1) is inside the app's container. The Mac
+Phase 3's Allow Access… applies to them, and on a Mac `~/.melinaoffice` (Phase 1) is inside the app's container. The Mac
 App Store submission waits for Phase 2.
 
 ## Tasks
@@ -15,7 +15,7 @@ Phase 0: harden the host as it is
       window labels `<page>-<n>`
 - [ ] Links: one `links::open` for `host_open_url`, `on_navigation` and `on_new_window`: the Start Center only, https,
       the allow-list; no mailto
-- [ ] Links in documents (Quire, Ledger, Lectern) and on the licenses page: show the address with Copy on the desktop;
+- [ ] Links in documents (Ecrivaine, Matheuse, Oratrice) and on the licenses page: show the address with Copy on the desktop;
       on the web, only http(s) and mailto
 - [ ] `on_new_window`: always Deny
 - [ ] Navigation: a window loads only its own page, once
@@ -26,19 +26,19 @@ Phase 0: harden the host as it is
 - [ ] Web permission requests denied natively, except Local Font Access and the clipboard
 - [ ] WebView2 browser shortcuts off
 - [ ] Init script built with serde_json; `__VO_HOST__` read-only
-- [x] Portable zip and DLL planting (audit item 15): the zip is released as `VibeOffice-<version>-x64-Portable.zip`,
-      the exe inside its own `VibeOffice` folder; the release notes say to run it from there (2026-10-11)
+- [x] Portable zip and DLL planting (audit item 15): the zip is released as `Melina Office-<version>-x64-Portable.zip`,
+      the exe inside its own `Melina Office` folder; the release notes say to run it from there (2026-10-11)
 - [ ] Tests (cargo, host stub, live link checks) and docs/desktop.md
 
 Phase 1: native storage and one document per window
 - [ ] Single instance (Unix socket, Windows named pipe)
-- [ ] `~/.vibeoffice` store: config.json, recent_files, drafts, the atomic write, `VIBEOFFICE_HOME`
+- [ ] `~/.melinaoffice` store: config.json, recent_files, drafts, the atomic write, `MELINAOFFICE_HOME`
 - [ ] Settings: `__VO_HOST__.settings`, `host_set_setting`, `vo-settings`; `VO.settings`, `L.store`, looks, the head
       scripts, UI size
 - [ ] No browser storage: the init script removes the APIs, incognito web views, the static test; https scheme on Windows
 - [ ] Files bound to windows: `host_document`, `host_open` with the Open dialog (rfd on Windows, the GTK adapter), files
       from the command line opened by Rust
-- [ ] One document per window in Quire and Ledger; page-made documents as bytes; the Window menu
+- [ ] One document per window in Ecrivaine and Matheuse; page-made documents as bytes; the Window menu
 - [ ] Recent Files, previews and drafts native (`VO.recent` backend, Document Recovery)
 - [ ] Close flow (`vo-close`)
 - [ ] Scout to `VO.settings`
@@ -51,7 +51,7 @@ Phase 2: saving to real files
 - [ ] Mark of the Web carried to Save As and exports (Windows)
 - [ ] Previous versions and File ▸ Versions…
 - [ ] `L.file` in common/core.js
-- [ ] Quire, Ledger and Lectern on `L.file` (and Ledger's Cancel-while-closing fix)
+- [ ] Ecrivaine, Matheuse and Oratrice on `L.file` (and Matheuse's Cancel-while-closing fix)
 - [ ] Remove the Downloads interim; File System Access API off
 - [ ] Tests and docs
 
@@ -62,8 +62,8 @@ Phase 3: sandboxed builds
 
 - The desktop app never uses the web view's storage: no localStorage, sessionStorage, IndexedDB, Cache Storage or
   BroadcastChannel. The web keeps them.
-- Settings: a host settings API, stored in `~/.vibeoffice/config.json`.
-- Recent Files: `~/.vibeoffice/recent_files/<yyyy-mm>/<sha256>.recent`, the preview image beside it as
+- Settings: a host settings API, stored in `~/.melinaoffice/config.json`.
+- Recent Files: `~/.melinaoffice/recent_files/<yyyy-mm>/<sha256>.recent`, the preview image beside it as
   `<sha256>.recent.preview`. A user's file name never comes into a path the app makes.
 - Writing files is the dangerous surface. Save without a prompt (Ctrl+S) writes only the document's own file, which
   the user chose; Save As and every export always ask with the system Save dialog and write only what was picked
@@ -86,10 +86,10 @@ acts on only two of them, validated); open Recent Files entries and page-made do
 Files entries and discard drafts of documents not open in any window.
 
 It can't: write, read or name any other file; reach another window's document; take its file to another page; open
-any address in the browser; send anything to a server other than vibeoffice.work (CSP); fill the disk (every stored
+any address in the browser; send anything to a server other than acane.net/melinaoffice (CSP); fill the disk (every stored
 item has a size cap, and their number is bounded).
 
-Accepted: the CSP is one policy for every page, so an app page may also reach vibeoffice.work, our own static site;
+Accepted: the CSP is one policy for every page, so an app page may also reach acane.net/melinaoffice, our own static site;
 until Phase 1 moves the pages to https on Windows, Chromium may look up the names of links on the page (DNS prefetch),
 a few bytes out; the page sets its window's title.
 
@@ -97,7 +97,7 @@ a few bytes out; the page sets its window's title.
 
 | # | Finding | Risk | Fix |
 |---|---|---|---|
-| 1 | `on_new_window` returns `Allow` for every address that isn't http(s): `file:`, UNC paths, `ftp:`, other apps' protocol handlers, our own pages. The engine then opens its own popup, outside all our handlers (navigation, downloads, the IPC rules), and what it does with those schemes is up to it. Document hyperlinks get there: Quire's Ctrl+click and Open Hyperlink and Lectern's slide show pass the document's address as it is; Ledger lets `ftp:` through | High | Phase 0: always Deny |
+| 1 | `on_new_window` returns `Allow` for every address that isn't http(s): `file:`, UNC paths, `ftp:`, other apps' protocol handlers, our own pages. The engine then opens its own popup, outside all our handlers (navigation, downloads, the IPC rules), and what it does with those schemes is up to it. Document hyperlinks get there: Ecrivaine's Ctrl+click and Open Hyperlink and Oratrice's slide show pass the document's address as it is; Matheuse lets `ftp:` through | High | Phase 0: always Deny |
 | 2 | `on_navigation` allows every address that isn't http(s), and any of our pages, in any window, any number of times | High | Phase 0: one page per window |
 | 3 | The capability grants `core:default`: about 70 Tauri commands no page uses, among them `image.fromPath` (reads a file at a path the page gives), `path.resolveDirectory` and friends (the home folder, so the user's name), menus and tray icons, events to other windows, window, monitor and cursor queries | High (surface) | Phase 0: no core commands; ours per window kind |
 | 4 | No CSP (`csp: null`): any page can fetch, post to or load from any server, so limiting links alone wouldn't stop a document's script from sending its text out | High | Phase 0: CSP |
@@ -111,7 +111,7 @@ a few bytes out; the page sets its window's title.
 | 12 | Web permission requests (camera, microphone, location, notifications) get the engine's default handling | Low, to verify | Phase 0: denied natively |
 | 13 | WebView2's browser shortcuts are on: F5 and Ctrl+R reload, Ctrl+P, Ctrl+F, Ctrl+S (save the page) | Low | Phase 0: off |
 | 14 | The init script is assembled with `format!`; a page can replace `__VO_HOST__` | Low (hygiene) | Phase 0 |
-| 15 | The exe imports `dwmapi.dll`, which isn't a KnownDLL: the portable zip's exe run from Downloads, with a planted `dwmapi.dll` beside it, loads that DLL. The MSI installs into Program Files, which users can't write, so it is unaffected. GNU ld can't set `DependentLoadFlags` | Medium (zip) | Decided: released as the Portable zip, its exe inside a `VibeOffice` folder, so extracting it never puts the exe loose in Downloads; the release notes say to run it from that folder. The remaining risk (someone writing a DLL into that folder) is accepted |
+| 15 | The exe imports `dwmapi.dll`, which isn't a KnownDLL: the portable zip's exe run from Downloads, with a planted `dwmapi.dll` beside it, loads that DLL. The MSI installs into Program Files, which users can't write, so it is unaffected. GNU ld can't set `DependentLoadFlags` | Medium (zip) | Decided: released as the Portable zip, its exe inside a `Melina Office` folder, so extracting it never puts the exe loose in Downloads; the release notes say to run it from that folder. The remaining risk (someone writing a DLL into that folder) is accepted |
 | 16 | settings.json is written in place, not atomically | Low | Phase 1 store |
 | 17 | The pages are served as http://tauri.localhost on Windows: not a secure context, and Chromium prefetches DNS for links on http pages | Low | Phase 1: https scheme (the origin change costs nothing once storage has left the web view) |
 
@@ -131,7 +131,7 @@ None of this waits for native storage; it closes the audit's holes in today's bu
   Declare those in an app manifest (build.rs: `tauri_build::try_build(Attributes::new().app_manifest(
   AppManifest::new().commands(&[…])))`), so each is refused unless a capability grants it, and grant them per window
   kind, which the label carries (`<page>-<n>`): `start` (`main`) its commands, `host_open_url` included; `apps`
-  (`quire-*`, `ledger-*`, `lectern-*`) theirs, without `host_open_url`; `licenses-*` none. Each command still checks
+  (`ecrivaine-*`, `matheuse-*`, `oratrice-*`) theirs, without `host_open_url`; `licenses-*` none. Each command still checks
   its window itself; the ACL is a second wall.
 - **Links.** One function, `links::open(window, url)`, reached from `host_open_url` and from `on_navigation` and
   `on_new_window` when they meet an address outside the app. It opens the address only when:
@@ -141,16 +141,16 @@ None of this waits for native storage; it closes the audit's holes in today's bu
 
     | Host | Path | For |
     |---|---|---|
-    | `vibeoffice.work` | any | Update (`/updater/?from_version=…`), the site |
-    | `github.com` | `/tcchen2026/VibeOffice` and below | the Start Center's GitHub button |
+    | `acane.net/melinaoffice` | any | Update (`/updater/?from_version=…`), the site |
+    | `github.com` | `/tcchen2026/Melina Office` and below | the Start Center's GitHub button |
 
   It hands the system the address as the parser re-wrote it (`ShellExecuteW` "open", `xdg-open`). Everything else is
   refused, and `host_open_url` says so. No `mailto:`. The list is a constant in Rust: changing it is a release.
-- **Links in documents.** On the desktop, Quire (editor.js Ctrl+click, app.js Open Hyperlink), Ledger (app.js
-  HYPERLINK) and Lectern (slideshow.js `follow`) call one `VO.followLink(url)`, which shows the address instead of
-  opening it: "VibeOffice doesn't open links from documents. The address is: …", with Copy Address and OK. Links
+- **Links in documents.** On the desktop, Ecrivaine (editor.js Ctrl+click, app.js Open Hyperlink), Matheuse (app.js
+  HYPERLINK) and Oratrice (slideshow.js `follow`) call one `VO.followLink(url)`, which shows the address instead of
+  opening it: "Melina Office doesn't open links from documents. The address is: …", with Copy Address and OK. Links
   inside the document (bookmarks, cells, slides) work as before. On the web `VO.followLink` opens a new tab, as today,
-  but only for http(s) and mailto (Quire and Lectern pass any scheme today). The licenses page shows its addresses as
+  but only for http(s) and mailto (Ecrivaine and Oratrice pass any scheme today). The licenses page shows its addresses as
   text on the desktop.
 - **New windows.** `on_new_window` always returns Deny: pages open windows only through `host_new_window`, and a
   `target=_blank` link that leaves the app goes to `links::open` first.
@@ -160,14 +160,14 @@ None of this waits for native storage; it closes the audit's holes in today's bu
   same-document navigations reach `on_navigation`. This also keeps Phase 1's settings snapshot current.
 - **CSP** (tauri.conf.json, now `null`): `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc:
-  http://ipc.localhost blob: data: https://vibeoffice.work; frame-src 'none'; object-src 'none'; base-uri 'self';
+  http://ipc.localhost blob: data: https://acane.net/melinaoffice; frame-src 'none'; object-src 'none'; base-uri 'self';
   form-action 'none'`, with `dangerousDisableAssetCspModification: ["style-src"]` (Tauri adds hashes for inline
   styles, and a browser ignores `'unsafe-inline'` once a hash is there). `blob:` in connect-src because the pages
-  `fetch` blob URLs; vibeoffice.work for the Start Center's update check. Tauri hashes the inline scripts (the head
+  `fetch` blob URLs; acane.net/melinaoffice for the Start Center's update check. Tauri hashes the inline scripts (the head
   look script). The init script removes `RTCPeerConnection`, `webkitRTCPeerConnection` and `RTCDataChannel`, which the
   CSP doesn't cover. Check every page in the native build (the Chromium stub doesn't apply Tauri's CSP), and that eval,
   an injected inline script and a fetch to another host are blocked.
-- **`host_new_window({ page, new, template })`**: `page` is one of `quire`, `ledger`, `lectern`, `licenses`; `template`
+- **`host_new_window({ page, new, template })`**: `page` is one of `ecrivaine`, `matheuse`, `oratrice`, `licenses`; `template`
   matches `^[a-z0-9-]{1,40}$`; Rust builds the address. At most 64 windows are open; beyond that it refuses, and the
   page says so. Pages never open the Start Center.
 - **Launch files**, until Phase 1 replaces them: `host_launch_files` and `host_read` only for the Start Center, which
@@ -183,8 +183,8 @@ None of this waits for native storage; it closes the audit's holes in today's bu
   Ctrl+P print preview, Ctrl+F find bar, Ctrl+S page save. Check that editing keys (Ctrl+C, Ctrl+V, Ctrl+Z) and the
   apps' own shortcuts still work.
 - **Init script**: built with `serde_json` (no string pasting); `__VO_HOST__` defined read-only and not configurable.
-- **The Portable zip** (audit item 15), done: released as `VibeOffice-<version>-x64-Portable.zip` with its exe inside a
-  `VibeOffice` folder; the release notes say to run it from there.
+- **The Portable zip** (audit item 15), done: released as `Melina Office-<version>-x64-Portable.zip` with its exe inside a
+  `Melina Office` folder; the release notes say to run it from there.
 
 # Phase 1: native storage and one document per window
 
@@ -203,13 +203,13 @@ the desktop:
   Files entry).
 - **Documents a page makes** (mail merge's letters, …) go to a new, unbound window as bytes in the app's own format
   (`hooks.snapshot`). An unbound window has no file: its first Save asks.
-- **Quire and Ledger** keep several documents per page on the web (`A.docs`, `A.books`, the Window menu). On the
-  desktop the branch that adds a second document (Quire `A.loadDoc` with `newWindow`, Ledger `A.addBook`'s push) is
+- **Ecrivaine and Matheuse** keep several documents per page on the web (`A.docs`, `A.books`, the Window menu). On the
+  desktop the branch that adds a second document (Ecrivaine `A.loadDoc` with `newWindow`, Matheuse `A.addBook`'s push) is
   never taken: New and templates open `new` / `template` windows (`VO.go`), files go through the native Open,
-  page-made documents through the bytes handoff (call sites: Quire app.js `newDocument`, `openFile`, line ~771,
-  mailmerge.js ~244; Ledger `newWorkbook`, app.js ~166/217, panes.js ~80/371). If the branch is reached anyway, log a
+  page-made documents through the bytes handoff (call sites: Ecrivaine app.js `newDocument`, `openFile`, line ~771,
+  mailmerge.js ~244; Matheuse `newWorkbook`, app.js ~166/217, panes.js ~80/371). If the branch is reached anyway, log a
   console error so the tests catch a missed call site. The Window menu lists the app's windows (`host_windows`,
-  `host_focus`). Lectern already has one presentation per page.
+  `host_focus`). Oratrice already has one presentation per page.
 - **Closing.** Rust catches the close button (`CloseRequested`, prevent close) and tells the page (`vo-close`); the
   page runs its "Save changes?" flow for its one document and calls `host_close_window`. If the page doesn't answer in
   10 s, ask natively whether to close anyway (its draft is kept). This fixes today's gap: Tauri's close doesn't run
@@ -217,7 +217,7 @@ the desktop:
 - **Single instance.** One process owns the windows, settings and Recent Files. A second launch passes its command
   line files to the first and exits; without files it brings up the Start Center (reopened if it was closed). Own small
   code rather than tauri-plugin-single-instance (which brings D-Bus on Linux): a Unix socket in `$XDG_RUNTIME_DIR`
-  (else in `~/.vibeoffice`), on Windows a per-user named pipe that rejects remote clients. Only the same user reaches
+  (else in `~/.melinaoffice`), on Windows a per-user named pipe that rejects remote clients. Only the same user reaches
   it, who could start the exe with those files anyway; it accepts paths of existing files only, treated exactly as the
   command line.
 - The process ends with its last window; the Start Center ("main") may close while documents stay open.
@@ -231,10 +231,10 @@ Dropped files: HTML5 drop gives bytes without a path, so a dropped document open
 Later, perhaps: WebView2 can tell the path of a `File` the user dropped (`postMessageWithAdditionalObjects`); WebKitGTK
 can't.
 
-## Storage: ~/.vibeoffice
+## Storage: ~/.melinaoffice
 
 ```
-~/.vibeoffice/                      %USERPROFILE%\.vibeoffice on Windows; mode 0700 elsewhere
+~/.melinaoffice/                      %USERPROFILE%\.melinaoffice on Windows; mode 0700 elsewhere
   config.json                       the settings
   recent_files/
     2026-10/                        the month (UTC) the entry was made; an entry never moves
@@ -250,21 +250,21 @@ can't.
   names are case-insensitive), 64 hex digits: one file, one entry, and "is it open already?" is the same lookup. A
   never-saved document's entry is the sha256 of 32 random bytes. Under `recent_files/` only
   `<yyyy>-<mm>/<64 hex>.recent[.preview|.draft]` is read; anything else is ignored, and links are never followed.
-- **The entry**: `{ "v": 1, "app": "quire", "path": "…" | null, "name": "Report.docx", "size", "mtime", "time",
+- **The entry**: `{ "v": 1, "app": "ecrivaine", "path": "…" | null, "name": "Report.docx", "size", "mtime", "time",
   "draft": { "name", "time", "lossState" } | null }`; `size` and `mtime` are those of the version the window opened, so
   saving a recovered draft over a file changed since says so. The file name and path live only inside.
 - **Pruning**, as the web's (`MAX_RECENT` 30): the 30 newest entries without a draft stay, entries with a draft are
   never pruned, an emptied month folder is removed. Settings ▸ Clear removes the entries without drafts.
-- **config.json**: `{ "<key>": <JSON value> }` with the keys localStorage has today (`vibeoffice.look`,
-  `vibeoffice.localFonts`, `vibeoffice.updateAsked`, `quire.autoText`, …), plus `vibeoffice.uiScale`, which replaces
+- **config.json**: `{ "<key>": <JSON value> }` with the keys localStorage has today (`melinaoffice.look`,
+  `melinaoffice.localFonts`, `melinaoffice.updateAsked`, `ecrivaine.autoText`, …), plus `melinaoffice.uiScale`, which replaces
   settings.json in the app config folder (read that once if config.json is missing). Keys match
   `^[a-z][a-z0-9]*\.[A-Za-z0-9_.-]{1,64}$`; a value is at most 1 MB, the file 8 MB. Rust acts only on
-  `vibeoffice.uiScale` (0.5 to 4: the zoom of every window) and supplies `vibeoffice.look` = `paper` while it is unset;
+  `melinaoffice.uiScale` (0.5 to 4: the zoom of every window) and supplies `melinaoffice.look` = `paper` while it is unset;
   every other value is the pages' own data.
 - One function writes every file here: a temp file in the same folder, `sync_all`, rename over the old one; a draft or
   preview before the entry that refers to it. config.json writes are coalesced (about 300 ms). Reading tolerates a
   missing or broken file (defaults; a broken entry is skipped).
-- `VIBEOFFICE_HOME` overrides the folder, for tests.
+- `MELINAOFFICE_HOME` overrides the folder, for tests.
 - Nothing is migrated from the web view storage of the builds so far.
 
 ## Host interface (host::VERSION 2)
@@ -319,8 +319,8 @@ file APIs.
   its `storage` event; desktop: `__VO_HOST__.settings`, `host_set_setting`, `vo-settings`. Everything goes through it:
   `L.store` (core.js, keys `<APP_ID>.<name>`; its ~100 call sites stay as they are), looks, local fonts,
   `updateAsked` (index.html), the UI size (Settings).
-- The head script that sets `data-look` before the first paint reads `__VO_HOST__.settings['vibeoffice.look']` when
-  there is one: public/index.html, quire/ and lectern/index.html, tools/ledger/build/template.html (Ledger's page is
+- The head script that sets `data-look` before the first paint reads `__VO_HOST__.settings['melinaoffice.look']` when
+  there is one: public/index.html, ecrivaine/ and oratrice/index.html, tools/matheuse/build/template.html (Matheuse's page is
   generated: run make.py), the template in tools/oss-licenses.py (run it). Remove the localStorage seed in
   `host::init_script`.
 - `VO.recent` keeps its shape for the Start Center, File menus, task panes and Document Recovery, with a desktop
@@ -374,7 +374,7 @@ file APIs.
   Save dialog. Dropped by its successful write, a newer choice, `host_cancel_choice` or the window closing; kept after
   a failed write, so Try Again works.
 - `kept`: whether this window already kept the previous version of its file.
-- The window's app comes from its label (`quire-*`, `ledger-*`, `lectern-*`); it limits the types.
+- The window's app comes from its label (`ecrivaine-*`, `matheuse-*`, `oratrice-*`); it limits the types.
 
 ### File types: one table (desktop/src/types.rs)
 
@@ -383,9 +383,9 @@ app opens and writes as a document), and how the bytes must start:
 
 | App | Types |
 |---|---|
-| Quire | docx, docm, dotx, dotm (zip, or OLE when encrypted), rtf (`{\rtf`), htm/html, txt, md (text), mdzip as .zip (zip), pdf (`%PDF-`) |
-| Ledger | xlsx, xlsm, xltx, xltm (zip or OLE), csv, tsv, prn, xmlss as .xml, htm/html (text), pdf |
-| Lectern | pptx, pptm, ppsx, ppsm, potx, potm (zip or OLE), pdf, png (PNG signature), htm/html |
+| Ecrivaine | docx, docm, dotx, dotm (zip, or OLE when encrypted), rtf (`{\rtf`), htm/html, txt, md (text), mdzip as .zip (zip), pdf (`%PDF-`) |
+| Matheuse | xlsx, xlsm, xltx, xltm (zip or OLE), csv, tsv, prn, xmlss as .xml, htm/html (text), pdf |
+| Oratrice | pptx, pptm, ppsx, ppsm, potx, potm (zip or OLE), pdf, png (PNG signature), htm/html |
 
 It replaces `SAVE_TYPES` in host.rs. The byte check guards against a writer mix-up (.md bytes under .zip); it is not
 the security boundary. Reading has its own list (`VO.APPS`, Phase 1), so a readable format never becomes writable by
@@ -427,7 +427,7 @@ Errors are codes the page acts on, each with a message that names the file but h
    link, directory or device in its place is refused), or absent when the dialog picked a new name; for `file`,
    unchanged since `base` unless `replace`.
 2. Keep the previous version, if the target exists and this window hasn't kept one yet (below).
-3. Write a temp file in the target's folder, `.~vibeoffice-<16 random hex>.tmp` (hidden on Windows; no user file name
+3. Write a temp file in the target's folder, `.~melinaoffice-<16 random hex>.tmp` (hidden on Windows; no user file name
    in it), `create_new`, write, `sync_all`.
 4. Replace: `ReplaceFileW` on Windows (keeps the file's ACL, attributes and streams, its Mark of the Web among them),
    `MoveFileExW` for a new file; elsewhere copy the mode onto the temp, `rename`, then sync the folder. Verbatim
@@ -451,7 +451,7 @@ save (the dialog already asked).
 
 ### Previous versions (proposed)
 
-`~/.vibeoffice/previous_versions/<yyyy-mm>/<sha256 of the path>.<unix ms>.previous`: the version on disk before the
+`~/.melinaoffice/previous_versions/<yyyy-mm>/<sha256 of the path>.<unix ms>.previous`: the version on disk before the
 first write over it from a window (one per editing session, not per save), and before an export replaces an existing
 file. Same naming rule as Recent Files: no user file name in the path. Kept 30 days, at most 5 per file and 1 GB in
 all (oldest go first); files over 200 MB aren't kept. Pruned at start and after writes. Even a compromised page can't
@@ -491,10 +491,10 @@ L.file.export(type)    // PDF, PNG, CSV, web page, …
 |---|---|---|
 | `changed` | “Report.docx” was changed by another program after you opened it. | Replace It, Save As…, Cancel |
 | `missing` | “Report.docx” is no longer where it was: it was moved, renamed or deleted. | Save As… (its old folder and name), Cancel |
-| `denied` | VibeOffice can't save “Report.docx”: it is read-only, or you don't have permission to change it. | Save As…, Cancel (Phase 3 adds Allow Access…) |
+| `denied` | Melina Office can't save “Report.docx”: it is read-only, or you don't have permission to change it. | Save As…, Cancel (Phase 3 adds Allow Access…) |
 | `busy` | “Report.docx” is open in another program, which is keeping it from being changed. | Try Again, Save As…, Cancel |
 | `full` | There isn't enough space on the disk to save “Report.docx”. | Save As…, Cancel |
-| `open-elsewhere` | “Report.docx” is open in another VibeOffice window. Close it there, or choose another name. | OK (back to the dialog) |
+| `open-elsewhere` | “Report.docx” is open in another Melina Office window. Close it there, or choose another name. | OK (back to the dialog) |
 | others | “Report.docx” couldn't be saved: (the message). | OK |
 
   Every message for a failure before the replace ends with "Your file hasn't changed."
@@ -503,16 +503,16 @@ L.file.export(type)    // PDF, PNG, CSV, web page, …
 
 - Turn the app's `save`, `saveAs` and `exportAs` into `L.file.setup` hooks; the type descriptors are its existing Save
   As list, shared by its web dialog and the desktop's filters (keep the aliases: `htm`/`html`, `xml` → `xmlss`, `zip` →
-  `mdzip`). Keep each app's current rule on which types are a document save (Quire today: docx, docm, dotx, dotm, md,
+  `mdzip`). Keep each app's current rule on which types are a document save (Ecrivaine today: docx, docm, dotx, dotm, md,
   mdzip; html, rtf and txt are exports). Distinguish saving an opened CSV from exporting a workbook's active sheet.
-- **Quire** (app.js `A.save`, `A.saveAs`, `A.exportAs`, dialogs3.js `L.dlg.saveAs`; PDF, print, mail merge): the
+- **Ecrivaine** (app.js `A.save`, `A.saveAs`, `A.exportAs`, dialogs3.js `L.dlg.saveAs`; PDF, print, mail merge): the
   Markdown pictures question returns `{ switchTo: 'mdzip' }` instead of changing `A.fileType` before the save succeeded;
   the compatibility check (`ui.compatibility`) stays inside `prepare`.
-- **Ledger** (app.js `A.save`, `A.saveAs`, `closeWorkbook`; dialogs.js `D.saveAs`; commands.js; print.js): tell Save,
+- **Matheuse** (app.js `A.save`, `A.saveAs`, `closeWorkbook`; dialogs.js `D.saveAs`; commands.js; print.js): tell Save,
   Save As, Save as Web Page and Export CSV apart; await the real outcome (`D.saveAs` isn't awaited, and
   `ui.dialog().done` resolves Cancel as a truthy index, so Cancel while closing an untitled book closes it unsaved; fix
   that on the web too); PDF export reports its outcome; keep passwords and encryption.
-- **Lectern** (app.js `A.save`, `A.saveAs`, `A.exportAs`, dialogs.js `L.dlg.saveAs`, `previewPDF`): the same.
+- **Oratrice** (app.js `A.save`, `A.saveAs`, `A.exportAs`, dialogs.js `L.dlg.saveAs`, `previewPDF`): the same.
 - The desktop's title shows "(Read-Only)" for a read-only file; File ▸ Versions… in each app (and the ribbon's File
   tab).
 - The refactor changes no writer: on the web, the bytes saved for the same input are identical before and after.
@@ -535,11 +535,11 @@ Unverified until tried in those sandboxes; macOS builds are out of scope for now
   init script), links.rs (new); build.rs (app manifest), capabilities/ (per window kind), tauri.conf.json (CSP);
   Cargo.toml (webview2-com on Windows), then tools/oss-licenses.py. public/common/suite.js (`VO.followLink`,
   `newWindow` by page id), the apps' hyperlink code, tools/oss-licenses.py's page (links as text on the desktop).
-- Phase 1. desktop/src: main.rs (windows, close flow), host.rs (commands), store.rs (new: ~/.vibeoffice, config,
+- Phase 1. desktop/src: main.rs (windows, close flow), host.rs (commands), store.rs (new: ~/.melinaoffice, config,
   Recent Files, drafts, the atomic write), instance.rs (new: single instance), the Open dialog (the GTK adapter);
   Cargo.toml and Cargo.lock (sha2, now a direct dependency; rfd Windows-only), then tools/oss-licenses.py.
   public/common/suite.js, core.js, public/index.html, the apps' head scripts and app.js (new document paths, Window
-  menu), tools/ledger/build/ (then make.py), common/scout/assistant.js.
+  menu), tools/matheuse/build/ (then make.py), common/scout/assistant.js.
 - Phase 2. desktop/src: types.rs and files.rs (new), host.rs (commands; the interim goes; File System Access API off),
   main.rs (`on_download`), store.rs (previous versions), the Save dialog. public/common/core.js (`L.file`),
   suite.js (the interim notice goes); the three apps' save code and Save As dialogs; menus and ribbons for
@@ -553,7 +553,7 @@ Unverified until tried in those sandboxes; macOS builds are out of scope for now
 
 1. `cargo test` (Linux target), each regression test failing on the code before its fix:
    - Phase 0: `links::open` refuses every window but the Start Center, http, other ports, a user name, lookalike
-     hosts (`vibeoffice.work.example.com`, `xn--` forms, `github.com/tcchen2026/VibeOfficeX`) and every scheme but
+     hosts (`acane.net/melinaoffice.example.com`, `xn--` forms, `github.com/acane77/MelinaOfficeX`) and every scheme but
      https, and hands over the re-written address; the navigation rule (first load, fragment, reload, another page,
      `file:`, `data:`, `blob:`, other schemes); `on_new_window` denies everything; `host_new_window` page ids,
      template ids and the 64-window cap; reserved and trailing-dot download names; the init script is valid JS for any
@@ -578,10 +578,10 @@ Unverified until tried in those sandboxes; macOS builds are out of scope for now
      storage test; the web path unchanged (tests/looks, ribbon, search).
    - Phase 2: Ctrl+S on a bound file → one `host_save`; unbound, read-only and .doc → Save As; Save As picks the type
      before `prepare`; Cancel at the dialog, at the compatibility check and in the Markdown question; every error
-     code's message and buttons; Ledger's Cancel while closing keeps the book open; exports keep the dirty state; the
+     code's message and buttons; Matheuse's Cancel while closing keeps the book open; exports keep the dirty state; the
      web path still downloads the same bytes.
-3. Linux live, offline (`unshare -rn`), on display :0, with `VIBEOFFICE_HOME` and scratch documents under ./tmp so the
-   real ~/.vibeoffice is never touched:
+3. Linux live, offline (`unshare -rn`), on display :0, with `MELINAOFFICE_HOME` and scratch documents under ./tmp so the
+   real ~/.melinaoffice is never touched:
    - Phase 0: a test document in each app with links to https, `file:///`, a UNC path, `ftp:`, `mailto:` and another
      protocol handler: Ctrl+click and the slide show open nothing, the address dialog appears; the GitHub button and
      Update open the browser (`xdg-open` logged, the network being off); a page calling `host_open_url` from an app
@@ -612,8 +612,8 @@ Unverified until tried in those sandboxes; macOS builds are out of scope for now
   `on_download`, title, zoom set on each page load because WebKitGTK resets it). capabilities/default.json grants
   `core:default` to `main` and `doc-*`. Page side: `VO.host`, the IndexedDB section, `VO.recent`, `VO.handoff`,
   `VO.attach`, `VO.opened`, `VO.saved` in public/common/suite.js; `L.store`, `L.saveFile`, `L.pickFiles` in
-  public/common/core.js; hyperlinks in quire/js/editor.js (~910) and app.js (~1010), ledger/js/app.js (~812),
-  lectern/js/slideshow.js (`follow`).
+  public/common/core.js; hyperlinks in ecrivaine/js/editor.js (~910) and app.js (~1010), matheuse/js/app.js (~812),
+  oratrice/js/slideshow.js (`follow`).
 - Commands that need the calling window take `window: WebviewWindow`; Tauri fills it in, the page can't.
 - `NewWindowResponse::Allow` means the engine's own popup ("the default implementation"), not one of our windows.
 - The exe's DLL imports (`x86_64-w64-mingw32-objdump -p`): advapi32, comctl32 (side by side, v6), dwmapi, gdi32, imm32,
@@ -629,9 +629,9 @@ Unverified until tried in those sandboxes; macOS builds are out of scope for now
   from the repository root). `cargo test` builds the same way. `wixl` 0.106: `tmp/msitools/root/usr/bin/wixl` with
   `LD_LIBRARY_PATH=$PWD/tmp/msitools/root/usr/lib/x86_64-linux-gnu`.
 - Run the Linux build offline on display :0 with a scratch profile: `unshare -rn`, `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/
-  `XDG_CACHE_HOME` (and `VIBEOFFICE_HOME`) under ./tmp. `xdotool` and `import` drive and screenshot it; the window
+  `XDG_CACHE_HOME` (and `MELINAOFFICE_HOME`) under ./tmp. `xdotool` and `import` drive and screenshot it; the window
   position `xdotool getwindowgeometry` reports is off, take a root screenshot to find coordinates. Kill test instances
-  with `pkill -f "unknown-linux-gnu/releas[e]/vibeoffice"`.
+  with `pkill -f "unknown-linux-gnu/releas[e]/melinaoffice"`.
 - Page tests: `node --test tests/desktop/host.test.mjs` (Chromium with CDP on 127.0.0.1:9222; `tools/shot.mjs --pre`
   runs `tests/desktop/host-stub.js` before each page; a test cleans up whatever it adds).
 - Changes in public/common/ touch all three apps: load each and screenshot what changes. Refresh `git status` before

@@ -1,4 +1,4 @@
-# Quire VB6 engine. The bundle is gitignored.
+# Ecrivaine VB6 engine. The bundle is gitignored.
 #   make
 
 .PHONY: all engine

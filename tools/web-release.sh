@@ -7,7 +7,7 @@
 # - packs updater/web-<version>.zip, the whole site the service worker downloads and caches (public/sw.js): every
 #   file but sw.js, updater/ and hidden files, deflated, without folder entries or extra attributes.
 # Warns when the whole UI suite has not passed on this public/ (tools/ui-tested.sh, docs/testing.md).
-# Needs zip (Info-ZIP). ../cf-vibeoffice/sync-cf-pages.sh runs it on the copy it deploys; never run it on public/
+# Needs zip (Info-ZIP). ../cf-melinaoffice/sync-cf-pages.sh runs it on the copy it deploys; never run it on public/
 # itself.
 set -eu
 

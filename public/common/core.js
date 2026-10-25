@@ -1,15 +1,15 @@
-/* VibeOffice — core utilities, shared by Quire, Ledger and Lectern.
+/* Melina Office — core utilities, shared by Ecrivaine, Matheuse and Oratrice.
  * Shared namespace, DOM helpers, units, colors, events, file I/O, media store, PDF writer.
  * Every other script attaches itself to window.L. Each page names its app before loading this file:
- *   <script>window.L = { APP_ID: 'quire', APP_NAME: 'Quire', APP: 'Quire' };</script>
- * APP_ID keeps each app's saved settings apart (localStorage 'quire.…'); APP_NAME and APP appear in messages.
+ *   <script>window.L = { APP_ID: 'ecrivaine', APP_NAME: 'Ecrivaine', APP: 'Ecrivaine' };</script>
+ * APP_ID keeps each app's saved settings apart (localStorage 'ecrivaine.…'); APP_NAME and APP appear in messages.
  */
 (function (root) {
   'use strict';
   const L = root.L || (root.L = {});
   L.VERSION = root.VO?.VERSION || 'dev';   // one version for the suite: common/suite.js
-  L.APP_ID = L.APP_ID || 'vibeoffice';
-  L.APP_NAME = L.APP_NAME || 'VibeOffice';
+  L.APP_ID = L.APP_ID || 'melinaoffice';
+  L.APP_NAME = L.APP_NAME || 'Melina Office';
   L.APP = L.APP || L.APP_NAME;
 
   /* ---------- DOM ---------- */
@@ -826,7 +826,7 @@
     const rank = (n) => { const k = L.fontKey(n); const i = recent.findIndex((f) => L.fontKey(f) === k); return i < 0 ? recent.length + 1 : i; };
     return names.slice().sort((a, b) => rank(a) - rank(b) || String(a).localeCompare(String(b)));
   };
-  /* the Font Size box of Word and Excel; Lectern sets PowerPoint's list in its app.js */
+  /* the Font Size box of Word and Excel; Oratrice sets PowerPoint's list in its app.js */
   L.SIZE_LIST = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
 
   /* Wingdings / Symbol bullet glyphs mapped to Unicode so imported documents look right */

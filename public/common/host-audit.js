@@ -1,6 +1,6 @@
 /* Host abilities and the three audit tiers. A member runs only when this host implements
  * that ability. The tier says whether an agent script must be allowed first.
- * AlwaysAllow needs no VibeOffice confirmation. RequestApproval asks when an agent started
+ * AlwaysAllow needs no Melina Office confirmation. RequestApproval asks when an agent started
  * the run. AlwaysDeny refuses. A file outside the workspace is RequestApproval for that
  * call. Docs: docs/dom_api_security.md. */
 (function (root) {
@@ -8,11 +8,11 @@
   const L = root.L = root.L || {};
   const VO = root.VO = root.VO || {};
   const COMMON = ['Path', 'Save', 'SaveAs', 'Open', 'Print', 'FixedFormat', 'Hyperlink', 'Picture', 'FileDialog', 'Dir', 'Shell'];
-  const EXTRA = { quire: ['InsertFile'], ledger: ['SheetSaveAs'], lectern: ['Export'] };
+  const EXTRA = { ecrivaine: ['InsertFile'], matheuse: ['SheetSaveAs'], oratrice: ['Export'] };
   const granted = new Set();
   const dirState = { list: null, i: 0 };
 
-  const QUIRE_OFFICE = {
+  const ECRIVAINE_OFFICE = {
     174: 'font', 175: 'paragraph', 179: 'tabs', 189: 'borders', 824: 'bullets', 177: 'columns',
     488: 'dropCap', 322: 'changeCase', 180: 'style', 960: 'formatObject', 178: 'pageSetup',
     88: 'print', 294: 'pageNumbers', 159: 'breakDlg', 165: 'dateTime', 166: 'field', 162: 'symbol',
@@ -22,7 +22,7 @@
     228: 'wordCount', 195: 'hyphenation', 607: 'envelopes', 821: 'letterWizard', 87: 'templates',
     222: 'organizer', 378: 'autocorrect', 974: 'options', 188: 'language', 86: 'properties', 111: 'pasteSpecial',
   };
-  const LEDGER_OFFICE = {
+  const MATHEUSE_OFFICE = {
     150: 'formatCells', 127: 'rowHeight', 47: 'colWidth', 256: 'zoom', 7: 'pageSetup', 8: 'print',
     64: 'find', 130: 'findReplace', 63: 'goTo', 132: 'goToSpecial', 53: 'pasteSpecial', 55: 'insertCells',
     54: 'deleteCells', 39: 'sort', 40: 'series', 450: 'insertFunction', 61: 'defineName', 62: 'createNames',
@@ -255,7 +255,7 @@
     if (typeof type === 'string' && /xps/i.test(type)) return true;
     const n = type | 0;
     const app = appId();
-    if (app === 'quire') return n === 18;
+    if (app === 'ecrivaine') return n === 18;
     return n === 1;
   }
   function isPdf(type) {
@@ -263,8 +263,8 @@
     if (typeof type === 'string' && /pdf/i.test(type)) return true;
     const n = type | 0;
     const app = appId();
-    if (app === 'quire') return n === 17;
-    if (app === 'lectern') return n === 2;
+    if (app === 'ecrivaine') return n === 17;
+    if (app === 'oratrice') return n === 2;
     return n === 0;
   }
 
@@ -340,14 +340,14 @@
     const b = Number(buttons) || 0;
     const style = (b & 7) === 3 ? 'ync' : (b & 7) === 4 ? 'yn' : (b & 7) === 1 ? 'okcancel' : 'ok';
     const labels = { ok: ['OK'], okcancel: ['OK', 'Cancel'], yn: ['Yes', 'No'], ync: ['Yes', 'No', 'Cancel'] };
-    return L.ui.msg(String(prompt == null ? '' : prompt), { title: title || (L.APP || 'VibeOffice'), buttons: labels[style], icon: style === 'ok' ? 'info' : 'question' }).then(function (index) {
+    return L.ui.msg(String(prompt == null ? '' : prompt), { title: title || (L.APP || 'Melina Office'), buttons: labels[style], icon: style === 'ok' ? 'info' : 'question' }).then(function (index) {
       return buttonValue(style, index);
     });
   }
 
   function inputBox(prompt, title, def) {
     if (!L.ui || typeof L.ui.prompt !== 'function') return Promise.resolve('');
-    return L.ui.prompt(String(prompt || ''), def || '', title || (L.APP || 'VibeOffice')).then(function (v) {
+    return L.ui.prompt(String(prompt || ''), def || '', title || (L.APP || 'Melina Office')).then(function (v) {
       return v == null ? '' : String(v);
     });
   }
@@ -376,8 +376,8 @@
   }
 
   function officeMap() {
-    if (appId() === 'ledger') return { fileOpen: 1, fileSave: 5, office: LEDGER_OFFICE };
-    if (appId() === 'quire') return { fileOpen: 80, fileSave: 84, office: QUIRE_OFFICE };
+    if (appId() === 'matheuse') return { fileOpen: 1, fileSave: 5, office: MATHEUSE_OFFICE };
+    if (appId() === 'ecrivaine') return { fileOpen: 80, fileSave: 84, office: ECRIVAINE_OFFICE };
     return null;
   }
 

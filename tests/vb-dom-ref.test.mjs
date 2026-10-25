@@ -21,9 +21,9 @@ function objectNames(md) {
 }
 
 const APPS = [
-  ['quire', 'docs/quire_dom_api_specifications.md', 'public/quire/js/vb-dom-ref.js', 'public/quire/index.html'],
-  ['ledger', 'docs/ledger_dom_api_specifications.md', 'public/ledger/js/vb-dom-ref.js', 'public/ledger/index.html'],
-  ['lectern', 'docs/lectern_dom_api_specifications.md', 'public/lectern/js/vb-dom-ref.js', 'public/lectern/index.html'],
+  ['ecrivaine', 'docs/ecrivaine_dom_api_specifications.md', 'public/ecrivaine/js/vb-dom-ref.js', 'public/ecrivaine/index.html'],
+  ['matheuse', 'docs/matheuse_dom_api_specifications.md', 'public/matheuse/js/vb-dom-ref.js', 'public/matheuse/index.html'],
+  ['oratrice', 'docs/oratrice_dom_api_specifications.md', 'public/oratrice/js/vb-dom-ref.js', 'public/oratrice/index.html'],
 ];
 
 for (const [app, spec, catalog, page] of APPS) {
@@ -43,7 +43,7 @@ for (const [app, spec, catalog, page] of APPS) {
 }
 
 test('the console button opens the task pane', () => {
-  for (const file of ['public/quire/js/dom-console.js', 'public/ledger/js/dom-console.js', 'public/lectern/js/dom-console.js']) {
+  for (const file of ['public/ecrivaine/js/dom-console.js', 'public/matheuse/js/dom-console.js', 'public/oratrice/js/dom-console.js']) {
     const src = read(file);
     assert.match(src, /label: 'DOM API References'[\s\S]{0,120}L\.vbDomRef\.show\(\)/);
     assert.doesNotMatch(src, /window\.open\('https:\/\/learn\.microsoft\.com/);
@@ -51,7 +51,7 @@ test('the console button opens the task pane', () => {
 });
 
 test('each specification points at its reference', () => {
-  assert.match(read('docs/quire_dom_api_specifications.md'), /public\/quire\/js\/vb-dom-ref\.js/);
-  assert.match(read('docs/ledger_dom_api_specifications.md'), /public\/ledger\/js\/vb-dom-ref\.js/);
-  assert.match(read('docs/lectern_dom_api_specifications.md'), /public\/lectern\/js\/vb-dom-ref\.js/);
+  assert.match(read('docs/ecrivaine_dom_api_specifications.md'), /public\/ecrivaine\/js\/vb-dom-ref\.js/);
+  assert.match(read('docs/matheuse_dom_api_specifications.md'), /public\/matheuse\/js\/vb-dom-ref\.js/);
+  assert.match(read('docs/oratrice_dom_api_specifications.md'), /public\/oratrice\/js\/vb-dom-ref\.js/);
 });

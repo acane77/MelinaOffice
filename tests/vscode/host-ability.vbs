@@ -1,8 +1,8 @@
-' Host ability check for the VS Code editor. One file for Quire, Ledger, and Lectern.
+' Host ability check for the VS Code editor. One file for Ecrivaine, Matheuse, and Oratrice.
 ' Open a saved .docx, .xlsx, or .pptx (a blank tab has no Path, Print, or FixedFormat).
 ' Then either:
 '   Help, DOM Console, Run Script, paste this file, Run
-' or pass this file to vibeoffice_run_vbs (mode module, entry Main).
+' or pass this file to melinaoffice_run_vbs (mode module, entry Main).
 ' Reload the tab after public/ changes.
 '
 ' A user run (DOM console) does not ask Allow / Deny. An agent run does, once per ability.
@@ -60,16 +60,16 @@ End Sub
 
 Sub Bind()
   appName = "other"
-  If HasHostAbility("InsertFile") <> 0 Then appName = "Quire"
-  If HasHostAbility("SheetSaveAs") <> 0 Then appName = "Ledger"
-  If HasHostAbility("Export") <> 0 Then appName = "Lectern"
+  If HasHostAbility("InsertFile") <> 0 Then appName = "Ecrivaine"
+  If HasHostAbility("SheetSaveAs") <> 0 Then appName = "Matheuse"
+  If HasHostAbility("Export") <> 0 Then appName = "Oratrice"
   Debug.Print "app  " & appName
   On Error Resume Next
   Err.Clear
   Set doc = Nothing
-  If appName = "Quire" Then Set doc = Application.ActiveDocument
-  If appName = "Ledger" Then Set doc = Application.ActiveWorkbook
-  If appName = "Lectern" Then Set doc = Application.ActivePresentation
+  If appName = "Ecrivaine" Then Set doc = Application.ActiveDocument
+  If appName = "Matheuse" Then Set doc = Application.ActiveWorkbook
+  If appName = "Oratrice" Then Set doc = Application.ActivePresentation
   If Err.Number <> 0 Then
     Debug.Print "FAIL active file -> " & Err.Description
     Err.Clear
@@ -118,7 +118,7 @@ Sub QuietChecks()
     doc.FollowHyperlink "ftp://example.com"
     ExpectFail "FollowHyperlink scheme", "address"
     Err.Clear
-    doc.FollowHyperlink "https://vibeoffice.work", "x"
+    doc.FollowHyperlink "https://acane.net/melinaoffice", "x"
     ExpectFail "FollowHyperlink SubAddress", "SubAddress"
     Err.Clear
     LinkPicture "unused.png", True
@@ -134,12 +134,12 @@ Sub QuietChecks()
     doc.SaveAs "unused.docx", 0, "x"
     ExpectFail "SaveAs extra argument", "is not available"
   End If
-  If appName = "Quire" Then
+  If appName = "Ecrivaine" Then
     Err.Clear
     Application.Selection.InsertFile "unused.txt", "x"
     ExpectFail "InsertFile extra argument", "is not available"
   End If
-  If appName = "Lectern" Then
+  If appName = "Oratrice" Then
     Err.Clear
     Application.ActivePresentation.Export "unused", "gif"
     ExpectFail "Export gif", "FilterName"
@@ -175,7 +175,7 @@ Sub StepHyperlink()
     Debug.Print "SKIP FollowHyperlink"
   Else
     Dim address
-    address = InputBox("Address to open. Cancel skips. VS Code may ask before an external link.", "Host ability", "https://vibeoffice.work")
+    address = InputBox("Address to open. Cancel skips. VS Code may ask before an external link.", "Host ability", "https://acane.net/melinaoffice")
     If address = "" Then
       Debug.Print "SKIP FollowHyperlink"
     Else
@@ -191,7 +191,7 @@ End Sub
 Sub StepOfficeDialog()
   On Error Resume Next
   Dim n
-  If appName = "Quire" Then
+  If appName = "Ecrivaine" Then
     Debug.Print "--- Dialogs file open (cancel is 0)"
     Err.Clear
     n = Application.Dialogs.Item(80).Show
@@ -200,7 +200,7 @@ Sub StepOfficeDialog()
     Err.Clear
     n = Application.Dialogs.Item(174).Show
     ReportValue "Dialogs 174 Show", n
-  ElseIf appName = "Ledger" Then
+  ElseIf appName = "Matheuse" Then
     Debug.Print "--- Dialogs file open (cancel is 0)"
     Err.Clear
     n = Application.Dialogs.Item(1).Show
@@ -210,7 +210,7 @@ Sub StepOfficeDialog()
     n = Application.Dialogs.Item(256).Show
     ReportValue "Dialogs 256 Show", n
   Else
-    Debug.Print "SKIP Dialogs (Lectern has no Dialogs index)"
+    Debug.Print "SKIP Dialogs (Oratrice has no Dialogs index)"
   End If
   On Error GoTo 0
 End Sub
@@ -277,7 +277,7 @@ End Sub
 
 Sub StepPicture()
   Dim path
-  path = PickOpen("Choose a picture (PNG, JPEG, EMF, or WMF; Ledger also converts SVG). Cancel skips.")
+  path = PickOpen("Choose a picture (PNG, JPEG, EMF, or WMF; Matheuse also converts SVG). Cancel skips.")
   If path <> "" Then
     On Error Resume Next
     Err.Clear
@@ -288,17 +288,17 @@ Sub StepPicture()
 End Sub
 
 Sub LinkPicture(path, linkToFile)
-  If appName = "Quire" Then
+  If appName = "Ecrivaine" Then
     Application.ActiveDocument.InlineShapes.AddPicture path, linkToFile
-  ElseIf appName = "Ledger" Then
+  ElseIf appName = "Matheuse" Then
     Application.ActiveSheet.Shapes.AddPicture path, linkToFile
-  ElseIf appName = "Lectern" Then
+  ElseIf appName = "Oratrice" Then
     Application.ActivePresentation.Slides(1).Shapes.AddPicture path, linkToFile
   End If
 End Sub
 
 Sub StepInsertFile()
-  If appName <> "Quire" Then
+  If appName <> "Ecrivaine" Then
     Debug.Print "SKIP InsertFile"
   Else
     Dim path
@@ -319,9 +319,9 @@ Sub StepOpen()
   If path <> "" Then
     On Error Resume Next
     Err.Clear
-    If appName = "Quire" Then Application.Documents.Open path
-    If appName = "Ledger" Then Application.Workbooks.Open path
-    If appName = "Lectern" Then Application.Presentations.Open path
+    If appName = "Ecrivaine" Then Application.Documents.Open path
+    If appName = "Matheuse" Then Application.Workbooks.Open path
+    If appName = "Oratrice" Then Application.Presentations.Open path
     Report "Open " & path
     On Error GoTo 0
   End If
@@ -352,7 +352,7 @@ Sub StepSaveCopy()
 End Sub
 
 Sub StepSheetSaveAs()
-  If appName <> "Ledger" Then
+  If appName <> "Matheuse" Then
     Debug.Print "SKIP Worksheet.SaveAs"
   Else
     Dim path
@@ -388,7 +388,7 @@ Sub StepPrint()
       Err.Clear
       doc.PrintOut
       Report "PrintOut"
-      If appName = "Ledger" Then
+      If appName = "Matheuse" Then
         Err.Clear
         Application.ActiveSheet.PrintOut
         Report "Worksheet.PrintOut"
@@ -414,7 +414,7 @@ Sub StepFixedFormat()
       Report "ExportAsFixedFormat " & path
       On Error GoTo 0
     End If
-    If appName = "Ledger" Then
+    If appName = "Matheuse" Then
       path = PickSave("Worksheet ExportAsFixedFormat: choose a PDF for this sheet. Cancel skips.")
       If path <> "" Then
         On Error Resume Next
@@ -428,9 +428,9 @@ Sub StepFixedFormat()
 End Sub
 
 Sub ExportPdf(path)
-  If appName = "Lectern" Then
+  If appName = "Oratrice" Then
     doc.ExportAsFixedFormat path, 2
-  ElseIf appName = "Ledger" Then
+  ElseIf appName = "Matheuse" Then
     doc.ExportAsFixedFormat 0, path
   Else
     doc.ExportAsFixedFormat 17, path
@@ -438,9 +438,9 @@ Sub ExportPdf(path)
 End Sub
 
 Sub ExportXps()
-  If appName = "Lectern" Then
+  If appName = "Oratrice" Then
     doc.ExportAsFixedFormat "unused.xps", 1
-  ElseIf appName = "Ledger" Then
+  ElseIf appName = "Matheuse" Then
     doc.ExportAsFixedFormat 1, "unused.xps"
   Else
     doc.ExportAsFixedFormat 18, "unused.xps"
@@ -448,7 +448,7 @@ Sub ExportXps()
 End Sub
 
 Sub StepSlideExport()
-  If appName <> "Lectern" Then
+  If appName <> "Oratrice" Then
     Debug.Print "SKIP Export"
   Else
     Dim path

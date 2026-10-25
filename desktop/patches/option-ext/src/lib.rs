@@ -1,5 +1,5 @@
 //! `Option::contains` for crates that ask for it (dirs-sys: `user_dir.contains(&key)`): true when the option holds a
-//! value equal to `x`. VibeOffice's own, Apache-2.0, in place of the MPL-2.0 option-ext crate.
+//! value equal to `x`. Melina Office's own, Apache-2.0, in place of the MPL-2.0 option-ext crate.
 
 pub trait OptionExt<T> {
     /// whether this is `Some(v)` with `x == v`

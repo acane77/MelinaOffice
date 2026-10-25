@@ -1,7 +1,7 @@
-/* VibeOffice — charts shared by Quire, Ledger and Lectern: the SVG renderer (Insert ▸ Chart, the Chart Wizard
+/* Melina Office — charts shared by Ecrivaine, Matheuse and Oratrice: the SVG renderer (Insert ▸ Chart, the Chart Wizard
  * preview, slide charts) and the chart data dialog.
  * Model: {kind, title, legend, cats[], series:[{name, vals[], color}], gridY, labels, fsz, axTitleX, axTitleY}.
- * Lectern's chart-draw.js adds CH.renderV2 for charts read from files ({v: 2, …}); the hooks for it are inert elsewhere.
+ * Oratrice's chart-draw.js adds CH.renderV2 for charts read from files ({v: 2, …}); the hooks for it are inert elsewhere.
  */
 (function (root) {
   'use strict';
@@ -17,17 +17,17 @@
     ['area', N('Area|chart')], ['areaStacked', N('Stacked Area')],
     ['pie', N('Pie|chart')], ['doughnut', N('Doughnut')], ['scatter', N('XY (Scatter)')],
   ];
-  /* kinds only the v2 renderer (Lectern's chart-draw.js) draws; offered when it is loaded */
+  /* kinds only the v2 renderer (Oratrice's chart-draw.js) draws; offered when it is loaded */
   const KINDS_V2 = CH.KINDS.slice();
   KINDS_V2.splice(5, 0, ['barPct', N('100% Stacked Bar')]);
   KINDS_V2.splice(10, 0, ['areaPct', N('100% Stacked Area')]);
   KINDS_V2.push(['bubble', N('Bubble')], ['radar', N('Radar')], ['radarFilled', N('Filled Radar')]);
   CH.kinds = () => (CH.renderV2 ? KINDS_V2 : CH.KINDS);
-  /* the design (theme) of what is being edited, for theme colours: Lectern's slide; none in Quire and Ledger */
+  /* the design (theme) of what is being edited, for theme colours: Oratrice's slide; none in Ecrivaine and Matheuse */
   const curDesign = () => (L.ui && L.ui.currentDesign ? L.ui.currentDesign() : null);
 
   /* charts read from a file keep their original part (with the embedded workbook and style parts) until they
-     are edited here, so that saving does not lose what Lectern does not model */
+     are edited here, so that saving does not lose what Oratrice does not model */
   CH.src = new Map();
   CH.keep = (o) => { const id = L.uid('cs'); CH.src.set(id, o); return id; };
 

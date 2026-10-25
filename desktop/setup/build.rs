@@ -15,7 +15,7 @@ fn main() {
     let payload = payload
         .canonicalize()
         .expect("VO_PAYLOAD: build the app first (desktop/build.sh)");
-    for file in ["vibeoffice.exe", "WebView2Loader.dll"] {
+    for file in ["melinaoffice.exe", "WebView2Loader.dll"] {
         let path = payload.join(file);
         assert!(
             path.is_file(),

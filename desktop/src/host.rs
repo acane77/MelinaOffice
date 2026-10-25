@@ -137,7 +137,7 @@ impl Host {
 pub fn init_script() -> String {
     format!(
         "window.__VO_HOST__ = Object.freeze({{ platform: '{}', version: {VERSION}, appVersion: '{}', edition: '{}' }});\n\
-         try {{ if (!localStorage.getItem('vibeoffice.look')) localStorage.setItem('vibeoffice.look', 'goldengate'); }} catch (e) {{}}",
+         try {{ if (!localStorage.getItem('melinaoffice.look')) localStorage.setItem('melinaoffice.look', 'goldengate'); }} catch (e) {{}}",
         std::env::consts::OS, // windows, linux, macos
         option_env!("VO_VERSION").unwrap_or("dev"), // tools/current-tree-version.sh, from build.sh
         if app_store() { "appstore" } else { "direct" }

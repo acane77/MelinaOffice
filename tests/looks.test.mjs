@@ -11,12 +11,12 @@ const styleOf = (html) => [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)].map(
 const SHEETS = {
   'common/ui.css': read('common/ui.css'),
   'common/scout/scout.css': read('common/scout/scout.css'),
-  'ledger/index.html': styleOf(read('ledger/index.html')),
-  'quire/index.html': styleOf(read('quire/index.html')),
-  'lectern/index.html': styleOf(read('lectern/index.html')),
+  'matheuse/index.html': styleOf(read('matheuse/index.html')),
+  'ecrivaine/index.html': styleOf(read('ecrivaine/index.html')),
+  'oratrice/index.html': styleOf(read('oratrice/index.html')),
   'index.html': styleOf(read('index.html')),
 };
-/* set per element by the apps for document content (and by scout.js for his size and balloon tip), not by a look */
+/* set per element by the apps for document content (and by the assistant for size and balloon tip), not by a look */
 const DOCUMENT_VARS = new Set(['--tabc', '--olvl', '--bu-c', '--bu-f', '--bu-s', '--bu-w', '--icon-swatch', '--scout-w', '--scout-tip', '--mt', '--mb', '--ws-pad']);
 
 const names = (css) => new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
@@ -64,10 +64,10 @@ test('the shared chrome has no colours of its own', () => {
 });
 
 test('opening and about content uses each app colour and does not restyle the frame', () => {
-  assert.match(looks, /--brand-quire:\s*#2D5999/);
-  assert.match(looks, /--brand-ledger:\s*#137E43/);
-  assert.match(looks, /--brand-lectern:\s*#B8492B/);
-  assert.equal([...looks.matchAll(/--brand-quire:/g)].length, 8);
+  assert.match(looks, /--brand-ecrivaine:\s*#2D5999/);
+  assert.match(looks, /--brand-matheuse:\s*#137E43/);
+  assert.match(looks, /--brand-oratrice:\s*#B8492B/);
+  assert.equal([...looks.matchAll(/--brand-ecrivaine:/g)].length, 8);
   const ui = read('common/ui.css');
   assert.match(ui, /\.dlg\.brand \.dlg-body,\n\.dlg\.brand \.dlg-foot \{ background-color: var\(--brand-bg\); \}/);
   assert.doesNotMatch(ui, /\.dlg\.brand \.dlg-(?:title|body|foot)[^}]*\b(?:margin|border|padding|box-shadow)\s*:/);
@@ -75,24 +75,25 @@ test('opening and about content uses each app colour and does not restyle the fr
 
 test('Golden Gate is the stored default, and the Windows 7 default button keeps the blue highlight', () => {
   const suite = read('common/suite.js');
-  assert.match(suite, /const LOOKS = \[\{ id: 'goldengate', name: N\('Golden Gate'\),[\s\S]*?\n    \{ id: 'goldengatedark', name: N\('Golden Gate \(Dark\)'\),[\s\S]*?\n    \{ id: 'vscodegg', name: N\('Golden Gate \(Follow VS Code Color Theme\)'\),[\s\S]*?\n    \{ id: 'ribbon2010', name: N\('Ribbon 2010'\),[\s\S]*?\n    \{ id: 'win7', name: N\('Classic 7'\), sep: true,[\s\S]*?\n    \{ id: 'xp', name: N\('Classic XP'\),[\s\S]*?\n    \{ id: 'classic', name: N\('Classic'\),/);
+  assert.match(suite, /const LOOKS = \[\{ id: 'goldengate', name: N\('Golden Gate'\),[\s\S]*?\n    \{ id: 'goldengatedark', name: N\('Golden Gate \(Dark\)'\),[\s\S]*?\n    \{ id: 'vscodegg', name: N\('Golden Gate \(Follow VS Code Color Theme\)'\),[\s\S]*?\n    \{ id: 'ribbon2010', name: N\('Ribbon 2010'\),[\s\S]*?\n    \{ id: 'win7', name: N\('Classic 7'\), sep: true, hidden: true,[\s\S]*?\n    \{ id: 'xp', name: N\('Classic XP'\), hidden: true,[\s\S]*?\n    \{ id: 'classic', name: N\('Classic'\), hidden: true,/);
+  assert.match(suite, /!l\.hidden && \(l\.id !== 'vscodegg'/);
   assert.match(suite, /id === 'paper' \|\| id === 'paper2016'/);
   assert.doesNotMatch(suite, /\{ id: 'paper'/);
   assert.match(suite, /const defaultLook = \(\) => \(vscodeHost\(\) \? 'vscodegg' : 'goldengate'\)/);
-  assert.match(suite, /localStorage\.getItem\('vibeoffice\.look'\) \|\| defaultLook\(\)/);
+  assert.match(suite, /localStorage\.getItem\('melinaoffice\.look'\) \|\| defaultLook\(\)/);
   assert.match(suite, /if \(id === 'vscodegg' && !vscodeHost\(\)\) return 'goldengate'/);
   assert.match(suite, /return defaultLook\(\)/);
   assert.match(suite, /id: 'goldengate', name: N\('Golden Gate'\)/);
-  for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
-    assert.match(read(page), /localStorage\.getItem\('vibeoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
+  for (const page of ['ecrivaine/index.html', 'matheuse/index.html', 'oratrice/index.html']) {
+    assert.match(read(page), /localStorage\.getItem\('melinaoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
     assert.match(read(page), /l==='paper'\|\|l==='paper2016'/);
     assert.match(read(page), /\{l=v\?'vscodegg':'goldengate'/);
     assert.match(read(page), /if\(l==='vscodegg'&&!v\)l='goldengate'/);
   }
-  assert.match(read('../tools/ledger/build/template.html'), /localStorage\.getItem\('vibeoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
-  assert.match(read('../tools/ledger/build/template.html'), /l==='paper'\|\|l==='paper2016'/);
+  assert.match(read('../tools/matheuse/build/template.html'), /localStorage\.getItem\('melinaoffice\.look'\)\|\|\(v\?'vscodegg':'goldengate'\)/);
+  assert.match(read('../tools/matheuse/build/template.html'), /l==='paper'\|\|l==='paper2016'/);
   assert.match(read('common/ui.js'), /if \(l\.sep\) items\.push\('-'\)/);
-  assert.match(read('../desktop/src/host.rs'), /localStorage\.setItem\('vibeoffice\.look', 'goldengate'\)/);
+  assert.match(read('../desktop/src/host.rs'), /localStorage\.setItem\('melinaoffice\.look', 'goldengate'\)/);
   /* the reference defined the default-button colours and a pulse, then applied neither:
      the keyframes rule was not valid, and nothing selected the default button */
   assert.match(looks, /--w7-btn-default-line:\s*#5586a3/);
@@ -127,9 +128,9 @@ test('disabled and read-only text fields use the dialog control colour', () => {
 });
 
 test('the app pages pick the look before the first paint and load looks.css first', () => {
-  for (const page of ['quire/index.html', 'ledger/index.html', 'lectern/index.html']) {
+  for (const page of ['ecrivaine/index.html', 'matheuse/index.html', 'oratrice/index.html']) {
     const html = read(page);
-    const script = html.indexOf("localStorage.getItem('vibeoffice.look')");
+    const script = html.indexOf("localStorage.getItem('melinaoffice.look')");
     const sheet = html.indexOf('common/looks.css');
     assert.ok(script > 0 && script < sheet, `${page}: the look is picked before looks.css loads`);
     assert.ok(sheet > 0 && (html.indexOf('common/ui.css') < 0 || sheet < html.indexOf('common/ui.css')), `${page}: looks.css before ui.css`);

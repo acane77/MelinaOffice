@@ -99,7 +99,7 @@ function load() {
   };
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
-  sandbox.L = { APP_ID: 'quire', APP_NAME: 'Quire', APP: 'Quire' };
+  sandbox.L = { APP_ID: 'ecrivaine', APP_NAME: 'Ecrivaine', APP: 'Ecrivaine' };
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8'), sandbox, { filename: 'core.js' });
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/ui.js'), 'utf8'), sandbox, { filename: 'ui.js' });

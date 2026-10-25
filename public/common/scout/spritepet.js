@@ -1,8 +1,8 @@
-/* VibeOffice — a drawn assistant played from a Codex pet sheet (v1: 8×9 cells, 192×208).
- * Nikki's sheet is nikki.webp, beside this file. assistant.js builds her instead of Scout when she is chosen
- * (Help ▸ Select Assistant). The calls are Scout's, and the action name stays the one assistant.js asked for;
- * the clip underneath is the nearest row: idle, running-right, running-left, waving, jumping, failed, waiting,
- * running, review. The balloon is Scout's (scout.css).
+/* Melina Office — a drawn assistant played from a Codex pet sheet (v1: 8×9 cells, 192×208).
+ * Nikki's sheet is nikki.webp, beside this file. assistant.js builds her (Help ▸ Select Assistant).
+ * Play names stay the Office assistant actions assistant.js asked for; the clip underneath is the nearest
+ * row: idle, running-right, running-left, waving, jumping, failed, waiting, running, review.
+ * The balloon is scout.css.
  */
 (function (root) {
   'use strict';
@@ -330,15 +330,14 @@
     }
   }
 
-  /** What assistant.js asks for. null means Scout, and only an explicit stored id of scout asks for him.
-   *  With nothing stored, Nikki is the assistant. */
+  /** Who assistant.js should build. Nikki is the assistant; a stored scout is treated as her. */
   function current() {
     let id = 'nikki';
-    try { id = (JSON.parse(localStorage.getItem('vibeoffice.assistant')) || {}).id || 'nikki'; } catch (e) { /* Nikki */ }
-    if (id === 'scout') return null;
+    try { id = (JSON.parse(localStorage.getItem('melinaoffice.assistant')) || {}).id || 'nikki'; } catch (e) { /* Nikki */ }
+    if (id !== 'nikki') id = 'nikki';
     const size = 192; // 128 × 1.5: half again as tall, the drawing's own proportions kept
     return {
-      id: 'nikki', name: 'Nikki', ctor: SpritePet, size, h: Math.round(size * CELL_H / CELL_W),
+      id, name: 'Nikki', ctor: SpritePet, size, h: Math.round(size * CELL_H / CELL_W),
       label: 'Nikki, the assistant. Click her for help; right-click for more.',
       line: "I'm Nikki. I'll keep you company while you work.",
       tip: 'Nikki, the assistant',

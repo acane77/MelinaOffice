@@ -1,4 +1,4 @@
-<h1 align="center">VibeOffice</h1>
+<h1 align="center">Melina Office</h1>
 
 <p align="center">
   <b>A word processor, a spreadsheet and a presentation editor that run in your browser.</b><br>
@@ -6,13 +6,11 @@
 </p>
 
 <p align="center">
-  <a href="https://acane77.github.io/vibeoffice"><b>▶&nbsp;&nbsp;Try it now!</b></a>
+  <a href="https://acane77.github.io/melinaoffice"><b>▶&nbsp;&nbsp;Try it now!</b></a>
 </p>
 
 <p align="center">
-  <a href="https://acane77.github.io/vibeoffice/">
-    <img src="docs/images/StartupPage.png" width="720" alt="MCP Support in VS Code">
-  </a>
+  <img src="docs/images/StartupPage.png" width="720" alt="Startup Page">
 </p>
 
 ## Components
@@ -22,16 +20,16 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/quire/"><img src="docs/images/quire.png" alt="Quire, the word processor, editing an event flyer"></a><br>
-      <b><a href="https://acane77.github.io/vibeoffice/quire/">Quire</a></b><br>Word processor
+      <a href="https://acane77.github.io/melinaoffice/ecrivaine/"><img src="docs/images/ecrivaine.png" alt="Ecrivaine, the word processor, editing an event flyer"></a><br>
+      <b><a href="https://acane77.github.io/melinaoffice/ecrivaine/">Ecrivaine</a></b><br>Word processor
     </td>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/ledger/"><img src="docs/images/ledger.png" alt="Ledger, the spreadsheet, with a loan amortization schedule"></a><br>
-      <b><a href="https://acane77.github.io/vibeoffice/ledger/">Ledger</a></b><br>Spreadsheet
+      <a href="https://acane77.github.io/melinaoffice/matheuse/"><img src="docs/images/matheuse.png" alt="Matheuse, the spreadsheet, with a loan amortization schedule"></a><br>
+      <b><a href="https://acane77.github.io/melinaoffice/matheuse/">Matheuse</a></b><br>Spreadsheet
     </td>
     <td align="center" width="33%">
-      <a href="https://acane77.github.io/vibeoffice/lectern/"><img src="docs/images/lectern.png" alt="Lectern, the presentation editor, with the sample deck: a drawn title slide, then a chart, a table, a timeline and a funnel diagram"></a><br>
-      <b><a href="https://acane77.github.io/vibeoffice/lectern/">Lectern</a></b><br>Presentations
+      <a href="https://acane77.github.io/melinaoffice/oratrice/"><img src="docs/images/oratrice.png" alt="Oratrice, the presentation editor, with the sample deck: a drawn title slide, then a chart, a table, a timeline and a funnel diagram"></a><br>
+      <b><a href="https://acane77.github.io/melinaoffice/oratrice/">Oratrice</a></b><br>Presentations
     </td>
   </tr>
 </table>
@@ -39,8 +37,8 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://github.com/acane77/VibeOffice-vscode-plugin/releases"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
-      <b><a href="https://github.com/acane77/VibeOffice-vscode-plugin/releases">VS Code Plugin</a></b><br>
+      <a href="https://github.com/acane77/MelinaOffice/releases"><img src="docs/images/vscode-plugin.png" alt="VS Code Plugin"></a><br>
+      <b><a href="https://github.com/acane77/MelinaOffice/releases">VS Code Plugin</a></b><br>
     </td>
     <td align="center" width="33%">
       &nbsp;
@@ -59,13 +57,13 @@
 
 - **Visual Basic Sandbox:** AI agents can call tools to write Visual Basic code and execute commands to edit documents in a sandbox environment exposing only essential DOM APIs.
 
-This demostrates writing document with Copilot in VS Code with VibeOffice.
+This demostrates writing document with Copilot in VS Code with Melina Office.
 
 <p align="center">
   <img src="docs/images/Code_MCP_Sample.png" width="720" alt="MCP Support in VS Code">
 </p>
 
-## Why VibeOffice
+## Featured
 
 - **Familiar.** Golden Gate, a macOS ribbon (the default look).
 - **Lossless editing.** Open what colleagues send you, and save files built to open in Microsoft Office and LibreOffice, without losing what you didn't touch (below).
@@ -76,8 +74,8 @@ This demostrates writing document with Copilot in VS Code with VibeOffice.
 
 The goal: edit a Word, Excel or PowerPoint file here, save it in the same format, and send it to someone who uses Microsoft Office. It opens for them without an error or repair message, with your changes in place and everything else exactly as it was.
 
-- **What VibeOffice can't edit for now, it keeps.** VBA macros, embedded objects, SmartArt in layouts it does not have, video and audio, ink, 3-D models, custom XML and Office's newer extensions are written back byte for byte. Content it does edit keeps its original names and IDs, so links, comments and animations still point where they did.
-- **Edits change only what you changed.** Move or resize an object VibeOffice can't edit, and only its position changes. Set a shape's shadow, and its unsupported attributes stay.
+- **What Melina Office can't edit for now, it keeps.** VBA macros, embedded objects, SmartArt in layouts it does not have, video and audio, ink, 3-D models, custom XML and Office's newer extensions are written back byte for byte. Content it does edit keeps its original names and IDs, so links, comments and animations still point where they did.
+- **Edits change only what you changed.** Move or resize an object Melina Office can't edit, and only its position changes. Set a shape's shadow, and its unsupported attributes stay.
 - **Each app's own features survive:**
   - **Word:** content controls and their data bindings, comments, watermarks, section and numbering properties.
   - **Excel:** pivot tables (refreshed by Excel when their source changed), slicers and timelines, threaded comments with @mentions, form controls, query tables.
@@ -86,34 +84,33 @@ The goal: edit a Word, Excel or PowerPoint file here, save it in the same format
 
 4,697 real files from public test collections (LibreOffice, Apache POI, Open XML SDK) are opened, saved, edited, undone and recovered, and every save is compared with the original. Where the apps stand today, the known gaps and what comes next: [docs/LOSSLESS_SAVE.md](docs/LOSSLESS_SAVE.md).
 
+
+## Create and Edit Equations in LaTeX
+
+Edit equations directly in LaTeX.
+
+<p align="center">
+  <img src="docs/images/formula-editing.png" width="720" alt="Ecrivaine's Edit Equation dialog">
+</p>
+
 ## Visual Basic 6 Support
 
 *Melina is still working on introducing more APIs and functionalities.*
 
-### VB6 IDE
+* **VB6 API Support:**: Implemented Visual Basic APIs with security auditing strategy. Supported APIs including document DOM APIs (Word, Excel and PowerPoint object models for text, cells, slides and shapes), dialog APIs (message boxes, input boxes, in-app Office dialogs and file dialogs), and host file APIs (open, save, print to PDF, export, pictures and directory listing, each audited as always allow, request approval or always deny). Host file APIs and file dialogs work only in a host such as the VS Code or code-server plugin. Host APIs are also supported on VSCode and Desktop Platforms.
+
+* **Visual Basic IDE: User friendly code completion and debug tools**: The VB6 IDE introduces context-aware code completions and documentations.
 
 Editing, running and testing code in VB6 IDE.
 
 With VB6 IDE, you can easily debug your code, make your development faster.
 
 <p align="center">
-  <img src="docs/images/VB6_IDE.png" width="720" alt="VB6 IDE">
+  <img src="docs/images/VB6_IDE_CC.png" width="720" alt="VB6 Playground">
 </p>
-
-Implemented Visual Basic APIs with security auditing strategy. Supported APIs including document DOM APIs (Word, Excel and PowerPoint object models for text, cells, slides and shapes), dialog APIs (message boxes, input boxes, in-app Office dialogs and file dialogs), and host file APIs (open, save, print to PDF, export, pictures and directory listing, each audited as always allow, request approval or always deny). Host file APIs and file dialogs work only in a host such as the VS Code or code-server plugin. 
-
-More APIs will be implemented later.
-
-* **Host API Support on VSCode and Desktop Platforms**
 
 <p align="center">
   <img src="docs/images/VB6_IDE_2.png" width="720" alt="VB6 Playground">
-</p>
-
-* **User friendly code completion and debug tools**: The VB6 IDE introduces context-aware code completions and documentations.
-
-<p align="center">
-  <img src="docs/images/VB6_IDE_CC.png" width="720" alt="VB6 Playground">
 </p>
 
 * **VB6 Form Application Support**: Run VB6 Form Application in Vibe Office.
@@ -124,26 +121,7 @@ More APIs will be implemented later.
 
 Sample code: [examples/vb/food-energy/](examples/vb/food-energy/)
 
-Open VibeOffice, navigate to "View" -> "Road Form", select all files inside [examples/vb/food-energy/](examples/vb/food-energy/), then a VB6 Form (Food Energy Calculator, shown above) will show, then you can enter the food data, then insert the calculated calorie values ​​into the document.
-
-## Equations in LaTeX
-
-I personally found Apple Pages' equation editor is easier to use than Word's during the experience when I was completing my Master degree's thsis, so this one is inspired by it: type the formula in LaTeX. Word opens the file and shows the same formula.
-
-<p align="center">
-  <img src="docs/images/formula-editing.png" width="720" alt="Quire's Edit Equation dialog">
-</p>
-
-
-## The apps
-
-| App | | Opens and saves |
-|---|---|---|
-| [Quire](docs/quire.md) | Word processor | .docx, .docm, .dotx, .dotm, .rtf, .htm, .txt, Markdown (.md, or .zip with pictures); PDF |
-| [Ledger](docs/ledger.md) | Spreadsheet | .xlsx, .xlsm, .xltx, .xltm, .csv, XML Spreadsheet 2003, .htm; PDF |
-| [Lectern](docs/lectern.md) | Presentations | .pptx, .pptm, .ppsx, .ppsm, .potx, .potm; PDF, PNG, .htm |
-
-Start at the Start Center: open a file, pick one from Recent Files, or create a document, spreadsheet or presentation from a blank page or a template.
+Open Melina Office, navigate to "View" -> "Road Form", select all files inside [examples/vb/food-energy/](examples/vb/food-energy/), then a VB6 Form (Food Energy Calculator, shown above) will show, then you can enter the food data, then insert the calculated calorie values ​​into the document.
 
 ## Build
 
@@ -160,14 +138,14 @@ make
 
 ```bash
 tools/package_vsix.sh
-# Output path is is `tmp/vibeoffice-v<version>-<commit>.vsix`.
+# Output path is is `tmp/melinaoffice-v<version>-<commit>.vsix`.
 ```
 
 Install that file in VS Code or code-server.
 
 ## Feedback and contributing
 
-Found a file that doesn't open or save the way it should? Please [open an issue](https://github.com/tcchen2026/VibeOffice/issues).
+Found a file that doesn't open or save the way it should? Please [open an issue](https://github.com/acane77/MelinaOffice/issues).
 
 Read [AGENTS.md](AGENTS.md) for the design rules and [docs/testing.md](docs/testing.md) for running it locally and testing. Building the extension is in [Build](#build) above.
 
@@ -175,14 +153,18 @@ Read [AGENTS.md](AGENTS.md) for the design rules and [docs/testing.md](docs/test
 
 **License: Apache License 2.0**, see [LICENSE](LICENSE) (see below about code from other projects).
 
-**Independent.** VibeOffice is not affiliated with, endorsed by or sponsored by Microsoft Corporation, The Document Foundation or any other maker of office software. Microsoft, Word, Excel, PowerPoint and Office are trademarks of Microsoft Corporation, and LibreOffice is a trademark of The Document Foundation. Other names are trademarks of their owners. They appear here only to say which files VibeOffice works with and which programs it was tested against. In the apps, menu, command and template names follow Office's where people know them, so the apps feel familiar.
+**Independent.** Melina Office is not affiliated with, endorsed by or sponsored by Microsoft Corporation, The Document Foundation or any other maker of office software. Microsoft, Word, Excel, PowerPoint and Office are trademarks of Microsoft Corporation, and LibreOffice is a trademark of The Document Foundation. Other names are trademarks of their owners. They appear here only to say which files Melina Office works with and which programs it was tested against. In the apps, menu, command and template names follow Office's where people know them, so the apps feel familiar.
 
-**How compatibility was built.** VibeOffice reads and writes Office Open XML, the file format published as the standards ECMA-376 and ISO/IEC 29500. It is written from those standards and from the format documentation Microsoft publishes. Compatibility is checked from the outside, side by side: files from public test collections are opened, edited and saved, and the results are compared with what other programs make of the same files. LibreOffice and Microsoft Office are used in testing, as installed programs, to check that files work in both; no code from either is part of VibeOffice. VibeOffice was not built by examining Office's program code: no decompiling or disassembling, and no confidential documentation.
+**How compatibility was built.** Melina Office reads and writes Office Open XML, the file format published as the standards ECMA-376 and ISO/IEC 29500. It is written from those standards and from the format documentation Microsoft publishes. Compatibility is checked from the outside, side by side: files from public test collections are opened, edited and saved, and the results are compared with what other programs make of the same files. LibreOffice and Microsoft Office are used in testing, as installed programs, to check that files work in both; no code from either is part of Melina Office. Melina Office was not built by examining Office's program code: no decompiling or disassembling, and no confidential documentation.
 
-**How the code is reviewed.** VibeOffice is written with the help of AI coding assistants. Such tools are trained on large amounts of public code, which may include LibreOffice and other office software, and can occasionally produce code that resembles their training material. To reduce that risk, VibeOffice's code is reviewed on an ongoing basis against the open-source projects it could most plausibly resemble: office suites such as LibreOffice, Apache OpenOffice, OnlyOffice and Gnumeric, and common open-source libraries. Code that matches or closely resembles work under terms VibeOffice does not accept is removed and rewritten independently, from published standards and mathematics, or replaced by an equivalent under a compatible licence. Code that matches permissively licensed work is kept and credited, as its licence requires. The project's contribution rules ([AGENTS.md](AGENTS.md)) apply the same terms to all new code. The first full review was completed in October 2026.
+**How the code is reviewed.** Melina Office is written with the help of AI coding assistants. Such tools are trained on large amounts of public code, which may include LibreOffice and other office software, and can occasionally produce code that resembles their training material. To reduce that risk, Melina Office's code is reviewed on an ongoing basis against the open-source projects it could most plausibly resemble: office suites such as LibreOffice, Apache OpenOffice, OnlyOffice and Gnumeric, and common open-source libraries. Code that matches or closely resembles work under terms Melina Office does not accept is removed and rewritten independently, from published standards and mathematics, or replaced by an equivalent under a compatible licence. Code that matches permissively licensed work is kept and credited, as its licence requires. The project's contribution rules ([AGENTS.md](AGENTS.md)) apply the same terms to all new code. The first full review was completed in October 2026.
 
-**Code from other projects.** VibeOffice uses, or translates into JavaScript, only code under licences compatible with its own; that code is credited, with its licence, at [oss-licenses.html](https://acane77.github.io/vibeoffice/oss-licenses.html). If you believe something in VibeOffice comes from your work without credit, please [open an issue](https://github.com/tcchen2026/VibeOffice/issues): we take such reports seriously and review each one.
+**Code from other projects.** Melina Office uses, or translates into JavaScript, only code under licences compatible with its own; that code is credited, with its licence, at [oss-licenses.html](https://acane77.github.io/melinaoffice/oss-licenses.html). If you believe something in Melina Office comes from your work without credit, please [open an issue](https://github.com/acane77/MelinaOffice/issues): we take such reports seriously and review each one.
 
-**Artwork.** The icons, clip art, app icons, Scout's drawing and the sample documents are original. Nikki (暖暖), the other assistant, is a sprite from [codex-pets.net](https://codex-pets.net/#/pets/nikki-bloom-poetry); her name and likeness are the copyright of Papergames (叠纸), also known as Infold, and that sprite is not licensed for commercial use. The menus and toolbars follow the general style of a classic desktop office suite; no artwork was copied from one.
+**Artwork.** The icons, clip art, app icons and the sample documents are original. Nikki (暖暖), the assistant, is a sprite from [codex-pets.net](https://codex-pets.net/#/pets/nikki-bloom-poetry); her name and likeness are the copyright of Papergames (叠纸), also known as Infold, and that sprite is not licensed for commercial use. The menus and toolbars follow the general style of a classic desktop office suite; no artwork was copied from one.
 
-**No warranty.** VibeOffice is provided as is, without warranty of any kind (see [LICENSE](LICENSE)). Keep a copy of any file that matters before you edit it here.
+**No warranty.** Melina Office is provided as is, without warranty of any kind (see [LICENSE](LICENSE)). Keep a copy of any file that matters before you edit it here.
+
+## Acknowledgements
+
+Melina Office is derived from [VibeOffice](https://github.com/tcchen2026/VibeOffice).

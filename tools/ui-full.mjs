@@ -1,6 +1,6 @@
 // The whole of tests/ui/ (about 25 minutes), before a release (docs/testing.md): runs it and records the result for the
 // content of public/ it ran on in .ui-full-tested.json (ignored by Git), which tools/ui-tested.sh checks when a release
-// is made (tools/web-release.sh, ../cf-vibeoffice/sync-cf-pages.sh). Nothing is recorded if public/ changed during the
+// is made (tools/web-release.sh, ../cf-melinaoffice/sync-cf-pages.sh). Nothing is recorded if public/ changed during the
 // run, or for a partial run (extra arguments go to node --test, e.g. --test-name-pattern).
 //
 //   node tools/ui-full.mjs

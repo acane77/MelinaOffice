@@ -1,7 +1,7 @@
-//! VibeOfficeSetup.exe installs VibeOffice for the current user, without administrator rights, into
-//! %LOCALAPPDATA%\VibeOffice. It writes the app it carries (vibeoffice.exe, WebView2Loader.dll,
+//! melinaoffice-setup.exe installs Melina Office for the current user, without administrator rights, into
+//! %LOCALAPPDATA%\Melina Office. It writes the app it carries (melinaoffice.exe, WebView2Loader.dll,
 //! LICENSE.txt), the desktop and Start menu shortcuts, the file types and the Apps & features entry. All of
-//! that is listed in ../src/installation.rs, the same list `vibeoffice.exe -uninstall` removes. Then it
+//! that is listed in ../src/installation.rs, the same list `melinaoffice.exe -uninstall` removes. Then it
 //! starts the app with the user's choices, the taskbar pin request and Windows' Default apps page
 //! (../src/installed.rs). With this very app already installed, it offers to install it again.
 //!
@@ -56,7 +56,7 @@ mod setup {
     };
     /// FILES' contents, in that order
     const PAYLOAD: [&[u8]; 3] = [
-        include_bytes!(concat!(env!("VO_PAYLOAD"), "/vibeoffice.exe")),
+        include_bytes!(concat!(env!("VO_PAYLOAD"), "/melinaoffice.exe")),
         include_bytes!(concat!(env!("VO_PAYLOAD"), "/WebView2Loader.dll")),
         include_bytes!("../../../LICENSE"),
     ];
@@ -67,8 +67,8 @@ mod setup {
             let _ = SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
             let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED);
         }
-        let _ = std::fs::remove_file(std::env::temp_dir().join("VibeOfficeSetup.log"));
-        win::log(&format!("VibeOfficeSetup {VERSION}"));
+        let _ = std::fs::remove_file(std::env::temp_dir().join("melinaoffice-setup.log"));
+        win::log(&format!("Melina OfficeSetup {VERSION}"));
         std::panic::set_hook(Box::new(|p| win::log(&format!("stopped: {p}"))));
         let Some(dir) = win::install_dir() else {
             fail("Windows did not say where the local application data folder is.");
@@ -93,7 +93,7 @@ mod setup {
         let mut choices = Choices {
             can_pin: can_ask_to_pin(),
             pin: installed.is_none(),
-            // Ticked unless the user has already chosen VibeOffice for all three types
+            // Ticked unless the user has already chosen Melina Office for all three types
             defaults: !win::chosen_for_all_types(),
             font: HFONT::default(),
             heading: HSTRING::new(),
@@ -103,27 +103,27 @@ mod setup {
         let shown = dir.display();
         match &installed {
             None => {
-                choices.heading = "Install VibeOffice".into();
+                choices.heading = "Install Melina Office".into();
                 choices.text = format!(
-                    "VibeOffice {VERSION} will be installed for you in {shown}, with shortcuts on your desktop \
+                    "Melina Office {VERSION} will be installed for you in {shown}, with shortcuts on your desktop \
                      and in the Start menu. No administrator rights are needed."
                 )
                 .into();
                 choices.button = "&Install".into();
             }
             Some(_) if same => {
-                choices.heading = "Reinstall VibeOffice".into();
+                choices.heading = "Reinstall Melina Office".into();
                 choices.text = format!(
-                    "VibeOffice {VERSION} is installed in {shown}. Setup can install it again, with its \
+                    "Melina Office {VERSION} is installed in {shown}. Setup can install it again, with its \
                      shortcuts and file types; your settings, Recent Files and drafts stay."
                 )
                 .into();
                 choices.button = "&Reinstall".into();
             }
             Some(old) => {
-                choices.heading = "Update VibeOffice".into();
+                choices.heading = "Update Melina Office".into();
                 choices.text = format!(
-                    "VibeOffice {old} is installed in {shown}. Setup replaces it with {VERSION}; your \
+                    "Melina Office {old} is installed in {shown}. Setup replaces it with {VERSION}; your \
                      settings, Recent Files and drafts stay."
                 )
                 .into();
@@ -131,7 +131,7 @@ mod setup {
             }
         }
         win::log(&format!(
-            "can ask to pin: {}; VibeOffice chosen for all three types: {}",
+            "can ask to pin: {}; Melina Office chosen for all three types: {}",
             choices.can_pin, !choices.defaults
         ));
         if !ask(&mut choices) {
@@ -146,7 +146,7 @@ mod setup {
             Ok(warnings) => warnings,
             Err(e) => {
                 win::log(&format!("failed: {e}"));
-                fail(&format!("VibeOffice could not be installed.\n\n{e}"));
+                fail(&format!("Melina Office could not be installed.\n\n{e}"));
                 return;
             }
         };
@@ -163,12 +163,12 @@ mod setup {
             open(inst::DEFAULT_APPS);
         }
         if !warnings.is_empty() {
-            let text = format!("VibeOffice is installed, but:\n\n{}", warnings.join("\n"));
+            let text = format!("Melina Office is installed, but:\n\n{}", warnings.join("\n"));
             unsafe {
                 MessageBoxW(
                     None,
                     &HSTRING::from(text),
-                    w!("VibeOffice Setup"),
+                    w!("Melina Office Setup"),
                     MB_OK | MB_ICONWARNING,
                 );
             }
@@ -217,7 +217,7 @@ mod setup {
         Ok(warnings)
     }
 
-    /// Writes a file of the app. A running copy (an update while VibeOffice is open) can't be replaced
+    /// Writes a file of the app. A running copy (an update while Melina Office is open) can't be replaced
     /// but can be renamed: it becomes `*.old`, which the app removes when it next starts.
     fn put(dir: &Path, name: &str, bytes: &[u8]) -> std::io::Result<()> {
         let target = dir.join(name);
@@ -300,7 +300,7 @@ mod setup {
             Err(e) => {
                 win::log(&format!("could not start {}: {e}", exe.display()));
                 fail(&format!(
-                    "VibeOffice could not be started.\n\n{}: {e}",
+                    "Melina Office could not be started.\n\n{}: {e}",
                     exe.display()
                 ));
                 false
@@ -355,7 +355,7 @@ mod setup {
             MessageBoxW(
                 None,
                 &HSTRING::from(text),
-                w!("VibeOffice Setup"),
+                w!("Melina Office Setup"),
                 MB_OK | MB_ICONERROR,
             );
         }

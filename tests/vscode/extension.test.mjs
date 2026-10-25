@@ -14,10 +14,10 @@ const proto = require(path.join(root, 'vscode/protocol.js'));
 const page = require(path.join(root, 'vscode/page.js'));
 
 test('each Office file maps to one editor', () => {
-  assert.equal(proto.appFor('Budget.xlsx'), 'ledger');
-  assert.equal(proto.viewTypeFor('Notes.DOCX'), 'vibeoffice.quire');
-  assert.equal(proto.viewTypeFor('Deck.ppsx'), 'vibeoffice.lectern');
-  assert.equal(proto.appFor('readme.txt'), 'quire');
+  assert.equal(proto.appFor('Budget.xlsx'), 'matheuse');
+  assert.equal(proto.viewTypeFor('Notes.DOCX'), 'melinaoffice.ecrivaine');
+  assert.equal(proto.viewTypeFor('Deck.ppsx'), 'melinaoffice.oratrice');
+  assert.equal(proto.appFor('readme.txt'), 'ecrivaine');
   assert.equal(proto.appFor('photo.png'), null);
 });
 
@@ -29,9 +29,9 @@ test('a save name cannot leave the file’s folder', () => {
 });
 
 test('a new file keeps a typed suffix and appends the editor default', () => {
-  assert.equal(proto.SAVE_EXT.quire, 'docx');
-  assert.equal(proto.SAVE_EXT.ledger, 'xlsx');
-  assert.equal(proto.SAVE_EXT.lectern, 'pptx');
+  assert.equal(proto.SAVE_EXT.ecrivaine, 'docx');
+  assert.equal(proto.SAVE_EXT.matheuse, 'xlsx');
+  assert.equal(proto.SAVE_EXT.oratrice, 'pptx');
   assert.equal(proto.ensureExt('新建文档.docx', 'docx'), '新建文档.docx');
   assert.equal(proto.ensureExt('新建文档.DOCX', 'docx'), '新建文档.DOCX');
   assert.equal(proto.ensureExt('新建文档.txt', 'docx'), '新建文档.txt.docx');
@@ -43,13 +43,13 @@ test('chunks reassemble in any order', () => {
   const a = proto.createAssembler();
   const raw = new Uint8Array([1, 2, 3, 4, 5]);
   assert.equal(a.push({ type: 'chunk', id: 's', i: 1, n: 2, name: 'A.docx', purpose: 'save', b64: Buffer.from(raw.subarray(3)).toString('base64') }), null);
-  const done = a.push({ type: 'chunk', id: 's', i: 0, n: 2, name: 'A.docx', purpose: 'save', uri: 'file:///work/A.docx', draftKey: 'quire:A.docx', b64: Buffer.from(raw.subarray(0, 3)).toString('base64') });
+  const done = a.push({ type: 'chunk', id: 's', i: 0, n: 2, name: 'A.docx', purpose: 'save', uri: 'file:///work/A.docx', draftKey: 'ecrivaine:A.docx', b64: Buffer.from(raw.subarray(0, 3)).toString('base64') });
   assert.deepEqual([...done.bytes], [1, 2, 3, 4, 5]);
   assert.equal(done.name, 'A.docx');
   assert.equal(done.purpose, 'save');
   assert.equal(done.uri, 'file:///work/A.docx');
   assert.equal(done.folder, '');
-  assert.equal(done.draftKey, 'quire:A.docx');
+  assert.equal(done.draftKey, 'ecrivaine:A.docx');
 });
 
 test('Save As may write only the open file’s folder or one the user picked', () => {
@@ -67,12 +67,12 @@ test('the webview page points at the app folder and names the vscode host', () =
   const html = '<!doctype html><html><head><meta charset="utf-8">\n<script>look</script>\n<link rel="manifest" href="../manifest.webmanifest">\n<link rel="stylesheet" href="../common/looks.css">\n</head><body></body></html>';
   const out = page.renderPage({
     html,
-    baseHref: 'https://webview.example/quire',
+    baseHref: 'https://webview.example/ecrivaine',
     cspSource: 'https://webview.example',
     fileName: '</script><script>alert(1)',
     platform: 'linux',
   });
-  const baseAt = out.indexOf('<base href="https://webview.example/quire/">');
+  const baseAt = out.indexOf('<base href="https://webview.example/ecrivaine/">');
   const cssAt = out.indexOf('href="../common/looks.css"');
   assert.ok(baseAt > 0 && baseAt < cssAt);
   assert.equal(out.includes('rel="manifest"'), false);
@@ -99,13 +99,13 @@ test('package.json offers every extension the protocol lists', () => {
   for (const [app, exts] of Object.entries(proto.APPS)) {
     for (const e of exts) assert.ok(offered.get(app).has(e), app + ' missing ' + e);
     for (const e of proto.DEFAULT_EXT[app]) {
-      const entry = pkg.contributes.customEditors.find((ed) => ed.viewType === 'vibeoffice.' + app && ed.priority === 'default');
+      const entry = pkg.contributes.customEditors.find((ed) => ed.viewType === 'melinaoffice.' + app && ed.priority === 'default');
       assert.ok(entry.selector.some((s) => s.filenamePattern === '*.' + e));
     }
   }
-  assert.ok(fs.existsSync(path.join(root, 'public/quire/index.html')));
-  assert.ok(fs.existsSync(path.join(root, 'public/ledger/index.html')));
-  assert.ok(fs.existsSync(path.join(root, 'public/lectern/index.html')));
+  assert.ok(fs.existsSync(path.join(root, 'public/ecrivaine/index.html')));
+  assert.ok(fs.existsSync(path.join(root, 'public/matheuse/index.html')));
+  assert.ok(fs.existsSync(path.join(root, 'public/oratrice/index.html')));
 });
 
 test('New File offers a blank document, workbook and presentation', () => {
@@ -113,12 +113,12 @@ test('New File offers a blank document, workbook and presentation', () => {
   const cmds = new Map(pkg.contributes.commands.map((c) => [c.command, c]));
   const menu = pkg.contributes.menus['file/newFile'];
   for (const [id, title] of [
-    ['vibeoffice.newDocx', 'Word Document (.docx)'],
-    ['vibeoffice.newXlsx', 'Excel Workbook (.xlsx)'],
-    ['vibeoffice.newPptx', 'PowerPoint Presentation (.pptx)'],
+    ['melinaoffice.newDocx', 'Word Document (.docx)'],
+    ['melinaoffice.newXlsx', 'Excel Workbook (.xlsx)'],
+    ['melinaoffice.newPptx', 'PowerPoint Presentation (.pptx)'],
   ]) {
     assert.equal(cmds.get(id).title, title);
-    assert.equal(cmds.get(id).category, 'VibeOffice');
+    assert.equal(cmds.get(id).category, 'Melina Office');
     assert.ok(pkg.activationEvents.includes('onCommand:' + id));
     assert.ok(menu.some((item) => item.command === id && item.group === 'file'));
   }
@@ -130,9 +130,9 @@ test('New File offers a blank document, workbook and presentation', () => {
   assert.match(ext, /pendingBlank/);
   assert.match(ext, /_freshBlank/);
   assert.match(ext, /st\.size === 0/);
-  assert.match(ext, /vibeoffice\.newDocx/);
+  assert.match(ext, /melinaoffice\.newDocx/);
   assert.match(ext, /nextFree/);
-  for (const app of ['quire', 'ledger', 'lectern']) {
+  for (const app of ['ecrivaine', 'matheuse', 'oratrice']) {
     assert.match(fs.readFileSync(path.join(root, 'public', app, 'js/app.js'), 'utf8'), /adoptBlank\(name\)/);
   }
 });
@@ -190,8 +190,8 @@ test('one editor save is shared, and a closed editor does not fail a write that 
   await next.promise;
 });
 
-test('Ledger save returns the promise VS Code awaits', () => {
-  const src = fs.readFileSync(path.join(root, 'public/ledger/js/commands.js'), 'utf8');
+test('Matheuse save returns the promise VS Code awaits', () => {
+  const src = fs.readFileSync(path.join(root, 'public/matheuse/js/commands.js'), 'utf8');
   assert.match(src, /const run = \(fn\) => \(\) => \{ if \(E\(\)\.active && !E\(\)\.commit\(\)\) return; let r; try \{ r = fn\(\); \} catch \(e\) \{ A\(\)\.error\(e\); \} G\(\)\.paint\(\); return r; \}/);
   assert.match(src, /cmd\('save'[\s\S]*?run: run\(\(\) => A\(\)\.save\(\)\)/);
   const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
@@ -236,13 +236,13 @@ test('the pages recognise the vscode host', () => {
   assert.match(suite, /openingCancelled/);
   assert.match(suite, /abandonEditor = \(\) =>/);
   assert.match(suite, /file\.voLaunch = true/);
-  for (const file of ['public/quire/js/app.js', 'public/ledger/js/app.js', 'public/lectern/js/app.js']) {
+  for (const file of ['public/ecrivaine/js/app.js', 'public/matheuse/js/app.js', 'public/oratrice/js/app.js']) {
     const src = fs.readFileSync(path.join(root, file), 'utf8');
     assert.match(src, /voLaunch/);
     assert.match(src, /abandonEditor/);
     assert.match(src, /unsupported/);
   }
-  for (const file of ['public/quire/js/dialogs3.js', 'public/lectern/js/dialogs.js', 'public/ledger/js/dialogs.js']) {
+  for (const file of ['public/ecrivaine/js/dialogs3.js', 'public/oratrice/js/dialogs.js', 'public/matheuse/js/dialogs.js']) {
     assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /saveLocation/);
   }
 });

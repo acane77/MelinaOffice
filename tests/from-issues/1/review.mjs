@@ -8,13 +8,13 @@ if (!output) throw new Error('Usage: node tests/from-issues/1/review.mjs OUTPUT 
 fs.mkdirSync(output, { recursive: true });
 const stop = await ensureServer(), results = [];
 try {
-  for (const [name, app, fn] of [['protection', 'ledger', protection], ['breaks', 'quire', breaks], ['pagination', 'quire', pagination], ['marks', 'quire', marks], ['print', 'quire', printMarks]]) {
+  for (const [name, app, fn] of [['protection', 'matheuse', protection], ['breaks', 'ecrivaine', breaks], ['pagination', 'ecrivaine', pagination], ['marks', 'ecrivaine', marks], ['print', 'ecrivaine', printMarks]]) {
     if (filter && filter !== name) continue;
     const page = await openPage(app, { persistence: false });
     try {
       await page.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
       await page.evaluate('VO.opened = () => {}; document.fonts.ready');
-      if (app === 'quire') await page.evaluate('L.layout.view = "print"; L.layout.setZoom(1)');
+      if (app === 'ecrivaine') await page.evaluate('L.layout.view = "print"; L.layout.setZoom(1)');
       const value = await page.evaluate(`(${fn.toString()})()`);
       for (const [file, data] of Object.entries(value?.artifacts || {})) fs.writeFileSync(path.join(output, file), Buffer.from(data, 'base64'));
       if (name === 'print') {

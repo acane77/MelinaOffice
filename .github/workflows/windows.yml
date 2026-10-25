@@ -1,7 +1,7 @@
-# The Windows desktop app (desktop/, docs/desktop.md): VibeOffice-Windows-x64.zip, holding VibeOfficeSetup.exe, the
+# The Windows desktop app (desktop/, docs/desktop.md): MelinaOffice-Windows-x64.zip, holding melinaoffice-setup.exe, the
 # installer carrying the app, built on Linux with mingw and published as a GitHub release tagged with the version
 # (tools/current-tree-version.sh, e.g. v2026.10.11-d2134d). The zip's name stays the same in every release, so
-# releases/latest/download/VibeOffice-Windows-x64.zip is always the newest.
+# releases/latest/download/MelinaOffice-Windows-x64.zip is always the newest.
 # Run by hand only: Actions ▸ Windows ▸ Run workflow (pick the branch). Running it again on the same commit
 # replaces the release's files.
 name: Windows
@@ -44,11 +44,11 @@ jobs:
           desktop/build.sh
           echo "version=$(tools/current-tree-version.sh)" >> "$GITHUB_OUTPUT"
 
-      # GitHub zips an artifact itself: this one downloads as VibeOffice-Windows-x64.zip, the same as the release's
+      # GitHub zips an artifact itself: this one downloads as MelinaOffice-Windows-x64.zip, the same as the release's
       - uses: actions/upload-artifact@v4
         with:
-          name: VibeOffice-Windows-x64
-          path: desktop/target/dist/VibeOfficeSetup.exe
+          name: MelinaOffice-Windows-x64
+          path: desktop/target/dist/melinaoffice-setup.exe
           if-no-files-found: error
 
       - name: Release
@@ -57,15 +57,12 @@ jobs:
           VERSION: ${{ steps.build.outputs.version }}
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
-          files="desktop/target/dist/VibeOffice-Windows-x64.zip"
+          files="desktop/target/dist/MelinaOffice-Windows-x64.zip"
           if gh release view "$VERSION" > /dev/null 2>&1; then
             gh release upload "$VERSION" $files --clobber
-            for old in "VibeOffice-$VERSION-x64.msi" "VibeOffice-$VERSION-x64-Portable.zip" "VibeOffice-$VERSION-x64.zip"; do   # earlier names
-              gh release delete-asset "$VERSION" "$old" -y 2> /dev/null || true
-            done
           else
             flag=""
             [ "$PRERELEASE" = "true" ] && flag="--prerelease"
-            gh release create "$VERSION" $files --target "$GITHUB_SHA" --title "VibeOffice $VERSION" $flag \
+            gh release create "$VERSION" $files --target "$GITHUB_SHA" --title "Melina Office $VERSION" $flag \
               --notes-file desktop/release-notes.md   # both downloads: the macOS workflow adds its DMG to the same release
           fi

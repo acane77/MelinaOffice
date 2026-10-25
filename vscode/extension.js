@@ -1,6 +1,6 @@
-/* VibeOffice as a VS Code extension. code-server runs this in its Node extension host and
- * draws the same app pages in a webview, so a file in the workspace opens in Quire, Ledger
- * or Lectern. Save writes that file. Save As writes the chosen name into a folder the user
+/* Melina Office as a VS Code extension. code-server runs this in its Node extension host and
+ * draws the same app pages in a webview, so a file in the workspace opens in Ecrivaine, Matheuse
+ * or Oratrice. Save writes that file. Save As writes the chosen name into a folder the user
  * picked (the open file's folder, unless they choose another) and opens a different file too.
  * File ▸ New and File ▸ Open use VS Code's own dialogs and open the result in a new tab.
  * New File… (file/newFile) creates a blank .docx, .xlsx or .pptx and opens it here.
@@ -17,12 +17,12 @@ const docs = require('./documents');
 const bridgeApi = require('./mcp-bridge');
 
 const VIEW = {
-  quire: 'vibeoffice.quire',
-  ledger: 'vibeoffice.ledger',
-  lectern: 'vibeoffice.lectern',
+  ecrivaine: 'melinaoffice.ecrivaine',
+  matheuse: 'melinaoffice.matheuse',
+  oratrice: 'melinaoffice.oratrice',
 };
 
-const SAVE_LABEL = { quire: 'Document', ledger: 'Workbook', lectern: 'Presentation' };
+const SAVE_LABEL = { ecrivaine: 'Document', matheuse: 'Workbook', oratrice: 'Presentation' };
 
 /** bytes for a Recent Files entry that should open in place of the file on disk, keyed by the file's URI */
 const pendingOpen = new Map();
@@ -36,7 +36,7 @@ let mcpBridge = null;
 function publicRoot(extensionPath) {
   const candidates = [path.join(extensionPath, 'public'), path.join(extensionPath, '..', 'public')];
   for (const c of candidates) {
-    if (fs.existsSync(path.join(c, 'quire', 'index.html'))) return c;
+    if (fs.existsSync(path.join(c, 'ecrivaine', 'index.html'))) return c;
   }
   return null;
 }
@@ -61,7 +61,7 @@ function folderInfo(doc) {
   return { uri: dir.toString(), label: dir.fsPath };
 }
 
-const HOST_ALWAYS = 'vibeoffice.hostAlways';
+const HOST_ALWAYS = 'melinaoffice.hostAlways';
 
 function alwaysAbilities(context) {
   const list = context.workspaceState.get(HOST_ALWAYS);
@@ -109,14 +109,14 @@ function extsFromAccept(accept, fallback) {
   return out.length ? out : fallback;
 }
 
-/** a VibeOffice tab already showing this file, if there is one */
+/** a Melina Office tab already showing this file, if there is one */
 function openTab(uri) {
   const key = uri.toString();
   for (const group of vscode.window.tabGroups.all) {
     for (const tab of group.tabs) {
       const input = tab.input;
       if (!input || !input.uri || input.uri.toString() !== key) continue;
-      if (input.viewType && String(input.viewType).indexOf('vibeoffice.') === 0) return input.viewType;
+      if (input.viewType && String(input.viewType).indexOf('melinaoffice.') === 0) return input.viewType;
     }
   }
   return '';
@@ -248,11 +248,11 @@ class OfficeEditorProvider {
   }
 
   _html(doc) {
-    if (!this._public) return page.missingPage('VibeOffice could not find its pages next to the extension.');
+    if (!this._public) return page.missingPage('Melina Office could not find its pages next to the extension.');
     const file = path.join(this._public, this._app, 'index.html');
     let html;
     try { html = fs.readFileSync(file, 'utf8'); }
-    catch (e) { return page.missingPage('VibeOffice could not read ' + this._app + '. ' + (e && e.message ? e.message : '')); }
+    catch (e) { return page.missingPage('Melina Office could not read ' + this._app + '. ' + (e && e.message ? e.message : '')); }
     const base = doc.panel.webview.asWebviewUri(vscode.Uri.file(path.join(this._public, this._app))).toString();
     return page.renderPage({
       html,
@@ -260,7 +260,7 @@ class OfficeEditorProvider {
       cspSource: doc.panel.webview.cspSource,
       fileName: proto.baseName(doc.uri.path),
       platform: platform(),
-      lang: this._context.globalState.get('vibeoffice.lang') || '',
+      lang: this._context.globalState.get('melinaoffice.lang') || '',
     });
   }
 
@@ -371,7 +371,7 @@ class OfficeEditorProvider {
     if (msg.type === 'open-uri') { await this._openUri(doc, msg); return; }
     if (msg.type === 'lang') {
       const id = String(msg.lang || '');
-      await this._context.globalState.update('vibeoffice.lang', id);
+      await this._context.globalState.update('melinaoffice.lang', id);
       /* assigning the same HTML does nothing, so the new language has to be part of the page */
       if (msg.reload && doc.panel) doc.panel.webview.html = this._html(doc);
       return;
@@ -449,7 +449,7 @@ class OfficeEditorProvider {
       } catch (e) {
         const error = e && e.message ? e.message : String(e);
         if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: false, error });
-        vscode.window.showErrorMessage('VibeOffice could not save the file. ' + error);
+        vscode.window.showErrorMessage('Melina Office could not save the file. ' + error);
       }
     }
   }
@@ -703,7 +703,7 @@ class OfficeEditorProvider {
     } catch (e) {
       const error = e && e.message ? e.message : String(e);
       this._reply(doc, msg.id, { ok: false, error });
-      vscode.window.showErrorMessage('VibeOffice could not create the file. ' + error);
+      vscode.window.showErrorMessage('Melina Office could not create the file. ' + error);
     }
   }
 
@@ -734,7 +734,7 @@ class OfficeEditorProvider {
     } catch (e) {
       const error = e && e.message ? e.message : String(e);
       this._reply(doc, msg.id, { ok: false, error });
-      vscode.window.showErrorMessage('VibeOffice could not choose a folder. ' + error);
+      vscode.window.showErrorMessage('Melina Office could not choose a folder. ' + error);
     }
   }
 
@@ -746,7 +746,7 @@ class OfficeEditorProvider {
       const filters = {};
       filters[label] = exts;
       const picked = await vscode.window.showOpenDialog({
-        canSelectMany: this._app === 'ledger',
+        canSelectMany: this._app === 'matheuse',
         canSelectFiles: true,
         defaultUri: parentUri(doc.uri),
         filters,
@@ -761,7 +761,7 @@ class OfficeEditorProvider {
     } catch (e) {
       const error = e && e.message ? e.message : String(e);
       this._reply(doc, msg.id, { ok: false, error });
-      vscode.window.showErrorMessage('VibeOffice could not open the file. ' + error);
+      vscode.window.showErrorMessage('Melina Office could not open the file. ' + error);
     }
   }
 
@@ -783,7 +783,7 @@ class OfficeEditorProvider {
   async _acceptBytes(doc, done) {
     const fail = (error) => {
       if (doc.panel) doc.panel.webview.postMessage({ type: 'wrote', id: done.id, ok: false, error });
-      if (done.purpose === 'create') vscode.window.showErrorMessage('VibeOffice could not create the file. ' + error);
+      if (done.purpose === 'create') vscode.window.showErrorMessage('Melina Office could not create the file. ' + error);
     };
     try {
       const target = vscode.Uri.parse(String(done.uri || ''));
@@ -891,7 +891,7 @@ async function createOfficeFile(context, app) {
   const view = VIEW[app];
   if (!ext || !view) return;
   if (!publicRoot(context.extensionPath)) {
-    vscode.window.showErrorMessage('VibeOffice could not find its pages next to the extension.');
+    vscode.window.showErrorMessage('Melina Office could not find its pages next to the extension.');
     return;
   }
   let uri;
@@ -920,7 +920,7 @@ async function createOfficeFile(context, app) {
     pendingBlank.delete(uri.toString());
     if (!existed) { try { await vscode.workspace.fs.delete(uri); } catch (err) { /* the empty file stays if it cannot be removed */ } }
     const error = e && e.message ? e.message : String(e);
-    vscode.window.showErrorMessage('VibeOffice could not create the file. ' + error);
+    vscode.window.showErrorMessage('Melina Office could not create the file. ' + error);
   }
 }
 
@@ -988,8 +988,8 @@ async function onMcpCall(body) {
 function mcpProcessEnv() {
   return {
     ELECTRON_RUN_AS_NODE: '1',
-    VIBEOFFICE_BRIDGE_URL: mcpBridge.url,
-    VIBEOFFICE_BRIDGE_TOKEN: mcpBridge.token,
+    MELINAOFFICE_BRIDGE_URL: mcpBridge.url,
+    MELINAOFFICE_BRIDGE_TOKEN: mcpBridge.token,
   };
 }
 
@@ -1005,9 +1005,9 @@ function registerMcp(context) {
   const lm = vscode.lm;
   if (lm && typeof lm.registerMcpServerDefinitionProvider === 'function' && vscode.McpStdioServerDefinition) {
     try {
-      context.subscriptions.push(lm.registerMcpServerDefinitionProvider('vibeoffice', {
+      context.subscriptions.push(lm.registerMcpServerDefinitionProvider('melinaoffice', {
         provideMcpServerDefinitions() {
-          return [stdioServerDefinition('VibeOffice', process.execPath, [script], env)];
+          return [stdioServerDefinition('Melina Office', process.execPath, [script], env)];
         },
         resolveMcpServerDefinition(server) { return server; },
       }));
@@ -1017,12 +1017,12 @@ function registerMcp(context) {
   if (cursorMcp && typeof cursorMcp.registerServer === 'function') {
     try {
       cursorMcp.registerServer({
-        name: 'vibeoffice',
+        name: 'melinaoffice',
         server: { command: process.execPath, args: [script], env },
       });
       context.subscriptions.push({
         dispose() {
-          if (typeof cursorMcp.unregisterServer === 'function') cursorMcp.unregisterServer('vibeoffice');
+          if (typeof cursorMcp.unregisterServer === 'function') cursorMcp.unregisterServer('melinaoffice');
         },
       });
     } catch (e) { /* this host is not Cursor */ }
@@ -1038,7 +1038,7 @@ async function activate(context) {
     }));
     context.subscriptions.push(provider._onDidChange);
   }
-  context.subscriptions.push(vscode.commands.registerCommand('vibeoffice.open', async (uri) => {
+  context.subscriptions.push(vscode.commands.registerCommand('melinaoffice.open', async (uri) => {
     if (!uri) {
       const picked = await vscode.window.showOpenDialog({
         canSelectMany: false,
@@ -1049,12 +1049,12 @@ async function activate(context) {
     if (!uri) return;
     const view = proto.viewTypeFor(uri.path);
     if (!view) {
-      vscode.window.showInformationMessage('VibeOffice opens Word, Excel and PowerPoint files (.docx, .xlsx, .pptx and the other formats the apps open).');
+      vscode.window.showInformationMessage('Melina Office opens Word, Excel and PowerPoint files (.docx, .xlsx, .pptx and the other formats the apps open).');
       return;
     }
     await vscode.commands.executeCommand('vscode.openWith', uri, view);
   }));
-  for (const [command, app] of [['vibeoffice.newDocx', 'quire'], ['vibeoffice.newXlsx', 'ledger'], ['vibeoffice.newPptx', 'lectern']]) {
+  for (const [command, app] of [['melinaoffice.newDocx', 'ecrivaine'], ['melinaoffice.newXlsx', 'matheuse'], ['melinaoffice.newPptx', 'oratrice']]) {
     context.subscriptions.push(vscode.commands.registerCommand(command, () => createOfficeFile(context, app)));
   }
   try {

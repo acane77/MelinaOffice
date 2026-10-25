@@ -1,4 +1,4 @@
-/* Visual Basic DOM API Reference, shared by Quire, Ledger and Lectern.
+/* Visual Basic DOM API Reference, shared by Ecrivaine, Matheuse and Oratrice.
    Each app registers its own catalog with mount(). The language section is the same.
    A change to an app's object model updates docs/<app>_dom_api_specifications.md
    and public/<app>/js/vb-dom-ref.js in the same change. */

@@ -16,7 +16,7 @@ use tauri::{
 /// host script, title, link, drop and UI size handling.
 pub fn open_window(app: &AppHandle, label: &str, url: WebviewUrl) -> tauri::Result<WebviewWindow> {
     WebviewWindowBuilder::new(app, label, url)
-        .title("VibeOffice")
+        .title("Melina Office")
         .inner_size(1280.0, 820.0)
         .min_inner_size(640.0, 480.0)
         .initialization_script(host::init_script())
@@ -113,7 +113,7 @@ fn files_arrived(app: &AppHandle, files: bool) {
     });
 }
 
-/// Another start of VibeOffice while this one runs: its files open here; what the installer asked for
+/// Another start of Melina Office while this one runs: its files open here; what the installer asked for
 /// (pin, Default apps) is done here.
 #[cfg(windows)]
 fn second_start(app: &AppHandle, args: Vec<String>, cwd: String) {
@@ -195,7 +195,7 @@ fn main() {
         return;
     }
     let builder = tauri::Builder::default();
-    // One VibeOffice per user session on Windows: a second start (the Start menu, a double-click on a
+    // One Melina Office per user session on Windows: a second start (the Start menu, a double-click on a
     // file) hands its arguments to this one and exits. The plugin goes first, before anything is made.
     #[cfg(windows)]
     let builder = builder.plugin(tauri_plugin_single_instance::init(second_start));
@@ -220,7 +220,7 @@ fn main() {
             Ok(())
         })
         .build(tauri::generate_context!())
-        .expect("error while starting VibeOffice");
+        .expect("error while starting Melina Office");
     #[cfg(not(target_os = "macos"))]
     app.run(|_, _| {});
     #[cfg(target_os = "macos")]

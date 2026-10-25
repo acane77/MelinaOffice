@@ -1,10 +1,10 @@
-"""Line heights by what a line holds, as LibreOffice draws them (tests/quire/lines.test.mjs, public/quire/js/portions.js).
+"""Line heights by what a line holds, as LibreOffice draws them (tests/ecrivaine/lines.test.mjs, public/ecrivaine/js/portions.js).
 
-  python3 tools/linecases.py make [tests/quire/lines/linecases.docx]   one paragraph per case, between 10pt marker
+  python3 tools/linecases.py make [tests/ecrivaine/lines/linecases.docx]   one paragraph per case, between 10pt marker
       paragraphs M0, M1, …, so the distance from one marker to the next is the marker's line plus the case
   python3 tools/linecases.py read linecases.pdf [OUT.json]             after LibreOffice has made the PDF
       (soffice --headless --convert-to pdf): the distance in points from each marker to the next
-      (tests/quire/lines/linecases-lo.json)
+      (tests/ecrivaine/lines/linecases-lo.json)
 
 CASES names each case and whether LibreOffice is believed to draw it as Word does (Word and LibreOffice agree on a
 picture alone in its line, a large first run, large spaces and tabs, Shift+Enter lines and exact spacing); only those
@@ -135,7 +135,7 @@ def read(pdf, out=None):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'make':
-        make(sys.argv[2] if len(sys.argv) > 2 else 'tests/quire/lines/linecases.docx')
+        make(sys.argv[2] if len(sys.argv) > 2 else 'tests/ecrivaine/lines/linecases.docx')
     elif len(sys.argv) > 2 and sys.argv[1] == 'read':
         read(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
     else:

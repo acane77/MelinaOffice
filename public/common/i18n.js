@@ -1,4 +1,4 @@
-/* The UI's language (docs/i18n.md): one choice for the whole suite, localStorage 'vibeoffice.lang' (auto, en, ja,
+/* The UI's language (docs/i18n.md): one choice for the whole suite, localStorage 'melinaoffice.lang' (auto, en, ja,
  * ko, fr, de, zh-CN, zh-Hant; qps, the pseudo-locale, for developers), with ?lang= overriding it for one page. common/lang.js
  * resolves it before the first paint into <html lang> (auto: the first of the browser's languages we have, else
  * English), which this reads. The dictionary, public/common/i18n/<lang>.json, maps the English text to its
@@ -67,7 +67,7 @@
   /** UI text kept in a table and translated where it is shown (VO.t then): marks it for the catalog, returns it as is */
   VO.N = (s) => s;
 
-  /* the page's own HTML (the Start Center's text, Ledger's formula bar): its text and the attributes the UI shows,
+  /* the page's own HTML (the Start Center's text, Matheuse's formula bar): its text and the attributes the UI shows,
      translated once, before the app builds the rest of its UI with VO.t (tools/i18n.mjs gathers the same text) */
   const ATTRS = ['title', 'placeholder', 'aria-label', 'data-tip', 'alt'];
   const translateTree = (top) => {

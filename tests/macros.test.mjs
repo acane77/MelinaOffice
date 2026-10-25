@@ -6,10 +6,10 @@ await import('../public/common/core.js');
 await import('../public/common/xml.js');
 await import('../public/common/opc.js');
 await import('../public/common/zip.js');
-await import('../public/quire/js/dmodel.js');
+await import('../public/ecrivaine/js/dmodel.js');
 if (!L.t) L.t = (s, ...args) => s.replace(/\{(\d+)\}/g, (m, i) => (args[i] != null ? String(args[i]) : m));
 await import('../public/common/macros.js');
-await import('../public/quire/js/macros.js');
+await import('../public/ecrivaine/js/macros.js');
 
 const { D } = L;
 const K = L.opc;
@@ -82,7 +82,7 @@ test('macro source round-trips through the custom XML part', async () => {
   assert.equal(back[0].author, 'Miyuki');
   assert.equal(L.macros.parse(L.macros.serialize([{ name: 'S', source: '   ', created: '', author: '' }]))[0].source, '   ');
 
-  const props = '<ds:datastoreItem ds:itemID="{11111111-1111-4111-8111-111111111111}" xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml"><ds:schemaRefs><ds:schemaRef ds:uri="urn:vibeoffice:macros"/></ds:schemaRefs></ds:datastoreItem>';
+  const props = '<ds:datastoreItem ds:itemID="{11111111-1111-4111-8111-111111111111}" xmlns:ds="http://schemas.openxmlformats.org/officeDocument/2006/customXml"><ds:schemaRefs><ds:schemaRef ds:uri="https://acane.net/melinaoffice/macros"/></ds:schemaRefs></ds:datastoreItem>';
   const other = '<store xmlns="urn:example:other">kept</store>';
   const body = `<w:document xmlns:w="${K.NS.w}"><w:body><w:p/></w:body></w:document>`;
   const p = await pkg({

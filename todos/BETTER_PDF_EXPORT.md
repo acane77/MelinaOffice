@@ -1,9 +1,9 @@
-# Better PDF export: a text layer in Quire, Ledger and Lectern PDFs
+# Better PDF export: a text layer in Ecrivaine, Matheuse and Oratrice PDFs
 
 Status: planned 2026-10-15, not started. Revised the same day: pages stay pictures, with an invisible text layer on
 top; no font files read or embedded. Read first: this file, `public/common/core.js` (`L.buildPDF`, `L.embedFonts`),
-Quire `public/quire/js/app.js` (`A.rasterizePage`, `A.buildPDF`), Lectern `public/lectern/js/app.js` (`A.rasterize`,
-`A.buildPDF`), Ledger `public/ledger/js/print.js` (`P.renderPage`, `P.exportPDF`). Work the phases in order and mark
+Ecrivaine `public/ecrivaine/js/app.js` (`A.rasterizePage`, `A.buildPDF`), Oratrice `public/oratrice/js/app.js` (`A.rasterize`,
+`A.buildPDF`), Matheuse `public/matheuse/js/print.js` (`P.renderPage`, `P.exportPDF`). Work the phases in order and mark
 each task when it is done and checked.
 
 ## Where we are (2026-10-15)
@@ -13,9 +13,9 @@ All three apps make the same kind of PDF: each page is drawn into a canvas, save
 
 | App | How a page becomes a picture | Resolution |
 |---|---|---|
-| Quire | `A.rasterizePage` (app.js:887): the page's DOM cloned into an SVG `foreignObject`, drawn into a canvas | 2.2 × CSS px, about 211 dpi |
-| Lectern | `A.rasterize` (app.js:493): the same `foreignObject` approach, for slides and print-preview pages | 2.5 px per pt, 180 dpi |
-| Ledger | `P.renderPage` (print.js:193): cells drawn on a canvas with `fillText` etc.; charts and shapes are SVGs drawn into it as images | 2 px per pt, 144 dpi |
+| Ecrivaine | `A.rasterizePage` (app.js:887): the page's DOM cloned into an SVG `foreignObject`, drawn into a canvas | 2.2 × CSS px, about 211 dpi |
+| Oratrice | `A.rasterize` (app.js:493): the same `foreignObject` approach, for slides and print-preview pages | 2.5 px per pt, 180 dpi |
+| Matheuse | `P.renderPage` (print.js:193): cells drawn on a canvas with `fillText` etc.; charts and shapes are SVGs drawn into it as images | 2 px per pt, 144 dpi |
 
 What this costs the user:
 - Text can't be found, selected or copied.
@@ -26,9 +26,9 @@ What this costs the user:
 In Chromium 150, text set in Carlito inside the SVG produced the same pixels as a font that doesn't exist. An
 installed font (DejaVu Sans) did render. So on a computer without Calibri, a Calibri document is laid out on screen
 in Carlito but drawn in the PDF in a fallback font, and its lines can wrap differently there. This affects:
-- Quire's and Lectern's pages;
-- the text in Ledger's charts and shapes;
-- Quire's Recent Files thumbnails (app.js:1366), which use the same rasterizer.
+- Ecrivaine's and Oratrice's pages;
+- the text in Matheuse's charts and shapes;
+- Ecrivaine's Recent Files thumbnails (app.js:1366), which use the same rasterizer.
 
 ## Goal
 
@@ -63,11 +63,11 @@ Every PDF from the three apps:
   - Between words on a line, a space character is written to fill the gap, so copied text has spaces in every
     viewer.
   - Lines come one after another in reading order.
-  - Rotated text (Ledger's rotated cells, Lectern's rotated boxes) takes the rotation in `Tm` where the app knows it.
+  - Rotated text (Matheuse's rotated cells, Oratrice's rotated boxes) takes the rotation in `Tm` where the app knows it.
     Elsewhere, the word's axis-aligned box is used: it's still found and copied, only its highlight is approximate.
 - **Positions come from what the apps already draw:**
-  - Quire and Lectern: the live page's DOM ranges.
-  - Ledger: the canvas renderer's own `fillText` calls.
+  - Ecrivaine and Oratrice: the live page's DOM ranges.
+  - Matheuse: the canvas renderer's own `fillText` calls.
 - **What apps hand to the writer.** `L.buildPDF(pages, info)` keeps its name; pages and info gain optional fields:
   ```js
   pages: [{ jpeg, iw, ih, pw, ph,                            // as today
@@ -96,27 +96,27 @@ Only text a reader can see on the page:
 ## Tasks
 
 Phase 0: the page pictures (the right fonts, 300 dpi)
-- [ ] Add `L.embedFonts` rules (core.js:512; Lectern's HTML export already uses it, lectern app.js:556) to the CSS
-      that Quire's `A.rasterizePage` and Lectern's `A.rasterize` put inside the SVG. Build it once per export from the
+- [ ] Add `L.embedFonts` rules (core.js:512; Oratrice's HTML export already uses it, oratrice app.js:556) to the CSS
+      that Ecrivaine's `A.rasterizePage` and Oratrice's `A.rasterize` put inside the SVG. Build it once per export from the
       fonts the pages name, not once per page.
-- [ ] Do the same for the chart and shape SVGs Ledger draws into its print canvas (print.js:244, print.js:313), as a
+- [ ] Do the same for the chart and shape SVGs Matheuse draws into its print canvas (print.js:244, print.js:313), as a
       `<style>` inside each SVG.
 - [ ] Check: Carlito text inside a picture differs from the fallback font (the probe from 2026-10-15: the same text
       drawn through an SVG image in 'Carlito' and in a missing font must give different pixels). Export a Calibri
       document on a machine without Calibri and compare the PDF page with the screen.
 - [ ] Time a long document (181 pages) before and after; the base64 fonts are repeated in every page's SVG.
 - [ ] **300 dpi in all three apps**, a common printer's resolution. Text stays a picture, so its sharpness is the
-      picture's; today it's 211 dpi in Quire, 180 in Lectern and 144 in Ledger.
+      picture's; today it's 211 dpi in Ecrivaine, 180 in Oratrice and 144 in Matheuse.
   1. One constant where `L.buildPDF` lives (`PDF_DPI = 300`). Each app derives its scale from it:
-     - Quire: `A.rasterizePage(p.el, 300 / 96)`, instead of 2.2;
-     - Lectern: `300 / 72` pixels per point for slides and preview pages, instead of 2.5;
-     - Ledger: `renderAny(…, 300 / 72)` in `P.exportPDF`, instead of 2.
+     - Ecrivaine: `A.rasterizePage(p.el, 300 / 96)`, instead of 2.2;
+     - Oratrice: `300 / 72` pixels per point for slides and preview pages, instead of 2.5;
+     - Matheuse: `renderAny(…, 300 / 72)` in `P.exportPDF`, instead of 2.
   2. **A cap for very large pages:** lower the resolution for a page whose picture would pass 40 megapixels (a Letter
      page at 300 dpi is 8.4; A3 is 17; A0 would be 139). Chromium limits a canvas's area, and each picture is held
      in memory four bytes per pixel while it's encoded.
   3. Recent Files thumbnails keep their own small scale.
   4. **Check:** export time and file size before and after on the 181-page document, five decks and five workbooks.
-     JPEG size grows with the pixels: about ×2 for Quire, ×2.8 for Lectern and ×4.3 for Ledger. If that's too much,
+     JPEG size grows with the pixels: about ×2 for Ecrivaine, ×2.8 for Oratrice and ×4.3 for Matheuse. If that's too much,
      lower the JPEG quality (0.92 now) for text-only pages before lowering the resolution. Compare a printed or
      zoomed page with today's.
 
@@ -127,8 +127,8 @@ Phase 1: the writer (`public/common/pdf.js`)
     fixable for tests.
   - Header `%PDF-1.7`.
   - Streams compressed with `CompressionStream('deflate')` (zlib, as FlateDecode wants), left uncompressed where
-    there's none. This makes `L.buildPDF` async: Quire and Lectern already return it from async functions, and
-    Ledger's `P.exportPDF` (print.js:341) must `await` it.
+    there's none. This makes `L.buildPDF` async: Ecrivaine and Oratrice already return it from async functions, and
+    Matheuse's `P.exportPDF` (print.js:341) must `await` it.
 - [ ] **Page content.** The JPEG as today (DCTDecode, bytes copied as they are), then the text layer:
       `BT 3 Tr /F1 … Tf` and per word `Tz … Tm <cids> Tj`, then `ET`.
 - [ ] **The generated font.**
@@ -151,9 +151,9 @@ Phase 1: the writer (`public/common/pdf.js`)
   - Then once by hand in Chromium's viewer: select a line and copy it, and Find locates a word on page 2 with its
     highlight on the word.
 
-Phase 2: Quire
+Phase 2: Ecrivaine
 - [ ] **Collector** (`pdftext.js`, `collectDOM(pageEl, scale)`).
-  - Walk the page's text nodes in document order, which is Quire's reading order: body, then columns, text boxes,
+  - Walk the page's text nodes in document order, which is Ecrivaine's reading order: body, then columns, text boxes,
     footnotes and headers and footers as the page holds them. Apply the skip rules above.
   - Find the line breaks inside each node with `Range.getClientRects` and the binary search `LY.lines` uses
     (layout.js:105).
@@ -169,20 +169,20 @@ Phase 2: Quire
   - pdftotext word-diffed against the document's text.
   - Rendered pages identical to today's export.
   - Export time on the 181-page document: the collector should add little to the rasterizing.
-  - One Chromium test (`tests/quire/`): export the sample; its text extracts with spaces and line breaks.
+  - One Chromium test (`tests/ecrivaine/`): export the sample; its text extracts with spaces and line breaks.
 - [ ] **For the user to check:** Acrobat Reader and macOS Preview, a handful of files, with a checklist: Find finds
       words; selecting a paragraph highlights its lines; copying gives the text with spaces; nothing visible changed.
 
-Phase 3: Lectern
+Phase 3: Oratrice
 - [ ] **Collector on slides.** `A.slideCanvas` renders a slide element that isn't in the document, so it has no
       rectangles. Attach it off-screen (fixed position, off the viewport) while collecting, then detach it.
 - [ ] **Transforms.** Autofit and thumbnail scaling are already in the rectangles. For rotated boxes, pass the
       rotation (`angle`, from the `DOMMatrix` of the ancestors' computed `transform`) with the box's words.
 - [ ] **Print-preview pages** (`.pv-page`: handouts, notes pages, outline) are already in the document: collect them
-      as Quire does.
+      as Ecrivaine does.
 - [ ] **Checks:** five corpus decks, as in Phase 2, plus slide size and page count unchanged.
 
-Phase 4: Ledger
+Phase 4: Matheuse
 - [ ] **A recording 2D context** (`pdftext.js`, `recordCanvas(ctx)`): a proxy that forwards every call to the real
       canvas, `fillText` included, so the picture is unchanged. For each `fillText` it records:
   - the text, `ctx.font` size, `textAlign` and `textBaseline`;
@@ -198,19 +198,19 @@ Phase 4: Ledger
       text is found only as far as it shows.
 
 Phase 5: links, bookmarks, language
-- [ ] **Quire:**
+- [ ] **Ecrivaine:**
   - hyperlinks become link areas from their rectangles;
   - internal links and cross-references go to their target's page and position;
   - bookmarks come from headings (outline level, page and position from `LY.pages` and the fragment's rectangle),
     nested by level;
   - `lang` comes from the document's language.
-- [ ] **Lectern:** links on text and shapes (URL, or a jump to another slide); bookmarks from slide titles.
-- [ ] **Ledger:** cell hyperlinks; bookmarks from sheet names.
+- [ ] **Oratrice:** links on text and shapes (URL, or a jump to another slide); bookmarks from slide titles.
+- [ ] **Matheuse:** cell hyperlinks; bookmarks from sheet names.
 - [ ] **Checks:** links click through in Chromium's viewer and in Firefox, and the bookmarks show in their side panes.
 
 When it's done
 - [ ] Docs:
-  - docs/quire.md, docs/ledger.md and docs/lectern.md: the PDF row (pages as pictures, with text you can find, select
+  - docs/ecrivaine.md, docs/matheuse.md and docs/oratrice.md: the PDF row (pages as pictures, with text you can find, select
     and copy, links and bookmarks);
   - docs/suite.md: the shared `pdf.js` and `pdftext.js`;
   - AGENTS.md: the list of `public/common/` libraries;
@@ -222,8 +222,8 @@ When it's done
 ## Not in this plan
 
 - **The browser's own print, in any form:** `window.print()`, print stylesheets, CDP `Page.printToPDF`, the desktop
-  web views' print-to-PDF. Not for export and not for checks. Today Lectern's print preview has a Print button that
-  calls `window.print()` (panes.js:418), and Quire and Ledger have print stylesheets; this plan neither uses nor
+  web views' print-to-PDF. Not for export and not for checks. Today Oratrice's print preview has a Print button that
+  calls `window.print()` (panes.js:418), and Ecrivaine and Matheuse have print stylesheets; this plan neither uses nor
   fixes them.
 - **Visible real text with embedded fonts** (decided against, 2026-10-15). It would make text sharp at any zoom and
   files smaller, and needs:
@@ -234,13 +234,13 @@ When it's done
 
   Reopen only if sharpness or file size becomes a complaint. Picture improvements that need the text out of the
   picture (no image for blank pages, cropping, lossless pictures) would come with it.
-- Quire on a canvas, and our own layout engine ("Project Re:Layout", 2026-10-15): not planned; Quire stays on the
+- Ecrivaine on a canvas, and our own layout engine ("Project Re:Layout", 2026-10-15): not planned; Ecrivaine stays on the
   DOM. Reopen only if most of the corpus files whose page count differs from Word's turn out to differ because of
   line breaking CSS can't express.
 - **Later, if wanted:** vector borders, shading, shapes and charts; tagged PDF; PDF/A; the source `.docx` embedded on
   request.
-- **Belongs to the layout plan, not this one** (todos/QUIRE_LAYOUT_ALIGNMENT.md, not added there yet):
-  - Quire kerns all text (`.pc { font-kerning: normal }`, quire index.html:94) and only turns kerning off for
+- **Belongs to the layout plan, not this one** (todos/ECRIVAINE_LAYOUT_ALIGNMENT.md, not added there yet):
+  - Ecrivaine kerns all text (`.pc { font-kerning: normal }`, ecrivaine index.html:94) and only turns kerning off for
     `w:kern` 0 (render.js:175).
   - Word kerns only from `w:kern`'s size and uses no ligatures by default.
   - In Carlito, ordinary prose is 0.56% narrower with Chromium's kerning and ligatures than with plain advance widths:
@@ -253,6 +253,6 @@ When it's done
   others).
 - Don't use the browser's own print at all, for the export or to check it.
 - One exporter for all three apps.
-- Quire probably won't move to a canvas: do what's needed now, on the DOM as it is.
+- Ecrivaine probably won't move to a canvas: do what's needed now, on the DOM as it is.
 - No fonts: pages stay pictures, with an invisible text layer on top.
 - Pictures at a common printer's resolution, 300 dpi, in all three apps.

@@ -14,7 +14,7 @@
     return base === 'qps' || LANGS.some(([id]) => id === base) ? base : null;
   };
   const store = (v) => {
-    try { if (v == null) return localStorage.getItem('vibeoffice.lang') || 'auto'; localStorage.setItem('vibeoffice.lang', v); }
+    try { if (v == null) return localStorage.getItem('melinaoffice.lang') || 'auto'; localStorage.setItem('melinaoffice.lang', v); }
     catch (e) { return 'auto'; }
   };
   VO.lang = {
@@ -33,7 +33,7 @@
       id = normalize(id);
       if (!LANGS.some(([l]) => l === id) || id === store()) return;
       store(id);
-      if ('BroadcastChannel' in window) { const channel = new BroadcastChannel('vibeoffice'); channel.postMessage('lang'); channel.close(); }
+      if ('BroadcastChannel' in window) { const channel = new BroadcastChannel('melinaoffice'); channel.postMessage('lang'); channel.close(); }
     },
     resolve(choice, languages) {
       const id = normalize(choice);

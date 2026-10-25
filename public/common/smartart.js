@@ -1,4 +1,4 @@
-/* VibeOffice — the SmartArt layout engine: a diagram's items (a tree of text) laid out as shapes by one of the
+/* Melina Office — the SmartArt layout engine: a diagram's items (a tree of text) laid out as shapes by one of the
  * built-in layouts. Pure functions in points, with no DOM beyond an optional canvas for measuring text, so
  * the apps draw the result as their own shapes and tests/smartart.test.mjs runs it in Node.
  *

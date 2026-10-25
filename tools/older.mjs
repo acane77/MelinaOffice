@@ -3,7 +3,7 @@
 //
 //   node tools/older.mjs [REV] [-- <node --test arguments>]
 //   node tools/older.mjs 1035247~1 -- tests/ui/painter.test.mjs
-//   node tools/older.mjs -- --test-name-pattern '^Q1 ' tests/ui/quire.test.mjs
+//   node tools/older.mjs -- --test-name-pattern '^Q1 ' tests/ui/ecrivaine.test.mjs
 //
 // REV defaults to HEAD while public/ has uncommitted changes (a fix not committed yet), else to HEAD~1 (the fix is
 // the last commit). The copy goes to tmp/older/<commit>/ (kept for the next run) and is served by tools/serve.py on

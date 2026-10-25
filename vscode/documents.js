@@ -4,7 +4,7 @@
 
 const guide = require('./vbs-guide');
 
-const NO_DOCUMENT = 'No VibeOffice document is open. Open the file in the editor, then ask again.';
+const NO_DOCUMENT = 'No Melina Office document is open. Open the file in the editor, then ask again.';
 const NOT_READY = 'The file is not open in the editor yet.';
 const SOURCE_MAX = 64 * 1024;
 const ARGS_MAX = 32;
@@ -12,9 +12,9 @@ const VBS_TIMEOUT_MS = 60000;
 
 function appFromViewType(viewType) {
   const s = String(viewType || '');
-  if (s.indexOf('vibeoffice.') !== 0) return '';
-  const app = s.slice('vibeoffice.'.length);
-  return app === 'quire' || app === 'ledger' || app === 'lectern' ? app : '';
+  if (s.indexOf('melinaoffice.') !== 0) return '';
+  const app = s.slice('melinaoffice.'.length);
+  return app === 'ecrivaine' || app === 'matheuse' || app === 'oratrice' ? app : '';
 }
 
 /** A value the agent can read. A VB object comes back as undefined so the caller can say so. */
@@ -36,7 +36,7 @@ function plainValue(value, depth) {
 /**
  * tabs: the active editor group's tabs, { active, viewType, uri }.
  * open: documents whose webview is alive, { uri, name, app }.
- * Only the active tab is eligible. Another VibeOffice tab is named in the error.
+ * Only the active tab is eligible. Another Melina Office tab is named in the error.
  */
 function selectDocument(tabs, open) {
   const list = (Array.isArray(open) ? open : []).filter((d) => d && d.uri);
@@ -51,7 +51,7 @@ function selectDocument(tabs, open) {
   }
   return {
     ok: false,
-    error: 'The active editor is not a VibeOffice document. Click one of these tabs, then ask again: ' + names.join(', ') + '.',
+    error: 'The active editor is not a Melina Office document. Click one of these tabs, then ask again: ' + names.join(', ') + '.',
     open: names,
   };
 }
@@ -108,17 +108,17 @@ function normalizeResult(msg, picked) {
 }
 
 /**
- * body.tool is vibeoffice_dom_guide or vibeoffice_run_vbs.
+ * body.tool is melinaoffice_dom_guide or melinaoffice_run_vbs.
  * run(picked, call) performs the script and returns the page's message.
  */
 async function dispatch(body, tabs, open, run) {
   const tool = body && body.tool;
   const picked = selectDocument(tabs, open);
   if (!picked.ok) return failure('', '', picked.error);
-  if (tool === 'vibeoffice_dom_guide') {
+  if (tool === 'melinaoffice_dom_guide') {
     return { ok: true, app: picked.app, fileName: picked.name, guide: guide.forApp(picked.app) };
   }
-  if (tool !== 'vibeoffice_run_vbs') return failure(picked.app, picked.name, 'Unknown tool.');
+  if (tool !== 'melinaoffice_run_vbs') return failure(picked.app, picked.name, 'Unknown tool.');
   const problem = validateRun(body);
   if (problem) return failure(picked.app, picked.name, problem);
   const call = {

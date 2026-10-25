@@ -22,7 +22,7 @@
 // gather is a static scan: a string literal is UI text when it sits where the UI takes text (a label, tip or
 // title property, an argument of L.t, L.N (text in a table, translated where shown) or of the ui.* helpers, a child of h(), the label of a ui.select option, an
 // AutoShape name), or when it reads as an English sentence or label (several words, or ending in "...", ":" or
-// "?", beginning with a capital); plus the pages' own HTML text and Ledger's function descriptions. A string the
+// "?", beginning with a capital); plus the pages' own HTML text and Matheuse's function descriptions. A string the
 // scan misses shows in English in the pseudo-locale (?lang=qps), which is how to find it.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -37,13 +37,13 @@ const catalogFile = path.join(PUB, 'common/i18n/en.json');
    handled where they are shown) */
 const SKIP = new Set(['common/crypto.js', 'common/sha.js', 'common/zip.js', 'common/xml.js', 'common/opc.js', 'common/opc-order.js',
   'common/numfmt.js', 'common/dml.js', 'common/metafile.js', 'common/icons.js', 'common/i18n.js', 'sw.js',
-  'quire/js/docx-read.js', 'quire/js/docx-write.js', 'quire/js/rtf.js', 'quire/js/htmlio.js', 'quire/js/markdown.js', 'quire/js/mdio.js',
-  'quire/js/omml.js', 'quire/js/preserve.js', 'quire/js/preserve-drawing.js', 'quire/js/dmodel.js',
-  'ledger/js/formula.js', 'ledger/js/calc.js', 'ledger/js/fn-core.js', 'ledger/js/fn-lookup.js', 'ledger/js/fn-stat.js', 'ledger/js/fn-fin.js',
-  'ledger/js/fn-eng.js', 'ledger/js/xlsx-read.js', 'ledger/js/xlsx-write.js', 'ledger/js/xml.js', 'ledger/js/xmlss.js', 'ledger/js/extensions.js', 'ledger/js/preserve.js',
-  'lectern/js/pptx-read.js', 'lectern/js/pptx-write.js', 'lectern/js/preserve.js', 'lectern/js/properties.js', 'lectern/js/smartart-io.js']);
-const HTML = ['index.html', 'quire/index.html', 'lectern/index.html'];   // Ledger's page is built from its template
-const LEDGER_TEMPLATE = 'tools/ledger/build/template.html';
+  'ecrivaine/js/docx-read.js', 'ecrivaine/js/docx-write.js', 'ecrivaine/js/rtf.js', 'ecrivaine/js/htmlio.js', 'ecrivaine/js/markdown.js', 'ecrivaine/js/mdio.js',
+  'ecrivaine/js/omml.js', 'ecrivaine/js/preserve.js', 'ecrivaine/js/preserve-drawing.js', 'ecrivaine/js/dmodel.js',
+  'matheuse/js/formula.js', 'matheuse/js/calc.js', 'matheuse/js/fn-core.js', 'matheuse/js/fn-lookup.js', 'matheuse/js/fn-stat.js', 'matheuse/js/fn-fin.js',
+  'matheuse/js/fn-eng.js', 'matheuse/js/xlsx-read.js', 'matheuse/js/xlsx-write.js', 'matheuse/js/xml.js', 'matheuse/js/xmlss.js', 'matheuse/js/extensions.js', 'matheuse/js/preserve.js',
+  'oratrice/js/pptx-read.js', 'oratrice/js/pptx-write.js', 'oratrice/js/preserve.js', 'oratrice/js/properties.js', 'oratrice/js/smartart-io.js']);
+const HTML = ['index.html', 'ecrivaine/index.html', 'oratrice/index.html'];   // Matheuse's page is built from its template
+const MATHEUSE_TEMPLATE = 'tools/matheuse/build/template.html';
 
 /* where the UI takes text */
 const PROPS = new Set(['label', 'menuLabel', 'tbLabel', 'tip', 'title', 'text', 'placeholder', 'heading', 'note', 'aria-label', 'data-tip', 'what', 'drop', 'caption', 'hint']);
@@ -53,14 +53,14 @@ const H = new Set(['h', 'L.h']);
 /* properties whose text is not shown (the assistant's descriptions of his own moves, ids, styles) */
 const HIDDEN = new Set(['desc', 'id', 'cmd', 'icon', 'key', 'class', 'style', 'type', 'font', 'family', 'tag', 'xml', 'rel', 'ct']);
 /* the templates' own content stays English this round (docs/i18n.md): only their names and categories */
-const TEMPLATES = { 'quire/js/templates.js': null, 'lectern/js/templates.js': null, 'ledger/js/panes.js': /^  const TPL = \{$[\s\S]*?^  \};$/m };
+const TEMPLATES = { 'ecrivaine/js/templates.js': null, 'oratrice/js/templates.js': null, 'matheuse/js/panes.js': /^  const TPL = \{$[\s\S]*?^  \};$/m };
 /* content put into documents (AutoContent's slides, the sample deck and workbook, the rows of a scenario summary,
    a PivotTable or subtotals): English this round, like the templates' content, so only what is marked (L.N, L.t)
    or passed to a call that shows it (an undo step's name) counts */
 const CONTENT = {
-  'lectern/js/app.js': [/^  const AUTOCONTENT = \{$[\s\S]*?^  \};$/m, /^  function buildSample\(\) \{$[\s\S]*?^  \}$/m],
-  'ledger/js/app.js': [/^  A\.sampleWorkbook = function \(\) \{$[\s\S]*?^  \};$/m],
-  'ledger/js/dialogs2.js': [/^    const summary = \(\) => \{$[\s\S]*?^    \};$/m, /^  D\.buildPivot = function [\s\S]*?^  \};$/m, /^ *s\.put\(gt, st\.at, .*$/m],
+  'oratrice/js/app.js': [/^  const AUTOCONTENT = \{$[\s\S]*?^  \};$/m, /^  function buildSample\(\) \{$[\s\S]*?^  \}$/m],
+  'matheuse/js/app.js': [/^  A\.sampleWorkbook = function \(\) \{$[\s\S]*?^  \};$/m],
+  'matheuse/js/dialogs2.js': [/^    const summary = \(\) => \{$[\s\S]*?^    \};$/m, /^  D\.buildPivot = function [\s\S]*?^  \};$/m, /^ *s\.put\(gt, st\.at, .*$/m],
 };
 
 /* ---------------------------------------------------------------- a small JavaScript tokenizer */
@@ -174,7 +174,7 @@ function scanJS(file, src, add, fragment, markedOnly) {
     if (top && top.kind === '{' && HIDDEN.has(top.key)) continue;
     if ((prev && prev.type === 'p' && prev.value === '=' && toks[i - 2] && toks[i - 2].type === 'p' && '=!'.includes(toks[i - 2].value)) || (next && next.type === 'p' && '=!'.includes(next.value) && toks[i + 2] && toks[i + 2].value === '=')) continue;   // compared: x === 'formats'
     if (tpl && tk.line >= tpl[0] && tk.line <= tpl[1]) {
-      /* not the sheets' names of Ledger's templates, which go into the workbook */
+      /* not the sheets' names of Matheuse's templates, which go into the workbook */
       if (top && top.kind === '{' && (top.key === 'name' || top.key === 'cat') && !stack.some((x) => x.kind === '{' && x.key === 'sheets')) add(s, file + ':' + tk.line);
       continue;
     }
@@ -204,7 +204,7 @@ function scanJS(file, src, add, fragment, markedOnly) {
   }
 }
 
-/* Ledger's function descriptions: NAME|arguments|description lines (ledger/js/fninfo.js) */
+/* Matheuse's function descriptions: NAME|arguments|description lines (matheuse/js/fninfo.js) */
 function scanFninfo(file, src, add) {
   for (const m of src.matchAll(/^\s*[A-Z][A-Z0-9.]*\|[^|\n]*\|([^\n`]+)$/gm)) add(m[1].trim(), file + ':' + (src.slice(0, m.index).split('\n').length));
 }
@@ -227,10 +227,10 @@ function gather() {
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]));
   for (const abs of walk(PUB).filter((f) => f.endsWith('.js')).sort()) {
     const rel = path.relative(PUB, abs).split(path.sep).join('/');
-    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('quire/vendor/') || rel.startsWith('lectern/vendor/') || rel.startsWith('ledger/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
+    if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('ecrivaine/vendor/') || rel.startsWith('oratrice/vendor/') || rel.startsWith('matheuse/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
     const src = fs.readFileSync(abs, 'utf8');
     if (SKIP.has(rel)) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N
-    if (rel === 'ledger/js/fninfo.js') scanFninfo(rel, src, add);
+    if (rel === 'matheuse/js/fninfo.js') scanFninfo(rel, src, add);
     scanJS(rel, src, add, fragment);
   }
   for (const rel of HTML) {
@@ -239,7 +239,7 @@ function gather() {
     /* the page's own script (the Start Center's), its lines where they are in the page */
     scanJS(rel, src.replace(/<script>([\s\S]*?)<\/script>|[^\n]/g, (m, js) => (js != null ? ' '.repeat(8) + js + ' '.repeat(9) : ' ')), add, fragment);
   }
-  scanHTML('ledger/index.html', fs.readFileSync(path.join(root, LEDGER_TEMPLATE), 'utf8'), add);
+  scanHTML('matheuse/index.html', fs.readFileSync(path.join(root, MATHEUSE_TEMPLATE), 'utf8'), add);
   const out = {};
   for (const k of [...cat.keys()].sort()) out[k] = { where: cat.get(k) };
   return { catalog: out, fragments: frags };
@@ -248,7 +248,7 @@ function gather() {
 
 /* ---------------------------------------------------------------- harvest: English left on screen in the pseudo-locale */
 /* the document itself, which keeps its own text */
-const DOC_AREAS = { quire: '#scroller, #docmap, #revpane', ledger: '#gridwrap, #tabs', lectern: '#leftpane, #editorwrap, #notes', start: '#recentlist, .recent, .tiles' };
+const DOC_AREAS = { ecrivaine: '#scroller, #docmap, #revpane', matheuse: '#gridwrap, #tabs', oratrice: '#leftpane, #editorwrap, #notes', start: '#recentlist, .recent, .tiles' };
 /* commands not to run: they print, leave the page or ask the computer for a file */
 const DONT_RUN = /print|^(exit|quit|close|closeAll)$|^open|insertFile|fromFile|^save$|send|mail$/i;
 const COLLECT = `(scope, skip, where) => {
@@ -275,7 +275,7 @@ async function harvest(args) {
   const { ensureServer, openPage } = await import('./ooxml/cdp.mjs');
   const stop = await ensureServer();
   const pause = (ms) => new Promise((r) => setTimeout(r, ms));
-  for (const app of apps.length ? apps : ['quire', 'ledger', 'lectern', 'start']) {
+  for (const app of apps.length ? apps : ['ecrivaine', 'matheuse', 'oratrice', 'start']) {
     const page = await openPage(app === 'start' ? '' : app, { persistence: false, automated: true, lang });
     const ev = (js) => page.evaluate(js);
     try {

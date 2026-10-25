@@ -25,7 +25,7 @@ const cancelButton = (t) => t.evaluate(`(() => { const b = [...document.querySel
 const okButton = (t) => t.evaluate(`(() => { const b = document.querySelector('.dlg .dlg-foot .btn.primary'); const r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
 
 const APPS = {
-  quire: {
+  ecrivaine: {
     setup: (t) => t.evaluate(`(async () => {
       const { D } = L, d = D.newDoc();
       d.main.blocks = ['First paragraph of text.', 'Second paragraph of ordinary text.', 'Third paragraph.'].map((s) => D.para([D.text(s)]));
@@ -44,7 +44,7 @@ const APPS = {
     button: ['hyperlink', 'insert'],
     viewToggle: 'Ruler',
   },
-  ledger: {
+  matheuse: {
     setup: async () => {},
     into: async (t) => {
       const p = await t.evaluate(`(() => { const w = document.querySelector('#gridwrap').getBoundingClientRect(), b = L.grid.cellRect(2, 2); return { x: Math.round(w.left + b.x + b.w / 2), y: Math.round(w.top + b.y + b.h / 2) }; })()`);
@@ -57,7 +57,7 @@ const APPS = {
     button: ['hyperlink', 'insert'],
     viewToggle: 'Status Bar',
   },
-  lectern: {
+  oratrice: {
     setup: (t) => t.evaluate(`(async () => {
       const E = L.ed, M = L.model;
       if (L.te.active()) L.te.end();
@@ -152,7 +152,7 @@ const qSel = (t) => t.evaluate(`(() => { L.ed.syncSel(); const [a, b] = L.D.orde
 /** the page's own selection, as text */
 const domSel = (t) => t.evaluate(`String(getSelection())`);
 const MODES = {
-  quire: [
+  ecrivaine: [
     { name: 'Track Changes', on: (t) => t.evaluate(`L.ui.exec('trackChanges')`) },
     { name: 'a header being edited', on: async (t) => {
       await t.evaluate(`(async () => { const d = L.D.doc; d.hf.h1 = { kind: 'hdr', id: 'h1', blocks: [L.D.para([L.D.text('Header text here')], { style: 'Header' })] }; d.sect.refs = { hdr: { default: 'h1' }, ftr: {} };
@@ -162,12 +162,12 @@ const MODES = {
     selection: qSel },
     { name: 'Outline view', on: (t) => t.evaluate(`L.ui.exec('viewOutline')`), selection: qSel },
   ],
-  ledger: [
+  matheuse: [
     { name: 'frozen panes', on: (t) => t.evaluate(`(() => { L.grid.select(1, 1); L.ui.exec('freezePanes'); })()`) },
     { name: 'the second sheet', on: (t) => t.evaluate(`L.app.activateSheet(1)`) },
     { name: 'zoom 150%', on: (t) => t.evaluate(`L.grid.setZoom(150)`) },
   ],
-  lectern: [
+  oratrice: [
     { name: 'the speaker notes being edited', on: async () => {},
       into: async (t) => { const p = await t.el('.notes-in'); await t.click(p); await t.key('End'); await t.type(' some notes'); for (let i = 0; i < 5; i++) await t.key('ArrowLeft', { shift: true }); return p; },
       selection: domSel, shortcut: ['p', { ctrl: true }], context: false, ok: false },

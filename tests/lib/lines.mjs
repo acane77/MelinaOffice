@@ -1,4 +1,4 @@
-// Quire's lines against another application's PDF of the same document (tools/wordlines.py): each page's body as rows,
+// Ecrivaine's lines against another application's PDF of the same document (tools/wordlines.py): each page's body as rows,
 // the characters at one height (tops within 1pt) left to right, matched by their last 16 non-blank characters
 // (FNV-1a, as tools/wordlines.py writes them). ROWS runs in the page (t.evaluate(ROWS)) and returns the same shape as
 // the reference: { pages: [[[hash, chars, top, bottom, text], …], …] } in points from the top of the page.
@@ -42,8 +42,8 @@ export const ROWS = `(() => {
   return { pages };
 })()`;
 
-/** pairs of rows the reference and Quire have in common, in document order: { ref: [page, row], got: [page, row],
-    dy: Quire's top minus the reference's (points) } */
+/** pairs of rows the reference and Ecrivaine have in common, in document order: { ref: [page, row], got: [page, row],
+    dy: Ecrivaine's top minus the reference's (points) } */
 export function match(ref, got) {
   const flat = (doc) => doc.pages.flatMap((rows, p) => rows.map((r, i) => ({ p, i, h: r[0], n: r[1], top: r[2], tall: r[3] - r[2] })));
   const a = flat(ref), b = flat(got);
@@ -59,7 +59,7 @@ export function match(ref, got) {
   return pairs;
 }
 
-/** for each reference page: the Quire page its first matched row is on, and the steps: how much farther from the
+/** for each reference page: the Ecrivaine page its first matched row is on, and the steps: how much farther from the
     reference a row is than the row just above it, for rows that follow each other on both sides (nothing unmatched
     between them) and are as tall on both sides (the same font metrics, so their tops compare): a line that is too tall
     or too short shows as a step at the row below it */

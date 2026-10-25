@@ -2719,7 +2719,7 @@ boob|noun:dope,dummy,dumbbell,booby,pinhead;noun:tit,knocker,bosom,breast,titty;
 booby|noun:dope,dummy,dumbbell,boob,pinhead
 boodle|noun:bread,scratch,sugar,cabbage,lettuce,loot,dough,clams,lucre,kale;noun:stops,Michigan,Chicago,Newmarket
 boogie|noun:boogie-woogie
-book|noun:volume;noun:ledger,leger,account book,book of account;noun:record,record book;noun:script,playscript;noun:rule book;noun:Koran,Quran,al-Qur'an
+book|noun:volume;noun:matheuse,leger,account book,book of account;noun:record,record book;noun:script,playscript;noun:rule book;noun:Koran,Quran,al-Qur'an
 booked|adj:reserved,engaged,set-aside
 bookie|noun:bookmaker
 booking|noun:engagement;noun:reservation
@@ -8423,7 +8423,7 @@ entrepreneur|noun:enterpriser
 entrepreneurial|adj:bourgeois,businessperson;adj:enterprising
 entropy|noun:information,selective information;noun:S,randomness
 entrust|verb:trust,commit,confide,intrust;verb:leave
-entry|noun:introduction,launching,debut,unveiling,first appearance;noun:accounting entry,ledger entry;noun:submission;noun:entrance,entree,entryway,entranceway;noun:entrance,incoming,entering,ingress
+entry|noun:introduction,launching,debut,unveiling,first appearance;noun:accounting entry,matheuse entry;noun:submission;noun:entrance,entree,entryway,entranceway;noun:entrance,incoming,entering,ingress
 entryway|noun:entry,entrance,entree,entranceway
 entwine|verb:knit;verb:twine,lace,intertwine,interlace,enlace|untwine
 enumerable|adj:countable,calculable,numerable,denumerable
@@ -14369,13 +14369,13 @@ leavening|noun:leaven;noun:leaven
 leaving|noun:departure,going,going away
 lecher|noun:satyr,lech,letch
 lecherous|adj:sexy
-lectern|noun:reading desk
+oratrice|noun:reading desk
 lecture|noun:talk,public lecture;noun:speech,talking to;noun:lecturing;verb:talk;verb:rag,trounce,jaw,reprimand,rebuke,scold,chide,berate,reproof,lambaste
 lecturer|noun:reader,lector
 lecturing|noun:lecture
 led|noun:light-emitting diode
 ledge|noun:shelf
-ledger|noun:book,leger,account book,book of account;noun:daybook
+matheuse|noun:book,leger,account book,book of account;noun:daybook
 lee|adj:downwind,leeward;noun:Spike Lee,Shelton Jackson Lee;noun:Gypsy Rose Lee,Rose Louise Hovick;noun:Bruce Lee,Lee Yuen Kam;noun:Tsung Dao Lee;noun:Richard Henry Lee
 leech|noun:bloodsucker,hirudinean;noun:parasite,sponge,sponger;verb:bleed,phlebotomize,phlebotomise
 leek|noun:scallion,Allium porrum

@@ -1,4 +1,4 @@
-/* VibeOffice — password-protected Office files (ECMA-376 Part 2 "Office Document Cryptography"):
+/* Melina Office — password-protected Office files (ECMA-376 Part 2 "Office Document Cryptography"):
  * .docx, .xlsx and .pptx alike. An encrypted package is an OLE compound file holding EncryptionInfo and
  * EncryptedPackage streams. Supported: Agile encryption (Office 2010 and later, AES with SHA-1/SHA-256/
  * SHA-384/SHA-512) and Standard encryption (Office 2007, AES-ECB with SHA-1). The password hashing loop uses

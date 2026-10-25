@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "VibeOffice.work",
-  "short_name": "VibeOffice",
+  "name": "Melina Office",
+  "short_name": "Melina Office",
   "description": "A free office suite that runs in your browser: a word processor, a spreadsheet and a presentation editor. Your files never leave your computer.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef3fb",
-  "theme_color": "#2a64c8",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6699",
   "categories": [
     "productivity",
     "business"
@@ -42,43 +42,43 @@
     {
       "name": "New document",
       "short_name": "Document",
-      "description": "A blank document in Quire",
-      "url": "quire/?new"
+      "description": "A blank document in Ecrivaine",
+      "url": "ecrivaine/?new"
     },
     {
       "name": "New spreadsheet",
       "short_name": "Spreadsheet",
-      "description": "A blank workbook in Ledger",
-      "url": "ledger/?new"
+      "description": "A blank workbook in Matheuse",
+      "url": "matheuse/?new"
     },
     {
       "name": "New presentation",
       "short_name": "Presentation",
-      "description": "A blank presentation in Lectern",
-      "url": "lectern/?new"
+      "description": "A blank presentation in Oratrice",
+      "url": "oratrice/?new"
     }
   ],
   "screenshots": [
     {
-      "src": "quire/preview.jpg",
+      "src": "ecrivaine/preview.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Quire, the word processor"
+      "label": "Ecrivaine, the word processor"
     },
     {
-      "src": "ledger/preview.jpg",
+      "src": "matheuse/preview.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Ledger, the spreadsheet"
+      "label": "Matheuse, the spreadsheet"
     },
     {
-      "src": "lectern/preview.jpg",
+      "src": "oratrice/preview.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Lectern, the presentation editor"
+      "label": "Oratrice, the presentation editor"
     }
   ],
   "file_handlers": [

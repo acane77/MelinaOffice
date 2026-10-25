@@ -449,7 +449,7 @@ test('foreign fragment references are rebased with their bytes and dangling copi
   assert.equal(K.pendingLosses(w.doc).length, 1);
 });
 
-test('the loss ledger acknowledges each entry independently and reports invalidated signatures', async () => {
+test('the loss matheuse acknowledges each entry independently and reports invalidated signatures', async () => {
   const p = await pkg({ 'main.xml': '<main/>', 'signature.xml': '<signature/>', '_rels/.rels': rels(rel('doc', N.rel + '/officeDocument', 'main.xml') + rel('sig', N.pkg + '/digital-signature/origin', 'signature.xml')) });
   const doc = {}, w = new K.Writer(p, { doc }); w.carryRels(p, '', ''); w.finish();
   assert.ok(doc.losses.some(e => e.id.startsWith('signature:'))); assert.ok(!w.parts.has('signature.xml'));

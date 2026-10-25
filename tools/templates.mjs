@@ -15,7 +15,7 @@ import { spawn } from 'child_process';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const CDP = process.env.CDP || 'http://127.0.0.1:9222';
 const BASE = process.env.BASE || 'http://127.0.0.1:8760';
-const APPS = { quire: 'Blank Document', ledger: 'Blank Workbook', lectern: 'Blank Presentation' };
+const APPS = { ecrivaine: 'Blank Document', matheuse: 'Blank Workbook', oratrice: 'Blank Presentation' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const port = +new URL(BASE).port;

@@ -1,4 +1,4 @@
-/* VibeOffice — the chrome shared by Quire, Ledger and Lectern: window layout, menus, toolbars, task panes,
+/* Melina Office — the chrome shared by Ecrivaine, Matheuse and Oratrice: window layout, menus, toolbars, task panes,
  * dialogs, form controls, status bar. Colours, fonts and shadows come from the look settings in looks.css,
  * loaded first; each app's own CSS comes after this file and wins. */
 [hidden] { display: none !important; }
@@ -364,9 +364,9 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .about .about-marks { color: var(--ink-5); font-size: 11px; line-height: 1.35; }
 .about .about-oss { color: var(--pane-link); }
 /* opening and about: colour of the content only. The window frame is unchanged. */
-.dlg.brand[data-brand="quire"] { --brand-bg: var(--brand-quire); }
-.dlg.brand[data-brand="ledger"] { --brand-bg: var(--brand-ledger); }
-.dlg.brand[data-brand="lectern"] { --brand-bg: var(--brand-lectern); }
+.dlg.brand[data-brand="ecrivaine"] { --brand-bg: var(--brand-ecrivaine); }
+.dlg.brand[data-brand="matheuse"] { --brand-bg: var(--brand-matheuse); }
+.dlg.brand[data-brand="oratrice"] { --brand-bg: var(--brand-oratrice); }
 .dlg.brand .dlg-body,
 .dlg.brand .dlg-foot { background-color: var(--brand-bg); }
 .brand-splash { height: 200px; }

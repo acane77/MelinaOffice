@@ -5,7 +5,7 @@
 #
 # version is package.json's "version". commit_id is git rev-parse --short HEAD.
 # branch is git branch --show-current. build_time is today's date, YYYY-MM-DD.
-# The VSIX is written by tools/vscode_vsix.py (tmp/vibeoffice-v<version>-<commit>.vsix
+# The VSIX is written by tools/vscode_vsix.py (tmp/melinaoffice-v<version>-<commit>.vsix
 # when no path is given).
 set -eu
 cd "$(dirname "$0")/.."

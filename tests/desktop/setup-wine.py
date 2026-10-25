@@ -2,7 +2,7 @@
 """The Windows installer end to end in Wine, run by hand (needs wine, Xvfb, xdotool, ImageMagick's import):
 install from a folder holding only the installer, reinstall, uninstall; Wine's heap checks find no double free.
 
-    python3 tests/desktop/setup-wine.py desktop/target/dist/VibeOfficeSetup.exe
+    python3 tests/desktop/setup-wine.py desktop/target/dist/melinaoffice-setup.exe
 
 It keeps its own Wine prefix in ./tmp/setup-wine (user folders inside it, no menu entries made) and leaves
 screenshots of the dialogs there. Wine has neither WebView2 nor taskbar pinning: the installed app does not
@@ -24,10 +24,10 @@ DISPLAY = ":97"
 ENV = dict(os.environ, WINEPREFIX=str(PREFIX), WINEDEBUG="-all,warn+heap", DISPLAY=DISPLAY,
            WINEDLLOVERRIDES="mscoree,mshtml=;winemenubuilder.exe=d")
 USER = PREFIX / "drive_c" / "users" / os.environ.get("USER", "user")
-DIR = USER / "AppData" / "Local" / "VibeOffice"
-SHORTCUTS = [USER / "Desktop" / "VibeOffice.lnk",
-             USER / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "VibeOffice.lnk"]
-UNINSTALL = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\VibeOffice"
+DIR = USER / "AppData" / "Local" / "Melina Office"
+SHORTCUTS = [USER / "Desktop" / "Melina Office.lnk",
+             USER / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Melina Office.lnk"]
+UNINSTALL = r"HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\Melina Office"
 FILEEXTS = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"  # + ".docx"
 
 
@@ -111,7 +111,7 @@ class Setup(unittest.TestCase):
         cls.downloads = WORK / "downloads"
         shutil.rmtree(cls.downloads, ignore_errors=True)
         cls.downloads.mkdir()
-        shutil.copy(SETUP, cls.downloads / "VibeOfficeSetup.exe")
+        shutil.copy(SETUP, cls.downloads / "melinaoffice-setup.exe")
         for log in WORK.glob("wine-*.log"):
             log.unlink()
         # Another program's entry, which uninstalling must keep
@@ -125,8 +125,8 @@ class Setup(unittest.TestCase):
 
     def test_install_start_again_uninstall(self):
         # Install: the dialog, Enter = Install
-        setup = run("VibeOfficeSetup.exe", cwd=self.downloads)
-        dialog = wait_window("VibeOffice Setup")
+        setup = run("melinaoffice-setup.exe", cwd=self.downloads)
+        dialog = wait_window("Melina Office Setup")
         self.assertIsNotNone(dialog, "no install dialog")
         shot("install-dialog.png")
         press(dialog, "Return")
@@ -134,32 +134,32 @@ class Setup(unittest.TestCase):
         time.sleep(2)
         stop_wine()  # the app it started (no WebView2 in Wine)
 
-        log = (USER / "AppData" / "Local" / "Temp" / "VibeOfficeSetup.log").read_text()
+        log = (USER / "AppData" / "Local" / "Temp" / "melinaoffice-setup.log").read_text()
         (WORK / "install.log").write_text(log)
         # No app chosen yet: "Open default app settings" is ticked, and the app is started to open them
-        for step in ("wrote vibeoffice.exe", "registered Apps & features", "shortcut ", '"-choose-defaults"'):
+        for step in ("wrote melinaoffice.exe", "registered Apps & features", "shortcut ", '"-choose-defaults"'):
             self.assertIn(step, log)
-        for name in ("vibeoffice.exe", "WebView2Loader.dll", "LICENSE.txt"):
+        for name in ("melinaoffice.exe", "WebView2Loader.dll", "LICENSE.txt"):
             self.assertTrue((DIR / name).is_file(), name)
-        self.assertEqual(sorted(p.name for p in DIR.iterdir()), ["LICENSE.txt", "WebView2Loader.dll", "vibeoffice.exe"])
+        self.assertEqual(sorted(p.name for p in DIR.iterdir()), ["LICENSE.txt", "WebView2Loader.dll", "melinaoffice.exe"])
         for lnk in SHORTCUTS:
             self.assertTrue(lnk.is_file(), lnk)
-        exe = r"C:\users\%s\AppData\Local\VibeOffice\vibeoffice.exe" % USER.name
+        exe = r"C:\users\%s\AppData\Local\Melina Office\melinaoffice.exe" % USER.name
         self.assertEqual(reg(UNINSTALL, "UninstallString"), f'"{exe}" -uninstall')
-        self.assertEqual(reg(UNINSTALL, "DisplayName"), "VibeOffice")
-        self.assertEqual(reg(r"HKCU\Software\Classes\VibeOffice.docx\shell\open\command"), f'"{exe}" "%1"')
-        self.assertEqual(reg(r"HKCU\Software\Classes\VibeOffice.pptx\DefaultIcon"), f'"{exe}",-40103')
-        self.assertEqual(reg(r"HKCU\Software\Classes\.xlsx\OpenWithProgids", "VibeOffice.xlsx"), "")
-        self.assertEqual(reg(r"HKCU\Software\RegisteredApplications", "VibeOffice"), r"Software\VibeOffice\Capabilities")
+        self.assertEqual(reg(UNINSTALL, "DisplayName"), "Melina Office")
+        self.assertEqual(reg(r"HKCU\Software\Classes\MelinaOffice.docx\shell\open\command"), f'"{exe}" "%1"')
+        self.assertEqual(reg(r"HKCU\Software\Classes\MelinaOffice.pptx\DefaultIcon"), f'"{exe}",-40103')
+        self.assertEqual(reg(r"HKCU\Software\Classes\.xlsx\OpenWithProgids", "MelinaOffice.xlsx"), "")
+        self.assertEqual(reg(r"HKCU\Software\RegisteredApplications", "Melina Office"), r"Software\Melina Office\Capabilities")
         self.assertIsNone(reg(r"HKCU\Software\Classes\.docx"), "the extension's own default is the user's")
 
         # The same installer again: Reinstall, which puts back a missing shortcut. The user has chosen
-        # VibeOffice for all three types meanwhile (Windows' UserChoice): the settings box is not ticked.
+        # Melina Office for all three types meanwhile (Windows' UserChoice): the settings box is not ticked.
         SHORTCUTS[0].unlink()
         for ext in (".docx", ".xlsx", ".pptx"):
-            wine("reg", "add", FILEEXTS + ext + r"\UserChoice", "/v", "ProgId", "/t", "REG_SZ", "/d", "VibeOffice" + ext, "/f")
-        again = run("VibeOfficeSetup.exe", cwd=self.downloads)
-        dialog = wait_window("VibeOffice Setup")
+            wine("reg", "add", FILEEXTS + ext + r"\UserChoice", "/v", "ProgId", "/t", "REG_SZ", "/d", "MelinaOffice" + ext, "/f")
+        again = run("melinaoffice-setup.exe", cwd=self.downloads)
+        dialog = wait_window("Melina Office Setup")
         self.assertIsNotNone(dialog, "no reinstall dialog")
         shot("reinstall-dialog.png")
         press(dialog, "Return")
@@ -167,15 +167,15 @@ class Setup(unittest.TestCase):
         time.sleep(2)
         stop_wine()
         self.assertTrue(SHORTCUTS[0].is_file())
-        log = (USER / "AppData" / "Local" / "Temp" / "VibeOfficeSetup.log").read_text()
-        self.assertIn("VibeOffice chosen for all three types: true", log)
-        self.assertIn("vibeoffice.exe [] (process", log, "no default app settings")
+        log = (USER / "AppData" / "Local" / "Temp" / "melinaoffice-setup.log").read_text()
+        self.assertIn("Melina Office chosen for all three types: true", log)
+        self.assertIn("melinaoffice.exe [] (process", log, "no default app settings")
         for ext in (".docx", ".xlsx", ".pptx"):
             wine("reg", "delete", FILEEXTS + ext, "/f")
 
         # Uninstall, as Apps & features does: Enter = Uninstall, keeping the user's data
         uninstall = run(exe, "-uninstall")
-        dialog = wait_window("VibeOffice")
+        dialog = wait_window("Melina Office")
         self.assertIsNotNone(dialog, "no uninstall dialog")
         shot("uninstall-dialog.png")
         press(dialog, "Return")
@@ -184,10 +184,10 @@ class Setup(unittest.TestCase):
         self.assertFalse(DIR.exists(), sorted(p.name for p in DIR.iterdir()) if DIR.exists() else "")
         for lnk in SHORTCUTS:
             self.assertFalse(lnk.exists(), lnk)
-        for key, name in [(UNINSTALL, "DisplayName"), (r"HKCU\Software\Classes\VibeOffice.docx", None),
-                          (r"HKCU\Software\Classes\.docx\OpenWithProgids", "VibeOffice.docx"),
-                          (r"HKCU\Software\RegisteredApplications", "VibeOffice"),
-                          (r"HKCU\Software\VibeOffice\Capabilities", "ApplicationName")]:
+        for key, name in [(UNINSTALL, "DisplayName"), (r"HKCU\Software\Classes\MelinaOffice.docx", None),
+                          (r"HKCU\Software\Classes\.docx\OpenWithProgids", "MelinaOffice.docx"),
+                          (r"HKCU\Software\RegisteredApplications", "Melina Office"),
+                          (r"HKCU\Software\Melina Office\Capabilities", "ApplicationName")]:
             self.assertIsNone(reg(key, name), (key, name))
         self.assertEqual(reg(r"HKCU\Software\Classes\.docx\OpenWithProgids", "Other.docx"), "")
         self.assertEqual(heap_errors(), [])

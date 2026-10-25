@@ -22,33 +22,33 @@ const state = `return JSON.stringify({ path: location.pathname, title: document.
 
 test('desktop: the launch file opens in its app, once', () => {
   const { out, r } = shot('', [{ wait: 3000 }, { js: state }], '--pre', path.join(root, 'tests/desktop/host-stub.js'));
-  assert.equal(r.path, '/ledger/', 'Budget.csv went to Ledger');
+  assert.equal(r.path, '/matheuse/', 'Budget.csv went to Matheuse');
   assert.match(r.title, /^Budget/);
   assert.equal(r.kind, 'desktop');
   assert.equal(r.platform, 'windows');
-  assert.match(r.newWindow, /\/ledger\/\?open=/, 'Ledger opened in a window of its own');
-  assert.equal(r.calls, '/ / /', 'the Start Center listed and read the file and opened Ledger\'s window; Ledger asked for nothing');
+  assert.match(r.newWindow, /\/matheuse\/\?open=/, 'Matheuse opened in a window of its own');
+  assert.equal(r.calls, '/ / /', 'the Start Center listed and read the file and opened Matheuse\'s window; Matheuse asked for nothing');
   assert.equal(r.sw, '', 'no service worker in the desktop app');
   assert.equal(r.version, 'v2026.10.11-abc123', 'the desktop build\'s version');
   assert.match(out, /no errors, no external requests/);
   // leave this browser's Recent Files as they were
-  shot('', [{ js: `await VO.recent.remove('ledger:Budget.csv'); return '1'` }]);
+  shot('', [{ js: `await VO.recent.remove('matheuse:Budget.csv'); return '1'` }]);
 });
 
 test('desktop: a file another start of the app hands over opens in its app (one instance, Windows)', () => {
   const { out, r } = shot('', [{ js: `__stubSecondStart('Notes.md', '# Notes\\n\\nHello'); return '1'`, wait: 2500 }, { js: state }],
     '--pre', path.join(root, 'tests/desktop/host-stub.js'), '--qs', 'nolaunch');
-  assert.equal(r.path, '/quire/', 'Notes.md went to Quire');
-  assert.match(r.newWindow, /\/quire\/\?open=/, 'Quire opened in a window of its own');
+  assert.equal(r.path, '/ecrivaine/', 'Notes.md went to Ecrivaine');
+  assert.match(r.newWindow, /\/ecrivaine\/\?open=/, 'Ecrivaine opened in a window of its own');
   assert.match(r.title, /^Notes/);
   assert.match(out, /no errors, no external requests/);
-  shot('', [{ js: `await VO.recent.remove('quire:Notes.md'); return '1'` }]);
+  shot('', [{ js: `await VO.recent.remove('ecrivaine:Notes.md'); return '1'` }]);
 });
 
 test('desktop: File > Exit closes an app window', () => {
-  const { r } = shot('quire/', [{ js: `await VO.exit(); await new Promise((r) => setTimeout(r, 300));
+  const { r } = shot('ecrivaine/', [{ js: `await VO.exit(); await new Promise((r) => setTimeout(r, 300));
     return JSON.stringify({ closed: sessionStorage.closed || '', path: location.pathname });` }], '--pre', path.join(root, 'tests/desktop/host-stub.js'), '--qs', 'nolaunch');
-  assert.deepEqual(r, { closed: '/quire/', path: '/quire/' });
+  assert.deepEqual(r, { closed: '/ecrivaine/', path: '/ecrivaine/' });
 });
 
 test('desktop: About > Open source licenses opens the credits page in a window of its own', () => {
@@ -60,7 +60,7 @@ test('desktop: About > Open source licenses opens the credits page in a window o
 });
 
 test('desktop: a save says where it went, and Browse shows it', () => {
-  const { r } = shot('quire/', [{ js: `
+  const { r } = shot('ecrivaine/', [{ js: `
     const toast = () => { const t = document.querySelector('.toast'); return t && !t.hidden ? t.textContent : ''; };
     window.dispatchEvent(new CustomEvent('vo-download', { detail: { ok: true, name: 'Report (2).docx' } }));
     const saved = toast();
@@ -74,10 +74,10 @@ test('desktop: a save says where it went, and Browse shows it', () => {
 });
 
 test('desktop: openUrl goes to the system', () => {
-  const { r } = shot('', [{ js: `await VO.host.openUrl('https://github.com/tcchen2026/VibeOffice');
+  const { r } = shot('', [{ js: `await VO.host.openUrl('https://github.com/acane77/MelinaOffice');
     let bad = ''; try { await VO.host.openUrl('file:///C:/Windows/notepad.exe'); } catch (e) { bad = String(e); }
     return JSON.stringify({ opened: sessionStorage.opened, bad });` }], '--pre', path.join(root, 'tests/desktop/host-stub.js'), '--qs', 'nolaunch');
-  assert.equal(r.opened, 'https://github.com/tcchen2026/VibeOffice');
+  assert.equal(r.opened, 'https://github.com/acane77/MelinaOffice');
   assert.match(r.bad, /not a web or mail address/);
 });
 
@@ -104,10 +104,10 @@ const update = `await new Promise((r) => setTimeout(r, 500));
   else if (out.button) document.getElementById('update').click();
   await new Promise((r) => setTimeout(r, 200));
   out.opened = sessionStorage.opened || '';
-  localStorage.removeItem('vibeoffice.updateAsked');
+  localStorage.removeItem('melinaoffice.updateAsked');
   return JSON.stringify(out);`;
 const stub = path.join(root, 'tests/desktop/host-stub.js');
-const URL_ = 'https://vibeoffice.work/updater/?from_version=v2026.10.11-abc123&current_platform=windows';
+const URL_ = 'https://acane.net/melinaoffice/updater/?from_version=v2026.10.11-abc123&current_platform=windows';
 
 test('desktop: up to date, no Update button', () => {
   const { r } = shot('', [{ js: update }], '--pre', stub, '--qs', 'nolaunch');

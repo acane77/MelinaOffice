@@ -2,7 +2,7 @@
 // out. After any of them no drag is left and the cursor is the pointer's own; a gesture that ended with the release
 // changed what it drags and is one undo step that brings back exactly what was there before; any other ending changed
 // nothing and recorded nothing (the pattern behind R1–R4, todos/UI_MOUSE_LOGIC_IMPROVE.md). Each starting state is
-// made from scratch: a click on a shape already selected means something else (Lectern edits its text).
+// made from scratch: a click on a shape already selected means something else (Oratrice edits its text).
 //
 //   node --test --test-concurrency=1 tests/ui/gestures.test.mjs
 import { test } from 'node:test';
@@ -48,9 +48,9 @@ function matrix(name, o) {
   });
 }
 
-/* ---------------------------------------------------------------- Quire: moving a floating shape */
-const quire = async (mode) => {
-  const t = await open('quire');
+/* ---------------------------------------------------------------- Ecrivaine: moving a floating shape */
+const ecrivaine = async (mode) => {
+  const t = await open('ecrivaine');
   await t.evaluate(`(async () => {
     const { D } = L, d = D.newDoc();
     d.main.blocks = ['First paragraph of ordinary text for clicking.', 'Second paragraph of ordinary text.', 'Third paragraph.'].map((s) => D.para([D.text(s)]));
@@ -62,15 +62,15 @@ const quire = async (mode) => {
   if (mode) { await mode.on(t); await pause(300); }
   return t;
 };
-const quireText = (t, b, o) => t.evaluate(`(() => { const m = L.layout.posToDom(L.D.pos(L.D.doc.main.blocks[${b}], ${o})), r = document.createRange();
+const ecrivaineText = (t, b, o) => t.evaluate(`(() => { const m = L.layout.posToDom(L.D.pos(L.D.doc.main.blocks[${b}], ${o})), r = document.createRange();
   r.setStart(m.node, m.offset); r.collapse(true); const x = r.getClientRects()[0] || r.getBoundingClientRect(); return { x: x.left + 1, y: x.top + x.height / 2 }; })()`);
 const flt = (t) => t.evaluate(`(() => { const r = document.querySelector('#pages .flt').getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), l: Math.round(r.left), t: Math.round(r.top) }; })()`);
-matrix('Quire: moving a floating shape', {
-  open: quire,
+matrix('Ecrivaine: moving a floating shape', {
+  open: ecrivaine,
   starts: [
-    { name: 'the caret in the text', run: async (t) => t.click(await quireText(t, 0, 5)), check: (t) => t.evaluate(`!L.ed.objSel && L.ed.collapsed()`) },
-    { name: 'text selected', run: async (t) => { await t.click(await quireText(t, 0, 5)); await t.key('End', { shift: true }); }, check: (t) => t.evaluate(`!L.ed.objSel && !L.ed.collapsed()`) },
-    { name: 'the shape selected', run: async (t) => { await t.click(await quireText(t, 1, 3)); await t.click(await flt(t)); }, check: (t) => t.evaluate(`!!L.ed.objSel`) },
+    { name: 'the caret in the text', run: async (t) => t.click(await ecrivaineText(t, 0, 5)), check: (t) => t.evaluate(`!L.ed.objSel && L.ed.collapsed()`) },
+    { name: 'text selected', run: async (t) => { await t.click(await ecrivaineText(t, 0, 5)); await t.key('End', { shift: true }); }, check: (t) => t.evaluate(`!L.ed.objSel && !L.ed.collapsed()`) },
+    { name: 'the shape selected', run: async (t) => { await t.click(await ecrivaineText(t, 1, 3)); await t.click(await flt(t)); }, check: (t) => t.evaluate(`!!L.ed.objSel`) },
   ],
   from: flt,
   to: (t, a) => ({ x: a.x + 80, y: a.y + 40 }),
@@ -82,17 +82,17 @@ matrix('Quire: moving a floating shape', {
   ],
 });
 
-/* ---------------------------------------------------------------- Ledger: moving a shape, the fill handle */
+/* ---------------------------------------------------------------- Matheuse: moving a shape, the fill handle */
 const cell = (t, r, c) => t.evaluate(`(() => { const w = document.querySelector('#gridwrap').getBoundingClientRect(), b = L.grid.cellRect(${r}, ${c});
   return { x: Math.round(w.left + b.x + b.w / 2), y: Math.round(w.top + b.y + b.h / 2), r: Math.round(w.left + b.x + b.w), b: Math.round(w.top + b.y + b.h) }; })()`);
 const gobj = (t) => t.evaluate(`(() => { const r = document.querySelector('#glayer .gobj').getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), l: Math.round(r.left), t: Math.round(r.top) }; })()`);
 /** A1 alone selected, no object */
 const oneCell = (t) => t.evaluate(`(() => { const s = L.grid.sel(), r = s.ranges[0]; return !L.grid.selectedObject() && s.ranges.length === 1 && r.r1 === 0 && r.c1 === 0 && r.r2 === 0 && r.c2 === 0; })()`);
-const ledgerSteps = (t) => t.evaluate('L.grid.wb.undo.stack.length');
-const ledgerCells = (t) => t.evaluate(`[0, 1, 2, 3, 4].map((r) => L.editor.cellText(L.grid.sheet(), r, 0))`);
-matrix('Ledger: moving a shape', {
+const matheuseSteps = (t) => t.evaluate('L.grid.wb.undo.stack.length');
+const matheuseCells = (t) => t.evaluate(`[0, 1, 2, 3, 4].map((r) => L.editor.cellText(L.grid.sheet(), r, 0))`);
+matrix('Matheuse: moving a shape', {
   open: async (mode) => {
-    const t = await open('ledger');
+    const t = await open('matheuse');
     if (mode) { await mode.on(t); await pause(300); }
     await t.evaluate(`L.ui.exec('insertShape')`);
     await t.drag(await cell(t, 4, 4), await cell(t, 9, 6), 6);
@@ -105,17 +105,17 @@ matrix('Ledger: moving a shape', {
   ],
   from: gobj,
   to: (t, a) => ({ x: a.x + 80, y: a.y + 40 }),
-  state: async (t) => ({ box: await gobj(t), cells: await ledgerCells(t) }),
-  steps: ledgerSteps,
+  state: async (t) => ({ box: await gobj(t), cells: await matheuseCells(t) }),
+  steps: matheuseSteps,
   modes: [
     { name: 'frozen panes', on: async (t) => { await t.click(await cell(t, 2, 1)); await t.evaluate(`L.ui.exec('freezePanes')`); } },
     { name: 'the second sheet', on: (t) => t.evaluate(`L.app.activateSheet(1)`) },
     { name: 'zoom 150%', on: (t) => t.evaluate(`L.grid.setZoom(150)`) },
   ],
 });
-matrix('Ledger: the fill handle', {
+matrix('Matheuse: the fill handle', {
   open: async (mode) => {
-    const t = await open('ledger');
+    const t = await open('matheuse');
     if (mode) { await mode.on(t); await pause(300); }
     await t.click(await cell(t, 0, 0)); await t.type('1'); await t.key('Enter');
     return t;
@@ -123,8 +123,8 @@ matrix('Ledger: the fill handle', {
   starts: [{ name: 'the cell', run: async (t) => t.click(await cell(t, 0, 0)), check: oneCell }],
   from: async (t) => { const c = await cell(t, 0, 0); return { x: c.r - 1, y: c.b - 1 }; },
   to: async (t) => { const c = await cell(t, 3, 0); return { x: c.x, y: c.y }; },
-  state: ledgerCells,
-  steps: ledgerSteps,
+  state: matheuseCells,
+  steps: matheuseSteps,
   modes: [
     { name: 'frozen panes', on: async (t) => { await t.click(await cell(t, 2, 1)); await t.evaluate(`L.ui.exec('freezePanes')`); } },
     { name: 'the second sheet', on: (t) => t.evaluate(`L.app.activateSheet(1)`) },
@@ -132,9 +132,9 @@ matrix('Ledger: the fill handle', {
   ],
 });
 
-/* ---------------------------------------------------------------- Lectern: moving and resizing a shape */
-const lectern = async (mode) => {
-  const t = await open('lectern');
+/* ---------------------------------------------------------------- Oratrice: moving and resizing a shape */
+const oratrice = async (mode) => {
+  const t = await open('oratrice');
   if (mode) { await mode.on(t); await pause(300); }
   await t.evaluate(`(async () => {
     const E = L.ed, M = L.model, T = L.txt;
@@ -163,8 +163,8 @@ const slideBlank = async (t) => {
   return p;
 };
 const rectSelected = (t) => t.evaluate(`L.ed.sel.length === 1 && L.ed.sel[0] === 'rectR' && !L.te.active()`);
-matrix('Lectern: moving a shape', {
-  open: lectern,
+matrix('Oratrice: moving a shape', {
+  open: oratrice,
   modes: [
     { name: 'a slide with a transition', on: (t) => t.evaluate(`L.ed.slide().trans = { type: 'fade', spd: 'slow', click: true }`) },
     { name: 'the second slide', on: (t) => t.evaluate(`(() => { L.ui.exec('newSlide'); L.ed.goto(1); })()`) },
@@ -181,8 +181,8 @@ matrix('Lectern: moving a shape', {
   state: lstate,
   steps: lsteps,
 });
-matrix('Lectern: resizing a shape', {
-  open: lectern,
+matrix('Oratrice: resizing a shape', {
+  open: oratrice,
   modes: [
     { name: 'a slide with a transition', on: (t) => t.evaluate(`L.ed.slide().trans = { type: 'fade', spd: 'slow', click: true }`) },
     { name: 'the second slide', on: (t) => t.evaluate(`(() => { L.ui.exec('newSlide'); L.ed.goto(1); })()`) },

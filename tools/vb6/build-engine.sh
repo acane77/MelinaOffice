@@ -1,8 +1,8 @@
 #!/bin/sh
-# Build the gitignored Quire VB6 engine.
+# Build the gitignored Ecrivaine VB6 engine.
 #   make
 #   tools/vb6/build-engine.sh
-# Writes public/quire/vendor/vb6/vb6-engine.js (global VB6Engine).
+# Writes public/ecrivaine/vendor/vb6/vb6-engine.js (global VB6Engine).
 set -eu
 cd "$(dirname "$0")/../.."
 entry=third_party/VB6/src/runtime/engine-entry.js

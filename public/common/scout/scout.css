@@ -1,6 +1,6 @@
-/* Scout, the assistant (scout.js, assistant.js): his box on the window, his speech balloon and its choices.
+/* The assistant (assistant.js, spritepet.js): her box on the window, her speech balloon and its choices.
    Chrome colours and the font are the look's settings (common/looks.css), as a tooltip's; the character
-   keeps his own colours in every look. Windows 7 draws his balloon with that look's balloon face,
+   keeps her own colours in every look. Windows 7 draws her balloon with that look's balloon face,
    shadow and tail (looks.css); tooltips take the face and the shadow only. Golden Gate draws both
    with the formatting bar's face, and no tail. Above the document and
    task pane, under menus and dialogs. */

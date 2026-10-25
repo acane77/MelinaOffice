@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 test('cell audit distinguishes a timeout during style access from an unreadable style', () => {
-  const script = fileURLToPath(new URL('../ledger/loss-audit.py', import.meta.url));
+  const script = fileURLToPath(new URL('../matheuse/loss-audit.py', import.meta.url));
   // Raise the real alarm in the reader's style accessor, without waiting for the
   // large-workbook timeout or depending on an openpyxl installation.
   const probe = `

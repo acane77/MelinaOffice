@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- VibeOffice.app's Info.plist (docs/desktop.md, macOS). desktop/macos/build.sh fills in @VERSION@ (y.m.d),
+<!-- Melina Office.app's Info.plist (docs/desktop.md, macOS). desktop/macos/build.sh fills in @VERSION@ (y.m.d),
      @BUILD@ (the commit's UTC time as y.mmdd.HHMM, rising with every commit, as App Store Connect wants) and
      @DISTRIBUTION@ (appstore or direct: host.rs reads it; the signature seals it). -->
 <plist version="1.0">
@@ -8,17 +8,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>VibeOffice</string>
+	<string>Melina Office</string>
 	<key>CFBundleExecutable</key>
-	<string>vibeoffice</string>
+	<string>melinaoffice</string>
 	<key>CFBundleIconFile</key>
 	<string>icon</string>
 	<key>CFBundleIdentifier</key>
-	<string>work.vibeoffice.desktop</string>
+	<string>net.acane.melinaoffice.desktop</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>VibeOffice</string>
+	<string>Melina Office</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -32,7 +32,7 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>VibeOffice.work. Open source under the Apache License 2.0.</string>
+	<string>Melina Office. Open source under the Apache License 2.0.</string>
 	<key>VODistribution</key>
 	<string>@DISTRIBUTION@</string>
 	<!-- The file types the Windows installer registers: listed in Open With, never taking the default from the
@@ -41,7 +41,7 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Quire Document</string>
+			<string>Ecrivaine Document</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -55,7 +55,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Ledger Worksheet</string>
+			<string>Matheuse Worksheet</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -69,7 +69,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Lectern Presentation</string>
+			<string>Oratrice Presentation</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>

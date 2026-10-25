@@ -1,4 +1,4 @@
-//! The installed app's side of the installation on Windows: `vibeoffice.exe -uninstall` (Apps &
+//! The installed app's side of the installation on Windows: `melinaoffice.exe -uninstall` (Apps &
 //! features) and what the user chose in the installer, done at the first start: the taskbar pin request
 //! (Windows wants it from the app itself, in front) and Windows' Default apps page. The installer is
 //! setup/; what both write and remove is in installation.rs.
@@ -128,7 +128,7 @@ fn uninstall() {
     };
     while running_from(&dir) {
         let answer = message(
-            "VibeOffice is open. Close all its windows, then choose Retry.",
+            "Melina Office is open. Close all its windows, then choose Retry.",
             MB_RETRYCANCEL | MB_ICONINFORMATION,
         );
         if answer != IDRETRY {
@@ -163,10 +163,10 @@ fn uninstall() {
 
 /// Uninstall, keeping or deleting the user's data, or None
 fn confirm() -> Option<bool> {
-    let title = HSTRING::from("VibeOffice");
-    let heading = HSTRING::from("Uninstall VibeOffice?");
+    let title = HSTRING::from("Melina Office");
+    let heading = HSTRING::from("Uninstall Melina Office?");
     let text = HSTRING::from("Your documents stay where they are.");
-    let data = HSTRING::from("Also delete VibeOffice's settings, Recent Files list and drafts");
+    let data = HSTRING::from("Also delete Melina Office's settings, Recent Files list and drafts");
     let uninstall = HSTRING::from("Uninstall");
     let buttons = [TASKDIALOG_BUTTON {
         nButtonID: 100,
@@ -201,13 +201,13 @@ fn message(text: &str, style: MESSAGEBOX_STYLE) -> MESSAGEBOX_RESULT {
         MessageBoxW(
             None,
             &HSTRING::from(text),
-            &HSTRING::from("VibeOffice"),
+            &HSTRING::from("Melina Office"),
             style,
         )
     }
 }
 
-/// Whether another VibeOffice process runs from the install folder
+/// Whether another Melina Office process runs from the install folder
 fn running_from(dir: &Path) -> bool {
     let me = std::process::id();
     unsafe {

@@ -1,7 +1,7 @@
 [package]
-name = "vibeoffice-setup"
+name = "melinaoffice-setup"
 version = "0.1.0"
-description = "VibeOffice for Windows: the installer (VibeOfficeSetup.exe), carrying the app built in ../"
+description = "Melina Office for Windows: the installer (melinaoffice-setup.exe), carrying the app built in ../"
 edition = "2021"
 publish = false
 

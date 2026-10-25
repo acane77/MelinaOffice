@@ -135,8 +135,8 @@ test('the service worker caches the published site, a version per page', { timeo
   await a.send('Storage.clearDataForOrigin', { origin: site.origin, storageTypes: 'all' });
   await a.go(site.origin + '/');
   await a.until('!!navigator.serviceWorker.controller', 'the worker to control the page');
-  assert.equal(await a.js(cacheNames), `vibeoffice-clients vibeoffice-${V1}`);
-  assert.equal(await a.js(`caches.open('vibeoffice-${V1}').then((c) => c.keys()).then((k) => k.length)`), count(v1));
+  assert.equal(await a.js(cacheNames), `melinaoffice-clients melinaoffice-${V1}`);
+  assert.equal(await a.js(`caches.open('melinaoffice-${V1}').then((c) => c.keys()).then((k) => k.length)`), count(v1));
   assert.equal(await a.js(`caches.match('${site.origin}/common/ui.css').then((r) => r.headers.get('Content-Type'))`), 'text/css; charset=utf-8');
   const first = await a.js('__voCache');
   assert.ok(first.some((d) => d.state === 'progress' && d.update === false), 'progress on the first install');
@@ -148,11 +148,11 @@ test('the service worker caches the published site, a version per page', { timeo
   site.offline = true;
   await a.go(site.origin + '/');
   assert.equal(await a.js('VO.VERSION'), V1);
-  await a.go(site.origin + '/quire');   // a folder without its slash
-  assert.equal(await a.js('location.pathname'), '/quire/');
-  await a.until('!!(window.L && L.app)', 'Quire offline');
-  await a.go(site.origin + '/quire/?new');   // a query is ignored
-  await a.until('!!(window.L && L.app)', 'Quire ?new offline');
+  await a.go(site.origin + '/ecrivaine');   // a folder without its slash
+  assert.equal(await a.js('location.pathname'), '/ecrivaine/');
+  await a.until('!!(window.L && L.app)', 'Ecrivaine offline');
+  await a.go(site.origin + '/ecrivaine/?new');   // a query is ignored
+  await a.until('!!(window.L && L.app)', 'Ecrivaine ?new offline');
   await a.go(site.origin + '/nowhere/');   // not a page of the site: the Start Center
   assert.equal(await a.js('location.pathname'), '/');
   site.offline = false;
@@ -161,7 +161,7 @@ test('the service worker caches the published site, a version per page', { timeo
   site.dir = v2;
   site.log = [];
   await a.js('navigator.serviceWorker.getRegistration().then((r) => r.update())');
-  await a.until(`caches.keys().then((k) => k.includes('vibeoffice-${V2}') && !!navigator.serviceWorker.controller) && __voCache.some((d) => d.state === 'done' && d.update)`, 'the update');
+  await a.until(`caches.keys().then((k) => k.includes('melinaoffice-${V2}') && !!navigator.serviceWorker.controller) && __voCache.some((d) => d.state === 'done' && d.update)`, 'the update');
   await a.until(`navigator.serviceWorker.getRegistration().then((r) => r.active && !r.waiting && !r.installing)`, 'the new worker to take over');
   assert.ok((await a.js('__voCache')).some((d) => d.state === 'progress' && d.update === true), 'progress says update');
   const fetched = site.log.filter((p) => p !== '/sw.js' && p !== '/common/zip.js');   // the worker's own scripts, compared for the update
@@ -171,7 +171,7 @@ test('the service worker caches the published site, a version per page', { timeo
   await a.send('ServiceWorker.enable');
   await a.send('ServiceWorker.stopAllWorkers');
   assert.equal(await a.js(cssOf), 'v1', 'the open page keeps its version after the worker restarts');
-  assert.equal(await a.js(cacheNames), `vibeoffice-clients vibeoffice-${V1} vibeoffice-${V2}`);
+  assert.equal(await a.js(cacheNames), `melinaoffice-clients melinaoffice-${V1} melinaoffice-${V2}`);
 
   /* a new page gets v2; once the v1 page has gone, its cache goes on the next navigation */
   const b = await open(site.origin + '/');
@@ -185,8 +185,8 @@ test('the service worker caches the published site, a version per page', { timeo
   await a.close();
   tabs.splice(tabs.indexOf(a), 1);
   await b.go(site.origin + '/');
-  await b.until(`caches.keys().then((k) => !k.includes('vibeoffice-${V1}'))`, 'the v1 cache to go');
-  assert.equal(await b.js(cacheNames), `vibeoffice-clients vibeoffice-${V2}`);
+  await b.until(`caches.keys().then((k) => !k.includes('melinaoffice-${V1}'))`, 'the v1 cache to go');
+  assert.equal(await b.js(cacheNames), `melinaoffice-clients melinaoffice-${V2}`);
 
   /* a damaged zip (one byte changed inside a packed file) fails the install: no cache, v2 goes on serving */
   const v3 = stage('v3', V3);
@@ -200,7 +200,7 @@ test('the service worker caches the published site, a version per page', { timeo
   log('the damaged zip:', why);
   assert.match(why, /damaged|invalid|incorrect|decompress|inflate/i, 'the failure says why');
   await b.until(`navigator.serviceWorker.getRegistration().then((r) => !r.installing && !r.waiting)`, 'the failed worker to go');
-  assert.equal(await b.js(cacheNames), `vibeoffice-clients vibeoffice-${V2}`);
+  assert.equal(await b.js(cacheNames), `melinaoffice-clients melinaoffice-${V2}`);
   await b.go(site.origin + '/');
   assert.equal(await b.js('VO.VERSION'), V2);
 });

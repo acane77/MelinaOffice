@@ -1,5 +1,5 @@
 // East Asian fonts (docs/i18n.md, Fonts): the names Japanese, Korean and Chinese Office write are the fonts every table
-// knows by their English names, a run draws its East Asian characters from its East Asian font, and Ledger sizes rows
+// knows by their English names, a run draws its East Asian characters from its East Asian font, and Matheuse sizes rows
 // for a Japanese or Korean Excel's default font:  node --test tests/fonts.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +10,7 @@ import vm from 'node:vm';
 const require = createRequire(import.meta.url);
 globalThis.window = globalThis;
 require('../public/common/core.js');
-require('../public/ledger/js/model.js');
+require('../public/matheuse/js/model.js');
 const L = globalThis.L;
 
 test('localized names are the English fonts', () => {
@@ -186,7 +186,7 @@ test('a Chinese document draws East Asian Width Ambiguous symbols with the East 
   assert.equal(L.chineseDoc(null), false);
 });
 
-test('Ledger: the rows of a Japanese or Korean Excel\'s default font', () => {
+test('Matheuse: the rows of a Japanese or Korean Excel\'s default font', () => {
   assert.equal(L.model.fontRowPt({ name: 'ＭＳ Ｐゴシック', sz: 11 }), 13.5);
   assert.equal(L.model.fontRowPt({ name: '游ゴシック', sz: 11 }), 18.75);
   assert.equal(L.model.fontRowPt({ name: '맑은 고딕', sz: 11 }), 16.5);

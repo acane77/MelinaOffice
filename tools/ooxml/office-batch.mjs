@@ -37,9 +37,9 @@ try {
 
 async function save(c, data) {
   const { opc: K } = L, bytes = Uint8Array.from(atob(data), x => x.charCodeAt(0));
-  const read = async bytes => c.app === 'quire' ? (await L.docx.read(bytes)).doc : c.app === 'ledger' ? L.xlsxRead.read(bytes) : L.pptx.read(bytes);
+  const read = async bytes => c.app === 'ecrivaine' ? (await L.docx.read(bytes)).doc : c.app === 'matheuse' ? L.xlsxRead.read(bytes) : L.pptx.read(bytes);
   let doc = await read(bytes), changed = [];
-  if (c.app === 'quire') {
+  if (c.app === 'ecrivaine') {
     const { D, O, preserve: P } = L;
     L.app.loadDoc(doc, 'Office review', { saved: true });
     if (['numbering-align', 'numbering-copy'].includes(c.edit)) {
@@ -109,7 +109,7 @@ async function save(c, data) {
       D.tx('Link tracked text', () => { D.touch(owner); run.rPr.link = { url: 'https://example.invalid/review' }; });
       changed.push('Added a hyperlink to tracked text');
     } else if (c.edit && c.edit !== 'save') changed = corpusScenario(c.app, doc, c.edit).changed;
-  } else if (c.app === 'ledger' && c.steps) {
+  } else if (c.app === 'matheuse' && c.steps) {
     const O = L.ops;
     for (const step of c.steps) {
       const table = step.table == null ? null : doc.tables[step.table];
@@ -141,7 +141,7 @@ async function save(c, data) {
       } else throw new Error('Unknown review step ' + step.kind);
       changed.push(step);
     }
-  } else if (c.app === 'lectern' && c.steps) {
+  } else if (c.app === 'oratrice' && c.steps) {
     const M = L.model;
     L.pres = doc; L.hist.clear();
     const all = e => e ? [e, ...Array.from(e.children).flatMap(all)] : [];
@@ -203,9 +203,9 @@ async function save(c, data) {
     }
   } else if (c.edit && c.edit !== 'save') changed = corpusScenario(c.app, doc, c.edit).changed;
   const format = c.file.split('.').pop();
-  const blob = await (c.app === 'quire' ? L.docx.write(doc, { format }) : c.app === 'ledger' ? L.xlsxWrite.write(doc, { type: format }) : L.pptx.write(doc, { format }));
+  const blob = await (c.app === 'ecrivaine' ? L.docx.write(doc, { format }) : c.app === 'matheuse' ? L.xlsxWrite.write(doc, { type: format }) : L.pptx.write(doc, { format }));
   const saved = new Uint8Array(await blob.arrayBuffer());
   await read(saved);
   let encoded = ''; for (let i = 0; i < saved.length; i += 32768) encoded += String.fromCharCode(...saved.subarray(i, i + 32768));
-  return { data: btoa(encoded), changed, losses: doc.losses || [], ...(c.app === 'lectern' ? { expectedSlides: doc.slides.length } : {}) };
+  return { data: btoa(encoded), changed, losses: doc.losses || [], ...(c.app === 'oratrice' ? { expectedSlides: doc.slides.length } : {}) };
 }

@@ -252,7 +252,7 @@
   }
 
   async function reportDiagnostics(list, title) {
-    if (L.ui && L.ui.msg) await L.ui.msg(diagnosticText(list), { icon: 'error', title: title || 'VibeOffice Visual Basic', width: 520 });
+    if (L.ui && L.ui.msg) await L.ui.msg(diagnosticText(list), { icon: 'error', title: title || 'Melina Office Visual Basic', width: 520 });
   }
 
   function scheduleCheck() {
@@ -670,7 +670,7 @@
   function projectData() {
     return {
       schema: 1,
-      kind: 'vibeoffice.vb6.ide',
+      kind: 'melinaoffice.vb6.ide',
       module: 'Module1',
       code: editor ? editor.getValue() : code,
       breakpoints: breakpoints.map((bp) => ({ line: bp.line, condition: bp.condition || '', enabled: bp.enabled !== false })),
@@ -704,7 +704,7 @@
   function sessionData() {
     return {
       schema: 1,
-      kind: 'vibeoffice.vb6.ide',
+      kind: 'melinaoffice.vb6.ide',
       code: editor ? editor.getValue() : code,
       breakpoints: breakpoints.map((bp) => ({ line: bp.line, condition: bp.condition || '', enabled: bp.enabled !== false })),
       output: output ? output.value : outputText,
@@ -713,7 +713,7 @@
 
   function loadSaved() {
     const data = L.store ? L.store.get(SESSION, null) : null;
-    if (!data || data.kind !== 'vibeoffice.vb6.ide' || data.schema !== 1) {
+    if (!data || data.kind !== 'melinaoffice.vb6.ide' || data.schema !== 1) {
       code = BLANK_CODE;
       breakpoints = [];
       outputText = '';
@@ -762,7 +762,7 @@
       appendOutput(L.t('This file is not a Visual Basic project.'));
       return;
     }
-    if (!data || data.kind !== 'vibeoffice.vb6.ide' || data.schema !== 1) {
+    if (!data || data.kind !== 'melinaoffice.vb6.ide' || data.schema !== 1) {
       appendOutput(L.t('This file is not a Visual Basic project.'));
       return;
     }
@@ -1548,7 +1548,7 @@
     loadEditorShare();
     const built = buildBody();
     L.ui.dialog({
-      title: 'VibeOffice Visual Basic',
+      title: 'Melina Office Visual Basic',
       body: built.root,
       width: 820,
       buttons: [],

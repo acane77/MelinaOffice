@@ -11,11 +11,11 @@ export async function corpus(app, argv = process.argv.slice(2)) {
   const flag = name => { const i = args.indexOf(name); return i >= 0 && !!args.splice(i, 1); };
   const save = opt('--save', null), limit = +opt('--limit', Infinity), timeout = +opt('--timeout', 120000);
   const edits = flag('--edit'), resume = flag('--resume');
-  const editScenarios = { quire: 'text,format,geometry,duplicate,delete-object', ledger: 'text,format,geometry,duplicate,delete-object,insert-row,delete-row,insert-column,delete-column,rename-sheet,delete-sheet', lectern: 'text,format,geometry,duplicate,delete-object,insert-slide,delete-slide' };
+  const editScenarios = { ecrivaine: 'text,format,geometry,duplicate,delete-object', matheuse: 'text,format,geometry,duplicate,delete-object,insert-row,delete-row,insert-column,delete-column,rename-sheet,delete-sheet', oratrice: 'text,format,geometry,duplicate,delete-object,insert-slide,delete-slide' };
   const scenarios = opt('--scenarios', edits ? editScenarios[app] : 'save,repeat').split(',');
   const [source, output] = args;
   if (!source || !output || args.length !== 2) throw new Error('Usage: corpus SOURCE RESULTS.jsonl [--save DIR] [--edit | --scenarios save,repeat,text,...] [--limit N] [--resume]');
-  const ext = app === 'quire' ? /\.(docx|docm|dotx|dotm)$/i : app === 'ledger' ? /\.(xlsx|xlsm|xltx|xltm)$/i : /\.(pptx|pptm|ppsx|ppsm|potx|potm)$/i;
+  const ext = app === 'ecrivaine' ? /\.(docx|docm|dotx|dotm)$/i : app === 'matheuse' ? /\.(xlsx|xlsm|xltx|xltm)$/i : /\.(pptx|pptm|ppsx|ppsm|potx|potm)$/i;
   const files = (fs.statSync(source).isDirectory() ? fs.readdirSync(source).filter(f => ext.test(f)).sort().map(f => path.join(source, f)) : ext.test(source) ? [source] : fs.readFileSync(source, 'utf8').split('\n').filter(Boolean).map(f => path.resolve(path.dirname(source), f))).slice(0, limit);
   const done = new Set();
   if (resume && fs.existsSync(output)) for (const line of fs.readFileSync(output, 'utf8').split('\n')) { try { const r = JSON.parse(line); done.add(r.file + ':' + r.sha256 + ':' + r.scenario); } catch { /* incomplete line is retried */ } }
@@ -69,22 +69,22 @@ async function run(o) {
   const L = window.L, result = { status: 'ok' }, artifacts = {};
   const bytes = Uint8Array.from(atob(o.data), c => c.charCodeAt(0));
   const format = o.name.split('.').pop().toLowerCase();
-  const read = async data => o.app === 'quire' ? (await L.docx.read(data)).doc : o.app === 'ledger' ? L.xlsxRead.read(data) : L.pptx.read(data);
+  const read = async data => o.app === 'ecrivaine' ? (await L.docx.read(data)).doc : o.app === 'matheuse' ? L.xlsxRead.read(data) : L.pptx.read(data);
   const write = doc => {
     const type = doc.ooxmlFormat || format;
-    return o.app === 'quire' ? L.docx.write(doc, { format: type }) : o.app === 'ledger' ? L.xlsxWrite.write(doc, { type }) : L.pptx.write(doc, { format: type });
+    return o.app === 'ecrivaine' ? L.docx.write(doc, { format: type }) : o.app === 'matheuse' ? L.xlsxWrite.write(doc, { type }) : L.pptx.write(doc, { format: type });
   };
   const encode = async blob => { const b = new Uint8Array(await blob.arrayBuffer()); let s = ''; for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode(...b.subarray(i, i + 32768)); return btoa(s); };
   const save = async (kind, doc) => { const blob = await write(doc); if (o.save) artifacts[kind] = await encode(blob); return blob; };
   try {
     let doc = await read(bytes);
-    if (o.app === 'lectern' && doc.pkg) {
+    if (o.app === 'oratrice' && doc.pkg) {
       const list = Array.from(doc.pkg.xml(doc.pkg.main).children).find(e => e.localName === 'sldIdLst');
       const original = list ? Array.from(list.children).filter(e => e.localName === 'sldId').length : 0;
       result.slides = { original, opened: doc.slides.length };
       if (original !== doc.slides.length) throw new Error(`Opened ${doc.slides.length} of ${original} source slides`);
     }
-    if (o.app === 'quire') L.D.doc = doc; else if (o.app === 'lectern') { L.pres = doc; L.hist.clear(); }
+    if (o.app === 'ecrivaine') L.D.doc = doc; else if (o.app === 'oratrice') { L.pres = doc; L.hist.clear(); }
     const operation = corpusScenario(o.app, doc, o.scenario);
     result.changed = operation.changed;
     if (operation.expectedSlides !== undefined) result.expectedSlides = operation.expectedSlides;
@@ -113,7 +113,7 @@ async function run(o) {
       if (o.save) artifacts.draft = await encode(draft);
       await __corpusHooks.open(new File([draft], result.draftName), { draft: true, name: info.name, saved: true, lossState: info.lossState });
       const recovered = __corpusHooks.current();
-      doc = o.app === 'ledger' ? recovered.wb : recovered;
+      doc = o.app === 'matheuse' ? recovered.wb : recovered;
       await save('recovered', doc);
     }
     if (doc.losses) result.losses = doc.losses;

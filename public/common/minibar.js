@@ -1,5 +1,5 @@
 /* The formatting bar that appears after a text selection (Office's mini toolbar).
-   Quire and Lectern call mount() once with the buttons, then show() when a range is made.
+   Ecrivaine and Oratrice call mount() once with the buttons, then show() when a range is made.
    It sits above and to the right of the pointer, inside the window, drawn above every window and under every menu. Opacity starts at 0.7.
    On the bar, or on a menu it opened, it is fully opaque. Elsewhere it follows the distance
    from the point where it opened: 0.7 at that point, 0 at 50px, and once it reaches 0 it

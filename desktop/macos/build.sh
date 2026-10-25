@@ -1,14 +1,14 @@
 #!/bin/sh
 # The macOS release, built on a Mac (Xcode's command line tools; Rust with aarch64-apple-darwin and
-# x86_64-apple-darwin): one universal binary, bundled as VibeOffice.app twice over, as the identities in the
+# x86_64-apple-darwin): one universal binary, bundled as Melina Office.app twice over, as the identities in the
 # keychain allow (docs/desktop.md, macOS):
 #   - none: the app signed ad hoc, for trying it on this Mac and the smoke run in CI;
-#   - Developer ID Application: VibeOffice-macOS.dmg, signed, notarized and stapled
+#   - Developer ID Application: MelinaOffice-macOS.dmg, signed, notarized and stapled
 #     (needs ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_PATH, an App Store Connect API key, for notarytool);
-#   - Apple Distribution and Mac Installer Distribution: VibeOffice-macOS-AppStore.pkg for App Store Connect
+#   - Apple Distribution and Mac Installer Distribution: MelinaOffice-macOS-AppStore.pkg for App Store Connect
 #     (needs MACOS_PROVISION_PROFILE, the profile's path; APPLE_TEAM_ID if the identity's name doesn't carry it).
 # The identities are found by name; MACOS_DEVELOPER_ID, MACOS_APPSTORE_ID and MACOS_INSTALLER_ID choose others.
-# Output: desktop/target/dist/ (VibeOffice.app is the direct edition: ad hoc, or Developer ID once signed)
+# Output: desktop/target/dist/ (Melina Office.app is the direct edition: ad hoc, or Developer ID once signed)
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -24,15 +24,15 @@ for target in aarch64-apple-darwin x86_64-apple-darwin; do
 done
 rm -rf "$DIST"
 mkdir -p "$DIST"
-lipo -create -output target/vibeoffice-universal \
-  target/aarch64-apple-darwin/release/vibeoffice target/x86_64-apple-darwin/release/vibeoffice
+lipo -create -output target/melinaoffice-universal \
+  target/aarch64-apple-darwin/release/melinaoffice target/x86_64-apple-darwin/release/melinaoffice
 
-# bundle <folder> <appstore|direct>: VibeOffice.app in it
+# bundle <folder> <appstore|direct>: Melina Office.app in it
 bundle() {
-  app="$1/VibeOffice.app"
+  app="$1/Melina Office.app"
   rm -rf "$app"
   mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-  cp target/vibeoffice-universal "$app/Contents/MacOS/vibeoffice"
+  cp target/melinaoffice-universal "$app/Contents/MacOS/melinaoffice"
   cp icons/icon.icns "$app/Contents/Resources/icon.icns"
   sed -e "s/@VERSION@/$SHORT/" -e "s/@BUILD@/$BUILD/" -e "s/@DISTRIBUTION@/$2/" macos/Info.plist > "$app/Contents/Info.plist"
   plutil -lint "$app/Contents/Info.plist" > /dev/null
@@ -53,20 +53,20 @@ INSTALLER_ID=${MACOS_INSTALLER_ID:-$(identity 'Mac Installer Distribution: ' '3r
 
 # The direct edition: the DMG
 bundle "$DIST" direct
-APP="$DIST/VibeOffice.app"
+APP="$DIST/Melina Office.app"
 if [ -z "$DEVELOPER_ID" ]; then
-  echo "No Developer ID Application identity: VibeOffice.app is signed ad hoc, no DMG" >&2
+  echo "No Developer ID Application identity: Melina Office.app is signed ad hoc, no DMG" >&2
   codesign --force --sign - --entitlements macos/direct.entitlements "$APP"
 else
   codesign --force --timestamp --options runtime --entitlements macos/direct.entitlements --sign "$DEVELOPER_ID" "$APP"
   codesign --verify --strict --verbose=2 "$APP"
-  DMG="$DIST/VibeOffice-macOS.dmg"   # one name for every version, as the Windows zip
+  DMG="$DIST/MelinaOffice-macOS.dmg"   # one name for every version, as the Windows zip
   stage=$(mktemp -d)
   cp -R "$APP" "$stage/"
   ln -s /Applications "$stage/Applications"
   # hdiutil sometimes finds the new image busy on CI machines: try again
   n=0
-  until hdiutil create -volname VibeOffice -srcfolder "$stage" -fs HFS+ -format UDZO -ov "$DMG"; do
+  until hdiutil create -volname "Melina Office" -srcfolder "$stage" -fs HFS+ -format UDZO -ov "$DMG"; do
     n=$((n + 1))
     [ $n -lt 5 ] || exit 1
     sleep 5
@@ -93,12 +93,12 @@ if [ -n "$APPSTORE_ID" ] && [ -n "$INSTALLER_ID" ] && [ -n "${MACOS_PROVISION_PR
   TEAM=${APPLE_TEAM_ID:-$(echo "$APPSTORE_ID" | sed -n 's/.*(\([A-Z0-9]*\))$/\1/p')}
   [ -n "$TEAM" ] || { echo "No team ID: set APPLE_TEAM_ID" >&2; exit 1; }
   bundle "$DIST/appstore" appstore
-  STORE_APP="$DIST/appstore/VibeOffice.app"
+  STORE_APP="$DIST/appstore/Melina Office.app"
   cp "$MACOS_PROVISION_PROFILE" "$STORE_APP/Contents/embedded.provisionprofile"
   sed "s/@TEAM@/$TEAM/g" macos/appstore.entitlements > target/appstore.entitlements
   codesign --force --timestamp --entitlements target/appstore.entitlements --sign "$APPSTORE_ID" "$STORE_APP"
   codesign --verify --strict --verbose=2 "$STORE_APP"
-  productbuild --component "$STORE_APP" /Applications --sign "$INSTALLER_ID" "$DIST/VibeOffice-macOS-AppStore.pkg"
+  productbuild --component "$STORE_APP" /Applications --sign "$INSTALLER_ID" "$DIST/MelinaOffice-macOS-AppStore.pkg"
 else
   echo "No App Store identities or provisioning profile: no App Store package" >&2
 fi

@@ -226,7 +226,7 @@ class Package:
             for el, path, branches in walk(root):
                 ns, tag = split(el.tag)
                 parent = parents.get(el)
-                if ns in A and tag == 'graphicData' and el.get('uri') == 'urn:vibeoffice:test:unread':
+                if ns in A and tag == 'graphicData' and el.get('uri') == 'https://acane.net/melinaoffice/test/unread':
                     # Batch 7: our unguarded synthetic frame repairs in Office,
                     # even in its original fixture. Do not reject unfamiliar
                     # real-world graphic types on this limited evidence.
@@ -234,7 +234,7 @@ class Package:
                     while choice is not None and choice.tag != '{' + MC + '}Choice':
                         choice = parents.get(choice)
                     ac = parents.get(choice)
-                    guarded = (choice is not None and '{urn:vibeoffice:test:unread}' in choice.get('Requires', '').split()
+                    guarded = (choice is not None and '{https://acane.net/melinaoffice/test/unread}' in choice.get('Requires', '').split()
                                and ac is not None and ac.tag == '{' + MC + '}AlternateContent'
                                and ac.find('{' + MC + '}Fallback') is not None)
                     if not guarded:

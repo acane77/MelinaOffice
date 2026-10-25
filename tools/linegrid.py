@@ -1,4 +1,4 @@
-"""Line heights on a document line grid, as Word draws them (issue 11; Quire's R.gridLine in public/quire/js/render.js).
+"""Line heights on a document line grid, as Word draws them (issue 11; Ecrivaine's R.gridLine in public/ecrivaine/js/render.js).
 
   python3 tools/linegrid.py make [tmp/linegrid/linegrid.docx]   a document with one paragraph per case: English text in
       Times New Roman at sizes either side of the grid pitch, each at several line spacings, on a 15.6pt grid and an
@@ -6,7 +6,7 @@
   python3 tools/linegrid.py fonts [tmp/linegrid/fonts.docx]      single spaced paragraphs in each East Asian font (and
       three Latin ones to compare), at 10.5 and 21pt, no grid: after Word has saved it as PDF,
   python3 tools/linegrid.py read-fonts fonts.pdf [OUT.json]       gives each font's line height as a multiple of its size
-      (Quire's R.lineFactor; check with pdffonts which fonts Word had)
+      (Ecrivaine's R.lineFactor; check with pdffonts which fonts Word had)
   python3 tools/linegrid.py read linegrid.pdf [OUT.json]          after Word has saved it as PDF: the distance between
       the lines of each case, in points, and the line each page starts with (tests/from-issues/11/word.json, from
       Word for Mac; the document is tests/from-issues/11/linegrid.docx; checked by the tests there)
@@ -92,7 +92,7 @@ FONT_TEXT = {'en': TEXT['en'], 'zh': TEXT['zh'], 'ja': 'この段落の行と行
 
 
 def make_fonts(out):
-    """single spacing, no grid: each font's own line height (Quire's R.lineFactor, common/core.js), at two sizes"""
+    """single spacing, no grid: each font's own line height (Ecrivaine's R.lineFactor, common/core.js), at two sizes"""
     paras = []
     for font, script in FONTS:
         for sz in (10.5, 21):

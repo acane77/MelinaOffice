@@ -9,13 +9,13 @@ fs.mkdirSync(output, { recursive: true });
 const stop = await ensureServer(), results = [];
 const pause = () => new Promise(resolve => setTimeout(resolve, 150));
 try {
-  for (const [name, app, fn] of [['fill', 'ledger', fill], ['fields', 'quire', fields], ['marks', 'quire', marks], ['breaks', 'quire', breaks]]) {
+  for (const [name, app, fn] of [['fill', 'matheuse', fill], ['fields', 'ecrivaine', fields], ['marks', 'ecrivaine', marks], ['breaks', 'ecrivaine', breaks]]) {
     if (filter && filter !== name) continue;
     const page = await openPage(app, { persistence: false });
     try {
       await page.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
       await page.evaluate('VO.opened = () => {}; document.fonts.ready');
-      if (app === 'quire') await page.evaluate('L.layout.view = "print"; L.layout.setZoom(1)');
+      if (app === 'ecrivaine') await page.evaluate('L.layout.view = "print"; L.layout.setZoom(1)');
       await pause();
       if (name === 'fill') {
         for (const direction of ['down', 'right']) {

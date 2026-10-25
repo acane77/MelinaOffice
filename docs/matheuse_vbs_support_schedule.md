@@ -1,0 +1,95 @@
+# Matheuse VB support schedule
+
+**Status:** P1, P2, P3 M1–M5, P4M1, P4M2, P5, document macros and P6 are implemented. P1 is `public/matheuse/js/dom-ir.js` and [matheuse_dom_ir_specifications.md](matheuse_dom_ir_specifications.md). P2 is `public/matheuse/js/vb-host.js` and the headless entry `third_party/VB6/src/runtime/engine-entry.js`. P3 is [matheuse_dom_ir_porting_milestones.md](matheuse_dom_ir_porting_milestones.md). P4M1 is `evalVB6`. P4M2 is `runVB6`. P5 is Help ▸ Matheuse DOM Console. P6 is [ecrivaine_vbs_form.md](ecrivaine_vbs_form.md): `public/common/vb-forms.js`, drawn with `ui.dialog`.
+
+**Goal.** Run VB6 source against the open workbook. Document calls go through a JavaScript DOM IR into the object model in `public/matheuse/js/dom.js`. A later VBS Form uses the same VB6 engine; its window is a host slot left empty.
+
+The language is the VB6 engine in `third_party/VB6` (MIT). Call shape matches the Excel VBA surface in [matheuse_dom_api_specifications.md](matheuse_dom_api_specifications.md). This is not a separate VBScript interpreter, and it is not a WebAssembly port of that engine.
+
+## Decisions
+
+- **Engine.** `VirtualMachine` from the fork, constructed directly. User VB is compiled to that VM's instructions. It is not passed to JavaScript `eval`. The built engine bundle is gitignored (`public/matheuse/vendor/vb6/`). The submodule stays the source. `tools/vb6/build-engine.mjs` writes the Ecrivaine, Oratrice and Matheuse bundles. Ecrivaine and Oratrice paths stay where they are.
+- **Embed.** Matheuse does not mount `ApplicationHost`. Matheuse already has windows and a grid.
+- **IR.** A handle protocol. The executor is a Matheuse copy of the Oratrice executor, plus the `array` value and the `both` member kind. It is not moved into `public/common/`.
+- **Gaps.** Only `G-ENGINE` and `G-HOST`. There is no story index and no character index. `Creator` is `G-ENGINE` on every object. Objects listed with no members return that object's gap. The Excel reference is not mined for a longer member list.
+- **Arrays.** A block `Value` or `Formula` is kind `array`. JavaScript stays 0-based. VB uses a 1-based `VBArray`. The engine exports `VBArray`. One cell stays a scalar.
+- **One host, two VMs.** `evalVB6` and the DOM Console share one Immediate VM. `runVB6` compiles one standard module onto a second VM on that host and the same IR, then stops that VM. The Immediate VM and its locals stay. The two VMs do not run at once. Nested `eval` or `run` while a script is inside an IR call rejects with "A VB script is running".
+- **Visual Basic IDE.** View ▸ Visual Basic IDE (`public/common/vb-ide.js`) debugs one standard module, Module1, on a VM created by `debugBegin`. Start Run does not install breakpoints. The window calls the virtual machine; it does not mount VB6 Studio, and it is not P6. Step Into in Macros stays disabled. Completion (`public/common/vb-complete.js`) lists names the caret's procedure can see, and the procedures and modules this virtual machine actually runs. Keywords are listed anywhere except after a dot. A string, a comment or a date literal does not.
+- **Document macros.** A third VM on that host, separate from Immediate and from `runVB6`. Tools ▸ Macros reads and writes VB6 source. Current Document is the custom XML part `https://acane.net/melinaoffice/macros` on the workbook. All templates and documents is `melinaoffice.matheuse.allMacros` in this browser, not in the file. The modules stay loaded so they can call each other. Run Script from the console is still `runVB6` and does not see them. `vbaProject.bin` is not listed or run. `Application.Run` is `G-HOST`.
+- **Two surfaces.** Document objects are Automation adapters whose `invoke` emits IR. Form controls are the engine's `__control` objects, created by `host.createForm` when a form project is loaded. Controls are not IR handles.
+
+## Layers
+
+```text
+DOM Console / evalVB6
+        → VirtualMachine (third_party/VB6)
+        → MatheuseVbHost
+              automation  → DOM IR handles → public/matheuse/js/dom.js → workbook operations
+              createForm  → public/common/vb-forms.js, drawn with ui.dialog
+```
+
+`Application`, `ActiveWorkbook`, `ThisWorkbook`, `Workbooks`, `ActiveSheet`, `ActiveCell`, `Selection`, `WorksheetFunction` and the `xl*` / `mso*` constants are injected as the standard module `MatheuseDOM` on every Matheuse VB project. In the console, `ThisWorkbook` is the active workbook.
+
+## Host slots
+
+| Slot | Now | P6 |
+|---|---|---|
+| `automation` | Workbook factory. `invoke` only emits IR | Same factory |
+| `print`, `error` | Console and `evalVB6`. `Debug.Print` uses the print sink | Same sink |
+| `createForm` | Absent until `loadProject` | A Melina Office dialog (`public/common/vb-forms.js`) |
+| `beginModal`, `msgBox`, `inputBox` | Absent until `loadProject` | Suite dialogs. Other VB forms are marked inert |
+| `openFile`, `saveFile` | Absent | Still null |
+| `loadProject` | A method on the host. Slots stay null until it runs | Compiles a form project and calls `start()` |
+
+The engine `Clipboard` is not connected. Copy and paste of cells stay on `Range` through the IR. The VM's own `Err`, `Debug` and `Clipboard` stay in place.
+
+## Sessions
+
+- **Immediate.** `prepareImmediateContext`. No `Sub Main`. The debugger evaluation cap applies. The same frame is reused. A `Sub` typed in the console does not become a project procedure. A line ending in `_` continues. An unfinished `Sub`, `Function`, `If` or `With` stays open.
+- **Running.** `runVB6` calls `Sub Main` or a named public procedure on a second VM, then stops it. A missing procedure is `VBError` 35. The instruction budget is the engine default.
+
+## Phases
+
+### P1. JavaScript DOM IR
+
+`public/matheuse/js/dom-ir.js`. `get`, `set`, `call` and `item`. Results are a scalar, a handle, nothing, empty, an array, or an error. Implemented members call `dom.js`. Gap members return the inventory's code.
+
+### P2. VB6 engine and the form placeholder
+
+Headless bundle `public/matheuse/vendor/vb6/vb6-engine.js`, gitignored. `MatheuseVbHost`. Form slots stay null. No `ApplicationHost`.
+
+### P3. M1–M5
+
+The milestones in [matheuse_dom_ir_porting_milestones.md](matheuse_dom_ir_porting_milestones.md), all in `public/matheuse/js/dom.js`.
+
+### P4. evalVB6 and runVB6
+
+`window.evalVB6` and `window.runVB6`, also `L.evalVB6` and `L.runVB6`. `?` and `Print` return a value. Any other Immediate line returns undefined.
+
+### P5. DOM Console
+
+Help ▸ Matheuse DOM Console, and the same command on the Paper 2016 ribbon File menu. The script editor defaults to Visual Basic 6. Run Script runs `runVB6`. Debug.Print is written to the Output box when the statement runs, so the line is visible while a message box is still open. An empty buffer opens on the sample in `tests/matheuse/vb-playground.bas`. The page is generated by `tools/matheuse/build/make.py`.
+
+### Document macros
+
+`public/matheuse/js/macros.js` and the shared window in `public/common/macros.js`. The command first shows Notice on Macros in Matheuse. OK opens the window. Current Document and All templates and documents are the two lists. `vbaProject.bin` stays unread.
+
+### P6. Forms
+
+Implemented, shared with Ecrivaine and Oratrice. [ecrivaine_vbs_form.md](ecrivaine_vbs_form.md). View ▸ Run Form opens a `.frm`. The window is `ui.dialog`. `MsgBox` and `InputBox` use the suite dialogs. `BrowserForm` is not loaded. `openFile` and `saveFile` stay null.
+
+## Files
+
+| File | Role |
+|---|---|
+| `public/matheuse/js/dom.js` | The object model |
+| `public/matheuse/js/dom-ir.js` | The handle protocol |
+| `public/matheuse/js/vb-host.js` | `MatheuseVbHost`, `evalVB6`, `runVB6` |
+| `public/matheuse/js/dom-console.js` | Help ▸ Matheuse DOM Console |
+| `public/matheuse/vendor/vb6/vb6-engine.js` | Gitignored bundle |
+| `tests/matheuse/vb-playground.bas` | The sample `Sub Main` |
+| `tests/matheuse/dom.test.js`, `tests/matheuse/vb-playground.test.js` | The object model, the IR and the sample |
+
+## Out of scope
+
+Moving the executor into `public/common/`. WebAssembly. Mounting VB6 Studio. Rewriting workbook operations to fake unlisted members. Running `vbaProject.bin`. Translating UI strings. Ecrivaine and Oratrice hosts and bundles stay where they are.

@@ -1,4 +1,4 @@
-/* VibeOffice — lossless Open Packaging Conventions carry.
+/* Melina Office — lossless Open Packaging Conventions carry.
  * Immutable source packages stay outside models/history. Models hold JSON fragments
  * and source identities; writers own reservations, graph traversal and loss reports.
  * Requires common/xml.js; works in Node without a browser DOM.
@@ -520,7 +520,7 @@
 
   // App-owned exceptions are measured on the assembled output, not guessed at
   // open time. This also covers a fragment that was kept by one path but
-  // converted by another. Opaque parts already have their own carry/drop ledger.
+  // converted by another. Opaque parts already have their own carry/drop matheuse.
   K.reportFeatures = function (writer, { accepts, classify, labels }) {
     if (!writer.pkg) return;
     const count = root => {

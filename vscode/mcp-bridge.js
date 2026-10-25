@@ -15,7 +15,7 @@ function createBridge(handler) {
       res.end();
       return;
     }
-    if (req.headers['x-vibeoffice-token'] !== token) {
+    if (req.headers['x-melinaoffice-token'] !== token) {
       res.writeHead(403);
       res.end();
       return;

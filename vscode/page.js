@@ -31,7 +31,7 @@ function renderPage(opts) {
   }).replace(/</g, '\\u003c');
   /* lang.js reads localStorage before the first paint; prime it from the extension's copy.
      The lang field also changes this HTML, which is what makes VS Code load the page again. */
-  const prime = lang ? `try{localStorage.setItem('vibeoffice.lang',${JSON.stringify(lang)})}catch(e){}` : '';
+  const prime = lang ? `try{localStorage.setItem('melinaoffice.lang',${JSON.stringify(lang)})}catch(e){}` : '';
   const inject = `<meta http-equiv="Content-Security-Policy" content="${attr(csp)}">` +
     `<base href="${attr(base)}">` +
     `<script>window.__VO_HOST__=${host};window.__VO_VSCODE__=acquireVsCodeApi();${prime}</script>`;
@@ -42,7 +42,7 @@ function renderPage(opts) {
 }
 
 function missingPage(message) {
-  const text = String(message || 'VibeOffice could not find its pages.');
+  const text = String(message || 'Melina Office could not find its pages.');
   return '<!doctype html><html><head><meta charset="utf-8"></head><body><p>' +
     text.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</p></body></html>';
 }

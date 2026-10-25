@@ -15,6 +15,6 @@ node_modules
 !/.github
 /refs
 /todos
-/public/quire/vendor/vb6/
-/public/lectern/vendor/vb6/
-/public/ledger/vendor/vb6/
+/public/ecrivaine/vendor/vb6/
+/public/oratrice/vendor/vb6/
+/public/matheuse/vendor/vb6/

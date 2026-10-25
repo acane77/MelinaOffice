@@ -1,4 +1,4 @@
-/** Headless bundle entry for VibeOffice. Re-exports the engine and the
+/** Headless bundle entry for Melina Office. Re-exports the engine and the
  *  declaration scan the editor uses for completion. Not ApplicationHost. */
 import { compileProject, VirtualMachine, AutomationRegistry, describe, unbox, NOTHING, MISSING, VBError, VBArray } from '../../third_party/VB6/src/runtime/engine-entry.js';
 import { scanDeclarations } from '../../third_party/VB6/src/language/declaration-index.js';

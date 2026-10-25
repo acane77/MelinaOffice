@@ -134,7 +134,7 @@ function load() {
   };
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
-  sandbox.L = { APP_ID: 'quire', APP_NAME: 'Quire', APP: 'Quire', t: (s) => s };
+  sandbox.L = { APP_ID: 'ecrivaine', APP_NAME: 'Ecrivaine', APP: 'Ecrivaine', t: (s) => s };
   vm.createContext(sandbox);
   for (const file of ['public/common/core.js', 'public/common/ui.js', 'public/common/search.js', 'public/common/ribbon.js']) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), sandbox, { filename: file });
@@ -172,7 +172,7 @@ test('a collapsed ribbon shows a new contextual tab without opening its panel', 
       ] },
     ],
   });
-  localStorage.setItem('quire.ribbonCollapsed', 'true');
+  localStorage.setItem('ecrivaine.ribbonCollapsed', 'true');
   L.ribbonUI.init();
   const bar = ribbon();
   assert.equal(bar.classList.contains('collapsed'), true);

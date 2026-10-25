@@ -1,4 +1,4 @@
-Offline proofing word lists and thesaurus (Quire, Ledger)
+Offline proofing word lists and thesaurus (Ecrivaine, Matheuse)
 ==========================================================
 
 en_US.words and en_GB.words are SCOWL 2020.12.07's own word lists at size 60, accents stripped

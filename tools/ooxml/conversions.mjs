@@ -9,11 +9,11 @@ if (!out) throw Error('Usage: conversions.mjs OUTPUT_DIR');
 const filter = new RegExp(process.argv[3] || '');
 const root = process.env.VO_CORPORA || path.join(os.homedir(), 'corpora');
 const cases = [
-  ['quire', 'word', 'openxml-sdk__8b27091d4e1b__smartTag Nesting.docx', 'wrappers'],
-  ['quire', 'word', 'openxml-sdk__31493658a65a__chart.docx', 'chart'],
-  ['ledger', 'excel', 'poi__92205f46e8cd__WithChart.xlsx', 'chart'],
-  ['lectern', 'powerpoint', 'poi__e162cc2c2bf0__bar-chart.pptx', 'chart'],
-  ['lectern', 'powerpoint', 'libreoffice__07eb8b76b2cf__master-slides.pptx', 'notes'],
+  ['ecrivaine', 'word', 'openxml-sdk__8b27091d4e1b__smartTag Nesting.docx', 'wrappers'],
+  ['ecrivaine', 'word', 'openxml-sdk__31493658a65a__chart.docx', 'chart'],
+  ['matheuse', 'excel', 'poi__92205f46e8cd__WithChart.xlsx', 'chart'],
+  ['oratrice', 'powerpoint', 'poi__e162cc2c2bf0__bar-chart.pptx', 'chart'],
+  ['oratrice', 'powerpoint', 'libreoffice__07eb8b76b2cf__master-slides.pptx', 'notes'],
 ];
 fs.mkdirSync(out, { recursive: true });
 const resultPath = path.join(out, 'results.jsonl');
@@ -42,8 +42,8 @@ if (rows.some(r => r.status !== 'ok')) process.exitCode = 1;
 
 async function run(o) {
   const bytes = Uint8Array.from(atob(o.data), c => c.charCodeAt(0));
-  const doc = o.app === 'quire' ? (await L.docx.read(bytes)).doc : o.app === 'ledger' ? await L.xlsxRead.read(bytes) : await L.pptx.read(bytes);
-  const write = () => o.app === 'quire' ? L.docx.write(doc) : o.app === 'ledger' ? L.xlsxWrite.write(doc) : L.pptx.write(doc);
+  const doc = o.app === 'ecrivaine' ? (await L.docx.read(bytes)).doc : o.app === 'matheuse' ? await L.xlsxRead.read(bytes) : await L.pptx.read(bytes);
+  const write = () => o.app === 'ecrivaine' ? L.docx.write(doc) : o.app === 'matheuse' ? L.xlsxWrite.write(doc) : L.pptx.write(doc);
   const check = (v, message) => { if (!v) throw Error(message); }, artifacts = {};
   const save = async state => {
     const blob = await write(), data = new Uint8Array(await blob.arrayBuffer());
@@ -57,9 +57,9 @@ async function run(o) {
     const value = slide.notes; slide.notes += '\nEDITED'; restore = () => { slide.notes = value; };
   } else {
     let target, field;
-    if (o.app === 'quire') {
+    if (o.app === 'ecrivaine') {
       L.D.walk(doc.main, p => { if (p.t === 'p' && !target) target = p.runs.find(r => r.t === 'chart' && r.src); }); field = 'dirtyChart';
-    } else if (o.app === 'ledger') { target = doc.sheets.flatMap(s => s.drawings).find(d => d.kind === 'chart')?.chart; field = 'dirty'; }
+    } else if (o.app === 'matheuse') { target = doc.sheets.flatMap(s => s.drawings).find(d => d.kind === 'chart')?.chart; field = 'dirty'; }
     else { for (const slide of doc.slides) L.model.walk(slide.shapes, s => { if (!target && s.chart?.srcId) target = s.chart; return true; }); field = 'edited'; }
     check(target, 'Missing imported chart'); const value = target[field]; target[field] = true;
     restore = () => { if (value === undefined) delete target[field]; else target[field] = value; };

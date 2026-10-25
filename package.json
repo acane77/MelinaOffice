@@ -1,9 +1,9 @@
 {
-  "name": "vibeoffice",
-  "displayName": "VibeOffice",
+  "name": "melinaoffice",
+  "displayName": "Melina Office",
   "description": "Open and edit Word, Excel and PowerPoint files inside VS Code and code-server.",
   "version": "1.1.0",
-  "publisher": "vibeoffice",
+  "publisher": "acane",
   "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.75.0"
@@ -12,46 +12,46 @@
   "main": "./vscode/extension.js",
   "extensionKind": ["workspace"],
   "activationEvents": [
-    "onCustomEditor:vibeoffice.quire",
-    "onCustomEditor:vibeoffice.ledger",
-    "onCustomEditor:vibeoffice.lectern",
-    "onCommand:vibeoffice.open",
-    "onCommand:vibeoffice.newDocx",
-    "onCommand:vibeoffice.newXlsx",
-    "onCommand:vibeoffice.newPptx"
+    "onCustomEditor:melinaoffice.ecrivaine",
+    "onCustomEditor:melinaoffice.matheuse",
+    "onCustomEditor:melinaoffice.oratrice",
+    "onCommand:melinaoffice.open",
+    "onCommand:melinaoffice.newDocx",
+    "onCommand:melinaoffice.newXlsx",
+    "onCommand:melinaoffice.newPptx"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "vibeoffice.open",
-        "title": "Open in VibeOffice",
-        "category": "VibeOffice"
+        "command": "melinaoffice.open",
+        "title": "Open in Melina Office",
+        "category": "Melina Office"
       },
       {
-        "command": "vibeoffice.newDocx",
+        "command": "melinaoffice.newDocx",
         "title": "Word Document (.docx)",
-        "category": "VibeOffice"
+        "category": "Melina Office"
       },
       {
-        "command": "vibeoffice.newXlsx",
+        "command": "melinaoffice.newXlsx",
         "title": "Excel Workbook (.xlsx)",
-        "category": "VibeOffice"
+        "category": "Melina Office"
       },
       {
-        "command": "vibeoffice.newPptx",
+        "command": "melinaoffice.newPptx",
         "title": "PowerPoint Presentation (.pptx)",
-        "category": "VibeOffice"
+        "category": "Melina Office"
       }
     ],
     "menus": {
       "file/newFile": [
-        { "command": "vibeoffice.newDocx", "group": "file" },
-        { "command": "vibeoffice.newXlsx", "group": "file" },
-        { "command": "vibeoffice.newPptx", "group": "file" }
+        { "command": "melinaoffice.newDocx", "group": "file" },
+        { "command": "melinaoffice.newXlsx", "group": "file" },
+        { "command": "melinaoffice.newPptx", "group": "file" }
       ],
       "explorer/context": [
         {
-          "command": "vibeoffice.open",
+          "command": "melinaoffice.open",
           "when": "resourceExtname =~ /\\.(docx|docm|dotx|dotm|xlsx|xlsm|xltx|xltm|pptx|pptm|ppsx|ppsm|potx|potm|rtf|csv|tsv|md|markdown)$/i",
           "group": "navigation"
         }
@@ -59,8 +59,8 @@
     },
     "customEditors": [
       {
-        "viewType": "vibeoffice.quire",
-        "displayName": "Quire",
+        "viewType": "melinaoffice.ecrivaine",
+        "displayName": "Ecrivaine",
         "selector": [
           { "filenamePattern": "*.docx" },
           { "filenamePattern": "*.docm" },
@@ -70,8 +70,8 @@
         "priority": "default"
       },
       {
-        "viewType": "vibeoffice.quire",
-        "displayName": "Quire",
+        "viewType": "melinaoffice.ecrivaine",
+        "displayName": "Ecrivaine",
         "selector": [
           { "filenamePattern": "*.rtf" },
           { "filenamePattern": "*.htm" },
@@ -85,8 +85,8 @@
         "priority": "option"
       },
       {
-        "viewType": "vibeoffice.ledger",
-        "displayName": "Ledger",
+        "viewType": "melinaoffice.matheuse",
+        "displayName": "Matheuse",
         "selector": [
           { "filenamePattern": "*.xlsx" },
           { "filenamePattern": "*.xlsm" },
@@ -96,8 +96,8 @@
         "priority": "default"
       },
       {
-        "viewType": "vibeoffice.ledger",
-        "displayName": "Ledger",
+        "viewType": "melinaoffice.matheuse",
+        "displayName": "Matheuse",
         "selector": [
           { "filenamePattern": "*.csv" },
           { "filenamePattern": "*.tsv" },
@@ -110,8 +110,8 @@
         "priority": "option"
       },
       {
-        "viewType": "vibeoffice.lectern",
-        "displayName": "Lectern",
+        "viewType": "melinaoffice.oratrice",
+        "displayName": "Oratrice",
         "selector": [
           { "filenamePattern": "*.pptx" },
           { "filenamePattern": "*.pptm" },
@@ -123,8 +123,8 @@
         "priority": "default"
       },
       {
-        "viewType": "vibeoffice.lectern",
-        "displayName": "Lectern",
+        "viewType": "melinaoffice.oratrice",
+        "displayName": "Oratrice",
         "selector": [
           { "filenamePattern": "*.ppt" }
         ],
@@ -133,8 +133,8 @@
     ],
     "mcpServerDefinitionProviders": [
       {
-        "id": "vibeoffice",
-        "label": "VibeOffice"
+        "id": "melinaoffice",
+        "label": "Melina Office"
       }
     ]
   }

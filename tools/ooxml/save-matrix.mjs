@@ -1,7 +1,7 @@
 // Real app Save/Save As, snapshot and recovery hooks over CDP. No downloads or
 // recent-file writes: intercept only the final saveFile handoff in our own tabs.
 // Synthetic blank fixtures test plumbing; corpus runs test authored-file fidelity.
-// node tools/ooxml/save-matrix.mjs OUTDIR [quire|ledger|lectern]
+// node tools/ooxml/save-matrix.mjs OUTDIR [ecrivaine|matheuse|oratrice]
 import fs from 'node:fs';
 import path from 'node:path';
 import { ensureServer, openPage } from './cdp.mjs';
@@ -11,24 +11,24 @@ const macroFiles = macroOption < 0 ? {} : JSON.parse(fs.readFileSync(args.splice
 const checkerOption = args.indexOf('--checker-only'), checkerOnly = checkerOption >= 0;
 if (checkerOnly) args.splice(checkerOption, 1);
 const [destination, only] = args;
-if (!destination) throw new Error('Usage: save-matrix.mjs OUTDIR [quire|ledger|lectern]');
+if (!destination) throw new Error('Usage: save-matrix.mjs OUTDIR [ecrivaine|matheuse|oratrice]');
 const out = path.resolve(destination);
 fs.mkdirSync(out, { recursive: true });
 // Explicit expectations, independent of the production format table.
 const facts = {
-  quire: [
+  ecrivaine: [
     ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'],
     ['docm', 'application/vnd.ms-word.document.macroEnabled.12', 'application/vnd.ms-word.document.macroEnabled.main+xml'],
     ['dotx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.template', 'application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml'],
     ['dotm', 'application/vnd.ms-word.template.macroEnabled.12', 'application/vnd.ms-word.template.macroEnabledTemplate.main+xml'],
   ],
-  ledger: [
+  matheuse: [
     ['xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'],
     ['xlsm', 'application/vnd.ms-excel.sheet.macroEnabled.12', 'application/vnd.ms-excel.sheet.macroEnabled.main+xml'],
     ['xltx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.template', 'application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml'],
     ['xltm', 'application/vnd.ms-excel.template.macroEnabled.12', 'application/vnd.ms-excel.template.macroEnabled.main+xml'],
   ],
-  lectern: [
+  oratrice: [
     ['pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml'],
     ['pptm', 'application/vnd.ms-powerpoint.presentation.macroEnabled.12', 'application/vnd.ms-powerpoint.presentation.macroEnabled.main+xml'],
     ['ppsx', 'application/vnd.openxmlformats-officedocument.presentationml.slideshow', 'application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml'],
@@ -96,7 +96,7 @@ function install(app) {
   const L = window.L, h = window.__corpusHooks, A = L.app;
   const M = window.__matrix = { app, checks: [], saved: [], decision: 'saved' };
   M.current = () => h.current();
-  M.model = () => app === 'ledger' ? h.current().wb : h.current();
+  M.model = () => app === 'matheuse' ? h.current().wb : h.current();
   M.info = () => h.docInfo(h.current());
   M.check = (condition, label) => { if (!condition) throw new Error(label); M.checks.push(label); };
   M.dialog = title => document.querySelector('[role="dialog"][aria-label="' + title + '"]');
@@ -114,8 +114,8 @@ function install(app) {
     for (let i = 0; i < a.length; i += 16384) s += String.fromCharCode(...a.subarray(i, i + 16384));
     return btoa(s);
   };
-  M.write = (doc, ext) => app === 'ledger' ? L.xlsxWrite.write(doc, { type: ext }) : app === 'quire' ? L.docx.write(doc, { format: ext }) : L.pptx.write(doc, { format: ext });
-  M.password = value => { if (app === 'ledger') h.current().password = value; else if (app === 'quire') M.model().openPassword = value; else M.model().password = value; };
+  M.write = (doc, ext) => app === 'matheuse' ? L.xlsxWrite.write(doc, { type: ext }) : app === 'ecrivaine' ? L.docx.write(doc, { format: ext }) : L.pptx.write(doc, { format: ext });
+  M.password = value => { if (app === 'matheuse') h.current().password = value; else if (app === 'ecrivaine') M.model().openPassword = value; else M.model().password = value; };
   M.open = async (blob, name, opts, password) => {
     const work = h.open(new File([blob], name, { type: blob.type }), opts);
     if (password) { await M.until(() => M.dialog('Password'), 'password prompt'); M.dialog('Password').querySelector('input').value = password; M.click('Password', 'OK'); }
@@ -124,22 +124,22 @@ function install(app) {
   };
   VO.opened = VO.saved = () => {};
   L.saveFile = async (name, blob) => { M.saved.push({ name, blob }); return M.decision; };
-  // Ledger's dialog starts this asynchronous call but returns when the dialog
+  // Matheuse's dialog starts this asynchronous call but returns when the dialog
   // closes. Capture its completion without replacing the real implementation.
-  if (app === 'ledger') {
+  if (app === 'matheuse') {
     const save = A.saveAs;
     A.saveAs = function (...args) { return M.exporting = save.apply(this, args); };
   }
   M.saveAs = async (ext, name, cancel = false) => {
-    const work = app === 'ledger' ? L.dlg.saveAs() : A.saveAs();
+    const work = app === 'matheuse' ? L.dlg.saveAs() : A.saveAs();
     await M.until(() => M.dialog('Save As'), 'Save As');
     const dialog = M.dialog('Save As'), select = dialog.querySelector('select');
-    M.check(select.value === (app === 'ledger' ? h.current().type : A.fileType), 'Save As defaults to current variant');
+    M.check(select.value === (app === 'matheuse' ? h.current().type : A.fileType), 'Save As defaults to current variant');
     dialog.querySelector('input[type="text"]').value = name;
     select.value = ext; select.dispatchEvent(new Event('change', { bubbles: true }));
     M.click('Save As', cancel ? 'Cancel' : 'Save');
     await work;
-    if (app === 'ledger' && !cancel) await M.exporting;
+    if (app === 'matheuse' && !cancel) await M.exporting;
   };
 }
 

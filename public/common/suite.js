@@ -1,10 +1,10 @@
-/* VibeOffice suite services, shared by the start page and the apps (classic script, window.VO).
+/* Melina Office suite services, shared by the start page and the apps (classic script, window.VO).
  *
  * - Which app opens which file (VO.APPS, VO.appFor).
  * - The host (VO.host): browser or desktop app, the files the system asks us to open.
  * - The service worker (public/sw.js), registered from every page.
  * - Files the start page hands to an app, and the Recent Files list. Both live in IndexedDB
- *   ('vibeoffice', stores 'handoff' and 'recent') in this browser only; nothing is uploaded.
+ *   ('melinaoffice', stores 'handoff' and 'recent') in this browser only; nothing is uploaded.
  * - Unsaved versions: while a document has unsaved changes the app's own format is written (autosave)
  *   into its Recent Files entry as a draft; saving clears it. The Start Center, the apps' File menus and
  *   task panes and the Document Recovery pane all show the one list.
@@ -39,15 +39,61 @@
 
   /* ------------------------------------------------------------ apps */
   VO.APPS = {
-    quire: { name: 'Quire', kind: 'Document', ext: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'] },
-    ledger: { name: 'Ledger', kind: 'Spreadsheet', ext: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'] },
-    lectern: { name: 'Lectern', kind: 'Presentation', ext: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'] },
+    ecrivaine: { name: 'Ecrivaine', kind: 'Document', ext: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'] },
+    matheuse: { name: 'Matheuse', kind: 'Spreadsheet', ext: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'] },
+    oratrice: { name: 'Oratrice', kind: 'Presentation', ext: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'] },
   };
   VO.ext = (name) => (/\.([^./\\]+)$/.exec(name || '') || ['', ''])[1].toLowerCase();
   /** the app for a file name, or null */
   VO.appFor = (name) => { const e = VO.ext(name); return Object.keys(VO.APPS).find((a) => VO.APPS[a].ext.includes(e)) || null; };
   VO.accept = () => Object.values(VO.APPS).flatMap((a) => a.ext.map((e) => '.' + e)).join(',');
-  /** VO.url('quire', { new: true }) -> .../quire/?new */
+  /* same rounded tile and folded paper as the suite icon, white plate, no MELINA. Ecrivaine: five lines;
+     Matheuse: 3×4 table; Oratrice: a slide. Lines #FF6699, fills (header, slide) #FFCCCC. */
+  let appIconN = 0;
+  VO.appIcon = function (app, size, opts) {
+    opts = opts || {};
+    const w = opts.width || size || 16, h = opts.height || size || 16;
+    const id = 'voico' + (++appIconN);
+    const PINK = '#FF6699', FILL = '#FFCCCC';
+    const plate = app === 'matheuse' ? '#00FFCC' : app === 'oratrice' ? '#FF99CC' : '#CCCCFF';
+    const sheet = `M146 92h156l76 76v240a24 24 0 0 1-24 24H146a24 24 0 0 1-24-24V116a24 24 0 0 1 24-24z`;
+    let art = '';
+    if (app === 'matheuse') {
+      art = `<rect x="166" y="186" width="168" height="44" fill="${FILL}"/>`
+        + `<path d="M166 186h168v176H166zM222 186v176M278 186v176M166 230h168M166 274h168M166 318h168" fill="none" stroke="${PINK}" stroke-width="8"/>`;
+    } else if (app === 'oratrice') {
+      art = `<rect x="166" y="196" width="168" height="150" rx="10" fill="${FILL}" stroke="${PINK}" stroke-width="8"/>`
+        + `<rect x="178" y="210" width="144" height="32" rx="6" fill="${FILL}" stroke="${PINK}" stroke-width="7"/>`
+        + `<path d="M178 262h144M178 296h108" fill="none" stroke="${PINK}" stroke-width="10" stroke-linecap="round"/>`;
+    } else {
+      art = `<path d="M166 186h168M166 226h168M166 266h168M166 306h168M166 346h168" fill="none" stroke="${PINK}" stroke-width="12" stroke-linecap="round"/>`;
+    }
+    const ext = opts.ext ? String(opts.ext).toUpperCase().slice(0, 4) : '';
+    const badge = ext
+      ? `<rect x="318" y="392" width="100" height="42" rx="8" fill="${PINK}"/><text x="368" y="422" font-family="Tahoma, sans-serif" font-size="26" font-weight="bold" fill="#fff" text-anchor="middle">${ext}</text>`
+      : '';
+    return `<svg class="appico" width="${w}" height="${h}" viewBox="0 0 512 512" aria-hidden="true">`
+      + `<defs>`
+      + `<linearGradient id="${id}-sheet" x1="0" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.62" stop-color="#fff6f9"/><stop offset="1" stop-color="#ffe3ee"/></linearGradient>`
+      + `<linearGradient id="${id}-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.78"/><stop offset="0.48" stop-color="#ffd5e4" stop-opacity="0.16"/><stop offset="1" stop-color="#ff6699" stop-opacity="0.28"/></linearGradient>`
+      + `<linearGradient id="${id}-fold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe6ef"/><stop offset="1" stop-color="#ff6699"/></linearGradient>`
+      + `<linearGradient id="${id}-edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ff6699" stop-opacity="0.55"/></linearGradient>`
+      + `<clipPath id="${id}-tile"><rect x="44" y="32" width="424" height="424" rx="94.5"/></clipPath>`
+      + `</defs>`
+      + `<rect x="50" y="38" width="412" height="420" rx="92" fill="#1a0a10" opacity="0.12"/>`
+      + `<rect x="47" y="35" width="418" height="418" rx="93" fill="#1a0a10" opacity="0.18"/>`
+      + `<rect x="44" y="32" width="424" height="424" rx="94.5" fill="${plate}"/>`
+      + `<g clip-path="url(#${id}-tile)">`
+      + `<g transform="translate(256 244) scale(.902) translate(-250 -262)">`
+      + `<path d="${sheet}" fill="url(#${id}-sheet)"/>`
+      + `<path d="${sheet}" fill="url(#${id}-glass)"/>`
+      + `<path d="${sheet}" fill="none" stroke="url(#${id}-edge)" stroke-width="3"/>`
+      + `<path d="M302 92v60a16 16 0 0 0 16 16h60z" fill="url(#${id}-fold)"/>`
+      + `<path d="M302 92l76 76h-60a16 16 0 0 1-16-16z" fill="#ffffff" opacity="0.62"/>`
+      + art
+      + `</g></g>${badge}</svg>`;
+  };
+  /** VO.url('ecrivaine', { new: true }) -> .../ecrivaine/?new */
   VO.url = (app, params) => {
     const qs = Object.keys(params || {}).map((k) => (params[k] === true ? k : k + '=' + encodeURIComponent(params[k]))).join('&');
     return new URL(app + '/', BASE).href + (qs ? '?' + qs : '');
@@ -74,7 +120,7 @@
   const inVs = !native && announced && announced.kind === 'vscode' ? announced : null;
   /* The webview host listens on this window for Ctrl+A and answers with document.execCommand('selectAll')
      (VS Code's webview page, the execCommand message). That selects the whole webview, chrome included.
-     Quire then reads a selection it cannot map and snaps the caret, so the selection shows and vanishes.
+     Ecrivaine then reads a selection it cannot map and snaps the caret, so the selection shows and vanishes.
      Edit ▸ Select All never presses the key, which is why the menu works. The browser has no host listener.
      Stop the key short of the host, and drop a selectAll that still arrives on the heels of that key.
      A selectAll with no key (the editor's own Edit menu) is the app's command; a text field keeps the
@@ -351,11 +397,11 @@
    *  be at least: older than "show-update-dialog" asks with a dialog, older than "show-update-button" shows an
    *  Update button. Versions compare by date (VO.compareVersions); a dev build never asks. Nothing about the
    *  user or their files is sent. The Start Center does not call this. */
-  VO.UPDATES = (native && native.updates) || 'https://vibeoffice.work/updater/current.json';
+  VO.UPDATES = (native && native.updates) || 'https://acane.net/melinaoffice/updater/current.json';
   /** updater/whatsnew.json: { "<version>": "<plain text>" }, one list for every platform */
-  VO.WHATSNEW = (native && native.whatsnew) || 'https://vibeoffice.work/updater/whatsnew.json';
+  VO.WHATSNEW = (native && native.whatsnew) || 'https://acane.net/melinaoffice/updater/whatsnew.json';
   /** the page the Update button opens (in the system's browser): it gets this edition's version and platform */
-  VO.updateUrl = () => 'https://vibeoffice.work/updater/?from_version=' + encodeURIComponent(VO.VERSION)
+  VO.updateUrl = () => 'https://acane.net/melinaoffice/updater/?from_version=' + encodeURIComponent(VO.VERSION)
     + '&current_platform=' + encodeURIComponent(VO.host.platform);
   /** { ask: 'dialog', 'button' or null (up to date), news: [{ version, text }] }: when an update is due, the
    *  whatsnew.json entries newer than this version, newest first (none if that file cannot be read).
@@ -384,7 +430,7 @@
   /* ------------------------------------------------------------ fonts on this computer */
   /** the font families Local Font Access listed (Chrome and Edge, after the user allows it), kept in this
    *  browser for every app of the suite; the Font boxes show them (L.localFonts in core.js) */
-  const LOCAL_FONTS = 'vibeoffice.localFonts';
+  const LOCAL_FONTS = 'melinaoffice.localFonts';
   let localFonts = null;
   window.addEventListener('storage', (e) => { if (e.key === LOCAL_FONTS || e.key === null) localFonts = null; });
   VO.localFonts = {
@@ -413,7 +459,7 @@
   });
 
   /* ------------------------------------------------------------ service worker */
-  /* The published site, https://vibeoffice.work/, is cached for offline use, one version per page (sw.js); the
+  /* The published site, https://acane.net/melinaoffice/, is cached for offline use, one version per page (sw.js); the
      worker is registered there and on 127.0.0.1 (any port: a published copy tried locally; the dev server's own
      files are unstamped, so the worker caches nothing there), and anywhere else (preview deployments) any earlier
      registration is removed. While the worker caches a version it reports to every page: 'vo-cache' on window, detail { state:
@@ -421,7 +467,10 @@
      version }. updateViaCache 'none': the browser always asks the server for sw.js, so a new version is found on
      the next visit. */
   if (VO.host.kind === 'web' && 'serviceWorker' in navigator) {
-    if (location.origin === 'https://vibeoffice.work' || location.hostname === '127.0.0.1') {
+    const path = location.pathname;
+    const onSite = location.hostname === '127.0.0.1'
+      || (location.origin === 'https://acane.net' && (path === '/melinaoffice' || path.startsWith('/melinaoffice/')));
+    if (onSite) {
       navigator.serviceWorker.register(BASE + 'sw.js', { updateViaCache: 'none' }).catch((e) => console.warn('service worker:', e.message));
       navigator.serviceWorker.addEventListener('message', (e) => {
         if (e.data && e.data.type === 'vo-cache') window.dispatchEvent(new CustomEvent('vo-cache', { detail: e.data }));
@@ -436,7 +485,7 @@
   let dbp = null;
   function db() {
     return dbp || (dbp = new Promise((resolve, reject) => {
-      const r = indexedDB.open('vibeoffice', 1);
+      const r = indexedDB.open('melinaoffice', 1);
       r.onupgradeneeded = () => {
         r.result.createObjectStore('recent', { keyPath: 'key' });
         r.result.createObjectStore('handoff', { keyPath: 'id' });
@@ -456,7 +505,7 @@
       t.onerror = t.onabort = () => reject(t.error);
     });
   }
-  const chan = 'BroadcastChannel' in window ? new BroadcastChannel('vibeoffice') : null;
+  const chan = 'BroadcastChannel' in window ? new BroadcastChannel('melinaoffice') : null;
   const listeners = new Set();
   const notify = () => { VO.recent.refresh(); for (const fn of listeners) if (!fn.cacheOnly) fn(); };   // cache users redraw after the refresh
   const changed = () => { if (chan) chan.postMessage('recent'); notify(); };
@@ -467,7 +516,7 @@
   /* ------------------------------------------------------------ Looks */
   /* the chrome's colours (common/looks.css) and, for a look with layout 'ribbon', the ribbon instead of menus and
      toolbars (common/ribbon.js); one choice for the whole suite: <html data-look data-layout> is set before
-     the first paint by each page's head script from localStorage 'vibeoffice.look' (Golden Gate when nothing
+     the first paint by each page's head script from localStorage 'melinaoffice.look' (Golden Gate when nothing
      is stored, Golden Gate (Follow VS Code Color Theme) in a VS Code webview); changing it here
      repaints every open window of the suite. Canvas-drawn chrome (rulers, sheet headers) redraws on 'vo-look'. */
   const N = (s) => s;   // UI text, translated where it is shown (VO.N, common/i18n.js)
@@ -476,19 +525,19 @@
     { id: 'goldengatedark', name: N('Golden Gate (Dark)'), layout: 'ribbon', note: 'Golden Gate in Puppertino dark colours. Pages, the sheet and slides stay light.' },
     { id: 'vscodegg', name: N('Golden Gate (Follow VS Code Color Theme)'), layout: 'ribbon', note: 'Golden Gate in the colours of the current VS Code theme. Glass follows light or dark.' },
     { id: 'ribbon2010', name: N('Ribbon 2010'), layout: 'ribbon', note: 'The Office 2010 ribbon. Windows, buttons, scroll bars and the type stay as in Windows 7.' },
-    { id: 'win7', name: N('Classic 7'), sep: true, note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
-    { id: 'xp', name: N('Classic XP'), note: 'Luna windows and menus, on the classic blue toolbars.' },
-    { id: 'classic', name: N('Classic'), note: 'The classic blue toolbars and menus.' }];
+    { id: 'win7', name: N('Classic 7'), sep: true, hidden: true, note: 'Glass buttons and dialogs. The menus stay the blue of Office 2003.' },
+    { id: 'xp', name: N('Classic XP'), hidden: true, note: 'Luna windows and menus, on the classic blue toolbars.' },
+    { id: 'classic', name: N('Classic'), hidden: true, note: 'The classic blue toolbars and menus.' }];
   const vscodeHost = () => !!(window.__VO_HOST__ && window.__VO_HOST__.kind === 'vscode');
   /* nothing stored: Golden Gate, or Follow VS Code inside a VS Code or code-server webview */
   const defaultLook = () => (vscodeHost() ? 'vscodegg' : 'goldengate');
   const storedLook = () => {
     try {
-      let id = localStorage.getItem('vibeoffice.look') || defaultLook();
+      let id = localStorage.getItem('melinaoffice.look') || defaultLook();
       /* Paper and Paper 2016 are no longer offered; a stored choice becomes the default */
       if (id === 'paper' || id === 'paper2016') {
         id = defaultLook();
-        try { localStorage.setItem('vibeoffice.look', id); } catch (e) { /* this window still changes */ }
+        try { localStorage.setItem('melinaoffice.look', id); } catch (e) { /* this window still changes */ }
       }
       /* this look exists only in a VS Code or code-server webview; a browser keeps Golden Gate */
       if (id === 'vscodegg' && !vscodeHost()) return 'goldengate';
@@ -508,14 +557,14 @@
   };
   VO.look = {
     /** [{ id, name, note, layout }] */
-    list: () => LOOKS.filter((l) => l.id !== 'vscodegg' || VO.host.kind === 'vscode').map((l) => ({ ...l })),
+    list: () => LOOKS.filter((l) => !l.hidden && (l.id !== 'vscodegg' || VO.host.kind === 'vscode')).map((l) => ({ ...l })),
     get: () => document.documentElement.dataset.look || defaultLook(),
     /** 'bars' (menus and toolbars) or 'ribbon' */
     layout: () => document.documentElement.dataset.layout || 'bars',
     set(id) {
       if (!LOOKS.some((l) => l.id === id)) return;
       if (id === 'vscodegg' && VO.host.kind !== 'vscode') return;
-      try { localStorage.setItem('vibeoffice.look', id); } catch (e) { /* this window still changes */ }
+      try { localStorage.setItem('melinaoffice.look', id); } catch (e) { /* this window still changes */ }
       applyLook(id);
       if (chan) chan.postMessage('look');
     },
@@ -988,7 +1037,7 @@
     note.className = 'vo-gal-note';
     note.textContent = VO.t('Choose Blank or a template:');
     body.append(note, gal);
-    d = ui.dialog({ title: VO.t({ quire: 'New Document', ledger: 'New Spreadsheet', lectern: 'New Presentation' }[app]), width: 700, body, buttons: [{ label: 'Cancel', cancel: true }], focus: gal.firstChild });
+    d = ui.dialog({ title: VO.t({ ecrivaine: 'New Document', matheuse: 'New Spreadsheet', oratrice: 'New Presentation' }[app]), width: 700, body, buttons: [{ label: 'Cancel', cancel: true }], focus: gal.firstChild });
   };
   /** the open app's templates: [{ id, name }] */
   VO.templates = () => (current && current.hooks.templates ? current.hooks.templates() : []);
@@ -1160,7 +1209,7 @@
     };
     draw.cacheOnly = true;
     const stop = VO.onRecentChange(draw);
-    b.append(el('div', 'tp-note', VO.t('{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.', current ? VO.APPS[current.app].name : 'VibeOffice')), list);
+    b.append(el('div', 'tp-note', VO.t('{0} kept the unsaved changes of these documents. Open the ones you want to keep and save them; discard the rest.', current ? VO.APPS[current.app].name : 'Melina Office')), list);
     VO.recent.list().then((l) => { VO.recent.cache = l; draw(); }, () => draw());
   };
 })();

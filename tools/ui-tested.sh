@@ -2,7 +2,7 @@
 # Has the whole of tests/ui/ run on public/ as it is now? Compares a hash of public/'s content (committed or not) with
 # the one tools/ui-full.mjs recorded in .ui-full-tested.json (ignored by Git, like every hidden file). Prints what it
 # found; exits 1, with a warning on stderr, when the suite has not run on this content or had failures.
-# tools/web-release.sh and ../cf-vibeoffice/sync-cf-pages.sh warn with it before a release (docs/testing.md).
+# tools/web-release.sh and ../cf-melinaoffice/sync-cf-pages.sh warn with it before a release (docs/testing.md).
 #
 #   tools/ui-tested.sh           check
 #   tools/ui-tested.sh --hash    print the hash of public/'s content

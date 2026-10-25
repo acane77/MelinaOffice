@@ -8,7 +8,7 @@ const NAMES = ['pct5', 'pct10', 'pct20', 'pct25', 'pct30', 'pct40', 'pct50', 'pc
   'wdUpDiag', 'dashDnDiag', 'dashUpDiag', 'diagCross', 'smCheck', 'lgCheck', 'smGrid', 'lgGrid', 'dotGrid', 'smConfetti', 'lgConfetti', 'horzBrick',
   'diagBrick', 'solidDmnd', 'openDmnd', 'dotDmnd', 'plaid', 'sphere', 'weave', 'divot', 'shingle', 'wave', 'trellis', 'zigZag'];
 const stop = await ensureServer();
-const page = await openPage('lectern', { automated: true });
+const page = await openPage('oratrice', { automated: true });
 try {
   const b64 = await page.evaluate(`(async () => {
     const M = L.model, names = ${JSON.stringify(NAMES)};

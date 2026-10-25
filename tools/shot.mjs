@@ -4,7 +4,7 @@
 //   node tools/shot.mjs <page> [steps.json | 'inline json'] [--w 1280 --h 800]
 //                       [--qs query] [--ready 'expr'] [--out dir] [--keep] [--transparent]
 //
-// page   path under public/, e.g. ledger/ (served by tools/serve.py on :8760; started if needed)
+// page   path under public/, e.g. matheuse/ (served by tools/serve.py on :8760; started if needed)
 // steps  [{ "js": "...", "wait": ms, "shot": "a.jpg" }, ...]
 //        js is an async function body evaluated in the page; its return value is printed.
 //        shot is written to --out (default /tmp/shots); .png or .jpg by extension.

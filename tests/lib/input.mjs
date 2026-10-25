@@ -4,7 +4,7 @@
 // nothing listens on CDP; that Chromium stays for the next run. CDP=http://127.0.0.1:9223 runs on a Chromium of its
 // own (profile tmp/chromium-profile-9223), so two runs at once don't take each other's focus.
 //
-//   const t = await open('quire');            // a new tab on the app, 1280×800, the assistant waiting to be asked
+//   const t = await open('ecrivaine');            // a new tab on the app, 1280×800, the assistant waiting to be asked
 //   await t.drag(a, b); await t.key('b', { ctrl: true }); assert.equal(await t.painting(), false);
 //   t.clean(); await t.close();
 //
@@ -55,7 +55,7 @@ function keyInfo(k) {
   throw new Error('Unknown key ' + k);
 }
 
-/** a new tab on app ('quire', 'ledger', 'lectern') with real input; opts: { width, height, look ('classic',
+/** a new tab on app ('ecrivaine', 'matheuse', 'oratrice') with real input; opts: { width, height, look ('classic',
     'ribbon2010', 'goldengate'), lang (the UI's language, English by default) } */
 export async function open(app, opts = {}) {
   await ensureChromium();

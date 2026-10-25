@@ -1,4 +1,4 @@
-/* VibeOffice — the ribbon: the command bars of looks whose layout is 'ribbon' (Paper 2016; common/suite.js
+/* Melina Office — the ribbon: the command bars of looks whose layout is 'ribbon' (Paper 2016; common/suite.js
  * VO.look). The menus and toolbars stay the commands' other presentation; both run the same ui.cmds.
  *
  * Each app declares its ribbon as data, L.ribbonSpec = () => ({

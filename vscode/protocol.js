@@ -4,21 +4,21 @@
 'use strict';
 
 const APPS = {
-  quire: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'],
-  ledger: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'],
-  lectern: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'],
+  ecrivaine: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'],
+  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'],
+  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'],
 };
 
 /** Office Open XML opens in the editor on a double-click; the other types are Open With. */
 const DEFAULT_EXT = {
-  quire: ['docx', 'docm', 'dotx', 'dotm'],
-  ledger: ['xlsx', 'xlsm', 'xltx', 'xltm'],
-  lectern: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm'],
+  ecrivaine: ['docx', 'docm', 'dotx', 'dotm'],
+  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm'],
+  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm'],
 };
 
 /** File ▸ New writes this type, whichever file the editor tab was opened on. */
-const SAVE_EXT = { quire: 'docx', ledger: 'xlsx', lectern: 'pptx' };
-const SAVE_STEM = { quire: 'Document', ledger: 'Book', lectern: 'Presentation' };
+const SAVE_EXT = { ecrivaine: 'docx', matheuse: 'xlsx', oratrice: 'pptx' };
+const SAVE_STEM = { ecrivaine: 'Document', matheuse: 'Book', oratrice: 'Presentation' };
 
 function extname(name) {
   const m = /\.([^./\\]+)$/.exec(String(name || ''));
@@ -32,7 +32,7 @@ function appFor(name) {
 
 function viewTypeFor(name) {
   const app = appFor(name);
-  return app ? 'vibeoffice.' + app : null;
+  return app ? 'melinaoffice.' + app : null;
 }
 
 /** the last path segment, with any directory stripped */

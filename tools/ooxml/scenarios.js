@@ -6,7 +6,7 @@
   const walkShapes = (shapes, out = []) => { for (const s of shapes) { out.push(s); if (s.kids) walkShapes(s.kids, out); } return out; };
   root.corpusScenario = function (app, doc, scenario) {
     if (['save', 'repeat', 'draft'].includes(scenario)) return { changed: [] };
-    if (app === 'quire') {
+    if (app === 'ecrivaine') {
       const D = L.D;
       D.doc = doc; D.resetHistory();
       let p;
@@ -16,7 +16,7 @@
       if (!p) skip('No editable paragraph');
       const object = p.runs.find(r => ['img', 'shape', 'group', 'chart'].includes(r.t));
       if (['geometry', 'delete-object'].includes(scenario) && !object) skip('Selected paragraph has no drawing');
-      if (!['text', 'format', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Quire');
+      if (!['text', 'format', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Ecrivaine');
       const applied = D.tx('Corpus ' + scenario, () => {
         D.touch(p);
         if (scenario === 'text') L.O.insertText(D.pos(p, D.plen(p)), ' LOSSLESS-CHECK');
@@ -28,11 +28,11 @@
       if (applied === false) skip('Content-control lock prevents this edit');
       return { changed: [{ paragraph: p.id, kind: scenario }], undo: () => D.undo(), redo: () => D.redo() };
     }
-    if (app === 'ledger') {
+    if (app === 'matheuse') {
       const sh = doc.sheets.find(s => s.kind === 'worksheet');
       if (!sh) skip('No worksheet');
       const O = L.ops;
-      if (!['text', 'format', 'insert-row', 'delete-row', 'insert-column', 'delete-column', 'rename-sheet', 'delete-sheet', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Ledger');
+      if (!['text', 'format', 'insert-row', 'delete-row', 'insert-column', 'delete-column', 'rename-sheet', 'delete-sheet', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Matheuse');
       if (['geometry', 'duplicate', 'delete-object'].includes(scenario) && !sh.drawings.length) skip('No worksheet drawing');
       if (scenario === 'delete-sheet' && doc.sheets.length < 2) skip('Cannot delete the only sheet');
       O.tx(doc, 'Corpus ' + scenario, () => {
@@ -62,7 +62,7 @@
     if (needsText && !text) skip('No editable text');
     if (needsShape && !s.shapes.length) skip('No slide shape');
     if (scenario === 'delete-slide' && doc.slides.length < 2) skip('Cannot delete the only slide');
-    if (!['text', 'format', 'insert-slide', 'delete-slide', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Lectern');
+    if (!['text', 'format', 'insert-slide', 'delete-slide', 'geometry', 'duplicate', 'delete-object'].includes(scenario)) skip('Scenario does not apply to Oratrice');
     L.pres = doc; L.hist.clear(); L.hist.push('Corpus ' + scenario);
     if (scenario === 'text' || scenario === 'format') {
       const run = text.tx.ps.flatMap(p => p.rs || []).find(r => r.t);

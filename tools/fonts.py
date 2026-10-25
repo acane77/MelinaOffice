@@ -91,7 +91,7 @@ def main():
         out.write('\n' + licence)
         out.write('\nGoogle Sans Flex 9pt: Copyright 2015 Google LLC. All Rights Reserved. Google Sans is a trademark of Google.\n')
         out.write('The Regular face (GoogleSansFlex_9pt-Regular.ttf) is kept unmodified beside the WOFF2 files and is not\n')
-        out.write('rebuilt by tools/fonts.py. It draws the product names on About and the opening screen, and VibeOffice.work\n')
+        out.write('rebuilt by tools/fonts.py. It draws the product names on About and the opening screen, and Melina Office\n')
         out.write('on the Start Center. Licensed under the SIL Open Font License 1.1 (the text above).\n')
     with open(os.path.join(OUT, 'fonts.css'), 'w', encoding='utf-8') as out:
         out.write(stylesheet())

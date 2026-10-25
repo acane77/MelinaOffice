@@ -11,16 +11,16 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 
 /* query → the command id that must come first, in both layouts unless the key says 'bars:' or 'ribbon:' */
 const FIRST = {
-  quire: {
+  ecrivaine: {
     bold: 'bold', image: 'insertPicture', margins: 'pageSetup', hyperlnk: 'hyperlink', 'word count': 'wordCount',
     graph: 'insertChart', synonym: 'thesaurus', settings: 'optionsDlg', strikethrough: 'strike', pdf: 'exportPDF',
     'track changes': 'trackChanges', 'page numbers': 'pageNumbers', uppercase: 'changeCase', 'find': 'find', wordart: 'insertWordArt', lettersart: 'insertWordArt', 'word art': 'insertWordArt',
   },
-  ledger: {
+  matheuse: {
     bold: 'bold', image: 'insertPicture', margins: 'pageSetup', freeze: 'freezePanes', sum: 'autoSum',
     graph: 'insertChart', pdf: 'exportPDF', 'conditional': 'conditionalFormat', hyperlnk: 'hyperlink', sort: 'sortDlg',
   },
-  lectern: {
+  oratrice: {
     image: 'insertPicture', 'bars:present': 'showFromStart', 'ribbon:present': 'showFromStart', pdf: 'saveAs', 'new slide': 'newSlide',
     hyperlnk: 'hyperlink', graph: 'insertChart', 'speaker notes': 'speakerNotes', 'notes page': 'viewNotes', options: 'optionsDlg',
     smartart: 'insertDiagram', smart: 'insertDiagram', intelliart: 'insertDiagram', wordart: 'insertWordArt', 'org chart': 'insertDiagram',
@@ -28,7 +28,7 @@ const FIRST = {
 };
 
 /* first results with no menu, toolbar or ribbon place (reached through a dialog) */
-const NOWHERE = { quire: [], ledger: [], lectern: [] };
+const NOWHERE = { ecrivaine: [], matheuse: [], oratrice: [] };
 
 const page = (cases) => `
 const out = {};

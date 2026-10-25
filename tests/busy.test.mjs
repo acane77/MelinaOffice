@@ -103,7 +103,7 @@ function load() {
   };
   sandbox.window = sandbox;
   sandbox.globalThis = sandbox;
-  sandbox.L = { APP_ID: 'quire', APP_NAME: 'Quire', APP: 'Quire' };
+  sandbox.L = { APP_ID: 'ecrivaine', APP_NAME: 'Ecrivaine', APP: 'Ecrivaine' };
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/core.js'), 'utf8'), sandbox, { filename: 'core.js' });
   vm.runInContext(fs.readFileSync(path.join(root, 'public/common/ui.js'), 'utf8'), sandbox, { filename: 'ui.js' });
@@ -126,7 +126,7 @@ const inside = (el) => {
 
 test('the waiting window is a modal titled with the app, with no close button and no buttons', () => {
   const opening = L.ui.dialog({
-    title: 'Starting Quire',
+    title: 'Starting Ecrivaine',
     canClose: false,
     buttons: [{ label: 'Cancel', cancel: true }],
     body: L.h('p', { text: 'Opening the file. Please wait...' }),
@@ -135,7 +135,7 @@ test('the waiting window is a modal titled with the app, with no close button an
   const wins = busyWins();
   assert.equal(wins.length, 1);
   const bits = inside(wins[0]);
-  assert.equal(bits.find((n) => has(n, 'dlg-ttl')).textContent, 'Quire');
+  assert.equal(bits.find((n) => has(n, 'dlg-ttl')).textContent, 'Ecrivaine');
   assert.equal(bits.some((n) => has(n, 'dlg-x')), false);
   assert.equal(bits.some((n) => has(n, 'btn')), false);
   assert.equal(bits.find((n) => has(n, 'busy-t')).textContent, 'Opening a.docx...');

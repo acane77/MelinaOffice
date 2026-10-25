@@ -15,7 +15,7 @@ SOURCES = {
 EXTENSIONS = {'word': ['docx', 'docm', 'dotx', 'dotm'], 'excel': ['xlsx', 'xlsm', 'xltx', 'xltm'],
               'powerpoint': ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm']}
 BY_EXT = {'.' + ext: app for app, exts in EXTENSIONS.items() for ext in exts}
-LEDGER_FEATURES = [
+MATHEUSE_FEATURES = [
     ('XLibur/XLibur', 'cc7547ff9bf67077e47fbffc38d313b3c6cd31aa',
      'XLibur.Tests/Resource/TryToLoad/SlicersOnPivotAndTable.xlsx', '4dc1bd8cac0c5c50d15c7460ce2c5479974442c4ea6c7f441f35f3f77c70a280'),
     ('XLibur/XLibur', 'cc7547ff9bf67077e47fbffc38d313b3c6cd31aa',
@@ -24,11 +24,11 @@ LEDGER_FEATURES = [
      'coffeeSalesProject.xlsx', 'd8e288300dfb18e1912289ccfb4e346398667afd928151193be9868f9aaee048'),
 ]
 
-def ledger_features(root):
-    dest = root / 'ledger-features'
+def matheuse_features(root):
+    dest = root / 'matheuse-features'
     dest.mkdir(parents=True, exist_ok=True)
     manifest = []
-    for repo, commit, source, digest in LEDGER_FEATURES:
+    for repo, commit, source, digest in MATHEUSE_FEATURES:
         url = f'https://raw.githubusercontent.com/{repo}/{commit}/{source}'
         file = dest / Path(source).name
         data = file.read_bytes() if file.exists() else urllib.request.urlopen(url, timeout=60).read()
@@ -37,7 +37,7 @@ def ledger_features(root):
         if not file.exists(): file.write_bytes(data)
         manifest.append(dict(file=file.name, repo=repo, commit=commit, path=source, url=url, sha256=digest))
     (dest / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    print(f'ledger-features: {len(manifest)} pinned supplemental files (separate from the main corpus)')
+    print(f'matheuse-features: {len(manifest)} pinned supplemental files (separate from the main corpus)')
 
 def git(folder, *args, check=True):
     p = subprocess.run(['git', '-C', str(folder), *args], check=check, stdout=subprocess.PIPE, text=True)
@@ -49,8 +49,8 @@ def main():
     if root == repo or repo in root.parents:
         raise ValueError('Choose a corpus directory outside the repository')
     selected = sys.argv[2:] or list(SOURCES)
-    if selected == ['ledger-features']:
-        ledger_features(root)
+    if selected == ['matheuse-features']:
+        matheuse_features(root)
         return
     if any(s not in SOURCES for s in selected):
         raise ValueError('Sources: ' + ', '.join(SOURCES))

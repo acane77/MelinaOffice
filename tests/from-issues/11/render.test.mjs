@@ -1,7 +1,7 @@
-// Issue #11, as Quire draws it: linegrid.docx (tools/linegrid.py) against Word's PDF of it (word.json). The lines of
+// Issue #11, as Ecrivaine draws it: linegrid.docx (tools/linegrid.py) against Word's PDF of it (word.json). The lines of
 // each of the 90 cases are as far apart as Word puts them (runs that fit keep their own line height and don't stretch
 // the grid line), and pages break where Word's do: on a grid, Word centres the text in its line, and only the space
-// below the text may run into the bottom margin (public/quire/js/layout.js). Pages 1 to 5 and the 18pt grid's; the
+// below the text may run into the bottom margin (public/ecrivaine/js/layout.js). Pages 1 to 5 and the 18pt grid's; the
 // Chinese pages wrap differently (fonts) and page 5 ends in a tie decided by Word's 1/300-inch raster.
 //   node --test tests/from-issues/11/render.test.mjs
 import { test } from 'node:test';
@@ -14,7 +14,7 @@ const docx = fs.readFileSync(new URL('linegrid.docx', import.meta.url)).toString
 
 test('Issue 11: linegrid.docx spaced and paginated as Word does', async () => {
   const stop = await ensureServer();
-  const page = await openPage('quire', { persistence: false, automated: true });
+  const page = await openPage('ecrivaine', { persistence: false, automated: true });
   try {
     const got = await page.evaluate(`(async () => {
       VO.opened = () => {}; L.layout.view = 'print'; L.layout.setZoom(1);

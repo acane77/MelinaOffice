@@ -1,4 +1,4 @@
-/* Tools ▸ Macros. Quire, Lectern and Ledger fill L.macroHost and open this window after their notices.
+/* Tools ▸ Macros. Ecrivaine, Oratrice and Matheuse fill L.macroHost and open this window after their notices.
    Step Into and Organizer stay disabled: stepping waits for the Visual Basic editor. */
 (function (root) {
   'use strict';

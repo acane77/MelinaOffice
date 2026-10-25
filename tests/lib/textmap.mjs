@@ -1,8 +1,8 @@
 // Every piece of editable text on the page maps to a place in the document and back (the class of fault behind the
 // diagram labels that took no caret: text shown and editable that the document's index didn't know). Page-side
-// sweeps per app, run with t.evaluate(SWEEP.quire); each returns { nodes, kinds, findings: [{ kind, what, text }] }.
+// sweeps per app, run with t.evaluate(SWEEP.ecrivaine); each returns { nodes, kinds, findings: [{ kind, what, text }] }.
 //
-// Quire, for every text node the user can edit (inside the editable page, shown):
+// Ecrivaine, for every text node the user can edit (inside the editable page, shown):
 // - orphan: it is in no paragraph fragment (.p[data-pid]), so a click there maps nowhere;
 // - unindexed: its fragment's paragraph is not in the document's index (D.byId), so it maps nowhere;
 // - unmapped: a point in its middle maps to no position (LY.domToPos);
@@ -11,7 +11,7 @@
 // `kinds` counts the nodes by where they are (body, cell, text box, group, header, footnote, …).
 
 export const SWEEP = {
-  quire: `(() => {
+  ecrivaine: `(() => {
     const D = L.D, LY = L.layout, d = D.doc, out = [], kinds = {};
     const where = (e) => e.closest('.shp.sgrp') ? 'group' : e.closest('.tbx') ? 'textbox' : e.closest('.pg-hdr') ? 'header' : e.closest('.pg-ftr') ? 'footer'
       : e.closest('.fn-area, .notes, [data-note]') ? 'note' : e.closest('td') ? 'cell' : e.closest('.cmt, .balloon') ? 'comment' : 'body';
@@ -42,11 +42,11 @@ export const SWEEP = {
     }
     return { nodes, kinds, findings: out };
   })()`,
-  /* Lectern, on each slide (up to 12), for every shape with text (text boxes, AutoShapes, placeholders, each table cell,
+  /* Oratrice, on each slide (up to 12), for every shape with text (text boxes, AutoShapes, placeholders, each table cell,
      each shape of a group or diagram): its text is edited (TE.begin) and every text node of the editing root is
-     checked as in Quire: noedit (the edit doesn't start), unmapped, roundtrip, text (the character at the point
+     checked as in Ecrivaine: noedit (the edit doesn't start), unmapped, roundtrip, text (the character at the point
      differs from the model's); orphan: text on the slide in no shape's text (charts and WordArt, drawn, excepted). */
-  lectern: `(async () => {
+  oratrice: `(async () => {
     const E = L.ed, TE = L.te, T = L.txt, out = [], kinds = {};
     let nodes = 0;
     const say = (kind, where, text, what) => { if (out.length < 60) out.push({ kind, where, what, text: String(text).slice(0, 40) }); };

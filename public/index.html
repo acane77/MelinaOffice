@@ -3,26 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title translate="no">VibeOffice by Melina</title>
+<title translate="no">Melina Office</title>
 <meta name="description" content="A free office suite that runs in your browser: a word processor, a spreadsheet and a presentation editor. Your files never leave your computer.">
-<meta name="theme-color" content="#0B76A0">
+<meta name="theme-color" content="#FF6699">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <script src="common/lang.js"></script>
 <link rel="stylesheet" href="fonts/brand.css">
 <style>
   /* The Start Center does not follow a look. Colours are the opening screen's own. */
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  body { margin: 0; background: #fff; color: #222; font: 400 16px/1.4 "Google Sans Flex", sans-serif; font-synthesis: none; }
+  body { margin: 0; background: #eee; color: #222; font: 400 16px/1.4 "Google Sans Flex", sans-serif; font-synthesis: none; }
   button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
   a { color: inherit; text-decoration: none; }
   :focus-visible { outline: 1px solid #0B76A0; outline-offset: 2px; }
   [hidden] { display: none !important; }
 
   .page { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .card { width: min(920px, 100%); height: min(640px, calc(100vh - 48px)); min-height: 420px; display: flex; flex-direction: column;
+  .card {  box-shadow: 0 6px 20px rgba(0, 0, 0, .12); width: min(920px, 100%); height: min(640px, calc(100vh - 48px)); min-height: 420px; display: flex; flex-direction: column;
     background: #fff; border: 1px solid #A6A6A6; border-radius: 36px; position: relative; }
   .stage { flex: 1; min-height: 0; position: relative; }
   .stage[data-view="home"] { display: flex; align-items: center; justify-content: center; overflow: auto; }
@@ -31,10 +32,10 @@
   .brand { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: default; }
   .stage:not([data-view="home"]) .brand { cursor: pointer; }
   .brand img { width: 86px; height: 86px; display: block; }
-  .word { font-size: 32pt; line-height: 1.1; color: #0B76A0; font-weight: 400; white-space: nowrap; }
+  .word { font-size: clamp(20pt, 8vw, 32pt); line-height: 1.1; color: #0B76A0; font-weight: 400; white-space: nowrap; }
   .apps { display: flex; gap: 36px; }
   .apps a { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 84px; color: #4E95D9; font-size: 10pt; }
-  .apps svg { width: 64px; height: 80px; }
+  .apps svg { width: 72px; height: 72px; }
   .apps a:hover span:last-child { text-decoration: underline; }
   .actions { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
   .act { display: flex; align-items: center; gap: 10px; min-height: 32px; color: #595959; font-size: 10pt; }
@@ -144,12 +145,12 @@
       <div class="cluster" id="cluster">
         <button class="brand" id="brand" type="button">
           <img id="logo" src="icons/icon.svg" alt="">
-          <b class="word" id="word" translate="no">VibeOffice</b>
+          <b class="word" id="word" translate="no">Melina Office</b>
         </button>
         <div class="apps" id="apps">
-          <a href="quire/" data-go><span data-icon="quire"></span><span>Quire</span></a>
-          <a href="ledger/" data-go><span data-icon="ledger"></span><span>Ledger</span></a>
-          <a href="lectern/" data-go><span data-icon="lectern"></span><span>Lectern</span></a>
+          <a href="ecrivaine/" data-go><span data-icon="ecrivaine"></span><span>Ecrivaine</span></a>
+          <a href="matheuse/" data-go><span data-icon="matheuse"></span><span>Matheuse</span></a>
+          <a href="oratrice/" data-go><span data-icon="oratrice"></span><span>Oratrice</span></a>
         </div>
         <div class="actions" id="actions">
           <button class="act" id="act-open" type="button"><svg viewBox="0 0 2048 2048" aria-hidden="true"><path fill="currentColor" d="m1955 1533l-163-162v677h-128v-677l-163 162l-90-90l317-317l317 317zM256 1920h1280v128H128V0h1115l549 549v475h-128V640h-512V128H256zM1280 512h293l-293-293z"/></svg>Open</button>
@@ -159,7 +160,7 @@
       </div>
       <div class="sub" id="sub">
         <button class="back" id="back" type="button">Back</button>
-        <h1 id="subtitle">About VibeOffice</h1>
+        <h1 id="subtitle">About Melina Office</h1>
         <div class="about" id="about"></div>
       </div>
       <div class="pane" id="pane">
@@ -169,7 +170,7 @@
             <div class="gallery" id="gallery" hidden></div>
             <div class="grid" id="grid" hidden></div>
             <div class="empty" id="empty" hidden>
-              <b>Welcome to VibeOffice.work.</b>
+              <b>Welcome to Melina Office.</b>
               <span>Drop a document here or pick an app on the left side to create one.</span>
             </div>
           </div>
@@ -186,9 +187,9 @@
         <div class="langmenu" id="langmenu" role="menu" hidden></div>
       </div>
       <p class="links">
-        <a href="https://github.com/acane77/VibeOffice-vscode-plugin/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>
-        <a href="https://github.com/acane77/VibeOffice-vscode-plugin" target="_blank" rel="noopener">Feedback on GitHub</a>
-        <a href="https://acane77.github.io/vibeoffice/oss-licenses.html" target="_blank" rel="noopener">OSS Software Licenses</a>
+        <a href="https://github.com/acane77/MelinaOffice/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>
+        <a href="https://github.com/acane77/MelinaOffice" target="_blank" rel="noopener">Feedback on GitHub</a>
+        <a href="https://acane77.github.io/melinaoffice/oss-licenses.html" target="_blank" rel="noopener">OSS Software Licenses</a>
         <button id="aboutbtn" type="button">About</button>
       </p>
     </footer>
@@ -208,7 +209,7 @@ VO.i18n.whenReady(function () {
   const reduced = () => reduceQuery.matches;
   /* Safari's Lockdown Mode takes IndexedDB away (the name is undefined), which Recent Files and opening files from here need */
   const noStorage = typeof indexedDB === 'undefined';
-  if (noStorage) alert(VO.t('VibeOffice.work keeps Recent Files and unsaved changes in this browser, and Safari\'s Lockdown Mode turns that off.\n\nTo allow it for this site only: tap aA in the address bar, tap Website Settings, and turn off Lockdown Mode. Safari reloads the page.'));
+  if (noStorage) alert(VO.t('Melina Office keeps Recent Files and unsaved changes in this browser, and Safari\'s Lockdown Mode turns that off.\n\nTo allow it for this site only: tap aA in the address bar, tap Website Settings, and turn off Lockdown Mode. Safari reloads the page.'));
   const T = (s) => (typeof s === 'string' ? VO.t(s) : s);
   const h = (tag, attrs, ...kids) => {
     const el = document.createElement(tag), tr = attrs && attrs.translate === 'no' ? (s) => s : T;
@@ -216,19 +217,13 @@ VO.i18n.whenReady(function () {
     el.append(...kids.filter((k) => k != null).map(tr));
     return el;
   };
-  const COLOR = { quire: '#2a64c8', ledger: '#1f8a4c', lectern: '#e0682d' };
+  const COLOR = { ecrivaine: '#2a64c8', matheuse: '#1f8a4c', oratrice: '#e0682d' };
 
-  /* app pictures: a page with lines, a grid, a slide; small for a heading, large when a file has no thumbnail */
+  /* app pictures: the suite's folded paper (VO.appIcon); small for a heading, large when a file has no thumbnail */
   function picture(app, ext) {
-    const c = COLOR[app];
-    let art;
-    if (app === 'ledger') art = `<rect x="14" y="22" width="52" height="54" fill="#fff" stroke="${c}"/><path d="M14 31h52M14 40h52M14 49h52M14 58h52M14 67h52M30 22v54M48 22v54" stroke="${c}" stroke-opacity=".55"/><rect x="14" y="22" width="52" height="9" fill="${c}" fill-opacity=".25"/>`;
-    else if (app === 'lectern') art = `<rect x="12" y="28" width="56" height="40" rx="2" fill="${c}" fill-opacity=".14" stroke="${c}"/><rect x="18" y="34" width="44" height="8" fill="${c}"/><path d="M20 50h40M20 57h30" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-opacity=".6"/>`;
-    else art = `<path d="M18 26h44M18 34h44M18 42h44M18 50h44M18 58h30" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`;
-    const badge = ext ? `<rect x="40" y="76" width="38" height="16" rx="3" fill="${c}"/><text x="59" y="88" font-family="Tahoma, sans-serif" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">${ext.toUpperCase().slice(0, 4)}</text>` : '';
-    return `<svg viewBox="0 0 80 100" width="${ext ? 80 : 24}" height="${ext ? 100 : 30}" aria-hidden="true"><path d="M4 2h54l18 18v76H4z" fill="#fff" stroke="#8ea3c4"/><path d="M58 2v18h18" fill="#e3ebf8" stroke="#8ea3c4"/>${art}${badge}</svg>`;
+    return VO.appIcon(app, ext ? 80 : 24, { height: ext ? 80 : 24, ext: ext || '' });
   }
-  for (const el of document.querySelectorAll('[data-icon]')) el.innerHTML = picture(el.dataset.icon);
+  for (const el of document.querySelectorAll('#apps [data-icon]')) el.innerHTML = VO.appIcon(el.dataset.icon, 72);
 
   const status = (text) => { $('status').textContent = text || ''; };
 
@@ -270,7 +265,7 @@ VO.i18n.whenReady(function () {
     if (next === 'recent') $('act-recent').setAttribute('aria-current', 'page'); else $('act-recent').removeAttribute('aria-current');
     if (next === 'templates') { $('panetitle').textContent = VO.t('Templates'); $('subtitle').textContent = VO.t('Templates'); }
     else if (next === 'recent') { $('panetitle').textContent = VO.t('Recent Files'); $('subtitle').textContent = VO.t('Recent Files'); }
-    else if (next === 'about') { $('subtitle').textContent = VO.t('About VibeOffice'); fillAbout(); }
+    else if (next === 'about') { $('subtitle').textContent = VO.t('About Melina Office'); fillAbout(); }
     $('gallery').hidden = next !== 'templates';
     if (next !== 'recent') { $('grid').hidden = true; $('empty').hidden = true; }
   }
@@ -451,7 +446,7 @@ VO.i18n.whenReady(function () {
   async function openFile(file) {
     status('');
     if (!file) return;
-    if (!(await VO.handoff(file))) status(VO.t('VibeOffice.work can\'t open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).', file.name));
+    if (!(await VO.handoff(file))) status(VO.t('Melina Office can\'t open “{0}”. It opens documents (.docx, .rtf), spreadsheets (.xlsx, .csv) and presentations (.pptx).', file.name));
   }
   $('picker').accept = VO.accept();
   $('act-open').addEventListener('click', () => { $('picker').value = ''; $('picker').click(); });
@@ -510,8 +505,8 @@ VO.i18n.whenReady(function () {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && view === 'recent') render(); });
 
   /* ---------- templates: the gallery the Start Center already had ---------- */
-  const KIND = { quire: VO.N('Documents'), ledger: VO.N('Spreadsheets'), lectern: VO.N('Presentations') };
-  const NEW = { quire: [VO.N('New blank document'), VO.N('New document from “{0}”')], ledger: [VO.N('New blank spreadsheet'), VO.N('New spreadsheet from “{0}”')], lectern: [VO.N('New blank presentation'), VO.N('New presentation from “{0}”')] };
+  const KIND = { ecrivaine: VO.N('Documents'), matheuse: VO.N('Spreadsheets'), oratrice: VO.N('Presentations') };
+  const NEW = { ecrivaine: [VO.N('New blank document'), VO.N('New document from “{0}”')], matheuse: [VO.N('New blank spreadsheet'), VO.N('New spreadsheet from “{0}”')], oratrice: [VO.N('New blank presentation'), VO.N('New presentation from “{0}”')] };
   let galleryBuilt = false;
   async function renderGallery() {
     if (galleryBuilt) return;
@@ -544,13 +539,14 @@ VO.i18n.whenReady(function () {
       return p;
     };
     $('about').append(
-      h('p', null, 'VibeOffice.work: Quire (documents), Ledger (spreadsheets) and Lectern (presentations).'),
+      h('p', null, 'Melina Office: Ecrivaine (documents), Matheuse (spreadsheets) and Oratrice (presentations).'),
       h('p', null, 'Everything runs in your browser; documents are opened and saved on your own computer. The Recent Files list keeps a copy of each file in this browser so it can be reopened; Clear Recent Documents removes them.'),
       h('p', { translate: 'no' }, VO.t('Version {0}', VO.VERSION)),
-      sentence('Made possible by open source software: {0}.', 'https://acane77.github.io/vibeoffice/oss-licenses.html', 'Open source licenses'),
-      h('p', null, 'Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.'),
-      sentence('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.', 'https://codex-pets.net/#/pets/nikki-bloom-poetry', 'a sprite published at codex-pets.net'),
-      h('p', null, 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.'));
+      sentence('Made possible by open source software: {0}.', 'https://acane77.github.io/melinaoffice/oss-licenses.html', 'Open source licenses'),
+      sentence('This project is a derivative of {0}, which is licensed under the Apache License 2.0.', 'https://github.com/tcchen2026/VibeOffice', 'VibeOffice'),
+      h('p', null, 'Open source under the Apache License 2.0, provided as is, without warranty. Melina Office is an independent project. Product names in its documentation are trademarks of their owners; Melina Office is not affiliated with them.'),
+      sentence('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. Melina Office is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.', 'https://codex-pets.net/#/pets/nikki-bloom-poetry', 'a sprite published at codex-pets.net'),
+      h('p', null, 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. Melina Office renders text with the fonts installed on your computer. Where a specified font is not installed, Melina Office substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. Melina Office does not include or distribute any commercial font software.'));
   }
 
   /* a direct address paints once the lists it reads exist */

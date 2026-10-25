@@ -1,13 +1,13 @@
 // The 17 SpreadsheetML cell-fill patterns (ECMA-376 ST_PatternType, without none and solid), black on white, each in a
 // wide cell of its own row beside its name, saved as tmp/patterns/cellpatterns.xlsx. Open it in Excel, save it as PDF,
-// and read the tiles with read-pdf.py --cells (Ledger's js/render.js; tests/patterns.test.mjs):
+// and read the tiles with read-pdf.py --cells (Matheuse's js/render.js; tests/patterns.test.mjs):
 //   node tools/patterns/sheet.mjs
 import fs from 'node:fs';
 import { ensureServer, openPage } from '../ooxml/cdp.mjs';
 const NAMES = ['darkGray', 'mediumGray', 'lightGray', 'gray125', 'gray0625', 'darkHorizontal', 'darkVertical', 'darkDown', 'darkUp', 'darkGrid',
   'darkTrellis', 'lightHorizontal', 'lightVertical', 'lightDown', 'lightUp', 'lightGrid', 'lightTrellis'];
 const stop = await ensureServer();
-const page = await openPage('ledger', { automated: true });
+const page = await openPage('matheuse', { automated: true });
 try {
   const b64 = await page.evaluate(`(async () => {
     const M = L.model, names = ${JSON.stringify(NAMES)};

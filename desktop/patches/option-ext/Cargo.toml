@@ -1,4 +1,4 @@
-# VibeOffice's own stand-in for the option-ext crate (MPL-2.0), which dirs-sys depends on: the one method it uses,
+# Melina Office's own stand-in for the option-ext crate (MPL-2.0), which dirs-sys depends on: the one method it uses,
 # written here from that use. Put in its place by [patch.crates-io] in desktop/Cargo.toml (AGENTS.md, Code from
 # other projects: no MPL code in what ships).
 [package]

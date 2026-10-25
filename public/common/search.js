@@ -1,4 +1,4 @@
-/* VibeOffice — Search commands: the box at the top right of every app, in every look (the menu row, or the
+/* Melina Office — Search commands: the box at the top right of every app, in every look (the menu row, or the
  * ribbon's title row). Typing lists the app's commands that match, each with its icon, shortcut and where it
  * lives (the menu, or the ribbon tab and group); Enter or a click runs it. Words match anywhere in a
  * command's name or tooltip, as the start of a word, through everyday names for Office's ones (image →

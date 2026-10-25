@@ -8,7 +8,7 @@
  *   ja  Word: the 10 files saved by a Japanese Word (its Normal style justified, without widow control): A4,
  *       margins 1985/1701/1701/1701, header 851, footer 992, a line grid of 360 (18pt), 10.5pt Century with
  *       ＭＳ 明朝, characterSpacingControl compressPunctuation, tab stops every 840 (all 9 or 10 of 10); Excel: ＭＳ Ｐ
- *       ゴシック 11, charset 128, rows 13.5 (6 of 11; Ledger's M.fontRowPt)
+ *       ゴシック 11, charset 128, rows 13.5 (6 of 11; Matheuse's M.fontRowPt)
  *   ko  Word: 4 files of one Korean Word: A4, margins 1701/1440/1440/1440, header 851, footer 992, no grid, tab
  *       stops every 800; the font (맑은 고딕 10pt in Word, 11 in Excel with rows of 16.5) is Office's known one, not
  *       seen in the corpora: unverified

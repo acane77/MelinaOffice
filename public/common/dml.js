@@ -1,4 +1,4 @@
-/* VibeOffice — DrawingML helpers shared by Quire's .docx reader and Ledger: colours, fills, lines, geometry, charts. */
+/* Melina Office — DrawingML helpers shared by Ecrivaine's .docx reader and Matheuse: colours, fills, lines, geometry, charts. */
 (function (root) {
   'use strict';
   const L = root.L || (root.L = {});
@@ -11,7 +11,7 @@
     if (s && s.charCodeAt(0) === 0xFEFF) s = s.slice(1); /* byte-order mark left in by some writers */
     /* characters XML 1.0 forbids are stripped and the parse retried (seen in damaged files) */
     const strip = (t) => t.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
-    if (L.xml) {   // Ledger's own parser (also in Node)
+    if (L.xml) {   // Matheuse's own parser (also in Node)
       let el;
       try { el = L.xml.parse(s); } catch (e) { el = L.xml.parse(strip(s)); }
       if (beforeResolve) beforeResolve(el.parentNode);

@@ -13,7 +13,7 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 
 /* menu commands with no place in the ribbon, and why */
 const EXCEPTIONS = {
-  quire: {
+  ecrivaine: {
     clearContents: 'the Delete key',
     customize: 'customizes the classic toolbars',
     editObject: 'double-click the object',
@@ -22,12 +22,12 @@ const EXCEPTIONS = {
     newDrawing: 'the same as Insert ▸ Shapes',
     showAssistant: 'not in Office 2016; Search commands finds it',
   },
-  ledger: {
+  matheuse: {
     customize: 'customizes the classic toolbars',
     keyboardHelp: 'Help (F1)',
     showAssistant: 'not in Office 2016; Search commands finds it',
   },
-  lectern: {
+  oratrice: {
     clear: 'the Delete key',
     gettingStarted: 'Help (F1)',
     showAssistant: 'not in Office 2016; Search commands finds it',
@@ -80,7 +80,7 @@ VO.look.set('classic');
 return JSON.stringify({ missing, noIcon, badIcons, unreachable });
 `;
 
-for (const app of ['quire', 'ledger', 'lectern']) {
+for (const app of ['ecrivaine', 'matheuse', 'oratrice']) {
   test(`${app}: the ribbon's commands exist and cover the menus`, () => {
     const out = execFileSync('node', [path.join(root, 'tools/shot.mjs'), app + '/', JSON.stringify([{ js: CHECK, wait: 200 }])], { encoding: 'utf8' });
     const line = out.split('\n').find((l) => l.startsWith('js -> '));

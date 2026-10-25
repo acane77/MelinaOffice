@@ -5,7 +5,7 @@
 
 The archive holds package.json, vscode/ and public/ (the pages the webview loads).
 The version is package.json's "version". With no path argument the file is
-tmp/vibeoffice-v<version>-<commit>.vsix, where <commit> is the short id of HEAD.
+tmp/melinaoffice-v<version>-<commit>.vsix, where <commit> is the short id of HEAD.
 """
 import json
 import subprocess
@@ -31,7 +31,7 @@ def head_commit():
 
 
 def default_vsix(version):
-    return ROOT / 'tmp' / f'vibeoffice-v{version}-{head_commit()}.vsix'
+    return ROOT / 'tmp' / f'melinaoffice-v{version}-{head_commit()}.vsix'
 
 
 def main():

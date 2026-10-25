@@ -5,7 +5,7 @@
                         processorArchitecture="*" publicKeyToken="6595b64144ccf1df" language="*" />
     </dependentAssembly>
   </dependency>
-  <!-- VibeOffice is installed for the current user (setup/): the app and its -uninstall never ask for administrator rights. -->
+  <!-- Melina Office is installed for the current user (setup/): the app and its -uninstall never ask for administrator rights. -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>

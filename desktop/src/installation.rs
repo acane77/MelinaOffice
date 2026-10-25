@@ -1,36 +1,36 @@
-//! What the Windows installer (setup/) puts on the machine and `vibeoffice.exe -uninstall` takes off
-//! again, kept in one place: the files in %LOCALAPPDATA%\VibeOffice, the shortcuts and the per-user
+//! What the Windows installer (setup/) puts on the machine and `melinaoffice.exe -uninstall` takes off
+//! again, kept in one place: the files in %LOCALAPPDATA%\Melina Office, the shortcuts and the per-user
 //! registrations (HKCU, no administrator rights). Both programs include this file; the lists are plain
 //! data, tested on any platform (`cargo test`).
 #![allow(dead_code)] // each program uses its half
 
 /// The install folder's name in %LOCALAPPDATA%
-pub const DIR: &str = "VibeOffice";
-pub const EXE: &str = "vibeoffice.exe";
+pub const DIR: &str = "Melina Office";
+pub const EXE: &str = "melinaoffice.exe";
 /// What the installer writes into the folder (it carries all three)
 pub const FILES: [&str; 3] = [EXE, "WebView2Loader.dll", "LICENSE.txt"];
 /// The shortcuts' file name, on the desktop and in the Start menu (and Windows' copy when pinned)
-pub const SHORTCUT: &str = "VibeOffice.lnk";
+pub const SHORTCUT: &str = "Melina Office.lnk";
 /// The AppUserModelID of the app's process and of its shortcuts: what taskbar pinning goes by
-pub const APP_ID: &str = "work.vibeoffice.desktop";
+pub const APP_ID: &str = "net.acane.melinaoffice.desktop";
 /// The app's data folders' name in %LOCALAPPDATA% (WebView2) and %APPDATA% (settings.json): Tauri's
 /// identifier (tauri.conf.json)
-pub const DATA_DIR: &str = "work.vibeoffice.desktop";
+pub const DATA_DIR: &str = "net.acane.melinaoffice.desktop";
 /// The name in RegisteredApplications, which Windows Settings' Default apps page goes by
-pub const NAME: &str = "VibeOffice";
+pub const NAME: &str = "Melina Office";
 /// Arguments of the installed exe: the installer starts it with the user's choices; Apps & features
 /// uninstalls with it
 pub const PIN_ARG: &str = "-pin-taskbar";
 pub const DEFAULTS_ARG: &str = "-choose-defaults";
 pub const UNINSTALL_ARG: &str = "-uninstall";
-/// Windows Settings at VibeOffice's Default apps page
-pub const DEFAULT_APPS: &str = "ms-settings:defaultapps?registeredAppUser=VibeOffice";
+/// Windows Settings at Melina Office's Default apps page
+pub const DEFAULT_APPS: &str = "ms-settings:defaultapps?registeredAppUser=Melina%20Office";
 
 pub struct FileType {
     pub ext: &'static str,
     pub progid: &'static str,
     pub name: &'static str,
-    /// icon resource in vibeoffice.exe (build.rs): above the app icon's 32512, which must stay the
+    /// icon resource in melinaoffice.exe (build.rs): above the app icon's 32512, which must stay the
     /// exe's first (icon index 0: Explorer, the shortcuts, Apps & features)
     pub icon: i32,
 }
@@ -38,30 +38,30 @@ pub struct FileType {
 pub const TYPES: [FileType; 3] = [
     FileType {
         ext: ".docx",
-        progid: "VibeOffice.docx",
-        name: "Quire Document",
+        progid: "MelinaOffice.docx",
+        name: "Ecrivaine Document",
         icon: 40101,
     },
     FileType {
         ext: ".xlsx",
-        progid: "VibeOffice.xlsx",
-        name: "Ledger Worksheet",
+        progid: "MelinaOffice.xlsx",
+        name: "Matheuse Worksheet",
         icon: 40102,
     },
     FileType {
         ext: ".pptx",
-        progid: "VibeOffice.pptx",
-        name: "Lectern Presentation",
+        progid: "MelinaOffice.pptx",
+        name: "Oratrice Presentation",
         icon: 40103,
     },
 ];
 
-pub const UNINSTALL_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\VibeOffice";
+pub const UNINSTALL_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\Melina Office";
 const CLASSES: &str = r"Software\Classes";
-const APPLICATION: &str = r"Software\Classes\Applications\vibeoffice.exe";
-const VENDOR: &str = r"Software\VibeOffice";
-const CAPABILITIES: &str = r"Software\VibeOffice\Capabilities";
-const APP_PATHS: &str = r"Software\Microsoft\Windows\CurrentVersion\App Paths\vibeoffice.exe";
+const APPLICATION: &str = r"Software\Classes\Applications\melinaoffice.exe";
+const VENDOR: &str = r"Software\Melina Office";
+const CAPABILITIES: &str = r"Software\Melina Office\Capabilities";
+const APP_PATHS: &str = r"Software\Microsoft\Windows\CurrentVersion\App Paths\melinaoffice.exe";
 const REGISTERED: &str = r"Software\RegisteredApplications";
 
 #[derive(Debug, Clone, PartialEq)]
@@ -113,7 +113,7 @@ pub fn values(install: &Install) -> Vec<Value> {
         "UninstallString",
         s(&format!(r#""{exe}" {UNINSTALL_ARG}"#)),
     );
-    put(UNINSTALL_KEY, "URLInfoAbout", s("https://vibeoffice.work"));
+    put(UNINSTALL_KEY, "URLInfoAbout", s("https://acane.net/melinaoffice"));
     put(UNINSTALL_KEY, "InstallDate", s(install.date));
     put(UNINSTALL_KEY, "EstimatedSize", Data::Dword(install.size_kb));
     put(UNINSTALL_KEY, "NoModify", Data::Dword(1));
@@ -157,7 +157,7 @@ pub fn values(install: &Install) -> Vec<Value> {
     out
 }
 
-/// Keys that are VibeOffice's as a whole: uninstalling deletes them with everything under them
+/// Keys that are Melina Office's as a whole: uninstalling deletes them with everything under them
 pub fn owned_keys() -> Vec<String> {
     let mut keys = vec![
         UNINSTALL_KEY.to_string(),
@@ -169,7 +169,7 @@ pub fn owned_keys() -> Vec<String> {
     keys
 }
 
-/// VibeOffice's values in keys other programs share: uninstalling deletes just these
+/// Melina Office's values in keys other programs share: uninstalling deletes just these
 pub fn shared_values() -> Vec<(String, String)> {
     let mut values: Vec<_> = TYPES
         .iter()
@@ -316,9 +316,9 @@ pub mod win {
         get_string(UNINSTALL_KEY, "DisplayVersion")
     }
 
-    /// Whether the user has chosen VibeOffice for .docx, .xlsx and .pptx in Windows (UserChoice, or
+    /// Whether the user has chosen Melina Office for .docx, .xlsx and .pptx in Windows (UserChoice, or
     /// UserChoiceLatest on newer Windows 11). Only read: Windows writes these, never an installer. With
-    /// no choice made, Windows asks on a double-click even when VibeOffice is the only app offered.
+    /// no choice made, Windows asks on a double-click even when Melina Office is the only app offered.
     pub fn chosen_for_all_types() -> bool {
         TYPES.iter().all(|t| {
             let exts = format!(
@@ -331,10 +331,10 @@ pub mod win {
         })
     }
 
-    /// One line of what the installer and the app's first start did, in %TEMP%\VibeOfficeSetup.log
+    /// One line of what the installer and the app's first start did, in %TEMP%\melinaoffice-setup.log
     pub fn log(line: &str) {
         use std::io::Write;
-        let path = std::env::temp_dir().join("VibeOfficeSetup.log");
+        let path = std::env::temp_dir().join("melinaoffice-setup.log");
         if let Ok(mut f) = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
@@ -372,7 +372,7 @@ mod tests {
 
     fn install() -> Vec<Value> {
         values(&Install {
-            dir: r"C:\Users\Ann\AppData\Local\VibeOffice",
+            dir: r"C:\Users\Ann\AppData\Local\Melina Office",
             version: "v2026.10.11-abcdef",
             size_kb: 7500,
             date: "20261011",
@@ -430,17 +430,17 @@ mod tests {
                 .map(|v| v.data.clone())
                 .unwrap()
         };
-        let exe = r"C:\Users\Ann\AppData\Local\VibeOffice\vibeoffice.exe";
+        let exe = r"C:\Users\Ann\AppData\Local\Melina Office\melinaoffice.exe";
         assert_eq!(
             get(UNINSTALL_KEY, "UninstallString"),
             Data::Str(format!(r#""{exe}" -uninstall"#))
         );
         assert_eq!(
-            get(r"Software\Classes\VibeOffice.docx\shell\open\command", ""),
+            get(r"Software\Classes\MelinaOffice.docx\shell\open\command", ""),
             Data::Str(format!(r#""{exe}" "%1""#))
         );
         assert_eq!(
-            get(r"Software\Classes\VibeOffice.xlsx\DefaultIcon", ""),
+            get(r"Software\Classes\MelinaOffice.xlsx\DefaultIcon", ""),
             Data::Str(format!(r#""{exe}",-40102"#))
         );
         assert_eq!(
@@ -449,10 +449,10 @@ mod tests {
         );
         assert_eq!(
             get(
-                r"Software\VibeOffice\Capabilities\FileAssociations",
+                r"Software\Melina Office\Capabilities\FileAssociations",
                 ".pptx"
             ),
-            Data::Str("VibeOffice.pptx".into())
+            Data::Str("MelinaOffice.pptx".into())
         );
     }
 }

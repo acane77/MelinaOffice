@@ -1,27 +1,25 @@
-/* VibeOffice — the assistant: Scout (scout.js), the beagle on his mat, on every app's window; later the home
- * of an AI assistant. He comes in when an app starts, except on iOS or Android and in a browser driven by a
- * test (there only once the user has shown him), and not again on a day the user hid him. The first time each
- * day he is shown, by himself or from the menu, he says good morning and who he is, and offers a few things to
- * do; after that Help ▸ Show the Assistant brings him in with a wave. A click on him offers the things to do, and a right-click gives Animate!, Search commands, the app's Help and Hide
- * (he waves goodbye). Where he sits is kept for the whole suite. While the user works he acts out what they do
- * (saving, printing, searching, …), from the suite's own signals; the apps don't call him. His idling follows
- * them: a small thing now and then while they work, more once they are quiet, a nap after five minutes, from
- * which they wake him. While the window is in the background he stands still and nothing is drawn, to save
- * energy; he carries on when it comes back.
+/* Melina Office — the assistant on every app's window (Nikki: spritepet.js); later the home of an AI
+ * assistant. She comes in when an app starts, except on iOS or Android and in a browser driven by a
+ * test (there only once the user has shown her), and not again on a day the user hid her. The first time each
+ * day she is shown, by herself or from the menu, she says good morning and who she is, and offers a few things to
+ * do; after that Help ▸ Show the Assistant brings her in with a wave. A click on her offers the things to do, and a right-click gives Animate!, Search commands, the app's Help and Hide
+ * (she waves goodbye). Where she sits is kept for the whole suite. While the user works she acts out what they do
+ * (saving, printing, searching, …), from the suite's own signals; the apps don't call her. Play names stay the
+ * Office assistant actions (Greeting, Print, Searching, …); the character maps them to clips. While the window
+ * is in the background she stands still and nothing is drawn, to save energy; she carries on when it comes back.
  *
  *   L.assistant.show(asked) / hide() / shown() / scout() / choose(id)
  *   command showAssistant: Show the Assistant / Hide the Assistant (each app's Help menu)
- *   Help ▸ Select Assistant, when spritepet.js is loaded: Scout, or Nikki. Nikki when none is stored.
+ *   Help ▸ Select Assistant, when spritepet.js is loaded: who stands there. Nikki when none is stored.
  */
 (function (root) {
   'use strict';
   const L = root.L || (root.L = {});
   if (typeof document === 'undefined') return;
   const ui = L.ui;
-  const KEY = 'vibeoffice.assistant';     // suite-wide, as the look: { on, r, b }: shown by the user, his distance from the window's right and bottom
+  const KEY = 'melinaoffice.assistant';     // suite-wide, as the look: { on, r, b }: shown by the user, his distance from the window's right and bottom
   const GREETED = 'scout.lastGreetedDay'; // the last day he said good morning
   const HIDDEN = 'scout.lastHiddenDay';   // the last day the user hid him: he doesn't come in by himself that day
-  const SIZE = 154, H = Math.round(SIZE * 235 / 260);
   const AWAY_MS = 250;   // a blur shorter than this (a quick switch) is not "in the background"
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   const save = (o) => { try { localStorage.setItem(KEY, JSON.stringify(Object.assign(load(), o))); } catch (e) { /* not kept */ } };
@@ -29,9 +27,9 @@
   const put = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* not kept */ } };
   /** the local date, 2026-10-11; days are only ever compared for equality, so a clock set back breaks nothing */
   const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
-  /* Scout unless spritepet.js offers someone else (stored id). His line is the welcome the tests look for. */
-  const SCOUT = { id: 'scout', name: 'Scout', size: SIZE, h: H, label: 'Scout, the assistant. Click him for help; right-click for more.', line: "I'm Scout, your soon-to-be-AI assistant. For now, I mostly fetch.", tip: 'Scout, the assistant' };
-  const metrics = () => (L.assistantPet && L.assistantPet.current()) || SCOUT;
+  /* who spritepet.js offers (stored id). A stored scout is Nikki: that character is gone. */
+  const metrics = () => L.assistantPet && L.assistantPet.current();
+  if (load().id === 'scout') save({ id: 'nikki' });
 
   /* in when the app starts: not on a day the user hid him; otherwise once they have shown him, or by default
      (but not on a phone or tablet, nor in an automated browser: UI checks) */
@@ -56,7 +54,7 @@
     { label: 'Look something up in Help', cmd: 'help' },
     { label: 'Get started', cmd: 'gettingStarted' },
     { label: 'See the keyboard shortcuts', cmd: 'keyboardHelp' },
-    { label: 'Show me a trick', nikki: 'Send me a wink', run: () => scout.animate() },
+    { label: 'Send me a wink', run: () => scout.animate() },
     { label: 'Nothing for now' },
   ];
 
@@ -66,7 +64,8 @@
   }
   function make() {
     const m = metrics();
-    scout = new (m.ctor || L.Scout)({
+    if (!m) return;
+    scout = new (m.ctor || L.SpritePet)({
       size: m.size, h: m.h, label: L.t(m.label),
       onclick: () => { if (scout.hidden) return; if (balloonOpen()) scout.stop(); else ask('What would you like to do?'); },
       onmenu: (x, y) => ui.openMenu([
@@ -89,8 +88,7 @@
   function ask(text, wait) {
     if (!wait) scout.stop();
     const list = CHOICES.filter((c) => (c.cmd ? can(c.cmd) : !c.when || c.when()));
-    const nikki = metrics().id === 'nikki';
-    scout.ask(L.t(text), list.map((c) => ({ label: L.t(nikki && c.nikki ? c.nikki : c.label), value: c }))).then((c) => {
+    scout.ask(L.t(text), list.map((c) => ({ label: L.t(c.label), value: c }))).then((c) => {
       if (!c) return;
       if (c.cmd) ui.exec(c.cmd);
       else if (c.run) c.run();
@@ -101,10 +99,10 @@
   function hello() {
     if (get(GREETED) === today()) return '';
     put(GREETED, today());
-    const h = new Date().getHours(), nikki = metrics().id === 'nikki';
-    if (h >= 5 && h < 12) return nikki ? L.t('Good morning! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good morning! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
-    if (h >= 12 && h < 18) return nikki ? L.t('Good afternoon! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good afternoon! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
-    return nikki ? L.t('Good evening! I\'m Nikki. I\'ll keep you company while you work.') : L.t('Good evening! I\'m Scout, your soon-to-be-AI assistant. For now, I mostly fetch.');
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return L.t('Good morning! I\'m Nikki. I\'ll keep you company while you work.');
+    if (h >= 12 && h < 18) return L.t('Good afternoon! I\'m Nikki. I\'ll keep you company while you work.');
+    return L.t('Good evening! I\'m Nikki. I\'ll keep you company while you work.');
   }
 
   /** Bring him in. The first time today he waves (Greeting), introduces himself and asks what the user would like
@@ -113,6 +111,7 @@
     if (!on) { on = true; save({ on: true }); put(HIDDEN, null); }
     if (scout && scout.petId !== metrics().id) { const old = scout; scout = null; old.stop(); if (old.destroy) old.destroy(); }
     if (!scout) make();
+    if (!scout) return;
     scout.stop();
     const intro = hello();
     scout.play(asked || intro ? 'Greeting' : 'Show', { interrupt: true });
@@ -205,7 +204,7 @@
   /** Who stands there. fromStorage: another window already wrote the id. A hidden one is dropped, so the next
    *  show builds the new character; one on screen waves and says who they are. */
   function choose(id, fromStorage) {
-    id = id === 'nikki' ? 'nikki' : 'scout';
+    if (id !== 'nikki') id = 'nikki';
     const prev = scout ? scout.petId : (load().id || 'nikki');
     if (!fromStorage) save({ id });
     if (prev === id) return;
@@ -215,14 +214,13 @@
     make();
     scout.play('Greeting', { interrupt: true });
     scout.delay(700);
-    ask(metrics().id === 'nikki' ? 'I\'m Nikki. What would you like to do?' : 'I\'m Scout. What would you like to do?', true);
+    ask('I\'m Nikki. What would you like to do?', true);
   }
   /* Help ▸ Select Assistant, beside Show the Assistant, without each app's menu listing it */
   if (L.assistantPet && ui.menuBar) {
     const SELECT = {
       label: '&Select Assistant',
       sub: [
-        { label: '&Scout', radio: true, checked: () => metrics().id === 'scout', run: () => choose('scout') },
         { label: '&Nikki', radio: true, checked: () => metrics().id === 'nikki', run: () => choose('nikki') },
       ],
     };

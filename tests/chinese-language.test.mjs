@@ -10,10 +10,10 @@ const read = async (p) => {
   assert.ok(r.ok, p);
   return r.text();
 };
-const pages = ['index.html', 'quire/index.html', 'ledger/index.html', 'lectern/index.html'];
+const pages = ['index.html', 'ecrivaine/index.html', 'matheuse/index.html', 'oratrice/index.html'];
 async function boot(page, { query = '', stored = 'auto', languages = ['en-US'], language = 'en-US', unavailable = false } = {}) {
   const html = await read(page), attrs = { lang: 'en', dataset: {}, getAttribute(k) { return this[k]; } };
-  const fetched = [], state = new Map([['vibeoffice.lang', stored]]);
+  const fetched = [], state = new Map([['melinaoffice.lang', stored]]);
   const c = { URL, URLSearchParams, location: { search: query }, navigator: { languages, language },
     localStorage: { getItem: (k) => { if (unavailable) throw Error('unavailable'); return state.get(k); }, setItem: (k, v) => state.set(k, v) },
     document: { documentElement: attrs, readyState: 'loading', addEventListener() {}, currentScript: { src: 'http://127.0.0.1/common/i18n.js' } },
@@ -61,13 +61,13 @@ test('query overrides stored language, storage overrides browser, and Auto follo
     assert.ok(c.VO.lang.list().some((l) => l.id === 'zh-CN'));
     assert.ok(c.VO.lang.list().some((l) => l.id === 'zh-Hant'));
     c.VO.lang.set('zh-Hant');
-    assert.equal(state.get('vibeoffice.lang'), 'zh-Hant');
+    assert.equal(state.get('melinaoffice.lang'), 'zh-Hant');
     c.VO.lang.set('zh-CN');
     c.VO.lang.set('zh-HK');
-    assert.equal(state.get('vibeoffice.lang'), 'zh-Hant', 'aliases are stored with the canonical ID');
+    assert.equal(state.get('melinaoffice.lang'), 'zh-Hant', 'aliases are stored with the canonical ID');
     const legacy = await boot(page, { stored: 'zh-TW' });
     legacy.c.VO.lang.set('zh-Hant');
-    assert.equal(legacy.state.get('vibeoffice.lang'), 'zh-Hant');
+    assert.equal(legacy.state.get('melinaoffice.lang'), 'zh-Hant');
     c.VO.lang.set('auto');
     assert.equal(c.VO.lang.get(), 'auto');
   }

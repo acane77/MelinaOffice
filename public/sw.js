@@ -1,9 +1,9 @@
-/* VibeOffice service worker: the published site, cached for offline use, one version per page.
- * Works only on the allowed origins (cached()): https://vibeoffice.work/, and 127.0.0.1 on any port, to try a
+/* Melina Office service worker: the published site, cached for offline use, one version per page.
+ * Works only under https://acane.net/melinaoffice/ (not the rest of that host), and on 127.0.0.1 on any port, to try a
  * published copy locally. common/suite.js registers it there alone, from every page of the web edition (never in
- * the desktop app); its scope is public/, which is / on the site.
+ * the desktop app); its scope is this file's directory (/melinaoffice/ on the published site).
  *
- * VERSION is 'dev' in the repository. Publishing (../cf-vibeoffice/sync-cf-pages.sh) runs tools/web-release.sh on
+ * VERSION is 'dev' in the repository. Publishing (../cf-melinaoffice/sync-cf-pages.sh) runs tools/web-release.sh on
  * the copy it deploys, which stamps the site's version here and in common/suite.js (v<yyyy>.<mm>.<dd>-<6 hex>) and
  * packs updater/web-<version>.zip: every file of the site but this one and updater/. A new version changes this
  * file, so browsers install the new worker.
@@ -14,7 +14,7 @@
  *
  * Published:
  * - Install: download the version's zip, the whole site in one file, and unpack it into the cache
- *   "vibeoffice-<version>" with the apps' own ZIP engine (common/zip.js: the browser's inflate, or its own in
+ *   "melinaoffice-<version>" with the apps' own ZIP engine (common/zip.js: the browser's inflate, or its own in
  *   JavaScript), every file checked against the size and CRC-32 the zip's directory records, its Content-Type
  *   from its extension. One file means one consistent version, whatever the server does meanwhile. Any failure
  *   (offline, a short download, a damaged zip, storage full) fails the install: the half-filled cache is deleted,
@@ -25,14 +25,14 @@
  *   update }; the Start Center does not draw it. The new worker takes over at once
  *   (skipWaiting, clients.claim), which is safe because of the next point.
  * - Each page keeps the version it was loaded with: a page (client) is served only from its own version's cache,
- *   recorded in the cache "vibeoffice-clients" (client id → version), so a page that is open while an update
+ *   recorded in the cache "melinaoffice-clients" (client id → version), so a page that is open while an update
  *   lands never mixes files of two versions. Navigations (a new page, a reload) get the newest version. No
  *   "reload to update" prompt is needed: the update applies to each page the next time it loads.
  * - Old versions' caches are deleted once no open page uses them: on activation and on each navigation. Deleting
  *   caches is never done during install, because until the new worker activates, the earlier one still serves the
  *   open pages from its cache. Nothing is deleted while a newer worker is installing or waiting (it is filling a
  *   cache this worker doesn't know about).
- * - Fetch: GET requests for the site's own files are answered from the cache, offline too; a folder (quire/) is
+ * - Fetch: GET requests for the site's own files are answered from the cache, offline too; a folder (ecrivaine/) is
  *   its index.html. updater/ (the update checks and the zips), sw.js, other sites, other methods and anything not
  *   in the zip go to the network untouched; a navigation to a page not in the zip that the network can't answer
  *   (offline) goes to the Start Center.
@@ -42,10 +42,11 @@
 importScripts('common/zip.js');   // L.zip, the apps' ZIP engine; a change to it is a change to this worker too
 
 const VERSION = 'dev';   // stamped by tools/web-release.sh
-/** the origins this worker caches on: the published site, and 127.0.0.1 (any port) for a published copy served locally */
-const cached = (url) => url.origin === 'https://vibeoffice.work' || url.hostname === '127.0.0.1';
+/** https://acane.net/melinaoffice/ only (not the rest of that host), and 127.0.0.1 (any port) for a published copy */
+const cached = (url) => url.hostname === '127.0.0.1'
+  || (url.origin === 'https://acane.net' && (url.pathname === '/melinaoffice' || url.pathname.startsWith('/melinaoffice/')));
 const ON = VERSION !== 'dev' && cached(self.location);
-const PREFIX = 'vibeoffice-';
+const PREFIX = 'melinaoffice-';
 const CLIENTS = PREFIX + 'clients';
 const SCOPE = new URL(self.registration.scope);
 const cacheOf = (version) => PREFIX + version;
@@ -202,7 +203,7 @@ self.addEventListener('activate', (event) => {
 
 /* ------------------------------------------------------------ answering requests */
 /** a file of the site from a version's cache: a folder is its index.html; for a navigation, a folder without
- *  its slash (quire) is sent to it (quire/), and a page without .html is found with it */
+ *  its slash (ecrivaine) is sent to it (ecrivaine/), and a page without .html is found with it */
 async function lookup(version, path, navigate, search) {
   const cacheName = cacheOf(version);
   const file = path === '' || path.endsWith('/') ? path + 'index.html' : path;

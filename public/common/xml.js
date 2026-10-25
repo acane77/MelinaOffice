@@ -1,4 +1,4 @@
-/* VibeOffice — portable XML tree (browser and Node).
+/* Melina Office — portable XML tree (browser and Node).
  * L.xmlTree.parse(text) → a lightweight element tree that offers the subset of the DOM API the readers use
  *   (localName, prefix, children, childNodes, getAttribute, getAttributeNS, attributes, textContent,
  *    getElementsByTagName, parentNode, replaceWith, remove, namespaceURI).

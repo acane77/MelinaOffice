@@ -1,4 +1,4 @@
-/* VibeOffice — UI toolkit shared by Quire, Ledger and Lectern: commands, menus, toolbars, dialogs, pickers.
+/* Melina Office — UI toolkit shared by Ecrivaine, Matheuse and Oratrice: commands, menus, toolbars, dialogs, pickers.
  * Styled after the Office 2003 "Luna" command bars.
  */
 (function (root) {
@@ -12,7 +12,7 @@
    * commitEdit: finish an edit in progress before a toolbar box takes the focus; ownsText(el): el is the document's
    * own editable text, which refocus gives back with the app's selection (other editable text gets its own back). */
   ui.hooks = { beforeExec() {}, refocus() {}, commitEdit() {}, ownsText() { return false; } };
-  /* Theme colours for the colour menus (Lectern): schemeColors(design) -> [{ ref, hex, tip }], currentDesign() */
+  /* Theme colours for the colour menus (Oratrice): schemeColors(design) -> [{ ref, hex, tip }], currentDesign() */
   ui.schemeColors = null;
   ui.currentDesign = null;
 
@@ -1090,7 +1090,7 @@
     ui.closeMenus();
     hideTip();
     const prevFocus = document.activeElement;
-    /* the selection in text being edited, for text the app doesn't give back itself (Lectern's speaker notes) */
+    /* the selection in text being edited, for text the app doesn't give back itself (Oratrice's speaker notes) */
     const s0 = window.getSelection();
     const prevRange = prevFocus && prevFocus.isContentEditable && s0.rangeCount && prevFocus.contains(s0.anchorNode) ? s0.getRangeAt(0).cloneRange() : null;
     const overlay = h('div', { class: 'dlg-overlay' + (opts.modeless ? ' modeless' : '') + (opts.isToolBoxWindow ? ' toolbox' : '') });
@@ -1302,9 +1302,11 @@
       ...o.text.map((para) => h('p', { text: para })),
       h('p', null, ...t('Made possible by open source software: {0}.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: root.VO ? root.VO.LICENSES : '../oss-licenses.html', target: '_blank', rel: 'noopener',
         class: 'about-oss', text: 'Open source licenses', onclick: (e) => { if (root.VO) { e.preventDefault(); root.VO.showLicenses(); } } }), part] : [part]))),
-      h('p', { text: 'Open source under the Apache License 2.0, provided as is, without warranty. VibeOffice.work is an independent project. Product names in its documentation are trademarks of their owners; VibeOffice.work is not affiliated with them.' }),
-      h('p', null, ...t('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. VibeOffice is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: 'https://codex-pets.net/#/pets/nikki-bloom-poetry', target: '_blank', rel: 'noopener', class: 'about-oss', text: 'a sprite published at codex-pets.net' }), part] : [part]))),
-      h('p', { text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. VibeOffice renders text with the fonts installed on your computer. Where a specified font is not installed, VibeOffice substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. VibeOffice does not include or distribute any commercial font software.' }),
+      h('p', null, ...t('This project is a derivative of {0}, which is licensed under the Apache License 2.0.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: 'https://github.com/tcchen2026/VibeOffice', target: '_blank', rel: 'noopener',
+        class: 'about-oss', text: 'VibeOffice' }), part] : [part]))),
+      h('p', { text: 'Open source under the Apache License 2.0, provided as is, without warranty. Melina Office is an independent project. Product names in its documentation are trademarks of their owners; Melina Office is not affiliated with them.' }),
+      h('p', null, ...t('Nikki (暖暖), an optional assistant, is shown from {0}. Her name and likeness are the copyright of Papergames (叠纸), also known as Infold. Melina Office is not affiliated with them. That sprite is not covered by the Apache License and is not licensed for commercial use.').split('{0}').flatMap((part, i) => (i ? [h('a', { href: 'https://codex-pets.net/#/pets/nikki-bloom-poetry', target: '_blank', rel: 'noopener', class: 'about-oss', text: 'a sprite published at codex-pets.net' }), part] : [part]))),
+      h('p', { text: 'Font names are used solely to identify the fonts specified in documents and to maintain interoperability with Office Open XML files and the applications that create them; such names may be trademarks of their respective owners. Melina Office renders text with the fonts installed on your computer. Where a specified font is not installed, Melina Office substitutes an open-source font supplied with it or another font available on your computer, and the document may therefore appear differently than in other applications. Melina Office does not include or distribute any commercial font software.' }),
       h('p', { text: t('Microsoft, {0} and Office are trademarks of Microsoft Corporation. {1} is an independent work and is not affiliated with Microsoft.', o.office, o.name) }));
     const view = h('div', { class: 'brand-credits-view' },
       h('div', { class: 'brand-fade brand-fade-top' }),
@@ -1722,7 +1724,7 @@
    *   puts a brush down (ui.brush). Other keys go nowhere while the button is held, except the modifiers.
    * - While it moves, the cursor shown at the press stays wherever the pointer goes (`cursor` sets another one;
    *   false: none is held).
-   * A text selection is the browser's own drag; an app may watch it with { capture: false, cursor: false } (Quire
+   * A text selection is the browser's own drag; an app may watch it with { capture: false, cursor: false } (Ecrivaine
    * does, so its release, or how it ended otherwise, is known the same way). */
   let liveDrag = null, swallow = null, cursorStyle = null;
   /** the events of the button that cancelled a drag go no further: its press, release, auxclick and context menu */
@@ -2027,7 +2029,7 @@
     const label = h('span', { class: 'busy-t' });
     label.textContent = msg;
     busyDlg = ui.dialog({
-      title: L.APP || L.APP_NAME || 'VibeOffice',
+      title: L.APP || L.APP_NAME || 'Melina Office',
       width: 360,
       canClose: false,
       buttons: [],

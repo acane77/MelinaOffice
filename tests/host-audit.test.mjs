@@ -15,7 +15,7 @@ test('an unknown ability and a browser host are false', () => {
   assert.equal(L.hostAudit.has('Path'), false);
   assert.equal(L.hostAudit.why('Path'), 'platform');
   assert.equal(L.hostAudit.has('NotAThing'), false);
-  L.APP_ID = 'quire';
+  L.APP_ID = 'ecrivaine';
   VO.host = { kind: 'vscode', documentPath: () => '' };
   assert.equal(L.hostAudit.has('Path'), false);
   assert.equal(L.hostAudit.why('Path'), 'path');
@@ -25,10 +25,10 @@ test('an unknown ability and a browser host are false', () => {
   assert.equal(L.hostAudit.has('Export'), false);
   assert.equal(L.hostAudit.why('Export'), 'app');
   assert.equal(L.hostAudit.has('SheetSaveAs'), false);
-  L.APP_ID = 'lectern';
+  L.APP_ID = 'oratrice';
   assert.equal(L.hostAudit.has('Export'), true);
   assert.equal(L.hostAudit.has('InsertFile'), false);
-  L.APP_ID = 'ledger';
+  L.APP_ID = 'matheuse';
   VO.host.documentPath = () => '/work/Book1.xlsx';
   assert.equal(L.hostAudit.has('Path'), true);
   assert.equal(L.hostAudit.has('SheetSaveAs'), true);
@@ -56,11 +56,11 @@ test('AlwaysDeny and a denied request do not become G-HOST', async () => {
 });
 
 test('XPS fails before a PDF format is accepted', () => {
-  L.APP_ID = 'quire';
+  L.APP_ID = 'ecrivaine';
   assert.equal(L.hostAudit.isXps(18), true);
   assert.equal(L.hostAudit.isPdf(17), true);
   assert.equal(L.hostAudit.isXps(null), false);
-  L.APP_ID = 'ledger';
+  L.APP_ID = 'matheuse';
   assert.equal(L.hostAudit.isXps(1), true);
   assert.equal(L.hostAudit.isPdf(0), true);
   assert.equal(L.hostAudit.isPdf(null), true);
@@ -71,7 +71,7 @@ test('the catalog keeps the audit token off the return type', () => {
   vm.createContext(host);
   vm.runInContext(fs.readFileSync(new URL('../public/common/core.js', import.meta.url), 'utf8'), host);
   vm.runInContext('L.dom = L.dom || {};', host);
-  vm.runInContext(fs.readFileSync(new URL('../public/quire/js/dom-ir.js', import.meta.url), 'utf8'), host);
+  vm.runInContext(fs.readFileSync(new URL('../public/ecrivaine/js/dom-ir.js', import.meta.url), 'utf8'), host);
   const save = host.L.domIr.member('Document', 'Save');
   assert.equal(save.audit, 'RequestApproval');
   assert.equal(save.ability, 'Save');

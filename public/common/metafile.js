@@ -1,4 +1,4 @@
-/* VibeOffice — Windows metafile (WMF / EMF) renderer, shared by Quire, Ledger and Lectern.
+/* Melina Office — Windows metafile (WMF / EMF) renderer, shared by Ecrivaine, Matheuse and Oratrice.
  * Browsers cannot display .wmf/.emf, yet older documents are full of them (clip art, logos,
  * pasted Visio/Excel graphics). This plays the GDI records onto a canvas so the picture
  * shows; the original metafile bytes are kept for saving.

@@ -694,7 +694,7 @@
       const ask = L.ui && L.ui.msg;
       if (!ask) return Promise.resolve(buttons[def].value);
       return Promise.resolve(ask(String(text == null ? '' : text), {
-        title: title || (L.APP || 'VibeOffice'),
+        title: title || (L.APP || 'Melina Office'),
         icon: messageIcon(style),
         buttons: buttons.map(function (button) { return button.label; }),
         def: def,
@@ -707,7 +707,7 @@
     host.inputBox = function (text, title, def) {
       const ask = L.ui && L.ui.prompt;
       if (!ask) return Promise.resolve(def == null ? '' : String(def));
-      return Promise.resolve(ask(String(text == null ? '' : text), def == null ? '' : String(def), title || (L.APP || 'VibeOffice'))).then(function (value) {
+      return Promise.resolve(ask(String(text == null ? '' : text), def == null ? '' : String(def), title || (L.APP || 'Melina Office'))).then(function (value) {
         return value == null ? '' : String(value);
       });
     };

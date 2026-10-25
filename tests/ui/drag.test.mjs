@@ -26,7 +26,7 @@ const PAD = `(() => {
   document.addEventListener('contextmenu', (e) => { __drag.push('menu'); e.preventDefault(); });
 })()`;
 
-for (const app of ['quire', 'ledger', 'lectern']) {
+for (const app of ['ecrivaine', 'matheuse', 'oratrice']) {
   let t;
   const A = { x: 300, y: 300 }, B = { x: 420, y: 380 };
   /** a gesture on a fresh log; what the log says after it (and after the button is let go, when it is still down) */

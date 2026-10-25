@@ -1,0 +1,48 @@
+<title>Matheuse</title>
+<meta name="theme-color" content="#4580c4">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png" sizes="180x180">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<script>try{var d=document.documentElement,v=window.__VO_HOST__&&window.__VO_HOST__.kind==='vscode',l=localStorage.getItem('melinaoffice.look')||(v?'vscodegg':'goldengate');if(l==='paper'||l==='paper2016'){l=v?'vscodegg':'goldengate';try{localStorage.setItem('melinaoffice.look',l)}catch(e){}}if(l==='vscodegg'&&!v)l='goldengate';d.dataset.look=l;d.dataset.layout=(l==='ribbon2010'||l==='goldengate'||l==='goldengatedark'||l==='vscodegg')?'ribbon':'bars'}catch(e){}</script>
+<script src="../common/lang.js"></script>
+<link rel="stylesheet" href="../common/looks.css">
+<link rel="stylesheet" href="../common/ui.css">
+<link rel="stylesheet" href="../common/scout/scout.css">
+<link rel="stylesheet" href="../common/vendor/codemirror/codemirror.css">
+<style>
+/*CSS*/
+</style>
+<div id="app" class="app" aria-label="Matheuse spreadsheet">
+  <div class="cmdbars">
+    <div class="menurow" id="menurow"></div>
+    <div class="toolbars" id="toolbars"></div>
+  </div>
+  <div class="fbar" id="fbar">
+    <div class="namebox" id="namebox-wrap"><input id="namebox" aria-label="Name Box" autocomplete="off" spellcheck="false"><button id="namebox-dd" type="button" tabindex="-1" aria-label="Names"><span class="dd-arrow"></span></button></div>
+    <div class="fb-btns"><button class="fb-x" id="fb-cancel" type="button" aria-label="Cancel" data-tip="Cancel"></button><button class="fb-ok" id="fb-enter" type="button" aria-label="Enter" data-tip="Enter"></button><button id="fb-fx" type="button" aria-label="Insert Function" data-tip="Insert Function"></button></div>
+    <div class="fb-edit"><textarea class="fb-input" id="fbinput" rows="1" aria-label="Formula Bar" spellcheck="false" autocomplete="off"></textarea></div>
+  </div>
+  <div class="main" id="main">
+    <div class="center" id="center">
+      <div class="gridwrap cur-cell" id="gridwrap" tabindex="0" aria-label="Worksheet grid" role="grid">
+        <div class="glayer" id="glayer"></div>
+        <div class="sb vscroll" id="vscroll"></div>
+      </div>
+      <div class="tabrow" id="tabrow">
+        <div class="tabnav" id="tabnav"></div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Sheets"></div>
+        <div class="tabsplit" id="tabsplit" role="separator" aria-orientation="vertical"></div>
+        <div class="sb hscroll" id="hscroll"></div>
+        <div class="sb-corner"></div>
+      </div>
+    </div>
+    <div class="taskpane" id="taskpane" hidden></div>
+  </div>
+  <div class="drawrow" id="drawrow" hidden></div>
+  <div class="statusbar" id="statusbar"></div>
+</div>
+<script src="../common/suite.js"></script>
+<script>window.L = { APP_ID: 'matheuse', APP_NAME: 'Matheuse', APP: 'Matheuse' };</script>
+<!--SCRIPTS-->

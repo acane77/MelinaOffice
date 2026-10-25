@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild public/common/dict/en_GB.words: the British English spelling list (Quire, Ledger).
+"""Rebuild public/common/dict/en_GB.words: the British English spelling list (Ecrivaine, Matheuse).
 
     python3 tools/dict.py          # needs bash and perl (SCOWL's mk-list)
 

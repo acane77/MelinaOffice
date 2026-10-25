@@ -1,4 +1,4 @@
-# VibeOffice desktop app (Tauri): Windows and macOS, Linux too
+# Melina Office desktop app (Tauri): Windows and macOS, Linux too
 
 `desktop/` wraps the suite in `public/` in a native window with [Tauri 2](https://tauri.app). The pages are the same files as the web version, embedded in the binary (brotli) and served from `http://tauri.localhost/` (Windows) or `tauri://localhost/` (macOS, Linux). They draw in the system's web view: WebView2 (Edge) on Windows, which every supported Windows 10 and 11 already has; WKWebView (WebKit, Safari's engine) on macOS; WebKitGTK 4.1 on Linux. The pages reach the system only through `VO.host` (Host interface below).
 
@@ -10,13 +10,13 @@
 | `desktop/src/main.rs` | one instance on Windows (`second_start`); files handed over later (`files_arrived`: another start on Windows, Finder on macOS); the main window: system title bar follows `document.title`, file drops go to the page, links out of the app go to the default browser, the UI size on each page load, `__VO_HOST__` before each page; on macOS the menu bar (`mac_menu`), Finder's files (`RunEvent::Opened`), the Dock (`Reopen`) and staying open with no window (macOS, below) |
 | `desktop/src/host.rs` | the native side of `VO.host`: the `host_*` commands, file handles, `settings.json` |
 | `desktop/src/installation.rs` | what the installer writes and `-uninstall` removes, in one list: files, shortcuts, HKCU registrations (shared with `setup/`) |
-| `desktop/src/installed.rs` | Windows: `vibeoffice.exe -uninstall`, and the first start after installing (taskbar pin request, Default apps) |
+| `desktop/src/installed.rs` | Windows: `melinaoffice.exe -uninstall`, and the first start after installing (taskbar pin request, Default apps) |
 | `desktop/app.manifest` | common controls v6 and `asInvoker` (never asks for administrator rights) |
 | `desktop/macos/` | `Info.plist` (the bundle's, filled in by `build.sh`), `direct.entitlements` and `appstore.entitlements`, `build.sh` (the macOS release, on a Mac: macOS, below) |
 | `desktop/release-notes.md` | the GitHub release's notes, both downloads (either workflow may create the release) |
-| `desktop/setup/` | the installer, `VibeOfficeSetup.exe`: carries the app; its dialog, manifest and version in `setup.rc` |
+| `desktop/setup/` | the installer, `melinaoffice-setup.exe`: carries the app; its dialog, manifest and version in `setup.rc` |
 | `desktop/capabilities/default.json` | `core:default` for the main window |
-| `desktop/icons/` | `icon.icns` (macOS: the app icon on Apple's grid, 16–1024 px, from `public/icons/icon.svg` by `tools/desktop-icons.py`), `icon.ico` (16–256 px; the exe and the installer), `quire.ico`, `ledger.ico`, `lectern.ico` (document icons, resources 40101–40103 in the exe, numbered after the app icon's 32512 so that stays the exe's first, generated from each app's SVG by `tools/desktop-icons.py`), and `icon.png` (128 px, Linux window icon; Tauri embeds it as raw RGBA, so keep it small) |
+| `desktop/icons/` | `icon.icns` (macOS: the app icon on Apple's grid, 16–1024 px, from `public/icons/icon.svg`), `icon.ico` (16–256 px; the exe and the installer), `ecrivaine.ico`, `matheuse.ico`, `oratrice.ico` (document icons, resources 40101–40103 in the exe, numbered after the app icon's 32512 so that stays the exe's first, from `VO.appIcon`), and `icon.png` (128 px, Linux window icon; Tauri embeds it as raw RGBA, so keep it small). All of these are rewritten by `tools/rebuild_icons.sh` |
 | `desktop/licenses/` | license texts of what ships with the app but is not a crate (`WebView2Loader.txt`, from the WebView2 SDK package), and in `crates/` those of the crates whose package has none (taken from their repositories), for `public/oss-licenses.html` |
 | `desktop/patches/option-ext/` | our own stand-in for the `option-ext` crate (MPL-2.0), which `dirs-sys` uses through Tauri: the one method it needs, Apache-2.0, put in its place by `[patch.crates-io]` in `Cargo.toml` (AGENTS.md, Code from other projects) |
 | `desktop/build.sh` | release build: the exe, the installer and the zip in `desktop/target/dist/` |
@@ -26,7 +26,7 @@
 
 ## Host interface
 
-One interface between the pages and what runs them, so a page never asks which: `VO.host` in `public/common/suite.js`. In a browser (tab or installed PWA) it is built on the browser's APIs; in the desktop app on the commands in `desktop/src/host.rs`, called over Tauri's IPC (`window.__TAURI_INTERNALS__.invoke`). The desktop app announces itself before each page's scripts with `window.__VO_HOST__ = { platform, version, appVersion, edition }` (`edition`: `'appstore'` for the Mac App Store's, else `'direct'`); the same script makes Golden Gate the desktop app's look until the user picks one (`vibeoffice.look`).
+One interface between the pages and what runs them, so a page never asks which: `VO.host` in `public/common/suite.js`. In a browser (tab or installed PWA) it is built on the browser's APIs; in the desktop app on the commands in `desktop/src/host.rs`, called over Tauri's IPC (`window.__TAURI_INTERNALS__.invoke`). The desktop app announces itself before each page's scripts with `window.__VO_HOST__ = { platform, version, appVersion, edition }` (`edition`: `'appstore'` for the Mac App Store's, else `'direct'`); the same script makes Golden Gate the desktop app's look until the user picks one (`melinaoffice.look`).
 
 | `VO.host` | Web | Desktop |
 |---|---|---|
@@ -48,7 +48,7 @@ A third host, `kind: 'vscode'`, is the VS Code and code-server extension (`vscod
 
 Links: besides `openUrl`, the native side sends every navigation or new window that leaves the app (http(s) to another host, mailto) to the default browser (`on_navigation`, `on_new_window` in `main.rs`): the Start Center's GitHub button and the `target="_blank"` links the apps open for hyperlinks need no change. The app's own pages (`tauri://localhost`, `http://tauri.localhost`; devUrl in a dev build), `blob:`, `data:` and `about:` stay in the app.
 
-UI size (the web view's zoom, kept in `settings.json`; the Start Center no longer sets it): the web view's zoom, as Ctrl + in a browser, so canvases stay sharp and clicks land where they should. CSS `zoom` on the page was measured and does not work: at 200 % every click on Ledger's grid landed on B4 and menus opened at twice their place. `settings.json` (the app's config folder: `%APPDATA%\work.vibeoffice.desktop\`, `~/.config/work.vibeoffice.desktop/`) keeps it, and it is applied as each page starts loading (WebKitGTK resets the zoom on the first load).
+UI size (the web view's zoom, kept in `settings.json`; the Start Center no longer sets it): the web view's zoom, as Ctrl + in a browser, so canvases stay sharp and clicks land where they should. CSS `zoom` on the page was measured and does not work: at 200 % every click on Matheuse's grid landed on B4 and menus opened at twice their place. `settings.json` (the app's config folder: `%APPDATA%\net.acane.melinaoffice.desktop\`, `~/.config/net.acane.melinaoffice.desktop/`) keeps it, and it is applied as each page starts loading (WebKitGTK resets the zoom on the first load).
 
 Rules for growing it:
 
@@ -57,7 +57,7 @@ Rules for growing it:
 - Commands are named `host_<verb>`, take named arguments and return JSON or raw bytes (`tauri::ipc::Response`, an `ArrayBuffer` in the page) for file contents.
 - App commands are allowed only for the app's own pages: Tauri refuses them from any other origin while the app has no ACL manifest.
 
-Windows: as when the PWA is installed, the Start Center stays in its window and each app opens in one of its own (`VO.go` → `newWindow`); a file the app was started with opens beside the Start Center. One VibeOffice runs per user session (`tauri-plugin-single-instance`, Tauri's own, registered first in `main.rs`): a second start (the Start menu, a double-click on a file, Open with) hands its arguments to the running one and exits. Its files open there, as launch files do (`second_start` queues them and sends the Start Center `vo-files`); with none, the Start Center comes to the front, or opens again if it was closed. What the installer asked for (`-pin-taskbar`, `-choose-defaults`) is done by the running one too. File ▸ Exit in an app window closes it (`VO.exit` → `closeWindow`). A page cannot simply `window.open`: WebView2 would make a bare popup without the host script or IPC, so the app's own new windows are made natively (`open_window` in `main.rs`, from an async command: a sync one deadlocks on Windows).
+Windows: as when the PWA is installed, the Start Center stays in its window and each app opens in one of its own (`VO.go` → `newWindow`); a file the app was started with opens beside the Start Center. One Melina Office runs per user session (`tauri-plugin-single-instance`, Tauri's own, registered first in `main.rs`): a second start (the Start menu, a double-click on a file, Open with) hands its arguments to the running one and exits. Its files open there, as launch files do (`second_start` queues them and sends the Start Center `vo-files`); with none, the Start Center comes to the front, or opens again if it was closed. What the installer asked for (`-pin-taskbar`, `-choose-defaults`) is done by the running one too. File ▸ Exit in an app window closes it (`VO.exit` → `closeWindow`). A page cannot simply `window.open`: WebView2 would make a bare popup without the host script or IPC, so the app's own new windows are made natively (`open_window` in `main.rs`, from an async command: a sync one deadlocks on Windows).
 
 Planned: `open({ accept })` (the system's Open dialog), `save(handle, blob)` and `saveAs(name, blob)` (in place, as File ▸ Save does in Office) and one instance on Linux (today each start there is a process of its own).
 
@@ -85,9 +85,9 @@ A version is `v<yyyy>.<mm>.<dd>-<6 hex>`, the date (UTC) and commit of the tree 
 
 `public/updater/whatsnew.json`, also by hand: one list for every platform, version → plain text (line breaks kept).
 
-    { "v2026.10.11-000000": "VibeOffice for Windows and Linux: …" }
+    { "v2026.10.11-000000": "Melina Office for Windows and Linux: …" }
 
-The Start Center does not show an update button or dialog. `VO.checkUpdate` in `suite.js`, if called, reads `https://vibeoffice.work/updater/current.json` (the site sends `Access-Control-Allow-Origin: *`; nothing about the user or their files is sent). Older than `show-update-dialog`: the Update dialog, at most once a day (`vibeoffice.updateAsked`), listing the `whatsnew.json` entries newer than this version, newest first (by date; the dialog shows without them if that file cannot be read); older than `show-update-button`: it returns `ask: 'button'`. `whatsnew.json` is read only when an update is due. Update opens `https://vibeoffice.work/updater/?from_version=<version>&current_platform=<platform>` in the default browser. Offline, or a file that is not this JSON: nothing is shown. A `dev` build is newer than any dated version and never asks. To try both against the published file without asking anyone else: keep `show-update-dialog` older than `show-update-button` (`v2026.10.05` and `v2026.10.11`) and build exes stamped in between and before (`VO_VERSION=v2026.10.08-000000` → the button only; `v2026.10.01-000000` → the dialog), e.g. `VO_VERSION=… TAURI_CONFIG='{"version":"2026.10.8"}' cargo build --release`; the dialog shows once a day per profile (`vibeoffice.updateAsked`). `tests/desktop/host.test.mjs` checks the repo's `current.json` the same way.
+The Start Center does not show an update button or dialog. `VO.checkUpdate` in `suite.js`, if called, reads `https://acane.net/melinaoffice/updater/current.json` (the site sends `Access-Control-Allow-Origin: *`; nothing about the user or their files is sent). Older than `show-update-dialog`: the Update dialog, at most once a day (`melinaoffice.updateAsked`), listing the `whatsnew.json` entries newer than this version, newest first (by date; the dialog shows without them if that file cannot be read); older than `show-update-button`: it returns `ask: 'button'`. `whatsnew.json` is read only when an update is due. Update opens `https://acane.net/melinaoffice/updater/?from_version=<version>&current_platform=<platform>` in the default browser. Offline, or a file that is not this JSON: nothing is shown. A `dev` build is newer than any dated version and never asks. To try both against the published file without asking anyone else: keep `show-update-dialog` older than `show-update-button` (`v2026.10.05` and `v2026.10.11`) and build exes stamped in between and before (`VO_VERSION=v2026.10.08-000000` → the button only; `v2026.10.01-000000` → the dialog), e.g. `VO_VERSION=… TAURI_CONFIG='{"version":"2026.10.8"}' cargo build --release`; the dialog shows once a day per profile (`melinaoffice.updateAsked`). `tests/desktop/host.test.mjs` checks the repo's `current.json` the same way.
 
 ## Building
 
@@ -95,43 +95,43 @@ Windows (below); macOS: `desktop/macos/build.sh`, on a Mac (macOS, below).
 
 Needs Rust with the `x86_64-pc-windows-gnu` target, mingw-w64 (`x86_64-w64-mingw32-gcc`, `windres`) and `zip`; builds on Linux, no Windows SDK.
 
-    desktop/build.sh        # desktop/target/dist/: VibeOffice-Windows-x64.zip, holding VibeOfficeSetup.exe
+    desktop/build.sh        # desktop/target/dist/: MelinaOffice-Windows-x64.zip, holding melinaoffice-setup.exe
 
-`cd desktop && cargo build --release` builds the exe alone (`target/x86_64-pc-windows-gnu/release/`); `cargo build --release -p vibeoffice-setup` then builds the installer around it (`VO_PAYLOAD`: another folder holding `vibeoffice.exe` and `WebView2Loader.dll`). `cargo build --no-default-features` leaves out the embedded pages and loads `devUrl` (http://127.0.0.1:8760/, `tools/serve.py`), so page edits show on reload without rebuilding.
+`cd desktop && cargo build --release` builds the exe alone (`target/x86_64-pc-windows-gnu/release/`); `cargo build --release -p melinaoffice-setup` then builds the installer around it (`VO_PAYLOAD`: another folder holding `melinaoffice.exe` and `WebView2Loader.dll`). `cargo build --no-default-features` leaves out the embedded pages and loads `devUrl` (http://127.0.0.1:8760/, `tools/serve.py`), so page edits show on reload without rebuilding.
 
-CI runs only by hand: Actions ▸ Windows ▸ Run workflow (pick the branch; tick *pre-release* if it is one). It runs `build.sh` on Ubuntu, keeps the installer as the run's artifact (`VibeOffice-Windows-x64`: GitHub zips it, so it downloads as the same zip) and publishes `VibeOffice-Windows-x64.zip` as a GitHub release tagged with the version (`v2026.10.11-d2134d`, at the commit built); running it again on the same commit replaces the release's file. The zip's name is the same in every release, so `releases/latest/download/VibeOffice-Windows-x64.zip` is always the newest. `public/updater/current.json` is not touched: raising the versions there is what makes installed copies offer the update.
+CI runs only by hand: Actions ▸ Windows ▸ Run workflow (pick the branch; tick *pre-release* if it is one). It runs `build.sh` on Ubuntu, keeps the installer as the run's artifact (`Melina Office-Windows-x64`: GitHub zips it, so it downloads as the same zip) and publishes `MelinaOffice-Windows-x64.zip` as a GitHub release tagged with the version (`v2026.10.11-d2134d`, at the commit built); running it again on the same commit replaces the release's file. The zip's name is the same in every release, so `releases/latest/download/MelinaOffice-Windows-x64.zip` is always the newest. `public/updater/current.json` is not touched: raising the versions there is what makes installed copies offer the update.
 
 ## The installer
 
-`VibeOfficeSetup.exe` (`desktop/setup/`), alone in the release zip, installs VibeOffice for the user who runs it, without administrator rights, as Chrome does. It carries the app (`vibeoffice.exe`, `WebView2Loader.dll`, `LICENSE.txt`) and writes it into `%LOCALAPPDATA%\VibeOffice`. What it writes is listed once, in `desktop/src/installation.rs`, which `vibeoffice.exe -uninstall` removes again:
+`melinaoffice-setup.exe` (`desktop/setup/`), alone in the release zip, installs Melina Office for the user who runs it, without administrator rights, as Chrome does. It carries the app (`melinaoffice.exe`, `WebView2Loader.dll`, `LICENSE.txt`) and writes it into `%LOCALAPPDATA%\Melina Office`. What it writes is listed once, in `desktop/src/installation.rs`, which `melinaoffice.exe -uninstall` removes again:
 
-- desktop and Start menu shortcuts (`VibeOffice.lnk`, with the AppUserModelID `work.vibeoffice.desktop`, which the app sets on its process too);
-- under HKCU: Apps & features (`Uninstall\VibeOffice`: version, size, icon, `UninstallString` = `"…\vibeoffice.exe" -uninstall`), `App Paths`, `Applications\vibeoffice.exe`, and the file types `.docx` (Quire Document), `.xlsx` (Ledger Worksheet) and `.pptx` (Lectern Presentation): a ProgID each (`VibeOffice.docx`, … with `"…\vibeoffice.exe" "%1"` and the app's document icon), listed under the extension's `OpenWithProgids` and in the app's Default apps capabilities (`RegisteredApplications`). The extension's own default and `UserChoice` are Windows' and the user's: never written (UCPD protects UserChoice anyway);
+- desktop and Start menu shortcuts (`Melina Office.lnk`, with the AppUserModelID `net.acane.melinaoffice.desktop`, which the app sets on its process too);
+- under HKCU: Apps & features (`Uninstall\Melina Office`: version, size, icon, `UninstallString` = `"…\melinaoffice.exe" -uninstall`), `App Paths`, `Applications\melinaoffice.exe`, and the file types `.docx` (Ecrivaine Document), `.xlsx` (Matheuse Worksheet) and `.pptx` (Oratrice Presentation): a ProgID each (`MelinaOffice.docx`, … with `"…\melinaoffice.exe" "%1"` and the app's document icon), listed under the extension's `OpenWithProgids` and in the app's Default apps capabilities (`RegisteredApplications`). The extension's own default and `UserChoice` are Windows' and the user's: never written (UCPD protects UserChoice anyway);
 - Explorer is told the file types changed (`SHChangeNotify`).
 
-It writes the files first, then the registry (so Apps & features can always uninstall), then the shortcuts (one that can't be made is a warning, not a failed install), and starts the app outside any job object Windows may run installers in. Each step, and the app's first start (the pin request, Default apps), goes to `%TEMP%\VibeOfficeSetup.log`.
+It writes the files first, then the registry (so Apps & features can always uninstall), then the shortcuts (one that can't be made is a warning, not a failed install), and starts the app outside any job object Windows may run installers in. Each step, and the app's first start (the pin request, Default apps), goes to `%TEMP%\melinaoffice-setup.log`.
 
 The dialog (`setup.rc`) says where it installs and offers two choices:
 
-- **Pin VibeOffice to the taskbar** (ticked for a new install): the app, at its first start, asks Windows (`TaskbarManager.RequestPinCurrentAppAsync`), and Windows asks the user. Windows lets only the app itself ask, in front and with a Start menu entry, never an installer. The box shows only where Windows lets desktop apps ask: `TaskbarManager` with desktop app support, and no Limited Access Feature token needed (from KB5074105, builds 26100/26200.7705); elsewhere (Windows 10, older Windows 11) the dialog says how to pin it from the Start menu;
-- **Open default app settings, in which you can set VibeOffice as default app by yourself.** Ticked unless the user has already chosen VibeOffice for `.docx`, `.xlsx` and `.pptx` (their `UserChoice`, or `UserChoiceLatest` on newer Windows 11; only read). Ticked, the app opens `ms-settings:defaultapps?registeredAppUser=VibeOffice`, VibeOffice's page in Default apps, after the pin question; if the app can't be started, the installer opens it. The file types are registered either way; which app opens them is the user's choice, made there.
+- **Pin Melina Office to the taskbar** (ticked for a new install): the app, at its first start, asks Windows (`TaskbarManager.RequestPinCurrentAppAsync`), and Windows asks the user. Windows lets only the app itself ask, in front and with a Start menu entry, never an installer. The box shows only where Windows lets desktop apps ask: `TaskbarManager` with desktop app support, and no Limited Access Feature token needed (from KB5074105, builds 26100/26200.7705); elsewhere (Windows 10, older Windows 11) the dialog says how to pin it from the Start menu;
+- **Open default app settings, in which you can set Melina Office as default app by yourself.** Ticked unless the user has already chosen Melina Office for `.docx`, `.xlsx` and `.pptx` (their `UserChoice`, or `UserChoiceLatest` on newer Windows 11; only read). Ticked, the app opens `ms-settings:defaultapps?registeredAppUser=Melina%20Office`, Melina Office's page in Default apps, after the pin question; if the app can't be started, the installer opens it. The file types are registered either way; which app opens them is the user's choice, made there.
 
-The installer starts the app with the choices (`-pin-taskbar`, `-choose-defaults`); the app acts on them once its Start Center has loaded (`installed.rs`). Run again with this very app installed (its `vibeoffice.exe` byte for byte, whatever the version says), it offers **Reinstall**, which also repairs what is missing; another build gets **Update**. Files dropped on the installer open in the app. A running VibeOffice keeps running during an update: its files, which Windows won't let anyone replace, are renamed `*.old` and the app removes them at its next start. Until it has been closed entirely, a start goes to the running (old) one, which opens Default apps as asked. A DLL in the folder that is not the app's is deleted.
+The installer starts the app with the choices (`-pin-taskbar`, `-choose-defaults`); the app acts on them once its Start Center has loaded (`installed.rs`). Run again with this very app installed (its `melinaoffice.exe` byte for byte, whatever the version says), it offers **Reinstall**, which also repairs what is missing; another build gets **Update**. Files dropped on the installer open in the app. A running Melina Office keeps running during an update: its files, which Windows won't let anyone replace, are renamed `*.old` and the app removes them at its next start. Until it has been closed entirely, a start goes to the running (old) one, which opens Default apps as asked. A DLL in the folder that is not the app's is deleted.
 
-Uninstall (Apps & features, or `vibeoffice.exe -uninstall`) asks first; **Also delete VibeOffice's settings, Recent Files list and drafts** (unticked) also removes `%LOCALAPPDATA%\work.vibeoffice.desktop` (the WebView2 profile) and `%APPDATA%\work.vibeoffice.desktop`. With VibeOffice open, it asks the user to close it (Retry). It removes the shortcuts (and the taskbar pin's) that point to the app, VibeOffice's own keys, and only its own values in shared ones (`OpenWithProgids`, `RegisteredApplications`); the folder goes once the uninstaller has ended (a hidden `cmd.exe` from System32 waits for it).
+Uninstall (Apps & features, or `melinaoffice.exe -uninstall`) asks first; **Also delete Melina Office's settings, Recent Files list and drafts** (unticked) also removes `%LOCALAPPDATA%\net.acane.melinaoffice.desktop` (the WebView2 profile) and `%APPDATA%\net.acane.melinaoffice.desktop`. With Melina Office open, it asks the user to close it (Retry). It removes the shortcuts (and the taskbar pin's) that point to the app, Melina Office's own keys, and only its own values in shared ones (`OpenWithProgids`, `RegisteredApplications`); the folder goes once the uninstaller has ended (a hidden `cmd.exe` from System32 waits for it).
 
 The installer runs from Downloads, so it loads nothing from its own folder: it imports only Known DLLs and API sets (`build.sh` fails otherwise), calls `SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32)` before anything else, and gets comctl32 v6 from side-by-side (its manifest). Per user, the folder is writable by the user, as Chrome's per-user install is; integrity levels keep low-integrity and sandboxed processes out.
 
-`python3 tests/desktop/setup-wine.py desktop/target/dist/VibeOfficeSetup.exe` runs it end to end in Wine (needs wine, Xvfb, xdotool, ImageMagick), in its own prefix in `./tmp/setup-wine` with screenshots of both dialogs: install from a folder holding only the installer (files, shortcuts, registry, no extension default), again with that version (no dialog), uninstall (all gone, another program's `OpenWithProgids` entry kept). Regenerate the document icons after changing an app's SVG with `python3 tools/desktop-icons.py` (`rsvg-convert` from librsvg2-bin, and ImageMagick).
+`python3 tests/desktop/setup-wine.py desktop/target/dist/melinaoffice-setup.exe` runs it end to end in Wine (needs wine, Xvfb, xdotool, ImageMagick), in its own prefix in `./tmp/setup-wine` with screenshots of both dialogs: install from a folder holding only the installer (files, shortcuts, registry, no extension default), again with that version (no dialog), uninstall (all gone, another program's `OpenWithProgids` entry kept). Regenerate the icons after changing `public/icons/icon.svg` or `VO.appIcon` with `tools/rebuild_icons.sh` (`rsvg-convert` from librsvg2-bin, and ImageMagick).
 
 ## macOS: the DMG and the Mac App Store
 
 One universal binary (Apple silicon and Intel, macOS 13 or later), bundled twice, the two editions told apart by
 `VODistribution` in the bundle's `Info.plist`, which the signature seals (`host::app_store`):
 
-- **direct**: `VibeOffice-macOS.dmg` in the GitHub release, signed with Developer ID, notarized and stapled. It checks
+- **direct**: `MelinaOffice-macOS.dmg` in the GitHub release, signed with Developer ID, notarized and stapled. It checks
   for updates as Windows does (`updater/current.json`, `macos`).
-- **appstore**: `VibeOffice-macOS-AppStore.pkg` for App Store Connect (TestFlight, then review), signed for the store
+- **appstore**: `MelinaOffice-macOS-AppStore.pkg` for App Store Connect (TestFlight, then review), signed for the store
   with its provisioning profile. `edition: 'appstore'`: the Start Center never checks for updates, the store updates it
   (App Review guideline 2.4.5), so it has no network entitlement either.
 
@@ -144,7 +144,7 @@ The Mac's ways (`main.rs`):
 
 - Files from Finder (a double-click, Open With, a drop on the Dock icon) arrive as `RunEvent::Opened`, at start or
   while the app runs, and open as launch files do; the sandbox lets the app read them. `Info.plist` lists .docx, .xlsx
-  and .pptx (Quire Document, Ledger Worksheet, Lectern Presentation), as the Windows installer does: in Open With, never
+  and .pptx (Ecrivaine Document, Matheuse Worksheet, Oratrice Presentation), as the Windows installer does: in Open With, never
   taking the default (`LSHandlerRank` Alternate); the system draws their icons from the app's.
 - The app stays open, with its menu bar, after its last window closes; a click on the Dock icon brings the Start
   Center back; Quit (⌘Q) ends it.
@@ -155,9 +155,9 @@ The Mac's ways (`main.rs`):
 
 **Building**, on a Mac with Xcode's command line tools and Rust's `aarch64-apple-darwin` and `x86_64-apple-darwin`:
 
-    desktop/macos/build.sh        # desktop/target/dist/: VibeOffice.app, and the DMG and package it can sign
+    desktop/macos/build.sh        # desktop/target/dist/: Melina Office.app, and the DMG and package it can sign
 
-It builds both binaries, joins them (`lipo`) and bundles `VibeOffice.app`; then, by the identities in the keychain
+It builds both binaries, joins them (`lipo`) and bundles `Melina Office.app`; then, by the identities in the keychain
 (found by name; `MACOS_DEVELOPER_ID`, `MACOS_APPSTORE_ID`, `MACOS_INSTALLER_ID` choose others):
 
 - none: the app signed ad hoc, to try on that Mac (and the CI smoke run);
@@ -178,10 +178,10 @@ only, so nothing here links, bundles or runs. After `rustup target add aarch64-a
 
 **CI**, run by hand: Actions ▸ macOS ▸ Run workflow (`.github/workflows/macos.yml`, on `macos-15`). It builds, then
 opens the app alone and with a .docx, a .csv and a .md (`open -a`, as Finder does) and keeps a screenshot after each
-(artifact `VibeOffice-macOS-smoke`, with the app's log). With the signing secrets it adds the DMG to the version's
+(artifact `MelinaOffice-macOS-smoke`, with the app's log). With the signing secrets it adds the DMG to the version's
 GitHub release (the tag Windows uses, so one release holds both; `desktop/release-notes.md`) and, with *app_store*
 ticked, uploads the package to App Store Connect (`altool`). Without them the app is signed ad hoc and nothing is
-released: artifact `VibeOffice-macOS-unsigned`, which starts after `xattr -dr com.apple.quarantine VibeOffice.app`.
+released: artifact `MelinaOffice-macOS-unsigned`, which starts after `xattr -dr com.apple.quarantine Melina Office.app`.
 
 The signing material is in the secrets of the `release` environment (Settings ▸ Environments; limit it to `main`, so
 runs from other branches and from forks never see them):
@@ -190,11 +190,11 @@ runs from other branches and from forks never see them):
 |---|---|
 | `MACOS_DEVELOPER_ID_P12`, `MACOS_DEVELOPER_ID_PASSWORD` | the Developer ID Application certificate and key, a .p12 in base64 (only the team's Account Holder can create it) |
 | `MACOS_APPSTORE_P12`, `MACOS_APPSTORE_PASSWORD` | the Apple Distribution and Mac Installer Distribution certificates and keys, one .p12 in base64 |
-| `MACOS_PROVISION_PROFILE` | the Mac App Store Connect provisioning profile for `work.vibeoffice.desktop`, in base64 |
+| `MACOS_PROVISION_PROFILE` | the Mac App Store Connect provisioning profile for `net.acane.melinaoffice.desktop`, in base64 |
 | `APPLE_TEAM_ID` | the team ID (otherwise read from the identity's name) |
 | `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8` | an App Store Connect API team key (the .p8 file's text) with the lowest role that works (Developer; App Manager if the upload is refused): notarizing and uploading |
 
-Before the first upload: the app's record in App Store Connect (bundle ID `work.vibeoffice.desktop`) and the answers to
+Before the first upload: the app's record in App Store Connect (bundle ID `net.acane.melinaoffice.desktop`) and the answers to
 its export compliance questions (`crypto.js` encrypts and opens password-protected Office files with standard AES and
 SHA), after which `ITSAppUsesNonExemptEncryption` goes into `Info.plist`. Submitting for review waits for real saving
 (todos/DESKTOP_REAL_SAVE.md, Phase 2): until then every save lands in Downloads.
@@ -207,19 +207,19 @@ The same crate builds for Linux against WebKitGTK 4.1, GTK 3 and libsoup 3 (`lib
 
     cd desktop && cargo build --release --target x86_64-unknown-linux-gnu
 
-Run it with a file to open: `target/x86_64-unknown-linux-gnu/release/vibeoffice ~/Budget.csv`. No package yet (`.deb`, AppImage, a `.desktop` file with the MIME types).
+Run it with a file to open: `target/x86_64-unknown-linux-gnu/release/melinaoffice ~/Budget.csv`. No package yet (`.deb`, AppImage, a `.desktop` file with the MIME types).
 
 ## Size
 
 | Build (2026-10-11, Tauri 2.12.3, rustc 1.95) | Size |
 |---|---|
-| `vibeoffice.exe`, release | 7.4 MB (7.39) |
+| `melinaoffice.exe`, release | 7.4 MB (7.39) |
 | of which `public/` (11 MB, brotli quality 9) | about 4.1 MB |
 | of which the three document icons | 315 KB |
 | `WebView2Loader.dll`, installed beside the exe (GNU target) | 160 KB |
-| `VibeOfficeSetup.exe`: the above, `LICENSE.txt` and its own 425 KB (code 283 KB, icon and dialog 57 KB) | 8.0 MB |
-| `VibeOffice-Windows-x64.zip` | 5.8 MB |
-| `vibeoffice`, Linux release | 7.2 MB |
+| `melinaoffice-setup.exe`: the above, `LICENSE.txt` and its own 425 KB (code 283 KB, icon and dialog 57 KB) | 8.0 MB |
+| `MelinaOffice-Windows-x64.zip` | 5.8 MB |
+| `melinaoffice`, Linux release | 7.2 MB |
 
 Licenses: `tools/oss-licenses.py` lists every crate compiled into the app and its installer, on Windows, macOS and Linux (Linux's native GTK and WebKitGTK libraries are not crates and are not covered: Linux above; 168 today: the workspace's members and their normal dependencies all the way down, with features as the build resolves them, from `cargo tree`; not what only build scripts or Tauri's procedural macros use, such as `cssparser`, `selectors` and `dtoa-short`, MPL-2.0, which never reach the binary), with the license files from each package, and the DLL installed beside the exe (`WebView2Loader.dll`), in `public/oss-licenses.html`; run it after changing a dependency. It stops if a shipped crate's licence needs copyleft; `--check` (also in `node --test tests/licenses.test.mjs`) checks the page against the crates that ship.
 
@@ -227,17 +227,17 @@ No exe packers (UPX): antivirus flags packed exes. The largest pages are the the
 
 ## Results
 
-- Linux (Debian 13, WebKitGTK 2.52.6, Xfce): Start Center, all three apps; `vibeoffice Budget.csv` opens it in Ledger and `Notes.md` in Quire, the title bar follows the document; Recent Files and the look are kept between runs. With no network at all (`unshare -rn`), a fresh profile: everything loads, in Paper; the GitHub button goes to `xdg-open`; UI size 150 % and 200 % scale the whole UI, sharp, and are back after a restart; the Start Center keeps Settings reachable in its narrow layout. Started with `Budget.csv`, the Start Center stays and Ledger opens in a window of its own; Quire from the Start Center opens a third window, and its File ▸ Exit closes only that one.
+- Linux (Debian 13, WebKitGTK 2.52.6, Xfce): Start Center, all three apps; `melinaoffice Budget.csv` opens it in Matheuse and `Notes.md` in Ecrivaine, the title bar follows the document; Recent Files and the look are kept between runs. With no network at all (`unshare -rn`), a fresh profile: everything loads, in Paper; the GitHub button goes to `xdg-open`; UI size 150 % and 200 % scale the whole UI, sharp, and are back after a restart; the Start Center keeps Settings reachable in its narrow layout. Started with `Budget.csv`, the Start Center stays and Matheuse opens in a window of its own; Ecrivaine from the Start Center opens a third window, and its File ▸ Exit closes only that one.
 - macOS (2026-10-15): type-checks for `aarch64-apple-darwin` and `x86_64-apple-darwin` on Linux; not yet built or run on a Mac (the first build is the CI's).
 - Not yet run against the published site: the update check (the site has no `updater/current.json` yet).
-- Installer (2026-10-11), Wine 10.0, `tests/desktop/setup-wine.py`: passes. The dialog shows the pinning hint (Wine has no TaskbarManager); install writes the three files, both shortcuts and the HKCU values; the same version again shows no dialog; uninstall (Enter) leaves no folder, shortcut or value of VibeOffice's and keeps another program's. `cargo test` (Windows target, under Wine): 5 passed. Wine cannot show the app itself (no WebView2), the pin prompt or Default apps.
-- Windows: built, not yet run. To check, as a user without administrator rights: install (the dialog at 100 % and 200 %), the pin prompt on an up-to-date Windows 11 and the hint on Windows 10, Default apps opening at VibeOffice's page, a double-clicked .docx afterwards; Open with lists VibeOffice for .docx, .xlsx and .pptx with their document icons; an update while the app runs; Uninstall from Apps & features; all three apps, saving, drops.
+- Installer (2026-10-11), Wine 10.0, `tests/desktop/setup-wine.py`: passes. The dialog shows the pinning hint (Wine has no TaskbarManager); install writes the three files, both shortcuts and the HKCU values; the same version again shows no dialog; uninstall (Enter) leaves no folder, shortcut or value of Melina Office's and keeps another program's. `cargo test` (Windows target, under Wine): 5 passed. Wine cannot show the app itself (no WebView2), the pin prompt or Default apps.
+- Windows: built, not yet run. To check, as a user without administrator rights: install (the dialog at 100 % and 200 %), the pin prompt on an up-to-date Windows 11 and the hint on Windows 10, Default apps opening at Melina Office's page, a double-clicked .docx afterwards; Open with lists Melina Office for .docx, .xlsx and .pptx with their document icons; an update while the app runs; Uninstall from Apps & features; all three apps, saving, drops.
 
 ## Known limits / to do
 
 - GNU builds import `WebView2Loader.dll`, installed beside the exe (Microsoft's static loader is MSVC-only).
 - Saving goes to the Downloads folder (Saving, above); writing the real file is planned in todos/DESKTOP_REAL_SAVE.md.
-- macOS: the menu bar is in English whatever the UI's language; the system draws the document icons (the app's icon on a page) rather than Quire's, Ledger's and Lectern's.
+- macOS: the menu bar is in English whatever the UI's language; the system draws the document icons (the app's icon on a page) rather than Ecrivaine's, Matheuse's and Oratrice's.
 - Linux: opening a file while the app runs starts a second process with its own Start Center, and closing the Start Center's window leaves no way back to it but starting the app again (Windows has one instance, which brings it back).
 - The Start Center's wording is the web's ("Office suite in your browser", "Recent files are kept in this browser only").
 - Code signing (SmartScreen warns about unsigned installers).

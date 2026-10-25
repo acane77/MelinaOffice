@@ -1,4 +1,4 @@
-/* VibeOffice — built-in clip art (original vector drawings, 64×64), used by Quire and Lectern. */
+/* Melina Office — built-in clip art (original vector drawings, 64×64), used by Ecrivaine and Oratrice. */
 (function (root) {
   'use strict';
   const N = (s) => s;   // a clip's name: UI text, translated where it is shown (common/i18n.js)

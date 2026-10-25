@@ -9,14 +9,14 @@ const docs = require('./documents');
 
 const TOOLS = [
   {
-    name: 'vibeoffice_dom_guide',
-    description: 'Read the Visual Basic object model for the VibeOffice document in the active editor. Call this before vibeoffice_run_vbs. The text is only for that app (Quire, Ledger, or Lectern) and names the syntax and the gaps versus Microsoft VBA.',
+    name: 'melinaoffice_dom_guide',
+    description: 'Read the Visual Basic object model for the Melina Office document in the active editor. Call this before melinaoffice_run_vbs. The text is only for that app (Ecrivaine, Matheuse, or Oratrice) and names the syntax and the gaps versus Microsoft VBA.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    annotations: { title: 'VibeOffice DOM guide', readOnlyHint: true },
+    annotations: { title: 'Melina Office DOM guide', readOnlyHint: true },
   },
   {
-    name: 'vibeoffice_run_vbs',
-    description: 'Run VB6 on the VibeOffice document in the active editor tab. mode "module" (default) compiles source as a standard module and runs Public Sub Main, or the public procedure named by entry. mode "line" runs one Immediate statement; start a read with ? or Debug.Print. The script can read and edit that document. A call that needs approval asks Allow, Always allow, or Deny inside this tool call. Shell is always refused.',
+    name: 'melinaoffice_run_vbs',
+    description: 'Run VB6 on the Melina Office document in the active editor tab. mode "module" (default) compiles source as a standard module and runs Public Sub Main, or the public procedure named by entry. mode "line" runs one Immediate statement; start a read with ? or Debug.Print. The script can read and edit that document. A call that needs approval asks Allow, Always allow, or Deny inside this tool call. Shell is always refused.',
     inputSchema: {
       type: 'object',
       additionalProperties: false,
@@ -59,7 +59,7 @@ function createSession(call) {
         return reply({
           protocolVersion,
           capabilities: { tools: { listChanged: false } },
-          serverInfo: { name: 'vibeoffice', version: '1.0.3' },
+          serverInfo: { name: 'melinaoffice', version: '1.0.3' },
           instructions: guide.INSTRUCTIONS,
         });
       }
@@ -70,10 +70,10 @@ function createSession(call) {
         const params = msg.params || {};
         const name = params.name;
         const args = params.arguments || {};
-        if (name !== 'vibeoffice_dom_guide' && name !== 'vibeoffice_run_vbs') {
+        if (name !== 'melinaoffice_dom_guide' && name !== 'melinaoffice_run_vbs') {
           return reply(toolResult({ ok: false, error: { message: 'Unknown tool.' } }));
         }
-        if (name === 'vibeoffice_run_vbs') {
+        if (name === 'melinaoffice_run_vbs') {
           const problem = docs.validateRun(args);
           if (problem) return reply(toolResult({ ok: false, error: { message: problem } }));
         }
@@ -109,7 +109,7 @@ function postJson(url, token, body) {
       headers: {
         'content-type': 'application/json',
         'content-length': data.length,
-        'x-vibeoffice-token': token,
+        'x-melinaoffice-token': token,
       },
     }, (res) => {
       const chunks = [];
@@ -130,12 +130,12 @@ function postJson(url, token, body) {
 }
 
 function bridgeCall(body) {
-  const url = process.env.VIBEOFFICE_BRIDGE_URL;
-  const token = process.env.VIBEOFFICE_BRIDGE_TOKEN;
+  const url = process.env.MELINAOFFICE_BRIDGE_URL;
+  const token = process.env.MELINAOFFICE_BRIDGE_TOKEN;
   if (!url || !token) {
     return Promise.resolve({
       ok: false,
-      error: { message: 'The VibeOffice editor is not connected.' },
+      error: { message: 'The Melina Office editor is not connected.' },
     });
   }
   return postJson(url, token, body);

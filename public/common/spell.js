@@ -1,7 +1,7 @@
-/* VibeOffice — the spelling engine shared by Quire and Ledger: the offline word lists (common/dict/,
+/* Melina Office — the spelling engine shared by Ecrivaine and Matheuse: the offline word lists (common/dict/,
  * Hunspell/SCOWL-derived, ranked by frequency), checking, suggestions by edit distance, the custom dictionary
- * and Ignore All. Each app has its own spelling UI on top (Quire: underlines, grammar and its dialog;
- * Ledger: Tools ▸ Spelling); an app that draws underlines sets SP.refreshSoon to redraw them.
+ * and Ignore All. Each app has its own spelling UI on top (Ecrivaine: underlines, grammar and its dialog;
+ * Matheuse: Tools ▸ Spelling); an app that draws underlines sets SP.refreshSoon to redraw them.
  */
 (function (root) {
   'use strict';
@@ -165,7 +165,7 @@
     }
     return Array.from(found.entries()).sort((x, y) => x[1] - y[1]).slice(0, max).map(([s]) => (/^\p{Lu}/u.test(s) && !isUpper(w) ? s : restoreCase(s, w)));
   };
-  /* ================= AutoCorrect's default list (Quire and Ledger) ================= */
+  /* ================= AutoCorrect's default list (Ecrivaine and Matheuse) ================= */
   /* Derived from Apache OpenOffice extras/source/autotext/lang/en-US/acor_en-US.dat (DocumentList.xml; Apache License
      2.0): its entries less those our AutoFormat options cover (--, 1/2, 1/4, 3/4) and "I.e.", with "cutsomers" made
      "customers" (it gave "customer"). entry=replacement, separated by | */

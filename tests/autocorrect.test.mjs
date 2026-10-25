@@ -1,4 +1,4 @@
-// AutoCorrect's default list (public/common/spell.js, shared by Quire and Ledger): Apache OpenOffice's English entries
+// AutoCorrect's default list (public/common/spell.js, shared by Ecrivaine and Matheuse): Apache OpenOffice's English entries
 // and our own rules, nothing that clashes with an AutoFormat option:  node --test tests/autocorrect.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

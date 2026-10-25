@@ -12,19 +12,19 @@ const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sample = path.join(root, 'examples/vb/calculator');
 
-async function bootQuire() {
+async function bootEcrivaine() {
   globalThis.window = globalThis;
   require('../public/common/host-audit.js');
   require('../public/common/core.js');
-  require('../public/quire/js/dmodel.js');
-  require('../public/quire/js/ops.js');
-  require('../public/quire/js/dom.js');
-  require('../public/quire/js/dom-ir.js');
+  require('../public/ecrivaine/js/dmodel.js');
+  require('../public/ecrivaine/js/ops.js');
+  require('../public/ecrivaine/js/dom.js');
+  require('../public/ecrivaine/js/dom-ir.js');
   const { buildEngine } = await import('../tools/vb6/build-engine.mjs');
   const out = buildEngine();
   vm.runInThisContext(fs.readFileSync(out, 'utf8'), { filename: out });
   require('../public/common/vb-forms.js');
-  require('../public/quire/js/vb-host.js');
+  require('../public/ecrivaine/js/vb-host.js');
   const { D } = globalThis.L;
   D.doc = D.newDoc();
   D.resetHistory();
@@ -41,7 +41,7 @@ function display(form) {
 }
 
 test('the calculator sample adds, subtracts, multiplies and divides', async () => {
-  await bootQuire();
+  await bootEcrivaine();
   const L = globalThis.L;
   L.ui = L.ui || {};
   const host = await L.vb.open();

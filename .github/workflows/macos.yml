@@ -1,8 +1,8 @@
-# The macOS desktop app (desktop/, docs/desktop.md, macOS), built on a Mac by desktop/macos/build.sh: VibeOffice-macOS.dmg,
+# The macOS desktop app (desktop/, docs/desktop.md, macOS), built on a Mac by desktop/macos/build.sh: MelinaOffice-macOS.dmg,
 # signed with Developer ID, notarized and published in the version's GitHub release (the same tag as Windows', e.g.
-# v2026.10.11-d2134d); with app_store ticked, also VibeOffice-macOS-AppStore.pkg uploaded to App Store Connect
+# v2026.10.11-d2134d); with app_store ticked, also MelinaOffice-macOS-AppStore.pkg uploaded to App Store Connect
 # (TestFlight, then review). Every run also opens the app with a few files and keeps screenshots (artifact
-# VibeOffice-macOS-smoke).
+# MelinaOffice-macOS-smoke).
 # The signing material lives in the "release" environment's secrets (docs/desktop.md lists them). Without them the
 # app is signed ad hoc and the run makes no release: an artifact with the app and the screenshots only.
 # Run by hand only: Actions ▸ macOS ▸ Run workflow. Running it again on the same commit replaces the release's DMG.
@@ -96,10 +96,10 @@ jobs:
       # does (open -a), each a window of its own; a screenshot after each
       - name: Smoke
         run: |
-          app="$PWD/desktop/target/dist/VibeOffice.app"
+          app="$PWD/desktop/target/dist/Melina Office.app"
           out="$RUNNER_TEMP/smoke"
           mkdir -p "$out/files"
-          cp tests/quire/lines/linecases.docx "$out/files/"
+          cp tests/ecrivaine/lines/linecases.docx "$out/files/"
           printf 'Item,Cost\nRent,900\nFood,250\n' > "$out/files/Budget.csv"
           printf '# Notes\n\nHello from the smoke run.\n' > "$out/files/Notes.md"
           open -a "$app"
@@ -112,32 +112,32 @@ jobs:
             screencapture -x "$out/$n-$f.png"
             n=$((n + 1))
           done
-          osascript -e 'quit app "VibeOffice"' || pkill -x vibeoffice || true
-          log show --last 5m --predicate 'process == "vibeoffice"' --style compact > "$out/app.log" 2>&1 || true
+          osascript -e 'quit app "Melina Office"' || pkill -x melinaoffice || true
+          log show --last 5m --predicate 'process == "melinaoffice"' --style compact > "$out/app.log" 2>&1 || true
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: VibeOffice-macOS-smoke
+          name: MelinaOffice-macOS-smoke
           path: ${{ runner.temp }}/smoke/*.*
           if-no-files-found: warn
 
       # Without a Developer ID the app is only signed ad hoc: kept as an artifact to try (remove the quarantine first:
-      # xattr -dr com.apple.quarantine VibeOffice.app), never released
+      # xattr -dr com.apple.quarantine "Melina Office.app"), never released
       - name: Unsigned app
         if: env.HAVE_DEVELOPER_ID != 'true'
-        run: ditto -c -k --keepParent desktop/target/dist/VibeOffice.app "$RUNNER_TEMP/VibeOffice-macOS-unsigned.zip"
+        run: ditto -c -k --keepParent "desktop/target/dist/Melina Office.app" "$RUNNER_TEMP/MelinaOffice-macOS-unsigned.zip"
       - uses: actions/upload-artifact@v4
         if: env.HAVE_DEVELOPER_ID != 'true'
         with:
-          name: VibeOffice-macOS-unsigned
-          path: ${{ runner.temp }}/VibeOffice-macOS-unsigned.zip
+          name: MelinaOffice-macOS-unsigned
+          path: ${{ runner.temp }}/MelinaOffice-macOS-unsigned.zip
 
       - uses: actions/upload-artifact@v4
         if: env.HAVE_DEVELOPER_ID == 'true'
         with:
-          name: VibeOffice-macOS
-          path: desktop/target/dist/VibeOffice-macOS.dmg
+          name: MelinaOffice-macOS
+          path: desktop/target/dist/MelinaOffice-macOS.dmg
           if-no-files-found: error
 
       - name: Release
@@ -147,13 +147,13 @@ jobs:
           VERSION: ${{ steps.build.outputs.version }}
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
-          files="desktop/target/dist/VibeOffice-macOS.dmg"
+          files="desktop/target/dist/MelinaOffice-macOS.dmg"
           if gh release view "$VERSION" > /dev/null 2>&1; then
             gh release upload "$VERSION" $files --clobber
           else
             flag=""
             [ "$PRERELEASE" = "true" ] && flag="--prerelease"
-            gh release create "$VERSION" $files --target "$GITHUB_SHA" --title "VibeOffice $VERSION" $flag \
+            gh release create "$VERSION" $files --target "$GITHUB_SHA" --title "Melina Office $VERSION" $flag \
               --notes-file desktop/release-notes.md
           fi
 
@@ -163,7 +163,7 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
-          xcrun altool --upload-app --type macos --file desktop/target/dist/VibeOffice-macOS-AppStore.pkg \
+          xcrun altool --upload-app --type macos --file desktop/target/dist/MelinaOffice-macOS-AppStore.pkg \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Remove the keychain

@@ -1,4 +1,4 @@
-/* VibeOffice — AutoShape geometry, shared by Quire, Ledger and Lectern.
+/* Melina Office — AutoShape geometry, shared by Ecrivaine, Matheuse and Oratrice.
  * Preset names follow the OOXML prstGeom vocabulary so shapes round-trip unchanged.
  * Each preset returns SVG path parts in a w×h box.
  */

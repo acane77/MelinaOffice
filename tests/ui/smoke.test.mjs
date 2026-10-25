@@ -1,7 +1,7 @@
 // The quick check, about a minute: the Start Center and each app load clean (no errors, nothing from outside), and the
 // basic round of real input works in each: a click puts the keyboard in the document and typing lands there; a menu
 // from the menu bar and a dialog from its shortcut open and close with Esc and give the keyboard back; a drop-down
-// inside a dialog opens above it (Ledger); Undo takes the typing back. Run it after every change, with the change's
+// inside a dialog opens above it (Matheuse); Undo takes the typing back. Run it after every change, with the change's
 // own test; the whole of tests/ui/ before a release (docs/testing.md, UI checks):
 //
 //   node --test --test-concurrency=1 tests/ui/smoke.test.mjs
@@ -32,13 +32,13 @@ async function menuAndDialog(t, shortcut) {
 test('Start Center loads clean', async () => {
   const t = await open('', { look: 'classic' });
   try {
-    assert.ok(await centre(t, 'button, a', 'Quire') || await t.evaluate(`/Quire/.test(document.body.textContent)`), 'the apps are offered');
+    assert.ok(await centre(t, 'button, a', 'Ecrivaine') || await t.evaluate(`/Ecrivaine/.test(document.body.textContent)`), 'the apps are offered');
     t.clean();
   } finally { await t.close(); }
 });
 
-test('Quire: type, a menu, a dialog, Undo', async () => {
-  const t = await open('quire', { look: 'classic' });
+test('Ecrivaine: type, a menu, a dialog, Undo', async () => {
+  const t = await open('ecrivaine', { look: 'classic' });
   try {
     await t.evaluate(`(async () => { const { D } = L, d = D.newDoc(); d.main.blocks = [D.para([D.text('Plain text.')])]; L.app.loadDoc(d, 'Smoke'); await new Promise((r) => setTimeout(r, 400)); })()`);
     const text = () => t.evaluate(`L.D.plainText(L.D.doc.main.blocks[0])`);
@@ -56,8 +56,8 @@ test('Quire: type, a menu, a dialog, Undo', async () => {
   } finally { await t.close(); }
 });
 
-test('Ledger: type, a menu, a dialog with a drop-down, Undo', async () => {
-  const t = await open('ledger', { look: 'classic' });
+test('Matheuse: type, a menu, a dialog with a drop-down, Undo', async () => {
+  const t = await open('matheuse', { look: 'classic' });
   try {
     const cell = (r, c) => t.evaluate(`(() => { const w = document.querySelector('#gridwrap').getBoundingClientRect(), b = L.grid.cellRect(${r}, ${c}); return { x: Math.round(w.left + b.x + b.w / 2), y: Math.round(w.top + b.y + b.h / 2) }; })()`);
     const value = (r, c) => t.evaluate(`L.editor.cellText(L.grid.sheet(), ${r}, ${c})`);
@@ -82,8 +82,8 @@ test('Ledger: type, a menu, a dialog with a drop-down, Undo', async () => {
   } finally { await t.close(); }
 });
 
-test('Lectern: type, a menu, a dialog, Undo', async () => {
-  const t = await open('lectern', { look: 'classic' });
+test('Oratrice: type, a menu, a dialog, Undo', async () => {
+  const t = await open('oratrice', { look: 'classic' });
   try {
     await t.evaluate(`(async () => { const E = L.ed, M = L.model; if (L.te.active()) L.te.end(); E.goto(0);
       const slide = L.pres.slides[0], b = M.newTextBox(L.pres, slide, 100, 100, 500, 40, true); b.id = 'boxA'; b.tx.ps = [{ lvl: 0, pp: {}, rs: [{ t: 'Plain text.' }] }];
