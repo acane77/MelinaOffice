@@ -81,7 +81,7 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   the middle dot, the multiplication sign, the degree sign, the dashes, the quotation marks, the
   roman numerals and the rest) is drawn with the East Asian font, including beside digits. Accented
   Latin, Greek and Cyrillic keep their own font. Other general punctuation is drawn with the font of
-  the characters beside it, and a run of only that punctuation uses the East Asian font. Distributed alignment spreads the spare space between fullwidth characters. A
+  the characters beside it, and a run of only that punctuation uses the East Asian font. Where East Asian text (ideographs, kana or bopomofo) touches a Latin letter or a digit, Quire leaves a quarter of that East Asian character's size between them, as Word does (`w:autoSpaceDE` for letters, `w:autoSpaceDN` for digits; both on unless the paragraph turns one off). The quarter is the East Asian size, including when the two characters are in different runs. Nothing is added beside punctuation, Hangul or a space that is already there, and a paragraph snapped to a character grid does not add it. Distributed alignment spreads the spare space between fullwidth characters. A
   justified or distributed line that is only a little wider than the measure narrows fullwidth
   punctuation (down to half an em, and only by as much as it overflows) so the line stays one line;
   left alignment does not, and wraps. With "balance single-byte and double-byte characters",
