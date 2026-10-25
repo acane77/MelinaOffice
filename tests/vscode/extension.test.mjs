@@ -79,6 +79,7 @@ test('the webview page points at the app folder and names the vscode host', () =
   assert.match(out, /Content-Security-Policy/);
   assert.match(out, /acquireVsCodeApi\(\)/);
   assert.match(out, /"kind":"vscode"/);
+  assert.match(out, /"autoSave":false/);
   assert.equal(out.includes('</script><script>alert(1)'), false);
   assert.match(out, /\\u003c\/script>/);
 });
@@ -188,6 +189,61 @@ test('one editor save is shared, and a closed editor does not fail a write that 
   assert.equal(skip.runs, 1);
   skip.succeed({ ok: true });
   await next.promise;
+});
+
+test('auto-save stays off until it is enabled, and a later edit waits again', async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const a = proto.createAutoSave(40);
+  let n = 0;
+  const save = () => { n++; };
+  a.note('f', true, save);
+  await wait(70);
+  assert.equal(n, 0, 'off: an edit does not save');
+  a.setEnabled(true);
+  a.note('f', true, save);
+  a.note('f', true, save);
+  assert.equal(a.pending('f'), true);
+  await wait(70);
+  assert.equal(n, 1, 'two edits in the wait are one save');
+  assert.equal(a.pending('f'), false);
+  a.note('f', true, save);
+  a.note('f', false, save);
+  await wait(70);
+  assert.equal(n, 1, 'a clean document cancels the wait');
+  a.note('f', true, save);
+  a.setEnabled(false);
+  await wait(70);
+  assert.equal(n, 1, 'turning it off cancels a pending save');
+  a.note('g', true, save);
+  await wait(70);
+  assert.equal(n, 1);
+});
+
+test('Enable Auto-Save is under Save As and only in the VS Code editor', () => {
+  const ui = fs.readFileSync(path.join(root, 'public/common/ui.js'), 'utf8');
+  const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
+  const ext = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
+  assert.match(ui, /ui\.cmd\('autoSave', \{[^}]*label: '&Enable Auto-Save'/);
+  assert.match(ui, /hidden: \(\) => !window\.VO \|\| !VO\.host \|\| VO\.host\.kind !== 'vscode'/);
+  assert.match(suite, /VO\.autoSave = \{/);
+  assert.match(suite, /type: 'autosave'/);
+  assert.match(ext, /vibeoffice\.autoSave/);
+  assert.match(ext, /createAutoSave\(1000\)/);
+  assert.match(ext, /msg\.type === 'autosave'/);
+  const on = page.renderPage({
+    html: '<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>',
+    baseHref: 'https://webview.example/quire',
+    cspSource: 'https://webview.example',
+    autoSave: true,
+  });
+  assert.match(on, /"autoSave":true/);
+  for (const file of [
+    'public/quire/js/app.js', 'public/quire/js/ribbon.js',
+    'public/ledger/js/app.js', 'public/ledger/js/ribbon.js',
+    'public/lectern/js/app.js', 'public/lectern/js/ribbon.js',
+  ]) {
+    assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /'saveAs', 'autoSave'/);
+  }
 });
 
 test('Ledger save returns the promise VS Code awaits', () => {

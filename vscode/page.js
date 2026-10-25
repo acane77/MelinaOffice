@@ -28,6 +28,7 @@ function renderPage(opts) {
     version: 1,
     fileName: opts.fileName || '',
     lang: lang,
+    autoSave: !!opts.autoSave,
   }).replace(/</g, '\\u003c');
   /* lang.js reads localStorage before the first paint; prime it from the extension's copy.
      The lang field also changes this HTML, which is what makes VS Code load the page again. */

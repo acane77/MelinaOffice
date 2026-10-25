@@ -62,7 +62,7 @@
   function buildMenus() {
     const autoShapeSub = (group) => ({ custom: (close) => shapeGrid(L.geom.MENU[group], close) });
     const menus = [
-      { label: '&File', items: () => ['new', 'open', 'close', '-', 'save', 'saveAs', 'saveWeb', '-', 'pageSetup', 'printPreview', 'print', '-', 'properties', ...((r) => (r.length ? ['-', ...r] : []))(window.VO ? VO.recentMenuItems(4) : []), '-', 'exitApp'] },
+      { label: '&File', items: () => ['new', 'open', 'close', '-', 'save', 'saveAs', 'autoSave', 'saveWeb', '-', 'pageSetup', 'printPreview', 'print', '-', 'properties', ...((r) => (r.length ? ['-', ...r] : []))(window.VO ? VO.recentMenuItems(4) : []), '-', 'exitApp'] },
       { label: '&Edit', items: ['undo', 'redo', '-', 'cut', 'copy', 'officeClipboard', 'paste', 'pasteSpecial', '-', 'clear', 'selectAll', 'duplicate', 'deleteSlide', '-', 'find', 'replace'] },
       {
         label: '&View', items: () => ['viewNormal', 'viewSorter', 'showFromStart', 'viewNotes', '-',

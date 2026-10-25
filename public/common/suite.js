@@ -127,6 +127,9 @@
     return file;
   };
   let hostLive = false;   // vscode: the workspace file finished opening, so Save may write it
+  /* File ▸ Enable Auto-Save. The extension's copy (vibeoffice.autoSave) is the one that lasts;
+     this page starts from the value it put in __VO_HOST__, and a later choice arrives as 'autosave'. */
+  let autoSaveOn = !!(inVs && inVs.autoSave);
   let documentUri = '';   // vscode: the workspace file this editor tab is bound to
   let documentName = '';  // vscode: that file's name, for telling an in-place save from a copy
   let openFolder = null;  // vscode: { uri, label } of that file's folder, for Save As
@@ -343,6 +346,16 @@
       } finally {
         if (ui && ui.busy) ui.busy(false);
       }
+    },
+  };
+  /** File ▸ Enable Auto-Save, under Save As, only in the VS Code editor. Off until the user turns it on.
+   *  The extension stores the choice and tells every open tab, so the next start still has it. */
+  VO.autoSave = {
+    get() { return autoSaveOn; },
+    toggle() {
+      if (!inVs) return;
+      autoSaveOn = !autoSaveOn;
+      vsPost({ type: 'autosave', enabled: autoSaveOn });
     },
   };
 
@@ -791,6 +804,7 @@
   if (inVs) window.addEventListener('message', async (ev) => {
     const m = ev.data;
     if (!m || typeof m !== 'object') return;
+    if (m.type === 'autosave') { autoSaveOn = !!m.enabled; return; }
     if (m.type === 'do-save') {
       if (!hostLive || !window.L || !L.ui) {
         vsPost({ type: 'save-result', id: m.id, ok: false, error: 'The file is not open in the editor yet.' });

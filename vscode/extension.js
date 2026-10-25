@@ -4,6 +4,8 @@
  * picked (the open file's folder, unless they choose another) and opens a different file too.
  * File ▸ New and File ▸ Open use VS Code's own dialogs and open the result in a new tab.
  * New File… (file/newFile) creates a blank .docx, .xlsx or .pptx and opens it here.
+ * File ▸ Enable Auto-Save is off until the user turns it on. The choice is vibeoffice.autoSave
+ * in global state, so the next start still has it. While it is on, a quiet second writes the file.
  * An agent in the editor runs VB6 on the active tab through the MCP server in vscode/mcp.js.
  * Docs: docs/vscode.md. */
 'use strict';
@@ -32,6 +34,13 @@ const pendingBlank = new Set();
 const openDocs = new Map();
 /** localhost bridge the MCP process calls. Null until activate finishes listening. */
 let mcpBridge = null;
+/** File ▸ Enable Auto-Save. Off until global state says otherwise. One wait per open file. */
+const autoSave = proto.createAutoSave(1000);
+
+function saveIfDirty(doc) {
+  if (!autoSave.enabled || !doc || !doc.panel || !doc.panel.webview || doc.save.closed || doc.save.saving || !doc.save.dirty) return;
+  vscode.workspace.save(doc.uri).then(() => {}, () => {});
+}
 
 function publicRoot(extensionPath) {
   const candidates = [path.join(extensionPath, 'public'), path.join(extensionPath, '..', 'public')];
@@ -154,6 +163,7 @@ class OfficeDocument {
     this.backupId = '';
   }
   dispose() {
+    autoSave.clear(this.uri.toString());
     this.save.close();
     this._settlePending();
   }
@@ -200,6 +210,7 @@ class OfficeEditorProvider {
     panel.webview.options = { enableScripts: true, localResourceRoots: roots };
     panel.webview.onDidReceiveMessage((msg) => this._onMessage(doc, msg));
     panel.onDidDispose(() => {
+      autoSave.clear(doc.uri.toString());
       if (doc.panel === panel) doc.panel = null;
       const cur = openDocs.get(doc.uri.toString());
       if (cur && cur.doc === doc) openDocs.delete(doc.uri.toString());
@@ -223,6 +234,8 @@ class OfficeEditorProvider {
     /* a keystroke during the save stays an edit after this promise resolves, which is when
        VS Code drops the edits it had when the save started */
     if (again) this._fireDirty(doc);
+    /* an edit that landed during the save is still unsaved; wait, then write that too */
+    if (again && autoSave.enabled) autoSave.note(doc.uri.toString(), true, () => saveIfDirty(doc));
     return started.promise;
   }
 
@@ -261,6 +274,7 @@ class OfficeEditorProvider {
       fileName: proto.baseName(doc.uri.path),
       platform: platform(),
       lang: this._context.globalState.get('vibeoffice.lang') || '',
+      autoSave: this._context.globalState.get('vibeoffice.autoSave') === true,
     });
   }
 
@@ -345,6 +359,19 @@ class OfficeEditorProvider {
     if (msg.type === 'dirty') {
       /* dirty:false does not save. The tab clears only when saveCustomDocument resolves. */
       if (msg.dirty && doc.save.onDirty(true) === 'mark') this._fireDirty(doc);
+      /* Enable Auto-Save: one second after the latest edit, the same write as Save. Off, this does nothing. */
+      autoSave.note(doc.uri.toString(), !!(msg.dirty && !doc.save.closed && doc.save.dirty), () => saveIfDirty(doc));
+      return;
+    }
+    if (msg.type === 'autosave') {
+      const enabled = !!msg.enabled;
+      autoSave.setEnabled(enabled);
+      await this._context.globalState.update('vibeoffice.autoSave', enabled);
+      for (const entry of openDocs.values()) {
+        const d = entry.doc;
+        if (d.panel && d.panel.webview) d.panel.webview.postMessage({ type: 'autosave', enabled });
+        if (enabled && d.save.dirty && !d.save.closed) autoSave.note(d.uri.toString(), true, () => saveIfDirty(d));
+      }
       return;
     }
     if (msg.type === 'request-save') { await this._onRequestSave(doc, msg); return; }
@@ -1030,6 +1057,7 @@ function registerMcp(context) {
 }
 
 async function activate(context) {
+  autoSave.setEnabled(context.globalState.get('vibeoffice.autoSave') === true);
   for (const app of Object.keys(VIEW)) {
     const provider = new OfficeEditorProvider(context, app);
     context.subscriptions.push(vscode.window.registerCustomEditorProvider(VIEW[app], provider, {

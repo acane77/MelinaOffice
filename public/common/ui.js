@@ -112,9 +112,9 @@
       if (it === '-' || it === '|') return { sep: true };
       const c = ui.cmds[it];
       if (!c) return { label: it, disabled: true };
-      return { cmd: it, label: c.menuLabel || c.label, icon: c.icon, key: c.key, enabled: c.enabled, checked: c.checked, radio: c.radio };
+      return { cmd: it, label: c.menuLabel || c.label, icon: c.icon, key: c.key, enabled: c.enabled, checked: c.checked, radio: c.radio, hidden: c.hidden };
     }
-    if (it.cmd && ui.cmds[it.cmd]) { const c = ui.cmds[it.cmd]; return Object.assign({ label: c.menuLabel || c.label, icon: c.icon, key: c.key, enabled: c.enabled, checked: c.checked, radio: c.radio }, it); }
+    if (it.cmd && ui.cmds[it.cmd]) { const c = ui.cmds[it.cmd]; return Object.assign({ label: c.menuLabel || c.label, icon: c.icon, key: c.key, enabled: c.enabled, checked: c.checked, radio: c.radio, hidden: c.hidden }, it); }
     return it;
   }
   ui.closeMenus = (keepDepth) => {
@@ -1516,6 +1516,14 @@
     VO.host.setLanguage(id, !dirty);
     if (dirty) ui.toast('The new language is used in the windows you open from now on.');
   };
+  /** File ▸ Enable Auto-Save, directly under Save As. Only in the VS Code editor. Off until the user
+   *  turns it on; a check mark shows that. The extension remembers it for the next start (suite.js). */
+  ui.cmd('autoSave', {
+    label: '&Enable Auto-Save',
+    hidden: () => !window.VO || !VO.host || VO.host.kind !== 'vscode' || !VO.autoSave,
+    checked: () => !!(window.VO && VO.autoSave && VO.autoSave.get()),
+    run: () => { if (window.VO && VO.autoSave) VO.autoSave.toggle(); },
+  });
   /** Help ▸ Language, and the same list on the ribbon's File menu: the suite's UI language, only in the
    *  VS Code editor (common/lang.js). Each language is named in itself. */
   ui.languageMenu = () => ({

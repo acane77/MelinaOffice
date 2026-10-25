@@ -216,6 +216,38 @@ function createSaveSession() {
   };
 }
 
+/** File ▸ Enable Auto-Save. Off until setEnabled(true). note(key, dirty, save) waits delayMs
+ *  after the latest edit, then calls save once. A clean document, or turning it off, cancels
+ *  the wait. A later edit starts the wait again, so typing does not save on every key. */
+function createAutoSave(delayMs) {
+  const delay = delayMs == null ? 1000 : delayMs;
+  let enabled = false;
+  const timers = new Map();
+  function clear(key) {
+    const t = timers.get(key);
+    if (t) clearTimeout(t);
+    timers.delete(key);
+  }
+  return {
+    get enabled() { return enabled; },
+    setEnabled(v) {
+      enabled = !!v;
+      if (!enabled) { for (const k of [...timers.keys()]) clear(k); }
+    },
+    note(key, dirty, save) {
+      clear(key);
+      if (!enabled || !dirty || typeof save !== 'function') return;
+      timers.set(key, setTimeout(() => {
+        timers.delete(key);
+        if (!enabled) return;
+        try { save(); } catch (e) { /* the caller reports a failed save */ }
+      }, delay));
+    },
+    clear,
+    pending(key) { return timers.has(key); },
+  };
+}
+
 module.exports = {
-  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, saveFolder, toBytes, createAssembler, createSaveSession,
+  APPS, DEFAULT_EXT, SAVE_EXT, SAVE_STEM, extname, appFor, viewTypeFor, baseName, safeName, sameFile, ensureExt, saveFolder, toBytes, createAssembler, createSaveSession, createAutoSave,
 };

@@ -108,6 +108,7 @@
     for (const id of Object.keys(ui.cmds)) {
       const c = ui.cmds[id];
       if (!c.label || typeof c.label !== 'string') continue;
+      if (typeof c.hidden === 'function' ? c.hidden() : c.hidden) continue;
       if (layout === 'ribbon' && id.startsWith('tb_')) continue;   // toolbars are not shown with the ribbon
       const rb = ribbon.get(id), mp = menu.get(id);
       /* the name the user sees: the ribbon's own label for the button if it has one; a command in a submenu
