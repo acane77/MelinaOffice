@@ -1,5 +1,5 @@
-// The status-bar zoom maths (common/ui.js): a wheel notch, a two-finger pinch, and the scroll
-// that keeps the point under the fingers in place.
+// The status-bar zoom maths (common/ui.js): a wheel notch, a two-finger pinch, the scroll
+// that keeps the point under the fingers in place, and the slider with 100% in the middle.
 //   node --test tests/zoom.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -71,6 +71,37 @@ test('two fingers: apart scales up, together scales down, a shared slide pans', 
   assert.equal(slide.scale, 1);
   assert.equal(slide.dx, 8);
   assert.equal(slide.dy, 6);
+});
+
+test('100% is the middle of the zoom slider', () => {
+  for (const [min, max] of [[10, 400], [10, 500]]) {
+    assert.equal(ui.zoomTrack(min, min, max), 0);
+    assert.equal(ui.zoomTrack(100, min, max), 0.5);
+    assert.equal(ui.zoomTrack(max, min, max), 1);
+    assert.equal(ui.zoomTrack((min + 100) / 2, min, max), 0.25);
+    assert.equal(ui.zoomTrack((100 + max) / 2, min, max), 0.75);
+    assert.equal(ui.zoomTrack(min - 50, min, max), 0);
+    assert.equal(ui.zoomTrack(max + 50, min, max), 1);
+    assert.equal(Math.round(ui.zoomFromTrack(0, min, max)), min);
+    assert.equal(Math.round(ui.zoomFromTrack(0.5, min, max)), 100);
+    assert.equal(Math.round(ui.zoomFromTrack(1, min, max)), max);
+    assert.equal(Math.round(ui.zoomFromTrack(-1, min, max)), min);
+    assert.equal(Math.round(ui.zoomFromTrack(2, min, max)), max);
+    let prev = min;
+    for (let pos = 0; pos <= 1000; pos++) {
+      const n = Math.round(ui.zoomFromTrack(pos / 1000, min, max));
+      assert.ok(n >= prev && n >= min && n <= max, `${min}-${max} @${pos} -> ${n}`);
+      prev = n;
+    }
+    for (let n = min; n <= max; n++) {
+      const pos = Math.round(ui.zoomTrack(n, min, max) * 1000);
+      const back = Math.round(ui.zoomFromTrack(pos / 1000, min, max));
+      assert.equal(back, n, `${min}-${max} ${n} -> ${pos} -> ${back}`);
+    }
+  }
+  assert.equal(ui.zoomTrack(150, 100, 400), 50 / 300);
+  assert.equal(ui.zoomTrack(50, 10, 100), 40 / 90);
+  assert.equal(ui.zoomTrack(10, 10, 10), 0);
 });
 
 test('zooming keeps the point under the pointer, and a sideways move follows the fingers', () => {
