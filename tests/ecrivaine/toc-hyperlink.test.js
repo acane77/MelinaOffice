@@ -21,11 +21,11 @@ test('a TOC entry keeps the Hyperlink style but draws automatic colour and no un
   assert.equal(r.uColor, undefined);
 });
 
-test('the same Hyperlink style stays blue and underlined outside a contents paragraph', () => {
+test('the same Hyperlink style stays its own colour and underlined outside a contents paragraph', () => {
   const d = doc();
   const p = D.para([D.text('site', { style: 'Hyperlink', link: { url: 'https://example.test' } })]);
   const r = D.rProps(d, p, p.runs[0]);
-  assert.equal(r.color, '0000FF');
+  assert.equal(r.color, '467886');
   assert.equal(r.u, 'single');
 });
 

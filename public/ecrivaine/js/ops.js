@@ -15,7 +15,7 @@
   /* Colours Word and browsers write for the hyperlink character style itself
      (theme hyperlink, CSS link blue, the classic blue and purple). A colour the
      user picked is kept; these are the link's own paint. */
-  const LINK_PAINT = { '0000FF': 1, '0000EE': 1, '0563C1': 1, '800080': 1, '954F72': 1, '551A8B': 1 };
+  const LINK_PAINT = { '0000FF': 1, '0000EE': 1, '0563C1': 1, '467886': 1, '800080': 1, '954F72': 1, '96607D': 1, '551A8B': 1 };
   function sameLink(a, b) {
     if (a === b) return true;
     if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;

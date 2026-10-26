@@ -98,7 +98,7 @@ test('a colour the user set on the link continues, the link does not', () => {
 });
 
 test('Word and browser link colours do not continue after the link', () => {
-  for (const color of ['0563C1', '0000EE', '954F72']) {
+  for (const color of ['0563C1', '0000EE', '467886', '954F72', '96607D']) {
     const p = docWith([D.text('site', { style: 'Hyperlink', link, color, u: 'single' })]);
     const got = props(O.inheritRPr(D.pos(p, 4)));
     assert.equal(got.color, undefined, color);
