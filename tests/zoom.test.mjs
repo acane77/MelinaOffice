@@ -1,5 +1,6 @@
 // The status-bar zoom maths (common/ui.js): a wheel notch, a two-finger pinch, the scroll
-// that keeps the point under the fingers in place, and the slider with 100% in the middle.
+// that keeps the point under the fingers in place, the slider with 100% in the middle,
+// and a one-finger long press (the touch right-click).
 //   node --test tests/zoom.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -102,6 +103,32 @@ test('100% is the middle of the zoom slider', () => {
   assert.equal(ui.zoomTrack(150, 100, 400), 50 / 300);
   assert.equal(ui.zoomTrack(50, 10, 100), 40 / 90);
   assert.equal(ui.zoomTrack(10, 10, 10), 0);
+});
+
+test('a finger held still is a right-click there; a slide, a second finger or a short press is not', () => {
+  const a = { id: 1, x: 30, y: 40 };
+  const down = ui.longPress(null, { type: 'start', t: 0, touches: [a] });
+  assert.equal(down.wait, ui.LONG_PRESS);
+  const held = ui.longPress(down.g, { type: 'hold', t: ui.LONG_PRESS, touches: [] });
+  assert.equal(held.menu && held.menu.x, 30);
+  assert.equal(held.menu && held.menu.y, 40);
+  assert.equal(held.cancelDrag, true);
+  const early = ui.longPress(down.g, { type: 'hold', t: ui.LONG_PRESS - 1, touches: [] });
+  assert.equal(early.menu, undefined);
+  assert.equal(early.wait, 1);
+  const nudged = ui.longPress(down.g, { type: 'move', t: 200, touches: [{ id: 1, x: 40, y: 40 }] });
+  assert.equal(nudged.slid, undefined);
+  assert.equal(nudged.g && nudged.g.x, 30);
+  const heldThere = ui.longPress(nudged.g, { type: 'hold', t: ui.LONG_PRESS, touches: [] });
+  assert.equal(heldThere.menu && heldThere.menu.x, 30);
+  const slid = ui.longPress(down.g, { type: 'move', t: 200, touches: [{ id: 1, x: 30 + ui.STILL + 0.5, y: 40 }] });
+  assert.equal(slid.g, null);
+  assert.equal(slid.slid, true);
+  assert.equal(ui.longPress(down.g, { type: 'end', t: 200, touches: [] }).g, null);
+  assert.equal(ui.longPress(down.g, { type: 'start', t: 100, touches: [a, { id: 2, x: 80, y: 40 }] }).g, null);
+  const marked = ui.longPress(null, { type: 'start', t: 0, touches: [a] }).g;
+  marked.native = true;
+  assert.equal(ui.longPress(marked, { type: 'hold', t: ui.LONG_PRESS, touches: [] }).menu, undefined);
 });
 
 test('zooming keeps the point under the pointer, and a sideways move follows the fingers', () => {

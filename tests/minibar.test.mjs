@@ -41,6 +41,15 @@ test('starts at 70%, solid on the bar, gone at 50px, and a fade-out stays gone',
   assert.equal(stuck.latched, true);
 });
 
+test('a touch selection puts the anchor one line above the caret', () => {
+  const a = mb.aboveCaret({ x: 80, y: 200, h: 18 });
+  assert.equal(a.x, 80 - mb.GAP);
+  assert.equal(a.y, 200 - 18);
+  const placed = mb.place(a, { w: 120, h: 40 }, { w: 800, h: 600 });
+  assert.equal(placed.x, 80);
+  assert.equal(placed.y, 200 - 18 - 40 - mb.GAP);
+});
+
 test('the bar sits up-right of the pointer and stays inside the window', () => {
   const open = mb.place({ x: 200, y: 180 }, { w: 100, h: 40 }, { w: 800, h: 600 });
   assert.equal(open.x, 200 + mb.GAP);
