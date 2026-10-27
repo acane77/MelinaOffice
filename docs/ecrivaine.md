@@ -8,7 +8,7 @@ the tool tabs) takes the place of the menus and toolbars.
 
 ## Using it
 
-Open https://acane.net/melinaoffice/ecrivaine/. It starts with a blank document (`Document1`). The app is `public/ecrivaine/`; every path below is relative to it.
+Open https://acane.net/melinaoffice/ecrivaine/. It starts with a blank document (`Document1`). The first time, the task pane stays closed on every device; opening it keeps that choice ([suite.md](suite.md#the-ribbon)). The app is `public/ecrivaine/`; every path below is relative to it.
 Everything runs in the browser: there is no back end, no account and no network service behind any
 feature. The proofing dictionaries are fetched at run time from `../common/dict/` (shared with Matheuse),
 so the site is served rather than opened from disk (a `file://` page cannot fetch them; editing still

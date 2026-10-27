@@ -13,7 +13,7 @@ Setup, Sort, Chart Wizard, Insert Function, Text Import Wizard and some forty mo
 
 ## Using it
 
-Open https://acane.net/melinaoffice/matheuse/. It starts with a blank workbook (`Book1`). The app is `public/matheuse/`; paths below are relative to it unless
+Open https://acane.net/melinaoffice/matheuse/. It starts with a blank workbook (`Book1`). The first time, the task pane stays closed on every device; opening it keeps that choice ([suite.md](suite.md#the-ribbon)). The app is `public/matheuse/`; paths below are relative to it unless
 they start with `tools/`. To run it locally, see [testing.md](testing.md). Everything runs in the browser; there is no back end and no network
 service behind any feature. Two things are fetched at run time: the spelling word lists in
 `../common/dict/`, shared with Ecrivaine (which is why the site should be served rather than opened from disk — from a `file://` page
