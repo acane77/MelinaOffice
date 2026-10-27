@@ -1941,8 +1941,50 @@
     });
     if (L.bus) { L.bus.on('zoom', sync); L.bus.on('layout-done', sync); }
     sync();
+    queueMicrotask(() => installDocStatus(box));
     return box;
   };
+  /* on a phone the status cells are one button; the zoom control stays on the right. The same cells move into the window, so they keep updating. */
+  const narrowStatus = () => typeof matchMedia === 'function' && matchMedia('(max-width: 960px)').matches;
+  function installDocStatus(zoom) {
+    const sb = zoom.parentElement;
+    if (!sb || sb.id !== 'statusbar' || sb.querySelector('.sb-docstatus')) return;
+    const btn = h('button', { type: 'button', class: 'sb-docstatus', text: 'Document Status' });
+    sb.insertBefore(btn, zoom);
+    let session = null;
+    const restore = (cells) => {
+      const z = sb.querySelector('.sb-zoom');
+      for (const c of cells) sb.insertBefore(c, z);
+      session = null;
+    };
+    btn.addEventListener('click', () => {
+      if (session) { session.close(null); return; }
+      const cells = [...sb.querySelectorAll(':scope > .sb-cell')];
+      const list = h('div', { class: 'sb-status-list' });
+      for (const c of cells) list.append(c);
+      session = ui.dialog({
+        title: '',
+        body: list,
+        width: 100,
+        modeless: true,
+        buttons: [],
+        onOpen(dlg) {
+          dlg.classList.add('sb-status-dlg');
+          const place = () => {
+            const b = btn.getBoundingClientRect();
+            const w = dlg.offsetWidth || 100;
+            const top = b.top - dlg.offsetHeight - 6;
+            dlg.style.left = Math.max(4, Math.min(b.left, window.innerWidth - w - 4)) + 'px';
+            dlg.style.top = Math.max(4, top) + 'px';
+          };
+          place();
+          requestAnimationFrame(place);
+        },
+        onClose() { restore(cells); },
+      });
+    });
+    window.addEventListener('resize', () => { if (session && !narrowStatus()) session.close(null); });
+  }
   /** Pinch and two-finger pan on an editing surface. o.zoom() is a fraction (1 = 100%), o.setZoom(z)
       applies one, o.min/o.max bound it. o.about(oldZ, newZ, x0, y0, x1, y1) replaces the default,
       which scrolls `el`. o.wheelScroll(e) handles a two-finger swipe that is not a pinch; without it
