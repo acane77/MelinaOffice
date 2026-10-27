@@ -169,7 +169,7 @@ In the Ribbon 2010, Golden Gate, Golden Gate (Dark) and Golden Gate (Follow VS C
 
 ### Search commands
 
-Every app, in every look, has a Search commands box at the top right (the end of the menu row, or the ribbon's title row): the way to find a feature by name. Alt+Q goes to it, as in Office.
+Every app, in every look, has a Search commands box at the top right (the end of the menu row, or the ribbon's title row): the way to find a feature by name. Alt+Q goes to it, as in Office. In Golden Gate, Golden Gate (Dark) and Golden Gate (Follow VS Code Color Theme) that box is a magnifying glass in its own capsule, drawn like the Quick Access Toolbar; a click or Alt+Q opens the field, and the capsule closes again when the field is empty. Its list uses the same liquid-glass menu as the other pop-ups.
 
 - Typing lists up to ten of the app's commands, best first, each with its icon, its shortcut and where it lives in the current layout (`Format ▸ Font`, `Formatting toolbar`, or with the ribbon `Home ▸ Font`, using the ribbon's own label for the button); commands that cannot run now are greyed. Arrow keys move, Enter or a click runs one, Esc clears the box and then goes back to the document. With nothing typed it shows the commands last run from it (`searchRecent`, per app).
 - A word matches a command's name as a whole word or the start of one (compound names split: AutoSum answers to "sum"), with one typo ("hyperlnk"), or through an everyday word for Office's name (`SYN` in `search.js`: image → Picture, margins → Page Setup, synonym → Thesaurus, pdf → Save As). A command in a submenu also answers to the submenu's name (Insert ▸ Picture ▸ From File for "picture"); the tooltip and location count for less. Every word typed must match.
