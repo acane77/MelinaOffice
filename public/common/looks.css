@@ -1023,7 +1023,7 @@
   color-scheme: light;
   --theme-color: #0088ff;
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -1467,11 +1467,11 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="goldengate"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengate"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengate"] .rb-ctx { margin: 0; background: transparent; border: 0; }
@@ -1516,7 +1516,7 @@
 [data-look="goldengate"] .rb-groups { margin: 0 auto; }
 [data-look="goldengate"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 rgba(0,0,0,.08); }
 [data-look="goldengate"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="goldengate"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -1629,7 +1629,7 @@
 [data-look="goldengate"] .dlg.inactive .btn.primary:not(:disabled) { background: rgba(0,0,0,.08); color: rgba(0,0,0,.85); box-shadow: none; }
 
 [data-look="goldengate"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -1780,6 +1780,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="goldengate"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="goldengate"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="goldengate"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="goldengate"] .menu > .m-item,
 [data-look="goldengate"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
@@ -1961,7 +1964,7 @@
   color-scheme: dark;
   --theme-color: #1E1E1E;
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #2C2C2C; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -2405,11 +2408,11 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="goldengatedark"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengatedark"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="goldengatedark"] .rb-ctx { margin: 0; background: transparent; border: 0; }
@@ -2454,7 +2457,7 @@
 [data-look="goldengatedark"] .rb-groups { margin: 0 auto; }
 [data-look="goldengatedark"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 rgba(255,255,255,.10); }
 [data-look="goldengatedark"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="goldengatedark"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -2567,7 +2570,7 @@
 [data-look="goldengatedark"] .dlg.inactive .btn.primary:not(:disabled) { background: rgba(255,255,255,.08); color: rgba(255,255,255,.85); box-shadow: none; }
 
 [data-look="goldengatedark"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -2718,6 +2721,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="goldengatedark"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="goldengatedark"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="goldengatedark"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="goldengatedark"] .menu > .m-item,
 [data-look="goldengatedark"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
@@ -3186,7 +3192,7 @@
   --vsc-drop-border: var(--vscode-dropdown-border, var(--vscode-widget-border, rgba(0,0,0,.28)));
   --theme-color: var(--vsc-button);
   --tray-radius: 3px; --ctl-radius: 3px;
-  --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
   /* menu-coupled: the same values as Classic, so the menu bar, its hover and its popups stay blue */
   --tb-a: #E3EFFF; --tb-b: #CBE1FC; --tb-c: #7BA4E0; --tb-edge: #5e85c6;
@@ -3656,11 +3662,11 @@
   gap: 8px; min-height: 40px; padding: 8px 10px;
 }
 [data-look="vscodegg"] .rb-qat {
-  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 15px; border: 0; border-radius: 17px;
+  justify-self: right; align-self: center; height: 35px; margin: 0; padding: 0 5px; border: 0; border-radius: 17px;
   background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="vscodegg"] .rb-tabs {
-  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 15px;
+  justify-self: center; align-self: center; align-items: center; flex: none; gap: 0; height: 35px; padding: 0px 5px;
   max-width: 100%; overflow-x: auto; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
 }
 [data-look="vscodegg"] .rb-ctx { margin: 0; background: transparent; border: 0; }
@@ -3705,7 +3711,7 @@
 [data-look="vscodegg"] .rb-groups { margin: 0 auto; }
 [data-look="vscodegg"] .rb-group:not(.rb-pop) { border-right: 0; box-shadow: inset -1px 0 var(--vsc-border); }
 [data-look="vscodegg"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn, .tb-dd, .rb-launch, .rb-pin) {
-  border: 0; border-radius: 6px; background: transparent; box-shadow: none; margin: 2px 1px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; margin: 2px 1px;
 }
 [data-look="vscodegg"] :is(.ribbon, .rb-pop, .floatbar, .minibar) :is(.tb-btn:not(.dis):hover, .tb-dd:hover, .tb-split:hover > .tb-btn:not(.dis), .tb-split:hover > .tb-dd, .rb-launch:hover, .rb-pin:hover) {
   border: 0; background: var(--gg-hover); box-shadow: none;
@@ -3818,7 +3824,7 @@
 [data-look="vscodegg"] .dlg.inactive .btn.primary:not(:disabled) { background: var(--gg-plate); color: var(--vsc-fg); box-shadow: none; }
 
 [data-look="vscodegg"] .tabs-head {
-  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 15px; width: max-content; max-width: 100%;
+  display: flex; align-items: center; gap: 0; margin: 0 auto 8px; padding: 0 5px; width: max-content; max-width: 100%;
   min-height: 35px; border-radius: 17px; background: var(--gg-glass); box-shadow: var(--gg-glass-edge);
   padding-top: 3px; padding-bottom: 3px;
 }
@@ -3962,6 +3968,9 @@
   font: 510 13px/1.2 var(--ui-font);
   max-height: calc(100vh - 8px); overflow: auto;
 }
+/* the access-key letter stays in the words. The menu bar, the File menu, right-click menus, other pop-ups and dialogs do not underline it. A sample underline in a preview, and the formula step being evaluated, keep theirs. */
+[data-look="vscodegg"] :is(.menubar, .menu, .dlg, dialog) u { text-decoration: none; }
+[data-look="vscodegg"] :is(.preview-box, .ev-text) u { text-decoration: underline; }
 [data-look="vscodegg"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop)::before { content: none; }
 [data-look="vscodegg"] .menu > .m-item,
 [data-look="vscodegg"] .menu:not(.combo-list, .color-menu, .grid-menu, .cs-pop) > .m-item,
