@@ -50,7 +50,7 @@ Line grids: Ecrivaine's line height on a document line grid (`R.gridLine` in `ec
 
 Classic must not change when only the theme machinery changes: compare screenshots of the same scenes before and after, pixel for pixel.
 
-`node --test tests/ribbon.test.mjs` loads each app in the Ribbon 2010 look (through `tools/shot.mjs`, so Chromium must be running) and checks its ribbon: every command id exists, every button has an icon, and every menu command is reachable from the ribbon or File, apart from the exceptions listed in the test. Run it after adding or renaming a command. A ribbon change is also looked at in a narrow window (`--w 900`, where groups fold) and with KeyTips shown (`L.app.menuBar.openIndex(0)`).
+`node --test tests/ribbon.test.mjs` loads each app in the Ribbon 2010 look (through `tools/shot.mjs`, so Chromium must be running) and checks its ribbon: every command id exists, every button has an icon, and every menu command is reachable from the ribbon or File, apart from the exceptions listed in the test. Run it after adding or renaming a command. A ribbon change is also looked at in a narrow window (`--w 900`, where the command panel scrolls and Save is one menu button) and with KeyTips shown (`L.app.menuBar.openIndex(0)`).
 
 `node --test tests/search.test.mjs` checks Search commands the same way: in each app and both layouts, a table of everyday queries ("image", "margins", "hyperlnk") must find the intended command first, with its location. Add a line there when a query finds the wrong thing.
 

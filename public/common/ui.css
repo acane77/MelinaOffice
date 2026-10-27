@@ -479,6 +479,7 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .rb-bar { display: flex; align-items: flex-end; gap: 8px; padding: 4px 8px 0; min-height: 31px; }
 .rb-qat { display: flex; align-items: center; gap: 1px; align-self: center; padding: 0 8px 3px 0; margin-right: 2px; border-right: 1px solid var(--rb-line); }
 .rb-qat.rb-search { border: 0; margin: 0; padding: 0; background: none; box-shadow: none; }
+.rb-qat-more { display: none; }
 .rb-tabs { display: flex; align-items: flex-end; gap: 1px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .rb-tabs::-webkit-scrollbar { display: none; }
 .rb-tab { flex: none; border: 1px solid transparent; border-bottom: 0; background: none; padding: 4px 11px 5px; color: var(--rb-tab-ink); cursor: default; white-space: nowrap; border-radius: var(--ctl-radius) var(--ctl-radius) 0 0; font: inherit; }
@@ -523,6 +524,19 @@ html:not([data-look="win7"]):not([data-look="ribbon2010"]):not([data-look="xp"])
 .rb-group.folded > .rb-fold { display: flex; margin-top: 2px; }
 .rb-pop { position: fixed; z-index: 990; height: 96px; padding: 3px 6px 0; border: 1px solid var(--rb-line); border-right: 1px solid var(--rb-line); background: var(--rb-panel); box-shadow: 0 4px 12px var(--shadow-c); }
 .rb-keytip { position: fixed; z-index: 3500; transform: translateX(-50%); min-width: 14px; padding: 0 3px; border: 1px solid var(--tip-line); border-radius: 2px; background: var(--tip-bg); color: var(--ink); font: bold 10px/13px var(--ui-font); text-align: center; pointer-events: none; box-shadow: 1px 1px 2px var(--tip-shadow-c); }
+
+/* a phone or a small tablet: the command panel slides sideways, Save is one menu button, and Search commands is hidden */
+@media (max-width: 960px) {
+  .rb-panel {
+    overflow-x: auto; overflow-y: hidden; padding-right: 26px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: none; overscroll-behavior-x: contain;
+  }
+  .rb-panel::-webkit-scrollbar { display: none; }
+  .rb-groups { flex: none; min-width: max-content; }
+  .rb-qat:not(.rb-search) > :not(.rb-qat-more) { display: none; }
+  .rb-qat-more { display: inline-flex; height: 28px; padding: 0 6px; }
+  .rb-bar > .rb-search { display: none; }
+}
 
 /* Visual Basic IDE (View). Colours come from the look. */
 .dlg.vb-ide-dlg { display: flex; flex-direction: column; }
