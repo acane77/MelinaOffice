@@ -1,0 +1,31 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+globalThis.window = globalThis;
+require('../../public/common/core.js');
+require('../../public/common/locales.js');
+require('../../public/oratrice/js/model.js');
+
+test('the default design uses 等线 for title, body, other text and bullets', () => {
+  const pres = L.model.newPresentation();
+  const d = Object.values(pres.designs)[0];
+  assert.equal(d.key, 'default');
+  assert.deepEqual([d.fonts.major, d.fonts.minor, d.fonts.majorEA, d.fonts.minorEA], ['等线', '等线', '等线', '等线']);
+  assert.equal(d.tx.title[0].rPr.font, '+mj');
+  assert.equal(d.tx.title[0].rPr.fontEA, '+mj-ea');
+  assert.equal(d.tx.body[0].rPr.font, '+mn');
+  assert.equal(d.tx.body[0].rPr.fontEA, '+mn-ea');
+  assert.equal(d.tx.body[0].bu.font, '等线');
+  assert.equal(d.tx.other[0].rPr.fontEA, '+mn-ea');
+  assert.equal(L.style.font('+mj', d), '等线');
+  assert.equal(L.style.fontEA('+mj-ea', d), '等线');
+  const other = L.model.buildDesign('azure', 960, 540);
+  assert.equal(other.fonts.major, 'Trebuchet MS');
+  assert.equal(other.tx.title[0].rPr.fontEA, undefined);
+  globalThis.VO = { i18n: { lang: 'ja' } };
+  const ja = Object.values(L.model.newPresentation().designs)[0];
+  assert.equal(ja.fonts.major, '等线');
+  assert.equal(ja.fonts.majorEA, 'ＭＳ Ｐゴシック');
+  assert.equal(ja.fonts.minorEA, 'ＭＳ Ｐゴシック');
+  assert.equal(ja.tx.body[0].bu.font, '等线');
+  assert.equal(L.style.fontEA('+mn-ea', ja), 'ＭＳ Ｐゴシック');
+});

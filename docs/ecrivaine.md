@@ -87,8 +87,8 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
   left alignment does not, and wraps. With "balance single-byte and double-byte characters",
   an ASCII space becomes half a fullwidth em when it touches another space or sits at the end of its
   run: the two spaces between a heading number and its title, and an underlined blank on an East Asian
-  cover. A single space between Latin words keeps the font's own width. A new document's Latin and East Asian fonts are both 等线 (a Simplified Chinese
-  document keeps that face at 10.5pt). The page follows the UI's language: A4, Office's margins, and
+  cover. A single space between Latin words keeps the font's own width. A new document's Latin and East Asian fonts are both 等线, on Normal and on every other built-in style (headings, Title, Hyperlink, Plain Text and the rest); a Simplified Chinese
+  document keeps that face at 10.5pt. Japanese, Korean and Traditional Chinese styles use their own face. The page follows the UI's language: A4, Office's margins, and
   Japanese or Chinese line grids (i18n.md, Defaults). A new document is laid out as if created in
   Microsoft Word 2013 and later (Tools ▸ Options ▸ Compatibility). An opened file keeps the compatibility
   it was saved with.

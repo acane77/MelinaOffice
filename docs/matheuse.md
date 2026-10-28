@@ -31,7 +31,7 @@ script list in `tools/matheuse/build/make.py`, then run `python3 tools/matheuse/
 Invoice, Timecard, Personal Monthly Budget, Task Tracker, Shopping List, Weekly Schedule), Open, Close, Save, Save As with every format listed under
 *File formats*, Save as Web Page, Page Setup, Print Area, Print Preview, Print (to PDF), Send To,
 Properties. Several workbooks can be open at once (Window menu). A new workbook follows the UI's
-language: A4, and Japanese, Korean or Chinese defaults for font and row height ([i18n.md](i18n.md), Defaults).
+language: A4, and Japanese, Korean or Chinese defaults for font and row height ([i18n.md](i18n.md), Defaults). The theme's heading and body fonts are that workbook's standard font, so Hyperlink and the other built-in cell styles keep it.
 
 **Edit.** Multi-level Undo and Redo, including structural changes (inserting or deleting rows,
 sorting, moving sheets). Cut, Copy, Paste, Paste Special (values, formulas, formats, comments,

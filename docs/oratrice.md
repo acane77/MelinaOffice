@@ -64,7 +64,7 @@ ellipsis, the middle dot, the multiplication sign, the degree sign, the dashes, 
 marks, the roman numerals and the rest) is drawn with the East Asian font, including beside
 digits. Accented Latin, Greek and Cyrillic keep their own font. Other general punctuation is
 drawn with the font of the characters beside it. A new presentation follows the UI's language ([i18n.md](i18n.md)): its text
-language, and 等线 for both faces unless that language has its own East Asian font.
+language, and 等线 for both faces unless that language has its own East Asian font. The default design's title, body and other styles use those theme fonts, and its bullets use the body face.
 
 **Password-protected presentations** ask for the password, as PowerPoint does, and say so when it is wrong. Decryption happens in the browser (Agile encryption from Office 2010 on, Standard encryption from Office 2007). A presentation opened with a password is saved with the same password; Tools ▸ Options ▸ Security sets, changes or removes it (AES-256 with SHA-512, the scheme PowerPoint 2013 and later use).
 
