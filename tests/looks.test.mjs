@@ -153,6 +153,16 @@ test('Ribbon Golden Gate copies its window motion and leaves Ribbon 2010 alone',
   assert.match(looks, /--gg-hover: rgba\(0,0,0,\.08\)/);
   assert.match(looks, /--gg-on: rgba\(0,0,0,\.11\)/);
   assert.match(looks, /--gg-down: rgba\(0,0,0,\.16\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.taskpane \{[^}]*background: var\(--gg-panel\)[^}]*backdrop-filter: blur\(5px\)[^}]*border-radius: 17px[^}]*box-shadow: var\(--gg-glass-edge\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.taskpane \.tp-head \{[^}]*height: 35px[^}]*border-radius: 17px[^}]*background: var\(--gg-glass\)[^}]*box-shadow: var\(--gg-glass-edge\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.taskpane \.tp-head :is\(\.tp-nav, \.tp-title\) \{[^}]*height: 22px[^}]*border-radius: 12px/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) :is\(\.leftpane, \.docmap\) \{[^}]*background: var\(--gg-panel\)[^}]*backdrop-filter: blur\(5px\)[^}]*border-radius: 17px[^}]*box-shadow: var\(--gg-glass-edge\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.leftpane \.lp-tabs \{[^}]*min-height: 35px[^}]*border-radius: 17px[^}]*background: var\(--gg-glass\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.leftpane \.lp-tab\.on,\s*:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) \.leftpane \.lp-tab\.on:hover \{[^}]*background: var\(--gg-on\)/);
+  assert.match(looks, /\[data-look="goldengate"\] \{[^}]*--menu-hot: var\(--gg-hover\)/);
+  assert.match(looks, /\[data-look="goldengatedark"\] \{[^}]*--menu-hot: var\(--gg-hover\)/);
+  assert.match(looks, /\[data-look="vscodegg"\] \{[^}]*--menu-hot: var\(--gg-hover\)/);
+  assert.match(looks, /:is\(\[data-look="goldengate"\], \[data-look="goldengatedark"\], \[data-look="vscodegg"\]\) :is\(\s*\.dm-item\.on, \.dm-item\.on:hover[\s\S]*?\) \{\s*border-color: transparent; outline: none; background: var\(--gg-on\)/);
   assert.match(looks, /\[data-look="ribbon2010"\] \.rb-tab\.file \{/);
   assert.match(looks, /\[data-look="ribbon2010"\] \.dlg\.is-opening \{ animation: win7-open /);
   assert.doesNotMatch(looks, /\[data-look="goldengate"\][^{]*\.ico[^{]*filter:\s*grayscale/);
