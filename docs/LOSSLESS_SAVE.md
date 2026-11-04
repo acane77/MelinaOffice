@@ -67,6 +67,7 @@ The contracts are in [suite.md, Preservation](suite.md#preservation); the per-fe
   - SmartArt, OLE, ink, 3-D and chartEx frames;
   - unused masters and design-edit invalidation;
   - tags, actions and effects.
+- **Save defects closed after `984eaf3`:** revision and paragraph ids written back; styles not rebuilt past Word's 4,092; the last of several final section properties; field instruction runs, comment dates and tracked moves; merged-cell borders taken from the cells on each edge; sheet comments whose drawing is only in a fallback; unedited SmartArt, ink, add-in and picture-alternate parts kept; ActiveX kept until its picture changes; a 97–2003 organization chart kept until it is edited; deletions recorded as deletions; a diagram we write names its layout's `uniqueId`.
 - **Final measurement (`984eaf3`):**
   - **Corpus:** the pinned corpus of 4,697 files; 14,091 driver attempts; 30,919 package/SDK states,
     with 29,341 OK, 670 failed (failures relative to the original count as failures) and 908 excluded.
@@ -90,16 +91,14 @@ These are in addition to AGENTS.md.
 
 ## To do
 
-1. **Silent real losses** that the unreferenced-part alarm found on unedited saves:
-   - **Matheuse SmartArt:** Matheuse drops SmartArt on a sheet entirely
-     (`libreoffice__12275492e8fc__tdf83671_SmartArt_import.xlsx`,
-     `libreoffice__6dda90d75ceb__tdf151818_SmartartThemeFontColor.xlsx`).
+1. **Silent real losses** that the unreferenced-part alarm found on unedited saves. The writer now keeps a Matheuse SmartArt or add-in frame, and an Oratrice picture that has another version beside its PNG, and records a real deletion as deleted. The named corpus files have not been re-measured since that change:
+   - **Matheuse SmartArt:** `libreoffice__12275492e8fc__tdf83671_SmartArt_import.xlsx`,
+     `libreoffice__6dda90d75ceb__tdf151818_SmartartThemeFontColor.xlsx`.
    - **Other Matheuse drawings:** 16 more Matheuse files lose a sheet drawing. Separate the empty ones from
      the real ones (`poi__3c51c202a1fc__npe.xlsx` loses a drawing and its picture).
-   - **Oratrice:** `libreoffice__9d97505735d4__import-characters.pptx` loses `ppt/media/image1.png`,
-     and `poi__793baf3ae217__2411-Performance_Up.pptx` loses `ppt/media/image3.pdf`.
-   - **Required with each fix:** keep the object (or give it its own notice), and add a regression
-     test. In corpus runs, an `unreferenced:` entry for a part the original used is a defect.
+   - **Oratrice:** `libreoffice__9d97505735d4__import-characters.pptx` (`ppt/media/image1.png`) and
+     `poi__793baf3ae217__2411-Performance_Up.pptx` (`ppt/media/image3.pdf`).
+   - In corpus runs, an `unreferenced:` entry for a part the original used is still a defect.
 2. **Oratrice checker numbers:** run the Oratrice corpus driver, which needs Playwright, to measure how
    often unedited saves show the checker. Matheuse shows it for 5 of 888 files, and the Ecrivaine sample
    for 3 of 106.

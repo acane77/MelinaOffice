@@ -43,6 +43,8 @@ Licences for the word lists are in `public/common/dict/LICENSES.txt`.
 
 ## Rendering notes
 
+- A picture in a line that is wider than its column is clipped at the middle of the gap before the next column, after vertical alignment and the page's white space have been measured. Floating pictures and pictures inside shapes are left alone, and the document model is not changed.
+- A file with no default run properties is shown and saved as Calibri 11 pt, which is what Word uses; with no default paragraph properties, 8 pt after and 1.08 line spacing. A default that is present but omits one of those still uses the format's own Times New Roman 10 pt and single spacing. A new document's 等线 face lives in the template's own defaults and is not replaced by this rule.
 - Layout follows Word's own rules where they differ from CSS: space before/after collapses to the
   larger of the two (unless the document asks for HTML-style spacing), space before is dropped at the
   top of a page reached by overflow, by "page break before" or (Word 2013+ documents) by a section
@@ -236,6 +238,8 @@ Ecrivaine keeps package dependencies, control boundaries, text/section propertie
 its editable model. Save and drafts retain DOCX/DOCM/DOTX/DOTM and encryption. The Compatibility
 Checker shows, before a user download, only the losses that cost the user content or a working
 feature (see docs/suite.md, What the user is told). Drafts retain notices silently, and cancelling a conversion does not leave its notice on a later preserving save.
+
+An unedited save writes back the paragraph, run and row revision ids and paragraph ids it read, and writes `xml:space="preserve"` only on text that needs it. Runs that share formatting but not those ids stay separate. When the body has several final section properties, the last one is the document's, as in Word and LibreOffice. A field instruction that was not edited is written as the runs it was read in. A comment with no date is not stamped with the time of the save. Tracked moves stay moves. A styles part is not rebuilt from the model: built-in styles are added only when something uses them, a style id from another language of Word is reused rather than duplicated under our name, and a save stops at 4,092 styles (Word refuses more) and records the ones left out. A run that was read without a complex-script size is saved without one. Table rows and cells keep the properties this editor does not model, including `w:tblPrEx` and `w:tblGridChange`, and a percentage or automatic cell width is not rewritten as twips.
 
 The current pinned **2,902-file** run uses frozen writer `984eaf3`, including section and numbering
 preservation. **2,880 save/reopen and draft-recovery attempts complete**, with **22 failures** in each

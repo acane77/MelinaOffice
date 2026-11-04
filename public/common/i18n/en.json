@@ -5390,6 +5390,11 @@
    "matheuse/js/vb-dom-ref.js:288"
   ]
  },
+ "ActiveX control": {
+  "where": [
+   "oratrice/js/frames.js:17"
+  ]
+ },
  "Actual Page": {
   "where": [
    "ecrivaine/js/panes.js:711"
@@ -33236,6 +33241,31 @@
    "oratrice/js/frames.js:156"
   ]
  },
+ "This ActiveX control has no picture, so it will be saved as an empty frame and stop working.": {
+  "where": [
+   "oratrice/js/frames.js:317"
+  ]
+ },
+ "This ActiveX control will be saved as its picture and stop working, because it was grouped here.": {
+  "where": [
+   "oratrice/js/frames.js:325"
+  ]
+ },
+ "This ActiveX control will be saved as its picture and stop working, because it was rotated or flipped here.": {
+  "where": [
+   "oratrice/js/frames.js:324"
+  ]
+ },
+ "This ActiveX control will be saved as its picture and stop working, because its picture was edited here.": {
+  "where": [
+   "oratrice/js/frames.js:158"
+  ]
+ },
+ "This ActiveX control will be saved as its picture and stop working, because the original couldn't be kept.": {
+  "where": [
+   "oratrice/js/frames.js:158"
+  ]
+ },
  "This IntelliArt now uses Oratrice's {0} layout, so it can be edited here.": {
   "where": [
    "oratrice/js/diagram.js:232"
@@ -33279,6 +33309,21 @@
   ]
  },
  "This chart will be saved as ordinary shapes, because the original couldn't be kept.": {
+  "where": [
+   "oratrice/js/frames.js:157"
+  ]
+ },
+ "This copy of an ActiveX control will be saved as its picture and won't work.": {
+  "where": [
+   "oratrice/js/frames.js:323"
+  ]
+ },
+ "This diagram will be saved as an empty rectangle, because it was edited here.": {
+  "where": [
+   "oratrice/js/frames.js:157"
+  ]
+ },
+ "This diagram will be saved as an empty rectangle, because the original couldn't be kept.": {
   "where": [
    "oratrice/js/frames.js:157"
   ]
@@ -36546,9 +36591,19 @@
    "matheuse/js/editor.js:274"
   ]
  },
+ "{0}\n(IntelliArt is not displayed)": {
+  "where": [
+   "matheuse/js/drawing.js:134"
+  ]
+ },
  "{0}\n(this chart type is not displayed)": {
   "where": [
    "matheuse/js/drawing.js:126"
+  ]
+ },
+ "{0}\n(this object is not displayed)": {
+  "where": [
+   "matheuse/js/drawing.js:134"
   ]
  },
  "{0} (Antonym)": {

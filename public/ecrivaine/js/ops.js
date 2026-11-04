@@ -55,7 +55,7 @@
     const r = L.clone(src ? src.rPr : p.rPr) || {};
     delete r.ins; delete r.del; delete r.chg;
     /* typing after a footnote/endnote reference should not continue the reference style */
-    if (r.style === 'FootnoteReference' || r.style === 'EndnoteReference' || r.style === 'CommentReference') { delete r.style; delete r.vert; }
+    if (D.isStyle(doc(), r.style, 'footnote reference', 'endnote reference', 'annotation reference', 'CommentReference')) { delete r.style; delete r.vert; }
     if (r.link && !insideLink(p, pos.o)) stripLinkFmt(r);
     return r;
   };

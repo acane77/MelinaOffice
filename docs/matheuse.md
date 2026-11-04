@@ -63,7 +63,7 @@ bar, status bar (with a zoom slider, 10–400 %, 100% in the middle: drag it, or
 Function (Insert Function and Function Arguments with live results and help for every function),
 Name (Define, Paste, Create, Apply), Comment, Picture from file, AutoShapes, Text Box, Hyperlink.
 
-**Format.** Format Cells with all six tabs (Number with the full category list and custom formats,
+**Format.** Format Cells with all six tabs (Number with the full category list and custom formats — `aaa` and `aaaa` are the weekday in the format tag's language, English when the tag names none —
 Alignment with indent, rotation, wrap, shrink and merge, Font, Border, Patterns, Protection). The Font
 tab names one face, as Excel's does. The toolbar Font box does not: an East Asian family becomes the
 cell font, and a Latin family changes only the Latin characters, leaving the East Asian face as a second
@@ -148,6 +148,8 @@ Passwords are handled in the browser (WebCrypto plus Matheuse's own AES and SHA 
 be served over https or from localhost. A workbook opened with its password keeps it when saved.
 
 ## What a save keeps, converts and drops
+
+A merged cell's border is drawn from the cell on each side of that edge, including when the anchor cell is outside the view, missing or hidden. XML Spreadsheet 2003 stores that format on the anchor only; opening copies it onto the edge cells. A comment whose DrawingML sits in the fallback of an empty choice is kept, which is what Excel 2016 requires. SmartArt, ink and an add-in shown by its fallback picture stay on an unedited save; moving one keeps it, deleting one takes its parts, and a copy gets its own picture part. An empty drawing part is not written. A pre-release Excel 2007 object that cannot be shown becomes a notice instead of disappearing. A sheet, chart or picture the user deleted is recorded as deleted, so the loss ledger does not report that removal as a writer defect.
 
 The full LibreOffice pass on the versioned `984eaf3` artifacts renders **930/935 unedited saves**;
 **three** readable pairs change page count, down from 37 after the page-setup and layout corrections,
