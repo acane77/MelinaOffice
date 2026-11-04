@@ -7,13 +7,13 @@
   const RD = (L.render = {});
 
   const COL = {
-    grid: '#C0C0C0', hdrTop: '#FFFFFF', hdrBot: '#E4ECF7', hdrLine: '#9EB6CE', hdrText: '#000000',
+    grid: '#E0E0E0', hdrTop: '#FFFFFF', hdrBot: '#E4ECF7', hdrLine: '#9EB6CE', hdrText: '#000000',
     hdrSelTop: '#FFE7A2', hdrSelBot: '#F8C55E', hdrSelLine: '#D7A43C', hdrAllTop: '#FFD58D', hdrAllBot: '#F5B54A',
     sel: 'rgba(128, 128, 128, 0.28)', selBorder: '#8a8a8a', freeze: '#000000', pageBreak: '#0000FF',
   };
   RD.COL = COL;
   /* the headers and the selection are chrome and follow the look (common/looks.css); gridlines, frozen
-     panes and page breaks are the sheet's own and stay */
+     panes and page breaks are the sheet's own and stay. An unset gridline colour is modern Excel's #E0E0E0. */
   const LOOKED = { hdrTop: 'hdr-a', hdrBot: 'hdr-b', hdrLine: 'hdr-line', hdrText: 'hdr-ink', hdrSelTop: 'hdr-sel-a', hdrSelBot: 'hdr-sel-b',
     hdrSelLine: 'hdr-sel-line', hdrAllTop: 'hdr-all-a', hdrAllBot: 'hdr-all-b', sel: 'cell-sel', selBorder: 'cell-sel-border' };
   const DEF = { ...COL };
