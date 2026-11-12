@@ -39,9 +39,9 @@
 
   /* ------------------------------------------------------------ apps */
   VO.APPS = {
-    ecrivaine: { name: 'Ecrivaine', kind: 'Document', ext: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'] },
-    matheuse: { name: 'Matheuse', kind: 'Spreadsheet', ext: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'] },
-    oratrice: { name: 'Oratrice', kind: 'Presentation', ext: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'] },
+    ecrivaine: { name: 'Ecrivaine', kind: 'Document', ext: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'dot', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'] },
+    matheuse: { name: 'Matheuse', kind: 'Spreadsheet', ext: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'xlt', 'csv', 'tsv', 'prn', 'xml'] },
+    oratrice: { name: 'Oratrice', kind: 'Presentation', ext: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt', 'pps', 'pot'] },
   };
   VO.ext = (name) => (/\.([^./\\]+)$/.exec(name || '') || ['', ''])[1].toLowerCase();
   /** the app for a file name, or null */

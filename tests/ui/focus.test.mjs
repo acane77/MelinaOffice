@@ -1,5 +1,5 @@
 // The keyboard back to the document (todos/UI_MOUSE_LOGIC_IMPROVE.md, Phase 3), in each app and in the Classic and
-// Paper 2016 looks: after a dialog opened from a shortcut, a toolbar or ribbon button or the context menu and closed
+// Ribbon 2010 looks: after a dialog opened from a shortcut, a toolbar or ribbon button or the context menu and closed
 // with Esc, Cancel or OK, after a menu command, and after a press on chrome with no control of its own, the element
 // that had the keyboard has it again, with the same selection.
 //
@@ -14,7 +14,7 @@ const blank = (t, selector) => t.evaluate(`(() => { const box = document.querySe
   for (let x = Math.floor(r.right) - 2; x > r.left; x -= 3) for (const y of [r.top + r.height / 2, r.top + 3, r.bottom - 3]) {
     const e = document.elementFromPoint(x, y); if (e && box.contains(e) && !e.closest('button, input, select, textarea, a, label, [tabindex], [contenteditable], .tb-btn, .tb-split, .combo, .stab, .mb-item, .rb-tab, svg')) return { x, y: Math.round(y) }; }
   return null; })()`);
-/** click the button of a command, on the ribbon tab that holds it in Paper 2016 */
+/** click the button of a command, on the ribbon tab that holds it in Ribbon 2010 */
 async function commandButton(t, cmd, tab) {
   if (await t.evaluate(`!!document.querySelector('.rb-tabs')`)) await t.click(await t.el(`.rb-tab[data-tab="${tab}"]`));
   const b = await t.button(cmd);
@@ -84,7 +84,7 @@ const APPS = {
   },
 };
 
-const CHROME = ['.cmdbars', '#statusbar', '#drawrow', '#viewbar', '#fbar', '.rb-tabs', '.tb-grip'];
+const CHROME = ['.cmdbars', '#statusbar', '#drawrow', '#fbar', '.rb-tabs', '.tb-grip'];
 
 for (const [app, A] of Object.entries(APPS)) for (const look of ['classic', 'ribbon2010']) {
   test(`${app}, ${look}: the keyboard stays with the document`, async (s) => {
@@ -128,6 +128,17 @@ for (const [app, A] of Object.entries(APPS)) for (const look of ['classic', 'rib
         await s.test('a menu opened from the menu bar and closed with Esc', () => keeps(async () => {
           await t.menu('Edit'); await pause(150); await t.esc();
         }));
+        /* Toolbar Options (») of a toolbar cut short (Standard and Formatting sharing a row at 1280 px): the pop-up
+           holds the controls that don't fit, Esc closes it and they go back */
+        await s.test('Toolbar Options (») opened, then closed with Esc', () => keeps(async () => {
+          await t.evaluate(`(L.app.opts.twoRows = false, L.ui.toolbarPrefs(L.app.opts))`); await pause(300);
+          try {
+            await t.click(await t.el('#tb-standard .tb-more'));
+            assert.equal(await t.evaluate(`!!document.querySelector('.tb-pop [data-cmd="help"]')`), true, 'Help is in the pop-up');
+            await t.esc();
+            assert.equal(await t.evaluate(`!document.querySelector('.tb-pop') && !!document.querySelector('#tb-standard [data-cmd="help"]')`), true, 'closed, Help back on the toolbar');
+          } finally { await t.evaluate(`(L.app.opts.twoRows = true, L.ui.toolbarPrefs(L.app.opts))`); }
+        }));
       } else {
         await s.test('the ribbon\'s tabs clicked', () => keeps(async () => {
           await t.click(await t.el('.rb-tab[data-tab="insert"]')); await pause(150);
@@ -139,6 +150,25 @@ for (const [app, A] of Object.entries(APPS)) for (const look of ['classic', 'rib
         if (!p) continue;
         await s.test(`a press on ${sel} where it has no control`, () => keeps(async () => { await t.click(await blank(t, sel)); }));
       }
+      /* a dialog's underlined letter with Alt (ui.dialog): Zoom's &200% is chosen, then Esc */
+      await s.test('a dialog\'s access key pressed with Alt, then Esc', () => keeps(async () => {
+        await t.evaluate(`L.ui.exec('zoomDlg')`); await pause(300);
+        await t.key('2', { alt: true }); await pause(150);
+        assert.match(await t.evaluate(`(() => { const r = [...document.querySelectorAll('.dlg input[type=radio]')].find((x) => x.checked); return r ? r.parentElement.textContent : ''; })()`), /^200\s?%$/, 'Alt+2 chose 200%');
+        await t.esc();
+      }));
+      /* the status bar's zoom slider (ui.zoomBar, 100% at the centre) is chrome too: the zoom changes, the keyboard and selection stay */
+      const zoomNow = () => t.evaluate(`+document.querySelector('#statusbar .sb-zoom-range').getAttribute('aria-valuenow')`);
+      await s.test('the zoom slider\'s thumb dragged', () => keeps(async () => {
+        const z0 = await zoomNow(), range = await t.el('#statusbar .sb-zoom-range');
+        await t.drag({ x: range.x, y: range.y }, { x: Math.min(range.r - 2, range.x + 36), y: range.y }, 6);
+        assert.ok(await zoomNow() > z0, `zoomed in from ${z0}%`);
+      }));
+      await s.test('the zoom slider\'s + clicked', () => keeps(async () => {
+        const z0 = await zoomNow();
+        await t.click(await t.el('#statusbar .sb-zoom-btn[aria-label="Zoom In"]'));
+        assert.ok(await zoomNow() > z0, `zoomed in from ${z0}%`);
+      }));
       await s.test('no browser errors, no external requests', () => t.clean());
     } finally { await t.close(); }
   });

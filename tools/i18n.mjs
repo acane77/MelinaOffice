@@ -34,9 +34,9 @@ const LANGS = ['ja', 'ko', 'fr', 'de', 'zh-CN', 'zh-Hant'];
 const catalogFile = path.join(PUB, 'common/i18n/en.json');
 
 /* files with no UI text of their own: readers, writers, engines (text they put in files or errors they throw are
-   handled where they are shown) */
-const SKIP = new Set(['common/crypto.js', 'common/sha.js', 'common/zip.js', 'common/xml.js', 'common/opc.js', 'common/opc-order.js',
-  'common/numfmt.js', 'common/dml.js', 'common/metafile.js', 'common/icons.js', 'common/i18n.js', 'sw.js',
+   handled where they are shown); and the licences page's script, whose page is in English only, as the licences are */
+const SKIP = new Set(['oss-licenses.js', 'common/crypto.js', 'common/sha.js', 'common/zip.js', 'common/xml.js', 'common/opc.js', 'common/opc-order.js',
+  'common/numfmt.js', 'common/dml.js', 'common/metafile.js', 'common/pdf.js', 'common/icons.js', 'common/i18n.js', 'sw.js',
   'ecrivaine/js/docx-read.js', 'ecrivaine/js/docx-write.js', 'ecrivaine/js/rtf.js', 'ecrivaine/js/htmlio.js', 'ecrivaine/js/markdown.js', 'ecrivaine/js/mdio.js',
   'ecrivaine/js/omml.js', 'ecrivaine/js/preserve.js', 'ecrivaine/js/preserve-drawing.js', 'ecrivaine/js/dmodel.js',
   'matheuse/js/formula.js', 'matheuse/js/calc.js', 'matheuse/js/fn-core.js', 'matheuse/js/fn-lookup.js', 'matheuse/js/fn-stat.js', 'matheuse/js/fn-fin.js',
@@ -183,7 +183,7 @@ function scanJS(file, src, add, fragment, markedOnly) {
     if (top && top.kind === '{' && PROPS.has(top.key)) ui = true;
     if (top && top.kind === '(' && top.callee) {
       const name = top.callee.replace(/^(window|root)\./, '').replace(/^L\.ui\./, 'ui.');
-      if (Array.isArray(CALLS[name]) && CALLS[name].includes(top.arg)) ui = true;
+      if (Object.hasOwn(CALLS, name) && CALLS[name].includes(top.arg)) ui = true;   // own keys: a class's constructor() is no call of Object's
       if (H.has(name) && top.arg >= 2) ui = true;
     }
     /* [['id', 'Label'], …] in the first argument of ui.select */
@@ -229,7 +229,7 @@ function gather() {
     const rel = path.relative(PUB, abs).split(path.sep).join('/');
     if (rel.startsWith('common/dict/') || rel.startsWith('common/vendor/') || rel.startsWith('ecrivaine/vendor/') || rel.startsWith('oratrice/vendor/') || rel.startsWith('matheuse/vendor/')) continue;   // word lists, vendored libraries and the built VB engine are not UI text
     const src = fs.readFileSync(abs, 'utf8');
-    if (SKIP.has(rel)) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N
+    if (SKIP.has(rel) || rel.startsWith('common/legacy/')) { scanJS(rel, src, add, fragment, true); continue; }   // only what is marked: L.t, L.N, N (the Office 97-2003 importers are readers too)
     if (rel === 'matheuse/js/fninfo.js') scanFninfo(rel, src, add);
     scanJS(rel, src, add, fragment);
   }

@@ -83,14 +83,17 @@ One copy of everything the three apps share; a change here is a change in every 
 | `search.js` | Search commands, the box at the top right of every app (see Search commands) | all |
 | `ribbon.js` | the ribbon, drawn from each app's `js/ribbon.js` (see The ribbon) | all |
 | `icons.js` | the 16×16 icon sets (common, document, spreadsheet), `L.icons.add`, `L.icons.kit` | all |
-| `zip.js`, `sha.js`, `crypto.js` | ZIP read/write; SHA; ECMA-376 encryption (password-protected files) | all |
-| `xml.js`, `opc.js`, `opc-order.js` | Portable XML tree, immutable OOXML packages, dependency and identity maps, fragment capture and geometry adapters; generated schema order and preset adjustment tables. | all |
-| `geometry.js`, `metafile.js` | AutoShape presets and preset pattern fills; WMF/EMF player | all |
-| `charts.js` | chart model, SVG renderer, chart data dialog (Oratrice's `chart-draw.js` adds the v2 renderer) | all |
-| `numfmt.js` | Excel number formats | Matheuse, Oratrice |
+| `zip.js`, `sha.js`, `crypto.js` | ZIP read/write; SHA (`L.sha.digest`: WebCrypto's, or its own over plain http); ECMA-376 encryption (password-protected files), with the compound-file reader (`L.officeCrypto.cfb`: storage paths, tolerant of damage as Apache OpenOffice and POI are) | all |
+| `legacy/` | Office 97-2003 import (`.doc`, `.xls`, `.ppt` and their templates): `import.js` (loaded by every app) loads the converters when such a file is opened, tells the user what wasn't converted and, for a file with a password to open, throws code `password` or `badpassword` as the apps' OOXML readers do, so each app asks with its own Password box and keeps the password for Save (`L.legacyImport.convert(bytes, name, format, { password })`; Office's default password is tried first); each file becomes the OOXML package Office would write for it (`L.legacy`; property sets, code pages, OfficeArt pictures and shapes, package assembly; `L.legacy.xls.convert`: Excel workbooks with their values, styles, sheets and views, formulas (shared, array and data-table ones too), names and external links' cached values, comments, hyperlinks, data validation, conditional formatting, filters, print settings and protection; `L.legacy.ppt.convert`: PowerPoint presentations' structure (slides, masters as masters and layouts, notes, colour schemes as themes) text (runs, master styles, placeholders, bullets and numbering, fields) and drawings (pictures, shapes, groups, connectors, tables, backgrounds), hyperlinks and actions, headers and footers, transitions, animations and paragraph builds, sounds and movies; VBA projects of all three kept byte for byte in `vbaProject.bin`, never run; `L.legacy.doc.convert`: Word documents' text and structure (styles, character and paragraph formatting, lists, sections, headers and footers, footnotes and endnotes, compatibility settings, tables, fields and form fields, bookmarks, comments and revisions, pictures, drawings and text boxes); derived from Apache OpenOffice and POI) | — |
+| `xml.js`, `opc.js`, `opc-order.js` | Portable XML tree, immutable OOXML packages, dependency and identity maps, fragment capture and geometry adapters, the suite's random UUIDs and GUIDs (`K.uuid`, `K.guid`); generated schema order and preset adjustment tables. | all |
+| `presets.js`, `geometry.js`, `metafile.js` | AutoShapes: DrawingML's 187 preset shapes as data (`presets.js`, from the standard's definitions, written by `tools/shapes/presets.py`), evaluated as Office does for their outlines, text rectangles and adjust handles, and freeform paths; its 40 text warps (LettersArt), text bent as Office bends it and drawn as SVG (`L.geom.warpSVG`: Oratrice and Ecrivaine); preset pattern fills; WMF/EMF player | all |
+| `charts.js` | chart model, SVG renderer, chart data dialog | all |
+| `chart-read.js`, `chart-draw.js` | charts read from files: the model (groups, primary and secondary axes, markers, labels, blanks, layout, 3-D) and its drawing, with hooks for the app's DrawingML readers and paints | all |
+| `numfmt.js` | Excel number formats | all |
 | `dml.js` | DrawingML helpers | Ecrivaine, Matheuse |
-| `spell.js` | spelling engine: word lists (`dict/`), checking, suggestions, custom dictionary, Ignore All | Ecrivaine, Matheuse |
-| `clipart.js` | built-in clip art | Ecrivaine, Oratrice |
+| `spell.js` | spelling engine: word lists (`dict/`), checking, suggestions, custom dictionary, Ignore All; AutoCorrect's replacement list | all |
+| `dialogs.js` | the dialogs the apps share, each with an app adapter: Symbol (`ui.symbolDialog`), Insert Hyperlink (`ui.hyperlinkDialog`, `ui.completeAddress`), Spelling (`ui.spellingDialog`, the app walks its text), AutoCorrect's entries (`ui.autocorrectEntries`), Print (`ui.printDialog`), Properties (`ui.propertiesDialog`) | all |
+| `clipart.js` | built-in clip art and the Clip Art task pane's body (`L.clipart.pane`; each app registers the pane) | all |
 | `smartart.js` | the SmartArt layout engine: items → shapes for each layout, one text size per role (`tests/smartart.test.mjs`) | Oratrice |
 | `scout/` | the assistant (see The assistant): `spritepet.js` and `nikki.webp` the character, `assistant.js` the suite's use of her (play names, command mapping, Select Assistant), `scout.css` the balloon | all |
 | `suite.js`, `dict/`, `templates.json` | the suite: Start Center services; word lists; template gallery | — |
@@ -167,6 +170,52 @@ In the Ribbon 2010, Golden Gate, Golden Gate (Dark) and Golden Gate (Follow VS C
 - Keyboard: Alt or F10 shows KeyTips (numbers on the Quick Access Toolbar, the access letters on the tabs). A tab's label does not spell that letter. A tab's letter opens it and shows one or two letters on each command (`ui.barKeys` routes the menu bar's keys here). Esc goes back a level. Ctrl+F1 collapses the ribbon (as does a double-click on a tab or the arrow at the right, remembered per app as `ribbonCollapsed`); a tab then opens over the document. Task Pane, Ctrl+F1 in the other looks, is under View ▸ Show.
 - On a phone or a small tablet (a window up to 960px wide) the command panel scrolls sideways, the Quick Access Toolbar is one button that opens Save and its other commands, and Search commands is hidden. In a wider window that is still too narrow for the tab, the groups fold from the right into one button each that opens the group below it.
 - Adding a command to an app: put it in that app's `js/ribbon.js` too, where Office has it. `node --test tests/ribbon.test.mjs` (needs Chromium, as `tools/shot.mjs`) checks in each app that every command id in the ribbon exists, every button has an icon, and every command of the menus can be reached from the ribbon, apart from a short list of exceptions kept in the test.
+
+### The status bar
+
+Every app's status bar ends the same way, in every look: the view buttons (Ecrivaine also has its browse buttons
+there), then the zoom slider: −, a track with 100 % at its centre tick (the minimum to 100 % on the left half, 100 %
+to the maximum on the right, as in Office), +, and the percentage, which opens the Zoom dialog; Oratrice adds Fit to
+Window. Last comes the task pane's way in and out (`ui.paneToggle`, the app's Task Pane command): ‹ brings the pane
+out at the right, › puts it away, so a closed pane is never only behind View ▸ Task Pane. It is chrome like a toolbar button: pressing it leaves the keyboard, the selection and the shortcuts with the
+document, and Esc during a drag puts the zoom back. Its colours are the look's. The information cells come first and
+give way when the window is narrow: below 960 px the cells an app marks `opt` (Ecrivaine's section, position and REC/TRK/
+EXT/OVR, Matheuse's key indicators, Oratrice's design name) drop out. The ribbon's View › Zoom group has Office 2016's
+buttons (Ecrivaine: Zoom, 100%, One Page, Multiple Pages, Page Width; Matheuse: Zoom, 100%, Zoom to Selection; Oratrice:
+Zoom, Fit to Window); the classic toolbars keep their Zoom box. Ctrl+wheel (a trackpad's pinch) zooms in all three.
+
+### Toolbars, Customize and dialogs
+
+- Tools ▸ Customize (and View ▸ Toolbars ▸ Customize) is one dialog in all three apps, `ui.customize`: Toolbars (each
+  app's list of `tb_<id>` toggles), Commands (every named command with its shortcut keys; double-click or Enter runs one)
+  and Options. Its options apply at once and are kept in the app's options (`twoRows`, `screenTips`, `tipKeys`), applied
+  by `ui.toolbarPrefs` at start: the Standard and Formatting toolbars on two rows (on), or sharing one (the two rows sit
+  in a `.tb-pair`); ScreenTips; shortcut keys in them (a toolbar button keeps its key in `data-tip-key`, so the tip
+  itself is translated).
+- A toolbar cut short by the window or by a shared row shows Toolbar Options (») at its end, as Office 2003 does: it
+  opens the controls that don't fit in a pop-up (the controls themselves, moved there while it is open, so their
+  menus and lists work), and the toolbar keeps its width meanwhile.
+- Dialogs: Alt and an underlined letter presses that button, picks that tab, ticks that checkbox or radio, or puts the
+  keyboard in that label's box; a letter two labels share moves between them. So every letter in a dialog is used
+  once; a new label takes a free one.
+- One of each, in `ui.js` and `dialogs.js`: the list box (`ui.listBox`: arrow keys, Home/End, Page keys and typed
+  letters move it; an optional box above picks as you type), the colour button (`ui.colorButton`: a swatch, the
+  colour's name, an arrow; an app's own values through `paint`, `name` and `convert`), the Symbol, Insert Hyperlink,
+  Spelling and Properties dialogs. A tabbed dialog keeps its tallest tab's height, so OK and Cancel don't move.
+  Properties applies on OK what changed, as one undo step (Oratrice's applied each keystroke and had no Cancel); its
+  Custom tab has Office's types (Text, Date, Number, Yes or no), written as Word and Excel do (`vt:lpwstr`, `vt:i4`
+  or `vt:r8`, `vt:bool`, `vt:filetime`). Spelling moves off the word it shows (`ui.keepClear`), which stays
+  highlighted while the dialog has the keyboard. AutoCorrect's replacement list is one list (`spell.js`,
+  `autocorrectList`: the defaults less what an app leaves out, with the user's entries, a setting per app) and one
+  part of each app's AutoCorrect tab (`ui.autocorrectEntries`): Replace and With over the entries in two columns,
+  Add (Replace for an entry that is there) and Delete, which take effect at once; the tab's options apply on OK.
+  Print (`ui.printDialog`) has the printer (Save as PDF), the range (a list such as 1,3,5–12, read by
+  `ui.parsePages`, or Excel's From and To; one that names no page keeps the dialog open with Office's message) and
+  each app's own choices; Oratrice's OK saves the PDF of what Print Preview lays out, without leaving its view.
+- To do (the cross-app audit of 2026-11-04, still different between the apps): Hyperlink base in Properties (no app
+  reads or writes it yet); custom properties in Oratrice (custom.xml is not read); Options › View laid out alike;
+  Matheuse's Drawing toolbar and Drawing Tools with the others' controls; Oratrice's Clear All Formatting; the Window
+  menu's New Window and Arrange All.
 
 ### Search commands
 

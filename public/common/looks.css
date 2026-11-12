@@ -8,6 +8,7 @@
 :root, [data-look="classic"] {
   color-scheme: light;
   --theme-color: #2a64c8;   /* the browser's own bar (meta theme-color) */
+  --check: #316AC5;   /* dialog check boxes and radios */
   --tray-radius: 3px; --ctl-radius: 2px;   /* toolbars and panels; buttons and fields */
   --ui-font: Tahoma, "Segoe UI", Verdana, Geneva, "DejaVu Sans", var(--ui-cjk, sans-serif);
   --ui-size: 11px;
@@ -251,6 +252,7 @@
 [data-look="win7"] {
   color-scheme: light;
   --theme-color: #4580c4;
+  --check: #316AC5;
   --tray-radius: 3px; --ctl-radius: 3px;
   --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
   --ui-size: 11px;
@@ -613,6 +615,7 @@
 [data-look="ribbon2010"] {
   color-scheme: light;
   --theme-color: #4580c4;
+  --check: #316AC5;
   --tray-radius: 3px; --ctl-radius: 3px;
   --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
   --ui-size: 11px;
@@ -1022,6 +1025,7 @@
 [data-look="goldengate"] {
   color-scheme: light;
   --theme-color: #0088ff;
+  --check: #0088ff;
   --tray-radius: 3px; --ctl-radius: 3px;
   --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
@@ -1993,6 +1997,7 @@
 [data-look="goldengatedark"] {
   color-scheme: dark;
   --theme-color: #1E1E1E;
+  --check: #4da3ff;
   --tray-radius: 3px; --ctl-radius: 3px;
   --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Helvetica Neue", Helvetica, "PingFang SC", "Segoe UI", "Microsoft Yahei UI", "Microsoft Yahei", sans-serif;
   --ui-size: 13px;
@@ -2969,6 +2974,7 @@
 [data-look="xp"] {
   color-scheme: light;
   --theme-color: #0099ff;
+  --check: #316AC5;
   --tray-radius: 3px; --ctl-radius: 2px;
   --ui-font: "Microsoft Yahei UI", "Segoe UI", system-ui, var(--ui-cjk, sans-serif);
   --ui-size: 11px;
@@ -3212,6 +3218,7 @@
    Workbench colours are the VS Code tokens (--vscode-*). Glass (the capsule, plates, blur and rims) follows light or dark only. */
 [data-look="vscodegg"] {
   color-scheme: light;
+  --check: var(--vscode-focusBorder, #0088ff);
   /* the open editor's workbench colours; each falls back to Golden Gate when the token is absent */
   --vsc-editor: var(--vscode-editor-background, #ffffff);
   --vsc-fg: var(--vscode-editor-foreground, var(--vscode-foreground, rgba(0,0,0,.85)));

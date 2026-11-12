@@ -24,12 +24,15 @@ const EXCEPTIONS = {
   },
   matheuse: {
     customize: 'customizes the classic toolbars',
+    gettingStarted: 'Help (F1)',
     keyboardHelp: 'Help (F1)',
     showAssistant: 'not in Office 2016; Search commands finds it',
   },
   oratrice: {
     clear: 'the Delete key',
+    customize: 'customizes the classic toolbars',
     gettingStarted: 'Help (F1)',
+    keyboardHelp: 'Help (F1)',
     showAssistant: 'not in Office 2016; Search commands finds it',
   },
 };

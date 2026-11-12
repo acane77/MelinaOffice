@@ -8,12 +8,12 @@ import os
 D = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.join(D, '..', '..', '..', 'public', 'matheuse')
 # load order; 'common/x' is public/common/x.js, shared by the suite, anything else public/matheuse/js/x.js
-SCRIPTS = ['common/core', 'common/i18n', 'common/locales', 'common/xml', 'common/opc', 'common/opc-order', 'xml', 'common/zip', 'common/sha', 'common/crypto', 'common/icons',
-           'common/geometry', 'common/metafile', 'common/ui', 'common/macros', 'common/numfmt', 'formula', 'model', 'calc',
-           'fn-core', 'fn-lookup', 'fn-stat', 'fn-fin', 'fn-eng', 'common/dml', 'common/charts', 'xchart',
+SCRIPTS = ['common/core', 'common/i18n', 'common/locales', 'common/xml', 'common/opc', 'common/opc-order', 'xml', 'common/zip', 'common/sha', 'common/crypto', 'common/legacy/import', 'common/icons',
+           'common/presets', 'common/geometry', 'common/metafile', 'common/ui', 'common/dialogs', 'common/macros', 'common/numfmt', 'formula', 'model', 'calc',
+           'fn-core', 'fn-lookup', 'fn-stat', 'fn-fin', 'fn-eng', 'common/dml', 'common/charts', 'common/chart-read', 'common/chart-draw', 'xchart',
            'pivots', 'threads', 'objects', 'slicers', 'extensions', 'tables', 'preserve', 'xlsx-read', 'xlsx-write', 'csv', 'xmlss', 'styles', 'cf', 'layout', 'render', 'ops', 'clipboard',
            'fninfo', 'grid', 'editor', 'common/spell', 'spell', 'filter', 'drawing', 'commands', 'dialogs', 'common/host-audit',
-           'dialogs2', 'dialogs3', 'print', 'panes', 'common/vb-dom-ref', 'vb-dom-ref', 'common/scout/spritepet', 'common/scout/assistant', 'common/search', 'common/ribbon', 'ribbon', 'app',
+           'dialogs2', 'dialogs3', 'print', 'common/clipart', 'panes', 'common/vb-dom-ref', 'vb-dom-ref', 'common/scout/spritepet', 'common/scout/assistant', 'common/search', 'common/ribbon', 'ribbon', 'app',
            'dom', 'dom-ir', 'common/vb-forms', 'vb-host', 'macros', 'common/vendor/xterm/xterm', 'common/vendor/codemirror/codemirror', 'common/vendor/codemirror/vb', 'common/vb-complete', 'common/vb-ide', 'dom-console']
 tpl = open(os.path.join(D, 'template.html')).read()
 css = open(os.path.join(D, 'matheuse.css')).read()   # after public/common/ui.css, linked by the template

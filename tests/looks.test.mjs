@@ -17,7 +17,7 @@ const SHEETS = {
   'index.html': styleOf(read('index.html')),
 };
 /* set per element by the apps for document content (and by the assistant for size and balloon tip), not by a look */
-const DOCUMENT_VARS = new Set(['--tabc', '--olvl', '--bu-c', '--bu-f', '--bu-s', '--bu-w', '--icon-swatch', '--scout-w', '--scout-tip', '--mt', '--mb', '--ws-pad']);
+const DOCUMENT_VARS = new Set(['--tabc', '--olvl', '--bu-c', '--bu-f', '--bu-s', '--bu-w', '--bu-img', '--icon-swatch', '--scout-w', '--scout-tip', '--mt', '--mb', '--ws-pad']);
 
 const names = (css) => new Set([...css.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1]));
 /** look id → the settings its blocks set (a block's selector may list several looks) */

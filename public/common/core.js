@@ -75,9 +75,11 @@
   L.debounce = (fn, ms) => { let t; return function (...a) { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; };
   L.rafThrottle = (fn) => { let q = false, args; return function (...a) { args = a; if (q) return; q = true; requestAnimationFrame(() => { q = false; fn.apply(this, args); }); }; };
   L.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  /* text for XML content or an attribute; tabs and line breaks as character references, which an attribute would
+     otherwise turn into spaces (a form field's help text, a picture's alt text) */
   L.xesc = (s) => String(s == null ? '' : s)
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, '')
-    .replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    .replace(/[&<>"\t\n\r]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\t': '&#9;', '\n': '&#10;', '\r': '&#13;' }[c]));
   L.isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   /** iOS or Android (an iPad says it is a Mac, but has a touch screen) */
   L.isMobile = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
@@ -157,6 +159,30 @@
   C.luma = (hex) => { const [r, g, b] = C.hexToRgb(hex); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; };
   C.rgba = (hex, a) => { const [r, g, b] = C.hexToRgb(hex); return a == null || a >= 1 ? C.rgbToHex(r, g, b) : `rgba(${r},${g},${b},${L.round(a, 3)})`; };
   C.gray = (hex) => { const v = Math.round(C.luma(hex) * 255); return C.rgbToHex(v, v, v); };
+  /** a gradient's stops ({ p: 0–1, c: '#RRGGBB', a }, in order) as Office paints them. A gradient of two colours, two
+      opaque stops at 0 and 100 % (or the first again at 100 % around one at 50 %), it blends in linear light along an
+      S-curve, a normal distribution's (sigma a quarter of the way; erf as Abramowitz and Stegun 7.1.26): FF0000 to
+      00B050 is #BC8038 halfway and #EE461C a quarter of the way, where a browser's straight sRGB blend has #805828 and
+      #BF2C14 (PowerPoint 2016's PDF of LibreOffice's tdf105739 samples its curve: #BA813A and #EE4920). So stops are
+      put in between (n to a gap) for a browser's straight runs to follow it. Any other gradient (more stops, stops
+      inside, transparency) Office blends in sRGB, straight from stop to stop, as a browser does */
+  const SIGMA = 0.25, erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)), y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x < 0 ? -y : y; };
+  const sigmoid = (t) => { const e0 = erf(-0.5 / SIGMA / Math.SQRT2); return (erf((t - 0.5) / SIGMA / Math.SQRT2) - e0) / (-2 * e0); };
+  C.lightStops = (stops, n = 16) => {
+    const opaque = stops.every((st) => st.a == null || st.a >= 1), [s0, s1, s2] = stops;
+    const two = stops.length === 2 && s0.p === 0 && s1.p === 1, reflected = stops.length === 3 && s0.p === 0 && s1.p === 0.5 && s2.p === 1 && s0.c === s2.c;
+    if (!opaque || !(two || reflected)) return stops;
+    const out = [];
+    stops.forEach((st, i) => {
+      const prev = stops[i - 1];
+      if (prev && prev.c !== st.c) {
+        const x = C.hexToRgb(prev.c).map(toLin), y = C.hexToRgb(st.c).map(toLin);
+        for (let k = 1; k < n; k++) { const f = sigmoid(k / n); out.push({ p: prev.p + ((st.p - prev.p) * k) / n, c: C.rgbToHex(...x.map((v, j) => toS(v + (y[j] - v) * f))) }); }
+      }
+      out.push(st);
+    });
+    return out;
+  };
   /* OOXML colour modifiers (values in 1/1000 %) */
   const toLin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
   const toS = (l) => { l = Math.min(1, Math.max(0, l)); return 255 * (l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055); };
@@ -221,42 +247,41 @@
   if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('vo-look', () => { lookCache = {}; });
 
   /* ---------- file I/O ---------- */
-  /**
-   * Minimal PDF writer: one full-page JPEG per page.
-   * pages: [{ jpeg: Uint8Array, iw, ih (pixels), pw, ph (points) }]
-   */
-  L.buildPDF = function (pages, info) {
-    const enc = new TextEncoder();
-    const chunks = [];
-    let len = 0;
-    const offs = [];
-    const push = (x) => { const b = typeof x === 'string' ? enc.encode(x) : x; chunks.push(b); len += b.length; };
-    const pdfStr = (t) => { let hex = 'FEFF'; for (const ch of String(t || '')) { const c = ch.codePointAt(0); if (c > 0xffff) { const v = c - 0x10000; hex += (0xd800 + (v >> 10)).toString(16).padStart(4, '0') + (0xdc00 + (v & 0x3ff)).toString(16).padStart(4, '0'); } else hex += c.toString(16).padStart(4, '0'); } return '<' + hex.toUpperCase() + '>'; };
-    const num = (v) => String(Math.round(v * 100) / 100);
-    push('%PDF-1.4\n');
-    push(new Uint8Array([0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a]));
-    const obj = (id, body) => { offs[id] = len; push(id + ' 0 obj\n'); if (typeof body === 'string') push(body); else body(); push('\nendobj\n'); };
-    const n = pages.length;
-    const infoId = 3 + n * 3;
-    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
-    obj(2, `<< /Type /Pages /Kids [${pages.map((_, i) => (3 + i * 3) + ' 0 R').join(' ')}] /Count ${n} >>`);
-    pages.forEach((p, i) => {
-      const pid = 3 + i * 3, cid = pid + 1, iid = pid + 2;
-      obj(pid, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${num(p.pw)} ${num(p.ph)}] /Resources << /XObject << /Im${i} ${iid} 0 R >> >> /Contents ${cid} 0 R >>`);
-      const cs = `q ${num(p.pw)} 0 0 ${num(p.ph)} 0 0 cm /Im${i} Do Q`;
-      obj(cid, `<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);
-      obj(iid, () => { push(`<< /Type /XObject /Subtype /Image /Width ${p.iw} /Height ${p.ih} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.jpeg.length} >>\nstream\n`); push(p.jpeg); push('\nendstream'); });
-    });
-    const d = new Date();
-    const pad = (v) => String(v).padStart(2, '0');
-    obj(infoId, `<< /Title ${pdfStr(info && info.title)} /Author ${pdfStr(info && info.author)} /Producer ${pdfStr(L.APP)} /CreationDate (D:${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}) >>`);
-    const xref = len;
-    const total = infoId + 1;
-    push(`xref\n0 ${total}\n0000000000 65535 f \n`);
-    for (let i = 1; i < total; i++) push(String(offs[i]).padStart(10, '0') + ' 00000 n \n');
-    push(`trailer\n<< /Size ${total} /Root 1 0 R /Info ${infoId} 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
-    return new Blob(chunks, { type: 'application/pdf' });
+  L.PDF_DPI = 300;
+  const PDF_MAX_PIXELS = 40_000_000;
+  /** Pixels per page unit, capped before allocating a canvas (including rounded pixel dimensions). */
+  L.pdfScale = function (w, h, scale) {
+    if (Math.round(w * scale) * Math.round(h * scale) <= PDF_MAX_PIXELS) return scale;
+    const limit = Math.sqrt(PDF_MAX_PIXELS / (w * h));
+    return Math.min(scale, Math.floor(w * limit) / w, Math.floor(h * limit) / h);
   };
+  // The writer and text collectors are needed only when their export path is used.
+  const pdfLoads = new Map();
+  async function pdfScript(name, ready) {
+    if (!ready()) {
+      if (!pdfLoads.has(name)) {
+        const script = document.createElement('script');
+        script.src = (root.VO?.base || new URL('..', location.href).href) + 'common/' + name + '.js';
+        const pending = new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = () => {
+            pdfLoads.delete(name);
+            script.remove();
+            reject(new Error(L.t('The PDF exporter could not be loaded. Please try again.')));
+          };
+        });
+        pdfLoads.set(name, pending);
+        document.head.append(script);
+        await pending;
+      } else await pdfLoads.get(name);
+    }
+  }
+  L.pdfModule = async function (text = false) {
+    await pdfScript('pdf', () => L.pdf?.write);
+    if (text) await pdfScript('pdftext', () => L.pdf?.collectDOM);
+    return L.pdf;
+  };
+  L.buildPDF = async (pages, info) => (await L.pdfModule()).write(pages, info);
   /** Offer a generated file to the user as a download. Returns 'saved', and tells vo-saved { name } on window once
    *  the file is handed over (the assistant acts out Save and Save As then, common/scout/assistant.js).
    *  In the VS Code editor the bytes go to the workspace file instead (VO.host.writeFile): 'saved' when that
@@ -691,12 +716,25 @@
   };
   /** a CSS font-family list for a font and what stands in for it; with ea, an East Asian font, its letters come
       from the first and its East Asian characters from the second (as Word draws a run with both fonts) */
+  /** what a document's font table says about fonts it names (an app fills it when it opens one): font key ->
+      { alt, family, pitch }, for a font we have no stand-in of our own for */
+  L.fontHints = new Map();
+  /* Word's stand-in for a missing font of a kind: a serif face for roman, a fixed-pitch one for modern */
+  const BY_FAMILY = { roman: 'times new roman', modern: 'courier new', swiss: 'arial' };
+  const hinted = (k, depth) => {
+    const h = L.fontHints.get(k);
+    if (!h || depth > 2) return null;
+    const alt = h.alt && L.fontKey(h.alt);
+    if (alt && alt !== k && (FONT_FALLBACK[alt] || CJK_BY.has(alt) || L.fontHints.has(alt))) return `"${h.alt}",` + (hinted(alt, depth + 1) || L.fontStack(h.alt).replace(/^"[^"]*",/, ''));
+    const fam = h.pitch === 'fixed' ? 'courier new' : BY_FAMILY[h.family];
+    return fam ? `"${{ 'times new roman': 'Times New Roman', 'courier new': 'Courier New', arial: 'Arial' }[fam]}",${FONT_FALLBACK[fam]}` : null;
+  };
   L.fontStack = function (name, ea) {
     if (!name) return ea ? L.fontStack(ea) : 'Arial,"Arimo",sans-serif';
     name = L.fontFace(name);
     if (ea) ea = L.fontFace(ea);
     const n = String(name).replace(/"/g, ''), k = L.fontKey(n), cjk = CJK_BY.get(k);
-    const stack = cjk ? `"${n}",` + (cjk.en !== n ? `"${cjk.en}",` : '') + CJK_STACKS[cjk.stack] : `"${n}",${FONT_FALLBACK[k] || 'Arial,"Arimo",sans-serif'}`;
+    const stack = cjk ? `"${n}",` + (cjk.en !== n ? `"${cjk.en}",` : '') + CJK_STACKS[cjk.stack] : `"${n}",${FONT_FALLBACK[k] || hinted(k, 0) || 'Arial,"Arimo",sans-serif'}`;
     if (!ea || L.fontKey(ea) === k || !L.fontIsEA(ea)) return stack;
     return stack.replace(/,(serif|sans-serif|monospace|cursive)$/, '') + ',' + L.fontStack(ea);
   };
@@ -743,7 +781,18 @@
         : t('{0} is not installed on this computer, so its text is shown in {1}. The document keeps the font name {0} and shows in that font on computers that have it.', name, used),
     };
   };
-  /** @font-face rules for a standalone export (an HTML page): the stand-ins from public/fonts/ that
+  /** a string as a quoted CSS string (a font name in HTML we write), with the quotes, backslash, angle brackets
+   * and line breaks escaped: a document's font name can end neither the string, an attribute nor a <style>. */
+  L.cssString = (s) => `'${String(s).replace(/[\\'"<>\n\r\f]/g, (c) => '\\' + c.charCodeAt(0).toString(16) + ' ')}'`;
+  /** the Content-Security-Policy meta tag of a page we export (Save as Web Page). The file is opened from disk,
+   * away from the suite's own policy, so it carries one: pictures and fonts are inside it (data:), styles
+   * inline, nothing loads from anywhere, and no script runs but the page's own `script` (the text between its
+   * <script> tags, allowed by its SHA-256; common/sha.js), if it has one. */
+  L.exportCSP = function (script) {
+    const hash = script == null ? null : btoa(String.fromCharCode(...L.sha.sha256(new TextEncoder().encode(script))));
+    return `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline'; script-src ${hash ? `'sha256-${hash}'` : "'none'"}; base-uri 'none'; form-action 'none'">`;
+  };
+  /** @font-face rules for a standalone export (HTML or an SVG image): the stand-ins from public/fonts/ that
    * `markup` names, as data: URLs, with bold/italic faces only if the markup uses them. */
   L.embedFonts = async function (markup) {
     const base = (root.VO?.base || new URL('..', location.href).href) + 'fonts/';
@@ -829,10 +878,16 @@
   /* the Font Size box of Word and Excel; Oratrice sets PowerPoint's list in its app.js */
   L.SIZE_LIST = [8, 9, 10, 10.5, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
 
-  /* Wingdings / Symbol bullet glyphs mapped to Unicode so imported documents look right */
+  /* the Symbol font's characters at 0x20-0x7e and 0xa0-0xfe (Adobe's Symbol encoding; the arrow and bracket
+     extenders as the nearest whole characters, the unassigned 0xf0 as \0) */
+  const SYMBOL = [' !∀#∃%&∋()∗+,−./0123456789:;<=>?≅ΑΒΧΔΕΦΓΗΙϑΚΛΜΝΟΠΘΡΣΤΥςΩΞΨΖ[∴]⊥_‾αβχδεφγηιϕκλμνοπθρστυϖωξψζ{|}∼',
+    '€ϒ′≤⁄∞ƒ♣♦♥♠↔←↑→↓°±″≥×∝∂•÷≠≡≈…|—↵ℵℑℜ℘⊗⊕∅∩∪⊃⊇⊄⊂⊆∈∉∠∇®©™∏√⋅¬∧∨⇔⇐⇑⇒⇓◊〈®©™∑⎛⎜⎝⎡⎢⎣⎧⎨⎩⎪\0〉∫⌠⎮⌡⎞⎟⎠⎤⎥⎦⎫⎬⎭'];
+  /* Wingdings / Symbol bullet glyphs mapped to Unicode so imported documents look right; a character may come as
+     the font's own code (v) or in the private-use area Word stores it in (U+F076) */
   L.mapSymbolChar = function (ch, font) {
     const f = String(font || '').toLowerCase();
-    const code = ch ? ch.charCodeAt(0) & 0xff : 0;
+    const code = ch ? ch.charCodeAt(0) & 0xff : 0, byte = ch && (ch.charCodeAt(0) < 0x100 || (ch.charCodeAt(0) >= 0xF000 && ch.charCodeAt(0) <= 0xF0FF));
+    const own = byte ? String.fromCharCode(code) : ch;
     /* Wingdings 2 and 3 carry the round, square and triangular bullets of many Office themes */
     if (/^wingdings\s*2/.test(f)) {
       if (code >= 0x96 && code <= 0x9d) return '●';
@@ -842,13 +897,49 @@
     }
     if (/^wingdings\s*3/.test(f)) return { 0x7d: '►', 0x84: '►', 0x75: '►', 0x71: '◄', 0x70: '▲', 0x72: '▼', 0xc6: '➔', 0xc7: '⬅' }[code] || '▸';
     if (f.startsWith('wingdings')) {
-      const m = { 'l': '●', 'n': '■', 'q': '❑', 'u': '◆', 'v': '❖', 'Ø': '➢', 'ü': '✓', '§': '▪', 'o': '❍', 'p': '□', 'w': '⬥', 'Ü': '➢', 'à': '➔', 'è': '➜', 'Þ': '➝', 'ð': '⇨', 'ª': '✦', '¨': '◻', '\uF06E': '■', '\uF06C': '●', '\uF075': '◆', '\uF0FC': '✓', '\uF0D8': '➢', '\uF0A7': '▪' };
-      return m[ch] || '•';
+      const m = { 'l': '●', 'n': '■', 'q': '❑', 'u': '◆', 'v': '❖', 'Ø': '➢', 'ü': '✓', '§': '▪', 'o': '❍', 'p': '□', 'w': '⬥', 'Ü': '➢', 'à': '➔', 'è': '➜', 'Þ': '➝', 'ð': '⇨', 'ª': '✦', '¨': '◻' };
+      return m[own] || '•';
     }
-    if (f === 'symbol') { const m = { '·': '•', '\uF0B7': '•', 'Þ': '⇒', '®': '→', '¾': '—' }; return m[ch] || ch; }
+    if (f === 'symbol') {
+      const u = !byte ? '' : code >= 0xa0 ? SYMBOL[1][code - 0xa0] : code >= 0x20 && code < 0x7f ? SYMBOL[0][code - 0x20] : '';
+      return u && u !== '\0' ? u : ch;
+    }
     if (ch === '' || ch === '') return '•';
     if (ch && ch.charCodeAt(0) >= 0xF000 && ch.charCodeAt(0) <= 0xF0FF) return '•';
     return ch;
+  };
+
+  /* A picture's brightness and contrast as Office draws them, measured in Word 2016 on a grey ramp under 13 VML and
+     DrawingML settings: a slope s around mid-grey, with half the brightness added before it and half after,
+     v' = s·(v − ½ + b/2) + ½ + b/2, clamped; s = 1/(1 − c) for c ≥ 0 and 1 + c below, where b and c are DrawingML's
+     lum bright and contrast (−1…1; VML's gain is s and its blacklevel b/2). CSS filters can't add an offset, so this
+     is an SVG filter: { css, defs }, where defs is the element defining it, to be kept beside the picture so that a
+     copy of the picture (a page or slide rasterised for export) carries it. Null when there is nothing to do. */
+  L.lumFilter = function (bright, contrast) {
+    bright = +bright || 0; contrast = +contrast || 0;
+    if (!bright && !contrast) return null;
+    const s = contrast >= 0 ? 1 / Math.max(1 - contrast, 0.001) : 1 + contrast;
+    const intercept = 0.5 - s / 2 + (bright * (1 + s)) / 2;
+    const num = (v) => String(L.round(v, 4)).replace('-', 'm').replace('.', '_');
+    const id = `vo-lum-${num(s)}-${num(intercept)}`;
+    const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    const filter = document.createElementNS(NS, 'filter'), transfer = document.createElementNS(NS, 'feComponentTransfer');
+    filter.id = id;
+    filter.setAttribute('color-interpolation-filters', 'sRGB');
+    for (const c of 'RGB') {
+      const fn = document.createElementNS(NS, 'feFunc' + c);
+      fn.setAttribute('type', 'linear');
+      fn.setAttribute('slope', String(L.round(s, 4)));
+      fn.setAttribute('intercept', String(L.round(intercept, 4)));
+      transfer.appendChild(fn);
+    }
+    filter.appendChild(transfer);
+    svg.appendChild(filter);
+    return { css: `url(#${id})`, defs: svg };
   };
 
   /* ---------- geometry helpers ---------- */

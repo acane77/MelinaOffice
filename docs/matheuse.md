@@ -54,14 +54,29 @@ extends the last one; F4 to cycle `$`), colour-coded reference highlights,
 AutoComplete from the column, AutoCorrect, AutoFill by dragging the fill handle (numbers, dates,
 weekdays, months, quarters, custom lists), Ctrl+Enter and Alt+Enter.
 
-**View.** Normal and Page Break Preview (drag the blue page breaks), the task pane (while open it shows
+**View.** Normal and Page Break Preview (drag the blue page breaks), the task pane (it shows
 Chart, Picture or Drawing Tools for a selected object; docs/suite.md), the eight
 toolbars (Standard, Formatting, Borders, Chart, Drawing, Formula Auditing, Reviewing, List), formula
 bar, status bar (with a zoom slider, 10–400 %, 100% in the middle: drag it, or type the percent; a pinch or two-finger scroll over the grid zooms or pans, and does not zoom the rest of the window; a finger held within 10px of where it landed opens the right-click menu at the press), Header and Footer, Comments, Full Screen and Zoom (10–400 %, Fit Selection).
 
 **Insert.** Cells, Rows, Columns, Worksheet, Chart (the four-step Chart Wizard), Symbol, Page Break,
 Function (Insert Function and Function Arguments with live results and help for every function),
-Name (Define, Paste, Create, Apply), Comment, Picture from file, AutoShapes, Text Box, Hyperlink.
+Name (Define, Paste, Create, Apply), Comment, Picture (Clip Art from the suite's own clips in the task pane, or from a file), AutoShapes (the
+AutoShapes menu: lines and arrows, basic shapes, block arrows, flowchart, stars and banners, callouts, action buttons),
+Text Box, Hyperlink. The Drawing toolbar has Excel 2003's AutoShapes, Line, Arrow, Rectangle and Oval; a line or an
+arrow keeps the direction it is dragged in (Shift: level, upright or at 45°) and is saved with it (`flipH`/`flipV`), an
+arrow with its head (`tailEnd`), and a new shape is named as Excel names it ("5-Point Star 4"). Arrowheads in files are
+drawn. A shape from the file that Matheuse writes itself after an edit (Format AutoShape, its text typed) keeps what
+the edit didn't touch: its rotation (a quarter-turned shape with its size the other way round, as Office stores it),
+flips, arrowheads, adjustments, a freeform's geometry (it was written as `prst="custom"`), its style and the fill,
+line and effects it came with unless one is set, its text body and runs while its text is the same; a group stays
+whole (Format sets its size and properties, not colours; it was written as one shape, losing the others), and it is
+drawn as its members, shapes, lines, pictures and groups within it, each where the group puts it (it was drawn as one
+rectangle over the group). Excel 2016
+opens all 7 files of the check round without a repair prompt, and edited copies of three corpus workbooks (a group of
+freeforms, rotated lines and text boxes, adjusted presets) print pixel-identical to their unedited saves. Open
+Hyperlink goes to a reference in the workbook; a web, mail or file address is shown to copy, never opened
+(docs/suite.md, Hyperlinks).
 
 **Format.** Format Cells with all six tabs (Number with the full category list and custom formats — `aaa` and `aaaa` are the weekday in the format tag's language, English when the tag names none —
 Alignment with indent, rotation, wrap, shrink and merge, Font, Border, Patterns, Protection). The Font
@@ -114,12 +129,18 @@ searchable topics, the keyboard-shortcut reference and a function reference for 
 
 - The Chart Wizard makes Column, Bar, Line, Pie, XY (Scatter), Area and Doughnut charts in the Excel
   2003 palette, embedded or on a chart sheet. Charts follow their data as you type.
+- Charts from files are drawn as Excel draws them (the drawing Oratrice uses, `common/chart-draw.js`): their own
+  colours and markers, a secondary axis, fixed axis bounds and units, blank cells as gaps, data labels, 3-D columns,
+  exploded pies, radar and bubble charts, a chart area without formatting white with a grey border. All 106 charts of
+  the 61 corpus workbooks that have them are read so; seven, printed by Excel 2016, agree in their scales, series,
+  markers and labels. A chart edited here is drawn from what Matheuse saves of it (its type, series, colours, titles).
 - Charts in opened files are drawn from their own definitions (3-D charts flat; radar and stock charts
   as lines; bubble charts as scatter) and are saved back unchanged unless you edit them.
 - Pictures (PNG, JPEG, GIF, BMP, SVG and Windows metafiles — EMF and WMF are drawn by Matheuse's own
   metafile player), AutoShapes and text boxes: move, resize, copy, order, Format Object; their text is edited in
   place (a click in a text box, or on the text of a selected AutoShape, puts the caret there; a text box moves by its
-  edge).
+  edge). A picture's grayscale, black and white, transparency, brightness and contrast show as Excel draws them
+  (the brightness and contrast curve measured in Word and PowerPoint 2016; docs/ecrivaine.md, Rendering notes).
 - Conditional formatting from newer files is shown too: data bars, colour scales and icon sets
   (including the Excel 2010 sets and custom icon combinations), and sparklines.
 
@@ -131,6 +152,30 @@ headings, page order), automatic and manual page breaks (drag them in Page Break
 Preview with zoom and margin guides, and Print, which produces a PDF of the chosen pages because a web page cannot drive the
 printer itself.
 
+PDF pages keep the worksheet's picture at 300 dpi (at most 40 megapixels per page),
+with text you can find, select and copy. The text follows displayed cell values,
+including number formats, wrapping, shrink-to-fit, rotation, headers and footers;
+clipped suffixes and hidden rows stay out. Repeated print titles copy in row order.
+Charts and shapes contribute their printed labels. The text layer embeds no font
+files and does not change the page picture.
+
+Cell hyperlinks remain clickable, including merged cells and repeated print titles.
+Links to cells and named ranges go to their exported page; omitted targets have no
+link. Each sheet has a sidebar bookmark at its first exported page. Top-level
+`HYPERLINK` formulas keep their target and displayed label; a `HYPERLINK` nested
+inside another function is not yet exported as a link. Navigation checks
+(2026-11-09) cover five public workbooks against Excel 2016 and LibreOffice: all
+126 pages retain identical pictures and extracted text. Native Chromium and Firefox
+viewers follow the internal and external links and show the sheet bookmarks.
+
+Measured in Chromium (2026-11-07): all 19 pages from seven public workbooks retain
+identical JPEGs and rendered pixels, and all 1,469 collected tokens extract with
+Poppler. Their page counts match Excel 2016 and LibreOffice. The first 12 pages of
+a 34.3 MB workbook export in 1.56 seconds versus 1.36 before the text layer; peak
+renderer memory falls from 951 MB to 742 MB. PDFium can merge overlapping chart
+labels and mishandle an emoji beside Arabic; these reader limits do not alter the
+visible PDF.
+
 ## File formats
 
 | Format | Open | Save |
@@ -140,9 +185,9 @@ printer itself.
 | Strict Open XML `.xlsx` | yes | standard Transitional OOXML (recorded, not shown) |
 | CSV `.csv`, text `.txt` / `.tsv` / `.prn` | yes: UTF-8, UTF-16 and Windows-1252 detected; the Text Import Wizard for delimited and fixed-width text | yes: CSV (UTF-8) and tab-delimited text, what each cell shows, as Excel does |
 | XML Spreadsheet 2003 `.xml` | yes | yes |
-| Web Page `.htm` / `.html` | yes: each table on the page becomes a sheet | yes: one self-contained page per workbook |
-| PDF | — | yes |
-| Excel 97–2003 `.xls` | no — Matheuse explains how to convert it | no |
+| Web Page `.htm` / `.html` | yes: each table on the page becomes a sheet | yes: one self-contained page per workbook, with its own security policy (no scripts) |
+| PDF | — | yes; page pictures with searchable, selectable text, cell links and sheet bookmarks |
+| Excel 97-2003 Workbook `.xls`, Template `.xlt` | yes: converted on opening to the `.xlsx` Excel would write (values, styles, sheets and views, formulas, names, links to other workbooks, comments, hyperlinks, data validation, conditional formatting, filters, print settings and protection, pictures, AutoShapes, groups, text boxes and charts, chart sheets too; pivot tables not yet); a message names what wasn't converted, and Save asks for an `.xlsx` name (`.xlsm`, or `.xltm` for a template, when it has macros: its VBA project is kept byte for byte with the workbook's and sheets' code names, never run; all 100 in the corpus). A workbook with a password to open asks for it (XOR obfuscation, RC4 and RC4 CryptoAPI encryption) and is saved encrypted with it, as Excel keeps it on Save As; one encrypted with Excel's default password (a workbook protected only against changes) opens without asking and is saved without a password to open | no |
 
 Passwords are handled in the browser (WebCrypto plus Matheuse's own AES and SHA code), so the page must
 be served over https or from localhost. A workbook opened with its password keeps it when saved.
@@ -207,6 +252,13 @@ Cell edits no longer introduce a portrait orientation into a sheet that omitted 
 public save/edit/draft inputs produce 49 passing package/SDK states, with all seven unedited render
 pairs retaining their original page counts. Sixteen distinct command states cover paper/quality
 edits, chart sheets, history and copies.
+
+Chart sheets keep their headers and footers, code names (which macros refer to), `published` flags and
+protection, and chart frames their grouping and other locks, creation IDs, titles, alt text, hyperlinks and macros
+(2026-11-06; found in a converted `.xls`). Before, a save dropped all of them: across the corpus 14 chart sheets'
+header and footer text, 48 code names and 8 protections, and the locks of 24 chart frames, 19 creation IDs and 6
+hyperlinks; now every one survives (`tests/matheuse/chart-frames.test.js`), and Excel 2016 opens the five saves of the
+check round without a repair prompt.
 The `984eaf3` refresh completes all 2,853 driver attempts and 6,589 package/SDK states with
 unchanged statuses and zero added diagnostics; independent cell comparisons are also unchanged.
 Its full LibreOffice pass resolves 34 earlier count differences. Office batch 6 files 01–04 cover absence,
@@ -477,10 +529,49 @@ browser drivers exercise the shipping readers/writers, real undo operations and 
 Independent ZIP/XML checks, Open XML SDK diagnostics and openpyxl comparisons are separate from the
 app's own reopen check. Commands and comparison policies are in [testing.md](testing.md).
 
-Formula recalculation, CSV, XML Spreadsheet 2003 and UI harnesses remain in `tests/matheuse/`.
-Their earlier broad-corpus measurements are archived with the run history, rather than mixed into
-the current OOXML preservation figures. Current preservation does not imply exact print layout or
-support for every formula or external data source.
+In Excel 2016 (`16.0.4266.1003`, 2026-11-03), the unedited saves of the corpus's 729 workbooks **open without repair
+in 716** (with b9f4c69, which fixed `universal-content-strict`; 45 of them stopped later, at a prompt during PDF export:
+nothing to print, 44, and a large operation); the other 13 are originals Excel also refuses or repairs. One of those,
+`54764-2`, Excel repairs as an original and refuses as a save.
+
+Merged-cell borders are drawn from the individual perimeter cells, retaining partial edges and
+different styles along a side, including blank cells and merges whose anchor is hidden or scrolled
+out of view. The same renderer supplies Print Preview and PDF output. Issue #22's workbook (275
+cells, 37 merged ranges) and four small border controls were checked against Excel 2016 on Windows
+10, build `16.0.4266.1003`, on 2026-11-02. The original, Matheuse save and controls opened without
+repair prompts; all three Excel PDF pages of the original and Matheuse save matched pixel for pixel
+at 96 dpi. An XML Spreadsheet 2003 file can hold a merge's format only on its top-left cell, so on
+opening, the merge's edge cells take that format and keep the whole outline.
+`tests/from-issues/22/borders.test.mjs` checks the screen and print borders, colors, partial edges,
+zoom, scrolling, frozen panes, hidden anchors and an XML Spreadsheet 2003 merge; the four on Excel
+workbooks fail before the fix, and the fifth fails with the new drawing alone. The fixtures and API
+evidence are in `tests/from-issues/22/`.
+
+**Recalculation against the values Excel stored** (`tests/matheuse/recalc1.js` over a corpus, 2026-11-06): in the
+744 workbooks of the OOXML corpus that Excel saved (the SDK's three Performance files, whose stored values were never
+computed, left out), Matheuse's results agree with **44,159 of 44,493** formula cells (99.25%); in the 391 Excel 97-2003
+workbooks Excel saved, opened by conversion, with **58,191 of 59,762** (97.37%; 99.65% without one workbook whose
+1,385 differences are `TODAY()` stamps and a French `CELL("adresse")`). What remains is mostly the clock, stale stored
+values, a German or French Excel's own number formats and function words, and legacy implicit intersection. Lookup
+functions (Excel's approximate search on unsorted data, `VLOOKUP`'s argument rules), `INDEX` over an array expression,
+`COUNTIF` criteria and the database functions' criteria follow the results Excel stored in POI's test workbooks; a
+computed criterion may name the database's fields (`=age<7`, as Excel's Advanced Filter takes column labels), which
+stand for each record's values while the criterion cell itself shows `#NAME?`, and `=TRUE` finds the logical value
+(POI's `DGet.xls`: its 163 formulas give what Excel 2016 gives when it recalculates them; one stored result is stale).
+
+**Excel 97-2003 workbooks** (the converter's whole corpus, 2026-11-06, `tests/legacy/`): of 764 `.xls`/`.xlt` files,
+702 convert (703 workbooks with one named `.doc`) and 62 are refused with a message saying why (older BIFF versions,
+damaged files, unknown passwords); none fails otherwise. All 703 converted workbooks pass the Open XML SDK and the 31
+tried in Excel 2016 open without a repair prompt; their cells agree with the stored values in 2,268,371 of 2,268,372
+and their formulas' cached results in 97,699 of 97,699. The 1,484 formulas still left as values (DDE links, links to
+files in a machine's XLSTART folder, Excel 4 macro names, broken arrays and a few ambiguous names) keep their results
+and are named in the message. A 14 MB workbook of 800,000 cells opens in 2.3 s with a peak of 744 MB in Chromium's
+renderer (3.0 s and 1.12 GB before the converter shared its byte windows). Workbooks with macros (100
+in the corpus) become `.xlsm` with every stream of their VBA project; LibreOffice opens, saves and reopens the 32
+macro conversions checked (Office 2016's acceptance of macro files is untested: the test machine takes none).
+
+CSV, XML Spreadsheet 2003 and UI harnesses remain in `tests/matheuse/`. Current preservation does not imply exact print
+layout or support for every formula or external data source.
 
 ## Known limitations
 
@@ -492,7 +583,10 @@ support for every formula or external data source.
   execute them or maintain their query-specific edit semantics.
 - Chart editing covers the Chart Wizard types; other chart types from files are shown and kept but
   can only be replaced, not edited in place. Surface charts are not drawn.
-- One window per workbook (Window ▸ New Window is not available); the binary `.xls` format is not read.
+- One window per workbook (Window ▸ New Window is not available).
+- Excel 97-2003 `.xls` files are opened by conversion and saved as `.xlsx` (`.xlsm` when they have macros, which are kept and never run).
+- Saved as XML Spreadsheet 2003, a merged range whose top-left cell holds nothing (no value, no format)
+  is not written: that format records a merge on its top-left cell.
 - Spelling is English only (U.S. and U.K.).
 - Fonts are drawn with what the browser has. Calibri, Cambria, Arial, Times New Roman and Courier New
   are drawn with the real font when installed, otherwise its metric-compatible stand-in, so column
@@ -510,7 +604,8 @@ support for every formula or external data source.
 | `js/slicers.js` | Slicer/timeline frames, source-cache ownership, sheet/workbook extension links and copied view identities |
 | `js/extensions.js` | Extended rule/validation/sparkline ownership, per-property merges, copied identities and unknown worksheet extension entries |
 | `js/tables.js` | Table/column fragments and identities, query fields and copies, deleted-field retention and structural edits |
-| `../common/core.js`, `../common/zip.js` | Utilities, file saving, PDF writer, ZIP reader/writer |
+| `../common/core.js`, `../common/zip.js` | Utilities, file saving, PDF entry point, ZIP reader/writer |
+| `../common/pdf.js`, `../common/pdftext.js` | Loaded on PDF export: writer with links and outlines, canvas text recorder and SVG text collection; `print.js` maps cell links and sheet bookmarks to the exported pages |
 | `../common/xml.js`, `../common/opc.js`, `../common/opc-order.js`, `js/xml.js` | Shared XML parser and OOXML preservation core; `js/xml.js` aliases the shared tree as `L.xml`. Original package ownership, settings merges and style/string identities are implemented. |
 | `../common/sha.js`, `../common/crypto.js` | SHA-1/256/384/512 and AES, Office document encryption (standard and agile) |
 | `js/model.js`, `js/ops.js` | Workbook model (sparse rows, shared styles, names, tables), undo history, every editing operation |

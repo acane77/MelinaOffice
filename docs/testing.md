@@ -38,6 +38,8 @@ Check after a change to `suite.js` or to an app's start, open or save code: `<ap
 
 Templates: `node tools/templates.mjs` opens every template (`<app>/?template=<id>`) and fails on a script error or a missing preview; look at the new previews in the Create File view.
 
+Preset shapes: `common/presets.js` (written by `python3 -I tools/shapes/presets.py` from Apache OpenOffice's copy of the standard's definitions, three slips there mended) is drawn by `common/geometry.js`. `node tools/shapes/deck.mjs` writes `tmp/shapes/shapes.pptx`, every preset (176 without the lines and connectors) at its default adjustments in a wide and a tall cell; save it as PDF from PowerPoint, then `python3 -I tools/shapes/masks.py office.pdf` writes where PowerPoint paints each one (`tests/shapes/powerpoint.json`, for `node --test tests/shapes.test.mjs`), and `python3 -I tools/shapes/compare.py office.pdf ours/` scores screenshots of our slides (`ours/shapes__N.png`, 1920 px wide) against it. PowerPoint 2016 (2026-11-07): every preset within 1.3% of PowerPoint's painted pixels in both cells (Corner Tabs the most); the hand-made drawings before differed by more than 5% in 51 presets. Text warps likewise: `python3 -I tools/shapes/warp-deck.py` writes `tmp/shapes/warps.pptx` over the shapes deck (each of the 40 warps in one, two and three lines, small and long text, and variants of insets, anchoring and alignment; cell names in `tmp/shapes/warps.txt`), and `python3 -I tools/shapes/compare.py office.pdf ours/ - warps` scores `ours/warps__N.png` (`W=1920 node tools/oratrice-pictures.mjs`) against PowerPoint's PDF of it: 15% on average (2026-11-07; `node --test tests/text-warps.test.mjs`).
+
 Pattern fills: the preset bitmaps in `common/geometry.js` are PowerPoint's. `node tools/patterns/deck.mjs` writes `tmp/patterns/patterns.pptx` (each of the 54 presets in a labelled rectangle); save it as PDF from PowerPoint and `python3 tools/patterns/read-pdf.py patterns.pdf` prints the tiles, the form of `tests/patterns.powerpoint.json` (`node --test tests/patterns.test.mjs`). Matheuse's cell patterns (`js/render.js`) likewise: `node tools/patterns/sheet.mjs` writes `tmp/patterns/cellpatterns.xlsx` (the 17 patterns), Excel saves it as PDF, and `read-pdf.py --cells` prints the tiles, `tests/patterns.excel-mac.json` (from Excel for Mac, which draws them at double size; the test applies the rule in `render.js` that brings them to single pixels).
 
 Line grids: Ecrivaine's line height on a document line grid (`R.gridLine` in `ecrivaine/js/render.js`) follows Word. `python3 tools/linegrid.py make` writes `tmp/linegrid/linegrid.docx`, one labelled paragraph per case (English and Chinese text at sizes either side of the pitch, several line spacings, 15.6pt and 18pt grids); save it as PDF from Word and `python3 tools/linegrid.py read linegrid.pdf` prints the distance between the lines of each case, in points, and the line each page starts with: `tests/from-issues/11/word.json`, from Word for Mac's PDF of `linegrid.docx` there. `grid-spacing.test.mjs` checks `R.gridLine` against it and `render.test.mjs` the document as Ecrivaine draws it, line spacing and page breaks (a second). LibreOffice draws these differently from Word (issue #11), so its PDF only checks the tool.
@@ -100,6 +102,8 @@ another tab and back. Two runs at once each need a Chromium of their own: `CDP=h
   new mode goes into the lists of both files: what broke in review broke only in a mode no test had on.
 - `focus.test.mjs`: the keyboard back to the document, in each app and in the Classic and Ribbon 2010 looks: dialogs
   from a shortcut, a toolbar or ribbon button and the context menu, closed with Esc, Cancel and OK; menu-bar commands;
+  from a shortcut, a toolbar or ribbon button and the context menu, closed with Esc, Cancel and OK; a dialog's access
+  the status bar's zoom slider dragged, dragged and cancelled with Esc, and its + clicked (a view control: no gestures
   the ribbon's tabs; presses on chrome without a control (toolbars, grips, the status bar, the ribbon's tab strip).
   After each, the element that had the keyboard has it again, with the same selection. Then the same in each app's
   modes (Classic): Ecrivaine with Track Changes, a header being edited, Outline view; Matheuse with frozen panes, the second
@@ -171,6 +175,13 @@ Word's; `--compare BEFORE.jsonl AFTER.jsonl` lists what a change moved, and ever
 For the "before", serve the last commit's site on a port of its own (`git archive HEAD public | tar -x -C
 tmp/pages-before`, `python3 tools/serve.py 8771 tmp/pages-before/public`) and run with `BASE=http://127.0.0.1:8771`.
 
+Pages as drawn, against Word: `node tools/ecrivaine-pictures.mjs docs.json out/ [nameFilter]` (docs.json `[{ "name",
+"file" }]`) opens each document in Print Layout at 100% and takes a picture of every page as Ecrivaine draws it (`<name>__<page>.png`,
+816 px for a Letter page; no corner marks or window around it); `python3 -I tools/oratrice-vs-powerpoint.py wordDir out/
+cmp/` scores each against Word 2016's PDF of the document from the Office test API (`<name>/file/office.pdf`) and
+writes the pairs side by side, worst first. A page count unlike Word's shows as "height" or "no Oratrice slide" rows.
+Before and after a change: render twice, the "before" with `BASE` as above.
+
 ## From issues: tests/from-issues/
 
 Regression tests for a reported issue live in `tests/from-issues/N/` (N is the issue number), so a later change that breaks one shows which report it reopens. Each fails on the commit before its fix.
@@ -208,7 +219,7 @@ The engine and the file readers and writers load in Node through `load.js` (the 
 
 ## Oratrice: tests/oratrice/
 
-`corpus.js` opens real decks in Chromium (open, render every slide, save, reopen, compare), `summarize.js` sums up its results, `ui-features.js` drives the password dialog, Tools ▸ Options ▸ Security and the chart dialog, `chartedit.js` writes every chart for validation, `decrypt.py` checks encrypted saves independently, `loss-audit.py` counts what a save loses (features and words, original against saved copy; standard-library Python), `viscompare.py` / `triptych.py` / `stack.py` compare renderings. They need Playwright; how to run them is in docs/oratrice.md.
+`corpus.js` opens real decks in Chromium (open, render every slide, save, reopen, compare), `summarize.js` sums up its results, `ui-features.js` drives the password dialog, Tools ▸ Options ▸ Security and the chart dialog, `chartedit.js` writes every chart for validation, `decrypt.py` checks encrypted saves independently, `loss-audit.py` counts what a save loses (features and words, original against saved copy; standard-library Python), `viscompare.py` / `triptych.py` / `stack.py` compare renderings. Against PowerPoint: `node tools/oratrice-pictures.mjs decks.json out/` takes a picture of each slide as Oratrice draws it, and `python3 -I tools/oratrice-vs-powerpoint.py officeDir out/ cmp/` scores each against PowerPoint 2016's PDF of the deck (from the Office test API) and writes the pairs side by side, worst first. They need Playwright; how to run them is in docs/oratrice.md.
 
 ## Corpora
 
@@ -221,6 +232,10 @@ listed in `tools/ooxml/corpora.py`. It resumes interrupted fetches, refuses dirt
 and never deletes an existing corpus. `manifest.json` records source, commit, original path, size and
 SHA-256. `word/`, `excel/` and `powerpoint/` contain collision-resistant symlinks. Fixtures stay outside
 the repository. A source name after the directory selects just that source.
+`sh tools/corpora.sh ~/corpora legacy` adds the Office 97-2003 files (`.doc`, `.xls`, `.ppt` and their
+templates) from the same pinned POI and LibreOffice trees into `legacy-word/`, `legacy-excel/` and
+`legacy-powerpoint/`, each checked against its Git blob hash; `node tools/legacy/measure.mjs --out DIR
+[--hostile]` runs the legacy importers over them (and truncated and bit-flipped copies) in bounded workers.
 
 The corpus drivers record every file and scenario as `ok`, `failed` or `excluded`, with the input hash
 and an error/reason. Here, `ok` means the requested operation and reread completed; it does **not** mean
@@ -588,3 +603,66 @@ timing IDs; from the built-in sample it also writes the deck without slide 6 and
 text targets, validates each package, and writes hashes and a pending PowerPoint result per copy.
 Only slide6.xml changes in the four isolated variants. PowerPoint results are a manual gate:
 schema validity and LibreOffice opening do not prove that the repair problem has been fixed.
+
+## PDF export
+
+`node --test tests/pdf.test.mjs` checks the PDF writer with Poppler (`pdftotext`,
+`pdffonts`, `pdftoppm`) and PDFium (`python3 -I` with `pypdfium2` installed). It checks
+Unicode extraction, rotated and single-character words, selection bounds, links,
+bookmarks, deterministic IDs and xref offsets. The generated font paints no pixels,
+even in visible text mode. No installed font files enter the PDF text layer.
+
+`node --test tests/pdf-raster.test.mjs` checks the three apps in Chromium: embedded
+page-picture fonts, 300 dpi and the 40 MP cap, exact JPEG equality when batching
+pages, local SVG paint references, and encoding without an idle JPEG callback.
+Set `CDP` and `BASE` to use a separate browser and server. Check selection, copy and
+a second-page search in the native PDF viewer as well; Poppler alone missed a
+zero-width text-object rejection in PDFium.
+
+`node --test tests/ecrivaine/pdf.test.mjs` measures the DOM collector in Chromium and
+extracts real Ecrivaine exports with Poppler. It covers styled word pieces, line breaks,
+CJK, zoom, columns, tables, clipping, hidden decorations, transparent warped-text
+bodies, SVG, MathML, tabs, mixed Arabic punctuation and lazy loading. The sample
+retains spaces, headers, footers and notes; an exact-height cell excludes hidden text.
+For corpus checks, compare extracted words with original OOXML text and Office/LO
+PDFs, keeping generated labels and fields separate from content losses. Compare
+page JPEG bytes and rendered pixels against the preceding export path, and time
+a long document. Reader heuristics can join narrow spaces or reorder equations:
+record those separately and check native selection/copy as well as extraction.
+
+`node --test tests/oratrice/pdf.test.mjs` checks detached slide export and live
+handout, notes and outline pages, including hidden slides, paper sizes and cleanup
+after a failed collection. Rotation checks use independent matrix coordinates for
+45/90-degree boxes, nested scaling, a rotated parent and a centre origin. Clipping
+is measured in the rotated ancestor's plane; repeated LettersArt SVG slices stay
+out while the transparent source body copies once. Poppler's raw extractor splits
+diagonal letters, so PDFium also checks the complete phrase and its space. Compare
+corpus page JPEGs and rendered pixels against the previous exporter, and check
+rotated search, mouse selection and clipboard text in Chromium's native viewer.
+
+`node --test tests/matheuse/pdf.test.mjs` checks the canvas recorder and real Matheuse
+PDFs: native pixels stay unchanged, text alignment and all six baselines follow
+independent canvas metrics, and rotation, scaling, `maxWidth`, rectangle clips and
+child-canvas crops keep their geometry. Unicode clips retain whole graphemes.
+Worksheet checks cover formatted values, wrapping, overflow, shrink-to-fit,
+hidden cells/rows, headers/footers, repeated print titles and SVG chart labels.
+The recorder follows the print renderer's rectangular clips; curved paths are not
+measured. Compare original workbooks with Excel/LibreOffice, record image equality
+against the prior exporter, and exercise native Find, mouse selection and copy.
+
+`node --test tests/pdf-links.test.mjs` checks all three apps' PDF navigation:
+wrapped and clipped link areas, rotated shapes, split-paragraph bookmark offsets,
+heading levels, document language, slide actions, handout/notes/outline destinations,
+merged cells, named ranges, repeated titles and top-level `HYPERLINK` formulas.
+Hostile links from each app reach the shared writer: script and data schemes,
+including mixed case and embedded ASCII controls, produce no PDF annotation;
+web, mail, FTP, file and relative targets retain their spelling.
+Partial exports remap page indexes and omit targets outside the output. For a
+navigation change, inspect annotations and outlines with an independent PDF reader;
+click links and sidebar bookmarks in native Chromium and Firefox using local-only
+targets. Compare Office and LibreOffice PDFs, including relative file links and
+two or three unusual producer/metadata controls in each Office round. Verify that
+page JPEGs, rendered pixels and extracted text stay unchanged, and time a long
+document and a large workbook. Fix the writer's date to check byte determinism.
+Preview checks wait for the view's queued repaint before exporting. None of these
+checks use the browser's print or print-to-PDF paths.

@@ -61,10 +61,16 @@ The contracts are in [suite.md, Preservation](suite.md#preservation); the per-fe
   - query tables;
   - custom XML.
 - **Oratrice:**
+  - table-cell text directions, retained through text edits, copies, history and drafts (11/11 affected corpus cells);
+  - right-to-left table order (10/10 affected corpus tables), with cell selection and Tab in logical order;
+  - table style links and definitions, including sparse inherited cell/run formatting and detached copies (183/183 links in 54 decks);
+  - exact table widths, heights and margins (1,016/1,016 measured dimensions/defaults in two source decks; both reduced Office PDFs match);
+  - table fill/border theme colours and transforms (5,492/5,492 previously flattened colours retained);
   - media;
   - sections and custom shows;
   - comments;
   - SmartArt, OLE, ink, 3-D and chartEx frames;
+  - opaque equation runs in diagram data and drawing caches, retained through conversion to shapes, adjacent text edits, copies, history and drafts; conversion notices account for removed diagram parts;
   - unused masters and design-edit invalidation;
   - tags, actions and effects.
 - **Save defects closed after `984eaf3`:** revision and paragraph ids written back; styles not rebuilt past Word's 4,092; the last of several final section properties; field instruction runs, comment dates and tracked moves; merged-cell borders taken from the cells on each edge; sheet comments whose drawing is only in a fallback; unedited SmartArt, ink, add-in and picture-alternate parts kept; ActiveX kept until its picture changes; a 97–2003 organization chart kept until it is edited; deletions recorded as deletions; a diagram we write names its layout's `uniqueId`.

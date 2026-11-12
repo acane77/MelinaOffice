@@ -4,11 +4,13 @@ A static web office suite in the style of Office 2003 that opens and saves real 
 
 | App | Folder | Kind | Files |
 |---|---|---|---|
-| Ecrivaine | `public/ecrivaine/` | Word processor | .docx/.docm/.dotx/.dotm, RTF, HTML, text, Markdown (GitHub flavour; .zip with pictures); PDF out |
-| Matheuse | `public/matheuse/` | Spreadsheet | .xlsx/.xlsm/.xltx/.xltm, CSV/text, XML Spreadsheet 2003, HTML; PDF out |
-| Oratrice | `public/oratrice/` | Presentations | .pptx/.pptm/.ppsx/.ppsm/.potx/.potm; PDF, PNG, HTML out |
+| Ecrivaine | `public/ecrivaine/` | Word processor | .docx/.docm/.dotx/.dotm, .doc/.dot in (converted), RTF, HTML, text, Markdown (GitHub flavour; .zip with pictures); PDF out |
+| Matheuse | `public/matheuse/` | Spreadsheet | .xlsx/.xlsm/.xltx/.xltm, .xls/.xlt in (converted), CSV/text, XML Spreadsheet 2003, HTML; PDF out |
+| Oratrice | `public/oratrice/` | Presentations | .pptx/.pptm/.ppsx/.ppsm/.potx/.potm, .ppt/.pps/.pot in (converted); PDF, PNG, HTML out |
 
-Each app is classic `<script>` files (no ES modules) that attach to one global namespace, `window.L`, loaded in the order listed in its `index.html`. `public/common/` holds what the apps share: the libraries and the stylesheets (one copy each: core, ui, icons, zip, sha, crypto, geometry, metafile, charts, numfmt, dml, spell engine, clipart, SmartArt layouts, ribbon, search, `looks.css`, `ui.css`), the assistant (Nikki, `common/scout/`), `suite.js` (`window.VO`: launching apps, Recent Files, the service worker) and the proofing dictionaries (`common/dict/`). See docs/suite.md.
+A Word 97–2003 `.doc`/`.dot`, Excel 97–2003 `.xls`/`.xlt` or PowerPoint 97–2003 `.ppt`/`.pps`/`.pot` is converted on open. When that file has macros, they are kept in the `.docm`, `.xlsm` or `.pptm` it is saved as, and they are not run.
+
+Each app is classic `<script>` files (no ES modules) that attach to one global namespace, `window.L`, loaded in the order listed in its `index.html`. `public/common/` holds what the apps share: the libraries and the stylesheets (one copy each: core, ui, icons, zip, sha, crypto, geometry, metafile, charts, numfmt, dml, pdf, pdftext, legacy import, spell engine, clipart, SmartArt layouts, ribbon, search, `looks.css`, `ui.css`), the assistant (Nikki, `common/scout/`), `suite.js` (`window.VO`: launching apps, Recent Files, the service worker) and the proofing dictionaries (`common/dict/`). See docs/suite.md.
 
 ## Docs
 
