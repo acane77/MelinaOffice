@@ -255,12 +255,12 @@ body.notips .tooltip:not(.ac-tip) { display: none !important; }
 .sb-zoom-pct:hover { background: var(--menu-hot); }
 .sb-zoom-pct:focus { background: var(--surface); color: var(--ink); border-color: var(--field-border); outline: none; text-align: left; }
 @media (max-width: 640px) { .sb-zoom-range { width: 72px; } }
-/* a phone or a small tablet: the status cells leave the bar for a Document Status button. The zoom control stays. */
-.sb-docstatus { display: none; flex: 0 1 auto; min-width: 0; height: 18px; margin-right: 8px; padding: 0 8px; border: 1px solid transparent; border-radius: var(--ctl-radius); background: none; color: inherit; font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
-.sb-docstatus:hover { background: var(--menu-hot); }
+/* a phone or a small tablet: the status cells leave the bar for a properties icon. The zoom control stays. */
+.sb-docstatus { display: none; flex: none; width: 18px; height: 18px; margin: 0 8px 0 0; padding: 0; border: 1px solid transparent; border-radius: var(--ctl-radius); background: none; color: inherit; align-items: center; justify-content: center; cursor: default; }
+.sb-docstatus:hover { background: var(--menu-hot); border-color: var(--hot-border); }
 @media (max-width: 960px) {
   .statusbar > .sb-cell { display: none; }
-  .sb-docstatus { display: inline-flex; align-items: center; }
+  .statusbar > .sb-docstatus { display: inline-flex; }
 }
 .dlg.sb-status-dlg { box-sizing: border-box; width: 100px; max-width: 100px; }
 .dlg.sb-status-dlg .dlg-title { height: auto; min-height: 22px; align-items: center; }

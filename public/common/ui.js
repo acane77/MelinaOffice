@@ -2405,17 +2405,19 @@
     queueMicrotask(() => installDocStatus(box));
     return box;
   };
-  /* on a phone the status cells are one button; the zoom control stays on the right. The same cells move into the window, so they keep updating. */
+  /* on a phone the status cells are one properties icon; the zoom control stays on the right. The same cells move into the window, so they keep updating. */
   const narrowStatus = () => typeof matchMedia === 'function' && matchMedia('(max-width: 960px)').matches;
   function installDocStatus(zoom) {
-    const sb = zoom.parentElement;
-    if (!sb || sb.id !== 'statusbar' || sb.querySelector('.sb-docstatus')) return;
-    const btn = h('button', { type: 'button', class: 'sb-docstatus', text: 'Document Status' });
-    sb.insertBefore(btn, zoom);
+    const sb = zoom.closest && zoom.closest('#statusbar');
+    if (!sb || sb.querySelector('.sb-docstatus')) return;
+    const btn = h('button', { type: 'button', class: 'sb-docstatus', html: L.icons.get('properties'), 'aria-label': 'Document Status', 'data-tip': 'Document Status' });
+    btn.addEventListener('pointerdown', (e) => e.preventDefault());
+    const anchor = sb.querySelector(':scope > .sb-right') || zoom;
+    sb.insertBefore(btn, anchor);
     let session = null;
     const restore = (cells) => {
-      const z = sb.querySelector('.sb-zoom');
-      for (const c of cells) sb.insertBefore(c, z);
+      const at = sb.querySelector(':scope > .sb-docstatus') || sb.querySelector(':scope > .sb-right');
+      for (const c of cells) sb.insertBefore(c, at);
       session = null;
     };
     btn.addEventListener('click', () => {
