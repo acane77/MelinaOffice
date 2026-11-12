@@ -4,16 +4,16 @@
 'use strict';
 
 const APPS = {
-  ecrivaine: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'],
-  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'csv', 'tsv', 'prn', 'xml'],
-  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt'],
+  ecrivaine: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'dot', 'rtf', 'htm', 'html', 'txt', 'md', 'markdown', 'zip'],
+  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'xlt', 'csv', 'tsv', 'prn', 'xml'],
+  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt', 'pps', 'pot'],
 };
 
-/** Office Open XML opens in the editor on a double-click; the other types are Open With. */
+/** Office Open XML and Office 97-2003 open on a double-click; text, HTML, CSV, Markdown and RTF are Open With. */
 const DEFAULT_EXT = {
-  ecrivaine: ['docx', 'docm', 'dotx', 'dotm'],
-  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm'],
-  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm'],
+  ecrivaine: ['docx', 'docm', 'dotx', 'dotm', 'doc', 'dot'],
+  matheuse: ['xlsx', 'xlsm', 'xltx', 'xltm', 'xls', 'xlt'],
+  oratrice: ['pptx', 'pptm', 'ppsx', 'ppsm', 'potx', 'potm', 'ppt', 'pps', 'pot'],
 };
 
 /** File ▸ New writes this type, whichever file the editor tab was opened on. */

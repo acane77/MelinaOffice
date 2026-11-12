@@ -52,7 +52,7 @@
       "explorer/context": [
         {
           "command": "melinaoffice.open",
-          "when": "resourceExtname =~ /\\.(docx|docm|dotx|dotm|xlsx|xlsm|xltx|xltm|pptx|pptm|ppsx|ppsm|potx|potm|rtf|csv|tsv|md|markdown)$/i",
+          "when": "resourceExtname =~ /\\.(docx|docm|dotx|dotm|doc|dot|xlsx|xlsm|xltx|xltm|xls|xlt|pptx|pptm|ppsx|ppsm|potx|potm|ppt|pps|pot|rtf|csv|tsv|md|markdown)$/i",
           "group": "navigation"
         }
       ]
@@ -65,7 +65,9 @@
           { "filenamePattern": "*.docx" },
           { "filenamePattern": "*.docm" },
           { "filenamePattern": "*.dotx" },
-          { "filenamePattern": "*.dotm" }
+          { "filenamePattern": "*.dotm" },
+          { "filenamePattern": "*.doc" },
+          { "filenamePattern": "*.dot" }
         ],
         "priority": "default"
       },
@@ -79,8 +81,7 @@
           { "filenamePattern": "*.txt" },
           { "filenamePattern": "*.md" },
           { "filenamePattern": "*.markdown" },
-          { "filenamePattern": "*.zip" },
-          { "filenamePattern": "*.doc" }
+          { "filenamePattern": "*.zip" }
         ],
         "priority": "option"
       },
@@ -91,7 +92,9 @@
           { "filenamePattern": "*.xlsx" },
           { "filenamePattern": "*.xlsm" },
           { "filenamePattern": "*.xltx" },
-          { "filenamePattern": "*.xltm" }
+          { "filenamePattern": "*.xltm" },
+          { "filenamePattern": "*.xls" },
+          { "filenamePattern": "*.xlt" }
         ],
         "priority": "default"
       },
@@ -103,7 +106,6 @@
           { "filenamePattern": "*.tsv" },
           { "filenamePattern": "*.prn" },
           { "filenamePattern": "*.xml" },
-          { "filenamePattern": "*.xls" },
           { "filenamePattern": "*.htm" },
           { "filenamePattern": "*.html" }
         ],
@@ -118,17 +120,12 @@
           { "filenamePattern": "*.ppsx" },
           { "filenamePattern": "*.ppsm" },
           { "filenamePattern": "*.potx" },
-          { "filenamePattern": "*.potm" }
+          { "filenamePattern": "*.potm" },
+          { "filenamePattern": "*.ppt" },
+          { "filenamePattern": "*.pps" },
+          { "filenamePattern": "*.pot" }
         ],
         "priority": "default"
-      },
-      {
-        "viewType": "melinaoffice.oratrice",
-        "displayName": "Oratrice",
-        "selector": [
-          { "filenamePattern": "*.ppt" }
-        ],
-        "priority": "option"
       }
     ],
     "mcpServerDefinitionProviders": [

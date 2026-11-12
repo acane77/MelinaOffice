@@ -17,8 +17,18 @@ test('each Office file maps to one editor', () => {
   assert.equal(proto.appFor('Budget.xlsx'), 'matheuse');
   assert.equal(proto.viewTypeFor('Notes.DOCX'), 'melinaoffice.ecrivaine');
   assert.equal(proto.viewTypeFor('Deck.ppsx'), 'melinaoffice.oratrice');
+  assert.equal(proto.appFor('Letter.doc'), 'ecrivaine');
+  assert.equal(proto.appFor('Letter.DOT'), 'ecrivaine');
+  assert.equal(proto.appFor('Budget.xls'), 'matheuse');
+  assert.equal(proto.appFor('Budget.xlt'), 'matheuse');
+  assert.equal(proto.viewTypeFor('Deck.ppt'), 'melinaoffice.oratrice');
+  assert.equal(proto.viewTypeFor('Deck.pps'), 'melinaoffice.oratrice');
+  assert.equal(proto.viewTypeFor('Deck.pot'), 'melinaoffice.oratrice');
   assert.equal(proto.appFor('readme.txt'), 'ecrivaine');
   assert.equal(proto.appFor('photo.png'), null);
+  for (const e of ['doc', 'dot']) assert.ok(proto.DEFAULT_EXT.ecrivaine.includes(e));
+  for (const e of ['xls', 'xlt']) assert.ok(proto.DEFAULT_EXT.matheuse.includes(e));
+  for (const e of ['ppt', 'pps', 'pot']) assert.ok(proto.DEFAULT_EXT.oratrice.includes(e));
 });
 
 test('a save name cannot leave the file’s folder', () => {
@@ -96,11 +106,14 @@ test('package.json offers every extension the protocol lists', () => {
       offered.get(app).add(m[1]);
     }
   }
+  const menu = pkg.contributes.menus['explorer/context'].find((item) => item.command === 'melinaoffice.open');
+  const menuExt = new Set((menu.when.match(/[a-z0-9]+/g) || []));
   for (const [app, exts] of Object.entries(proto.APPS)) {
     for (const e of exts) assert.ok(offered.get(app).has(e), app + ' missing ' + e);
     for (const e of proto.DEFAULT_EXT[app]) {
       const entry = pkg.contributes.customEditors.find((ed) => ed.viewType === 'melinaoffice.' + app && ed.priority === 'default');
       assert.ok(entry.selector.some((s) => s.filenamePattern === '*.' + e));
+      assert.ok(menuExt.has(e), 'explorer menu missing ' + e);
     }
   }
   assert.ok(fs.existsSync(path.join(root, 'public/ecrivaine/index.html')));
