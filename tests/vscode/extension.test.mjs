@@ -259,3 +259,17 @@ test('the pages recognise the vscode host', () => {
     assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /saveLocation/);
   }
 });
+
+test('Getting Started can name this edition without a desktop host', () => {
+  const suite = fs.readFileSync(path.join(root, 'public/common/suite.js'), 'utf8');
+  const m = suite.match(/VO\.editionName = \(app\) => \{[\s\S]*?\n  \};/);
+  assert.ok(m, 'VO.editionName is defined for the Getting Started brand line');
+  const editionName = new Function('native', 'return ' + m[0].replace(/^VO\.editionName = /, ''));
+  assert.equal(editionName(null)('Ecrivaine'), 'Ecrivaine Web Edition');
+  assert.equal(editionName({ platform: 'windows', edition: 'direct' })('Oratrice'), 'Oratrice Windows Edition');
+  assert.equal(editionName({ platform: 'linux', edition: 'direct' })('Matheuse'), 'Matheuse Linux Edition');
+  assert.equal(editionName({ platform: 'macos', edition: 'direct' })('Ecrivaine'), 'Ecrivaine macOS Edition (DMG)');
+  assert.equal(editionName({ platform: 'macos', edition: 'appstore' })('Ecrivaine'), 'Ecrivaine macOS Edition (App Store)');
+  assert.match(fs.readFileSync(path.join(root, 'public/ecrivaine/js/panes.js'), 'utf8'), /VO\.editionName\('Ecrivaine'\)/);
+  assert.match(fs.readFileSync(path.join(root, 'public/oratrice/js/panes.js'), 'utf8'), /VO\.editionName\('Oratrice'\)/);
+});

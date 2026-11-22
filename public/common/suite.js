@@ -392,6 +392,15 @@
     },
   };
 
+  /** an app's name with this edition's, for Getting Started, in English in every language:
+   *  Ecrivaine Web Edition (a browser, the installed PWA, VS Code), Ecrivaine Windows Edition,
+   *  Ecrivaine macOS Edition (DMG) or (App Store), Ecrivaine Linux Edition */
+  VO.editionName = (app) => {
+    if (!native) return app + ' Web Edition';
+    const system = { windows: 'Windows', macos: 'macOS', linux: 'Linux' }[native.platform] || native.platform;
+    return app + ' ' + system + ' Edition' + (native.platform === 'macos' ? (native.edition === 'appstore' ? ' (App Store)' : ' (DMG)') : '');
+  };
+
   /* ------------------------------------------------------------ updates */
   /** updater/current.json on the published site says, per policy and platform, the version an edition must
    *  be at least: older than "show-update-dialog" asks with a dialog, older than "show-update-button" shows an
